@@ -1,0 +1,53 @@
+export const es = {
+  nav: {
+    dashboard: "Panel",
+    history: "Historial",
+    settings: "Ajustes",
+    logout: "Cerrar sesión",
+  },
+  auth: {
+    connect: "Conectar con Fitbit",
+    connecting: "Conectando...",
+    tagline: "Tu actividad, a tu estilo",
+  },
+  metrics: {
+    steps: "Pasos",
+    calories: "Calorías",
+    distance: "Distancia",
+    activeMin: "Min. activos",
+    sleep: "Sueño",
+    heartRate: "Frec. cardíaca",
+    floors: "Pisos",
+    goal: "Meta",
+    of: "de",
+    km: "km",
+    bpm: "lpm",
+    hours: "h",
+    minutes: "min",
+  },
+  sleep: {
+    deep: "Profundo",
+    light: "Ligero",
+    rem: "REM",
+    awake: "Despierto",
+    efficiency: "Eficiencia",
+    total: "Total",
+  },
+  themes: {
+    label: "Tema",
+    minecraft: "Minecraft",
+    halo: "Halo",
+    naruto: "Naruto",
+    futuristic: "Futurista",
+  },
+  errors: {
+    loadFailed: "Error al cargar datos",
+    retry: "Reintentar",
+    sessionExpired: "Sesión expirada, reconecta",
+  },
+  time: {
+    lastUpdate: "Última actualización",
+    justNow: "ahora mismo",
+    minutesAgo: "hace {n} min",
+  },
+} as const;

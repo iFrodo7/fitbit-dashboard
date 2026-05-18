@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FITBIT AIR — BIOMETRIC DASHBOARD</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=IBM+Plex+Mono:wght@400;700&family=VT323&family=Silkscreen:wght@400;700&family=Oxanium:wght@400;600;700;800&family=Electrolize&family=Noto+Serif+JP:wght@400;700;900&family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+/* === RESET === */
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;}
+body{width:100%;min-height:100vh;}
+
+/* ═══════════════════════════════════════
+   SELECTOR SCREEN
+═══════════════════════════════════════ */
+#sel{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:#070707;padding:28px;overflow-y:auto;
+}
+.sel-eye{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;
+  letter-spacing:5px;color:#2e2e2e;text-align:center;
+  margin-bottom:10px;text-transform:uppercase;
+}
+.sel-title{
+  font-family:'Rajdhani',sans-serif;font-size:clamp(22px,3vw,34px);
+  font-weight:700;letter-spacing:10px;color:#fff;
+  text-align:center;margin-bottom:10px;text-transform:uppercase;
+}
+.sel-title em{color:#00f5ff;font-style:normal;}
+
+/* Language toggle on selector */
+.lang-bar{
+  display:flex;align-items:center;gap:6px;margin-bottom:32px;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;
+}
+.lang-opt{
+  padding:5px 14px;border:1px solid #333;color:#555;
+  cursor:pointer;transition:all 0.15s;background:transparent;font-size:11px;
+  font-family:'IBM Plex Mono',monospace;letter-spacing:2px;
+}
+.lang-opt.active{border-color:#00f5ff;color:#00f5ff;}
+.lang-sep{color:#2a2a2a;font-size:14px;}
+
+.t-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;max-width:880px;width:100%;}
+.t-card{
+  position:relative;cursor:pointer;overflow:hidden;
+  aspect-ratio:16/9;transition:transform 0.2s,box-shadow 0.2s;
+}
+.t-card:hover{transform:translateY(-5px);}
+.t-card:active{transform:scale(0.98);}
+
+/* MC card preview */
+.tc-mc{background:#1a1200;border:3px solid #6a5020;image-rendering:pixelated;}
+.mc-pg{display:grid;grid-template-columns:repeat(20,1fr);grid-template-rows:repeat(11,1fr);height:100%;gap:1px;background:#0d0900;padding:2px;}
+.b0{background:#4a7c3f;}.b1{background:#3d6c35;}.b2{background:#5a3e1b;}.b3{background:#7a5522;}
+.b4{background:#6b4a18;}.b5{background:#1a1a1a;}.b6{background:#2a2a2a;}.b7{background:#383838;}
+.b8{background:#2d6a2d;}.b9{background:#8fcc44;}
+.mc-ov .tn{font-family:'VT323',monospace;font-size:clamp(28px,5vw,42px);color:#6aff3a;text-shadow:3px 3px 0 #003800,0 0 18px rgba(106,255,58,0.4);letter-spacing:3px;line-height:1;}
+.mc-ov .ts{font-family:'Silkscreen',monospace;font-size:10px;color:#4aaa2a;letter-spacing:3px;margin-top:6px;}
+
+/* Halo card preview */
+.tc-halo{background:#03080f;border:1px solid rgba(74,184,255,0.3);}
+.halo-pv{width:100%;height:100%;position:relative;background:radial-gradient(ellipse at 40% 70%,#0a2035 0%,#020810 65%);}
+.halo-pv::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 10px,rgba(74,184,255,0.02) 10px,rgba(74,184,255,0.02) 11px);}
+.hr-ring{position:absolute;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);border:1px solid;}
+.halo-ov .tn{font-family:'Oxanium',sans-serif;font-size:clamp(20px,3.5vw,28px);font-weight:800;color:#4ab8ff;letter-spacing:7px;text-shadow:0 0 22px rgba(74,184,255,0.65);}
+.halo-ov .ts{font-family:'Electrolize',sans-serif;font-size:11px;color:#2a6a9a;letter-spacing:4px;margin-top:5px;}
+
+/* Naruto card preview */
+.tc-naruto{background:#0c0400;border:1px solid rgba(255,69,0,0.4);}
+.naruto-pv{width:100%;height:100%;position:relative;background:radial-gradient(ellipse at 50% 40%,#220800 0%,#0c0400 70%);}
+.naruto-pv::before{content:'';position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,69,0,0.04) 0deg,transparent 22.5deg,rgba(255,69,0,0.04) 45deg);}
+.nseal{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Noto Serif JP',serif;font-size:56px;color:rgba(255,80,0,0.18);line-height:1;}
+.naruto-ov .tn{font-family:'Permanent Marker',cursive;font-size:clamp(26px,4.5vw,38px);color:#ff4500;text-shadow:0 0 28px rgba(255,69,0,0.7),2px 3px 0 #000;}
+.naruto-ov .ts{font-family:'Noto Serif JP',serif;font-size:11px;color:#882200;letter-spacing:3px;margin-top:6px;}
+
+/* Futuristic card preview */
+.tc-fut{background:#020810;border:1px solid rgba(0,245,255,0.2);}
+.fut-pv{width:100%;height:100%;position:relative;background:#020810;}
+.fut-pv::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,245,255,0.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,255,0.055) 1px,transparent 1px);background-size:18px 18px;}
+.fr{position:absolute;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);border:1px solid rgba(0,245,255,0.25);}
+.fut-ov .tn{font-family:'Rajdhani',sans-serif;font-size:clamp(22px,3.5vw,30px);font-weight:700;color:#00f5ff;letter-spacing:8px;text-shadow:0 0 22px rgba(0,245,255,0.55);}
+.fut-ov .ts{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#006a78;letter-spacing:2px;margin-top:5px;}
+
+.t-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);}
+
+/* ═══════════════════════════════════════
+   DASHBOARD BASE — proper readable scale
+═══════════════════════════════════════ */
+#dash{display:none;min-height:100vh;}
+
+.db-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 28px;position:sticky;top:0;z-index:100;
+}
+.db-main{padding:24px 28px;max-width:1440px;margin:0 auto;position:relative;z-index:1;}
+
+/* Greeting */
+.db-greet{margin-bottom:24px;}
+.db-eye{font-size:12px;letter-spacing:4px;text-transform:uppercase;opacity:0.4;margin-bottom:6px;}
+.db-name{font-weight:700;text-transform:uppercase;line-height:1.1;font-size:clamp(28px,3.8vw,44px);}
+.db-ac{color:var(--ta);}
+.db-date{font-size:13px;letter-spacing:2px;margin-top:6px;opacity:0.35;}
+
+/* Grid layouts */
+.tg{display:grid;grid-template-columns:280px 1fr;gap:16px;margin-bottom:16px;}
+.vg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.bg{display:grid;grid-template-columns:1fr 1fr 290px;gap:16px;margin-top:16px;}
+
+/* Cards */
+.card{padding:20px;border:var(--cbdr);background:var(--cbg);position:relative;overflow:hidden;}
+.clbl{font-size:12px;letter-spacing:3px;text-transform:uppercase;opacity:0.4;margin-bottom:12px;display:block;}
+.vc{padding:16px;border:var(--cbdr);background:var(--cbg);position:relative;overflow:hidden;transition:border-color 0.2s;}
+
+/* Readiness ring */
+.rw{display:flex;flex-direction:column;align-items:center;gap:14px;}
+.rc{position:relative;width:145px;height:145px;}
+.rsvg{width:100%;height:100%;transform:rotate(-90deg);}
+.rbg{fill:none;stroke-width:9;stroke:var(--rbg);}
+.rfil{fill:none;stroke-width:9;stroke-linecap:round;stroke-dasharray:365;stroke-dashoffset:73;stroke:var(--ta);transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1);}
+.ri{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.rnum{font-size:42px;font-weight:700;line-height:1;color:var(--ta);}
+.rdenom{font-size:12px;letter-spacing:2px;opacity:0.35;margin-top:3px;}
+.rstatus{font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--tpos);}
+
+/* Vital cards */
+.vlbl{font-size:11px;letter-spacing:3px;text-transform:uppercase;opacity:0.4;margin-bottom:6px;display:block;}
+.vval{font-size:34px;font-weight:700;line-height:1;color:var(--txt);}
+.vunit{font-size:11px;letter-spacing:1px;opacity:0.35;margin-top:3px;display:block;}
+.vtrd{position:absolute;top:12px;right:12px;font-size:12px;color:var(--tpos);}
+.vtrd.neg{color:var(--tneg);}
+
+/* Steps */
+.snum{font-size:clamp(34px,4.5vw,50px);font-weight:700;line-height:1;}
+.sgoal{font-size:13px;letter-spacing:2px;opacity:0.35;}
+.strk{width:100%;height:4px;margin-top:12px;background:var(--rbg);}
+.sprg{height:100%;background:var(--ta);transition:width 1.5s cubic-bezier(.4,0,.2,1);}
+.spct{font-size:12px;letter-spacing:2px;color:var(--ta);margin-top:6px;}
+.wbrs{display:flex;gap:4px;align-items:flex-end;height:52px;margin-top:12px;}
+.wb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end;}
+.wbar{width:100%;background:var(--rbg);min-height:3px;}
+.wbar.td{background:var(--ta);}
+.wdl{font-size:11px;letter-spacing:1px;opacity:0.35;}
+
+/* Sleep */
+.slrw{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--sub);}
+.slrw:last-child{border:none;}
+.sllbl{font-size:11px;letter-spacing:2px;opacity:0.35;width:48px;flex-shrink:0;}
+.sltr{flex:1;height:7px;background:var(--rbg);}
+.slfi{height:100%;transition:width 1.5s cubic-bezier(.4,0,.2,1);}
+.sltm{font-size:11px;opacity:0.35;width:36px;text-align:right;flex-shrink:0;}
+
+/* Activity */
+.acit{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--sub);}
+.acit:last-child{border:none;}
+.acio{width:36px;height:36px;border:1px solid var(--sub);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.acnm{font-size:14px;font-weight:600;letter-spacing:1px;}
+.acmt{font-size:11px;opacity:0.35;letter-spacing:1px;margin-top:2px;}
+.acvl{font-size:13px;font-weight:700;text-align:right;color:var(--ta);margin-left:auto;}
+
+/* HR chart */
+.spkl{width:100%;height:76px;}
+
+/* Insights */
+.igrd{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;}
+.iitm{padding:14px;border:1px solid var(--sub);background:rgba(0,0,0,0.18);}
+.ityp{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--ta2);margin-bottom:6px;}
+.itxt{font-size:13px;line-height:1.6;opacity:0.65;}
+
+/* Header controls */
+.cbtn{
+  font-size:13px;font-weight:700;letter-spacing:2px;padding:9px 20px;
+  background:transparent;border:1px solid var(--ta);color:var(--ta);
+  cursor:pointer;text-transform:uppercase;transition:all 0.15s;
+}
+.cbtn:hover{background:var(--ta);color:var(--bg);}
+.bbtn{
+  font-size:12px;letter-spacing:2px;padding:7px 12px;
+  background:transparent;border:1px solid var(--sub);
+  color:var(--txt);cursor:pointer;opacity:0.5;transition:all 0.15s;
+}
+.bbtn:hover{opacity:1;border-color:var(--ta);color:var(--ta);}
+
+/* Language toggle in header */
+.hlang{display:flex;align-items:center;gap:2px;}
+.hlang-btn{
+  font-size:12px;letter-spacing:1px;padding:5px 11px;cursor:pointer;
+  background:transparent;border:1px solid transparent;color:#444;
+  font-family:'IBM Plex Mono',monospace;transition:all 0.15s;
+}
+.hlang-btn.active{border-color:var(--ta);color:var(--ta);}
+
+.isel{background:transparent;border:1px solid var(--sub);color:var(--txt);font-size:12px;letter-spacing:1px;padding:4px 7px;cursor:pointer;outline:none;}
+.isel option{background:#111;}
+.sring{width:13px;height:13px;border:1.5px solid var(--rbg);border-top-color:var(--ta);border-radius:50%;display:none;}
+.sring.on{display:block;animation:sp 0.8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+
+/* Toast, demo strip, sync bar */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--cbg);border:1px solid var(--ta);padding:9px 20px;font-size:12px;letter-spacing:2px;color:var(--ta);z-index:500;transition:transform 0.3s;white-space:nowrap;}
+.toast.sh{transform:translateX(-50%) translateY(0);}
+.dstrip{position:fixed;bottom:16px;right:16px;background:rgba(255,160,0,0.06);border:1px solid #886600;padding:8px 14px;display:flex;align-items:center;gap:8px;z-index:100;}
+.ddot{width:7px;height:7px;border-radius:50%;background:#ffaa00;animation:blink 1.5s infinite;}
+.dstrip span{font-size:12px;letter-spacing:2px;color:#886600;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.sbar{position:fixed;top:0;left:0;right:0;height:2px;z-index:200;pointer-events:none;}
+.sbfi{height:100%;width:0%;background:var(--ta);transition:width 0.4s;}
+
+/* Loading overlay */
+.lov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:900;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+.lov.on{display:flex;}
+.ltxt{font-size:13px;letter-spacing:4px;color:var(--ta);animation:blink 1s infinite;}
+.lbar{width:180px;height:2px;background:rgba(255,255,255,0.07);}
+.lfi{height:100%;background:var(--ta);animation:ld 2s ease-in-out infinite;}
+@keyframes ld{0%{width:0%;margin-left:0;}50%{width:60%;margin-left:20%;}100%{width:0%;margin-left:100%;}}
+
+/* Modal */
+.mov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:1000;align-items:center;justify-content:center;}
+.mov.on{display:flex;}
+.mbox{background:var(--bg2);border:1px solid var(--bdr);max-width:460px;width:90%;overflow:hidden;}
+.mhd{padding:20px 24px 16px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.mh2{font-size:16px;letter-spacing:3px;color:var(--ta);margin-bottom:3px;}
+.msub{font-size:12px;color:#3a3a3a;letter-spacing:1px;}
+.mbd{padding:20px 24px 24px;}
+.srw{display:flex;margin-bottom:16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);}
+.sc{flex:1;padding:12px;border-right:1px solid rgba(255,255,255,0.04);}
+.sc:last-child{border:none;}
+.sn{font-size:18px;font-weight:700;color:var(--ta);margin-bottom:4px;}
+.st{font-size:12px;color:#555;line-height:1.6;}
+.st a{color:var(--ta);text-decoration:none;}
+.mlbl{font-size:11px;letter-spacing:2px;color:#3a3a3a;display:block;margin-bottom:5px;}
+.minp{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);padding:11px 13px;color:var(--txt);font-size:15px;letter-spacing:3px;margin-bottom:10px;outline:none;font-family:'IBM Plex Mono',monospace;}
+.minp:focus{border-color:var(--ta);}
+.minp::placeholder{color:#2a2a2a;letter-spacing:1px;font-size:12px;}
+.mcbu{font-size:11px;color:#2e2e2e;margin-bottom:16px;line-height:1.7;padding:6px 9px;background:rgba(255,255,255,0.012);}
+.mcbu span{color:#3a3a3a;word-break:break-all;}
+.mbtn{width:100%;padding:13px;background:var(--ta);color:var(--bg);border:none;cursor:pointer;font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;transition:opacity 0.15s;}
+.mbtn:hover{opacity:0.85;}
+.mnote{font-size:11px;color:#2e2e2e;text-align:center;margin-top:10px;line-height:1.7;}
+
+.vflash{animation:vf 0.4s ease;}
+@keyframes vf{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+/* Ticker */
+#futtick{border-top:1px solid rgba(0,245,255,0.07);padding:5px 0;background:rgba(2,8,16,0.88);overflow:hidden;white-space:nowrap;position:relative;z-index:10;display:none;}
+.fti{display:inline-block;animation:tcktick 32s linear infinite;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;color:#1a4050;}
+@keyframes tcktick{from{transform:translateX(100vw);}to{transform:translateX(-100%);}}
+
+/* Responsive */
+@media(max-width:1080px){.tg{grid-template-columns:1fr;}.vg{grid-template-columns:repeat(3,1fr);}.bg{grid-template-columns:1fr 1fr;}.igrd{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:640px){.db-hdr{padding:10px 14px;flex-wrap:wrap;gap:8px;}.db-main{padding:14px;}.vg{grid-template-columns:repeat(2,1fr);}.bg{grid-template-columns:1fr;}.igrd{grid-template-columns:1fr;}.t-grid{grid-template-columns:1fr;}.db-name{font-size:24px;}}
+
+/* ═══════════════════════════════════════
+   THEME: FUTURISTIC
+   Rajdhani (display HUD) + IBM Plex Mono (terminal data)
+═══════════════════════════════════════ */
+body.t-fut{
+  --ta:#00f5ff;--ta2:#7b2fff;--tpos:#00ff88;--tneg:#ff2d78;
+  --bg:#020810;--bg2:#040d1a;--bdr:rgba(0,245,255,0.15);
+  --sub:rgba(0,245,255,0.07);--cbg:rgba(0,245,255,0.025);
+  --cbdr:1px solid rgba(0,245,255,0.1);--rbg:rgba(0,245,255,0.07);--txt:#c8e8f0;
+  background:var(--bg);color:var(--txt);cursor:crosshair;
+  font-family:'IBM Plex Mono',monospace;
+}
+body.t-fut::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,245,255,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,255,0.022) 1px,transparent 1px);background-size:34px 34px;pointer-events:none;z-index:0;}
+body.t-fut::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.05) 2px,rgba(0,0,0,0.05) 4px);pointer-events:none;z-index:999;}
+.t-fut .db-hdr{background:rgba(2,8,16,0.93);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,245,255,0.09);}
+.t-fut .db-name,.t-fut .rnum,.t-fut .snum,.t-fut .vval{font-family:'Rajdhani',sans-serif;font-weight:700;}
+.t-fut .vval{font-size:34px;}
+.t-fut .rnum{font-size:42px;}
+.t-fut .vc::after{content:'';position:absolute;top:0;left:0;width:2px;height:100%;background:var(--ta);}
+.t-fut .rfil{filter:drop-shadow(0 0 5px #00f5ff);}
+.t-fut #logo-t{font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:5px;}
+.t-fut .cbtn{font-family:'IBM Plex Mono',monospace;}
+
+/* ═══════════════════════════════════════
+   THEME: MINECRAFT
+   VT323 (auténtico bitmap CRT) — todo en px para imagen-rendering pixelated
+═══════════════════════════════════════ */
+body.t-mc{
+  --ta:#6aff3a;--ta2:#ffaa00;--tpos:#6aff3a;--tneg:#ff5555;
+  --bg:#1a1200;--bg2:#231800;--bdr:#6a5020;
+  --sub:rgba(106,80,32,0.38);--cbg:#1e1600;
+  --cbdr:3px solid #6a5020;--rbg:rgba(106,255,58,0.07);--txt:#dddddd;
+  background:var(--bg);color:var(--txt);
+  font-family:'VT323',monospace;image-rendering:pixelated;
+}
+body.t-mc::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(0deg,rgba(106,80,32,0.055) 0,rgba(106,80,32,0.055) 1px,transparent 1px,transparent 32px),repeating-linear-gradient(90deg,rgba(106,80,32,0.055) 0,rgba(106,80,32,0.055) 1px,transparent 1px,transparent 32px);pointer-events:none;z-index:0;}
+.t-mc .db-hdr{background:#1e1600;border-bottom:4px solid #6a5020;box-shadow:0 4px 0 rgba(0,0,0,0.6);}
+.t-mc .card,.t-mc .vc{border:none!important;outline:3px solid #6a5020;box-shadow:inset 0 0 0 1px #8a7040,inset 0 0 0 2px #1a1000,3px 3px 0 rgba(0,0,0,0.7);background:linear-gradient(150deg,#251c00,#1a1200 55%,#251c00)!important;}
+/* VT323 override — use px not rem for crisp rendering */
+.t-mc *{font-family:'VT323',monospace!important;}
+.t-mc .db-name{font-size:38px!important;color:#6aff3a;text-shadow:2px 2px 0 #003800;}
+.t-mc .rnum{font-size:44px!important;color:#6aff3a;text-shadow:2px 2px 0 #003800;}
+.t-mc .vval{font-size:36px!important;text-shadow:2px 2px 0 #000;}
+.t-mc .snum{font-size:52px!important;text-shadow:2px 2px 0 #000;}
+.t-mc .clbl,.t-mc .db-eye{font-size:16px!important;color:#aaa;text-shadow:1px 1px 0 #000;}
+.t-mc .vlbl{font-size:14px!important;color:#aaa;}
+.t-mc .vunit{font-size:13px!important;color:#777;}
+.t-mc .acnm{font-size:16px!important;}
+.t-mc .acmt,.t-mc .sltm,.t-mc .wdl,.t-mc .sllbl,.t-mc .spct,.t-mc .sgoal,.t-mc .itxt{font-size:14px!important;}
+.t-mc .ityp{font-size:13px!important;}
+.t-mc .db-date{font-size:13px!important;}
+.t-mc .cbtn{border:3px solid #6aff3a!important;font-size:15px!important;box-shadow:2px 2px 0 #000;}
+.t-mc .rfil{stroke:#6aff3a!important;filter:none;}
+.t-mc .vc::before{content:'';position:absolute;top:3px;right:3px;width:8px;height:8px;background:#6aff3a;box-shadow:-2px 0 0 #003800;}
+/* MC HP/XP bars */
+.mc-bars{margin-top:10px;width:100%;}
+.mc-blbl{font-size:15px;color:#aaa;text-shadow:1px 1px 0 #000;margin-bottom:3px;}
+.mc-btr{width:100%;height:11px;background:#333;border:2px solid #555;box-shadow:inset 1px 1px 0 #000;}
+.mc-bfi{height:100%;}
+.mc-hp{background:repeating-linear-gradient(90deg,#ff5555 0,#ff5555 12px,#aa0000 12px,#aa0000 14px);}
+.mc-xp{background:repeating-linear-gradient(90deg,#6aff3a 0,#6aff3a 12px,#3aaa1a 12px,#3aaa1a 14px);}
+
+/* ═══════════════════════════════════════
+   THEME: HALO VISR
+   Oxanium (display militar) + Electrolize (datos tácticos)
+═══════════════════════════════════════ */
+body.t-halo{
+  --ta:#4ab8ff;--ta2:#00e5c8;--tpos:#00e5c8;--tneg:#ff4444;
+  --bg:#03070e;--bg2:#071020;--bdr:rgba(74,184,255,0.22);
+  --sub:rgba(74,184,255,0.08);--cbg:rgba(74,184,255,0.03);
+  --cbdr:1px solid rgba(74,184,255,0.15);--rbg:rgba(74,184,255,0.06);--txt:#88b0cc;
+  background:var(--bg);color:var(--txt);
+  font-family:'Electrolize',sans-serif;
+}
+body.t-halo::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 55% at 12% 88%,rgba(74,184,255,0.04) 0%,transparent 50%),radial-gradient(ellipse 55% 35% at 88% 12%,rgba(0,229,200,0.03) 0%,transparent 45%);pointer-events:none;z-index:0;}
+body.t-halo::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 6px,rgba(74,184,255,0.012) 6px,rgba(74,184,255,0.012) 7px);pointer-events:none;z-index:0;}
+.t-halo .db-hdr{background:rgba(3,7,14,0.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(74,184,255,0.12);}
+.t-halo .db-name{font-family:'Oxanium',sans-serif;font-weight:800;letter-spacing:12px;}
+.t-halo .rnum{font-family:'Oxanium',sans-serif;font-weight:800;font-size:44px;}
+.t-halo .snum{font-family:'Oxanium',sans-serif;font-weight:700;}
+.t-halo .vval{font-family:'Oxanium',sans-serif;font-weight:700;font-size:34px;}
+.t-halo .clbl,.t-halo .vlbl,.t-halo .vunit{font-family:'Electrolize',sans-serif;}
+.t-halo #logo-t{font-family:'Oxanium',sans-serif;font-weight:800;letter-spacing:6px;}
+.t-halo .cbtn{font-family:'Oxanium',sans-serif;font-weight:700;letter-spacing:3px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);}
+.t-halo .card{clip-path:polygon(10px 0%,100% 0%,100% calc(100% - 10px),calc(100% - 10px) 100%,0% 100%,0% 10px);}
+.t-halo .vc{clip-path:polygon(7px 0%,100% 0%,100% calc(100% - 7px),calc(100% - 7px) 100%,0% 100%,0% 7px);}
+.t-halo .vc::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(74,184,255,0.7),transparent);}
+.t-halo .rfil{filter:drop-shadow(0 0 5px #4ab8ff);}
+.t-halo .card::before{content:'◈';position:absolute;bottom:8px;right:10px;font-size:12px;color:rgba(74,184,255,0.15);font-family:'Electrolize',sans-serif;}
+
+/* ═══════════════════════════════════════
+   THEME: NARUTO
+   Permanent Marker (títulos energía shonen) + Noto Serif JP (body auténtico japonés)
+   CRÍTICO: .vval usa Rajdhani para números — Noto Serif JP no tiene glyphs numéricos
+   que se vean bien a tamaños grandes. Se usa Rajdhani bold para datos numéricos.
+═══════════════════════════════════════ */
+body.t-naruto{
+  --ta:#ff4500;--ta2:#ffd700;--tpos:#ffd700;--tneg:#cc0000;
+  --bg:#0c0400;--bg2:#180800;--bdr:rgba(255,69,0,0.3);
+  --sub:rgba(255,69,0,0.1);--cbg:rgba(255,69,0,0.025);
+  --cbdr:1px solid rgba(255,69,0,0.18);--rbg:rgba(255,69,0,0.07);--txt:#e0c090;
+  background:var(--bg);color:var(--txt);
+  font-family:'Noto Serif JP',serif;
+}
+body.t-naruto::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 75% 75% at 50% 50%,rgba(255,69,0,0.045) 0%,transparent 62%),repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,69,0,0.012) 0deg,transparent 22.5deg,rgba(255,69,0,0.012) 45deg);pointer-events:none;z-index:0;}
+body.t-naruto::after{content:'渦';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Noto Serif JP',serif;font-size:55vw;color:rgba(255,69,0,0.016);pointer-events:none;z-index:0;line-height:1;}
+.t-naruto .db-hdr{background:rgba(12,4,0,0.93);backdrop-filter:blur(12px);border-bottom:2px solid rgba(255,69,0,0.22);}
+/* Titles: Permanent Marker */
+.t-naruto .db-name{font-family:'Permanent Marker',cursive;color:#ff4500;text-shadow:0 0 22px rgba(255,69,0,0.45),2px 2px 0 #000;letter-spacing:2px;}
+.t-naruto .rnum{font-family:'Permanent Marker',cursive;font-size:42px;color:#ff4500;text-shadow:0 0 14px rgba(255,69,0,0.5);}
+.t-naruto .rstatus{font-family:'Noto Serif JP',serif;}
+.t-naruto .snum{font-family:'Permanent Marker',cursive;color:#ff4500;}
+/* DATA NUMBERS: Rajdhani — soluciona el problema de glifos japoneses en números grandes */
+body.t-naruto .vval,
+body.t-naruto div.vval,
+body.t-naruto span.vval{
+  font-family:'Rajdhani',sans-serif!important;
+  font-weight:700!important;
+  font-size:36px!important;
+  color:#fff!important;
+}
+/* Labels: Noto Serif JP */
+.t-naruto .clbl,.t-naruto .vlbl,.t-naruto .db-eye,.t-naruto .sllbl,.t-naruto .acnm,.t-naruto .itxt{font-family:'Noto Serif JP',serif;}
+.t-naruto .vunit{font-family:'Noto Serif JP',serif;font-size:11px;}
+.t-naruto #logo-t{font-family:'Permanent Marker',cursive;letter-spacing:2px;}
+.t-naruto .cbtn{font-family:'Noto Serif JP',serif;font-weight:700;}
+/* Scroll card styling */
+.t-naruto .card::before{content:'';position:absolute;top:-1px;left:12%;right:12%;height:2px;background:linear-gradient(90deg,transparent,rgba(255,69,0,0.55),transparent);}
+.t-naruto .card::after{content:'';position:absolute;bottom:8px;right:9px;width:18px;height:18px;border:1px solid rgba(255,69,0,0.1);transform:rotate(45deg);}
+.t-naruto .vc::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,69,0,0.45),transparent);}
+.t-naruto .rfil{filter:drop-shadow(0 0 6px #ff4500);}
+/* Chakra pulse rings */
+.nring{position:fixed;border-radius:50%;pointer-events:none;z-index:0;border:1px solid rgba(255,69,0,0.055);animation:cpls 5s ease-in-out infinite;}
+@keyframes cpls{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.5;}50%{transform:translate(-50%,-50%) scale(1.07);opacity:1;}}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ SELECTOR ══════════════ -->
+<div id="sel">
+  <div class="sel-eye" id="sel-eye">// selecciona tu interfaz de monitoreo biométrico</div>
+  <div class="sel-title">FITBIT AIR <em>·</em> BIOMETRIC CORE</div>
+
+  <!-- Language selector -->
+  <div class="lang-bar">
+    <button class="lang-opt active" id="lang-es" onclick="setLang('es')">ES</button>
+    <span class="lang-sep">/</span>
+    <button class="lang-opt" id="lang-en" onclick="setLang('en')">EN</button>
+  </div>
+
+  <div class="t-grid">
+    <div class="t-card tc-mc" onclick="selectTheme('mc')">
+      <div class="mc-pg" id="mc-pg"></div>
+      <div class="t-ov mc-ov"><div class="tn mc">MINECRAFT</div><div class="ts mc" id="sel-mc-sub">SURVIVAL HEALTH STATS</div></div>
+    </div>
+
+    <div class="t-card tc-halo" onclick="selectTheme('halo')">
+      <div class="halo-pv">
+        <div class="hr-ring" style="width:170px;height:170px;border-color:rgba(74,184,255,0.12);"></div>
+        <div class="hr-ring" style="width:108px;height:108px;border-color:rgba(74,184,255,0.28);"></div>
+        <div class="hr-ring" style="width:56px;height:56px;border-color:rgba(74,184,255,0.55);"></div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:9px;height:9px;border-radius:50%;background:#4ab8ff;box-shadow:0 0 12px #4ab8ff,0 0 24px rgba(74,184,255,0.4);"></div>
+        <div style="position:absolute;top:11px;left:13px;right:13px;font-family:'Electrolize',sans-serif;font-size:10px;color:rgba(74,184,255,0.38);letter-spacing:2px;text-transform:uppercase;">VISR OS v7.4 — MJOLNIR BIOMONITOR</div>
+        <div style="position:absolute;bottom:10px;right:13px;font-family:'Electrolize',sans-serif;font-size:10px;color:rgba(74,184,255,0.28);letter-spacing:2px;">SHIELDS: 100%</div>
+      </div>
+      <div class="t-ov halo-ov"><div class="tn halo">HALO — VISR</div><div class="ts halo" id="sel-halo-sub">SPARTAN BIOMONITOR</div></div>
+    </div>
+
+    <div class="t-card tc-naruto" onclick="selectTheme('naruto')">
+      <div class="naruto-pv"><div class="nseal">渦</div></div>
+      <div class="t-ov naruto-ov"><div class="tn naruto">NARUTO</div><div class="ts naruto" id="sel-naruto-sub">チャクラ · CHAKRA MONITOR</div></div>
+    </div>
+
+    <div class="t-card tc-fut" onclick="selectTheme('fut')">
+      <div class="fut-pv">
+        <div class="fr" style="width:138px;height:138px;"></div>
+        <div class="fr" style="width:84px;height:84px;border-color:rgba(0,245,255,0.4);"></div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:7px;height:7px;border-radius:50%;background:#00f5ff;box-shadow:0 0 10px #00f5ff,0 0 20px rgba(0,245,255,0.3);"></div>
+        <div style="position:absolute;bottom:10px;left:13px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(0,245,255,0.3);letter-spacing:2px;">HR 68 · SpO2 98% · HRV 48ms · TEMP 36.4°C</div>
+      </div>
+      <div class="t-ov fut-ov"><div class="tn fut">FUTURISTIC</div><div class="ts fut" id="sel-fut-sub">BIOMETRIC CORE v2.6</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ DASHBOARD ══════════════ -->
+<div id="dash">
+  <div class="sbar"><div class="sbfi" id="sbfi"></div></div>
+  <div class="toast" id="toast"></div>
+
+  <!-- Futuristic ticker -->
+  <div id="futtick"><div class="fti">◆ FITBIT AIR ONLINE &nbsp;&nbsp;&nbsp; ◆ HR: <span id="tickhr">68</span> BPM &nbsp;&nbsp;&nbsp; ◆ SpO2: 98% &nbsp;&nbsp;&nbsp; ◆ TEMP: 36.4°C &nbsp;&nbsp;&nbsp; ◆ BATERÍA: 87% &nbsp;&nbsp;&nbsp; ◆ GOOGLE HEALTH PREMIUM &nbsp;&nbsp;&nbsp;</div></div>
+
+  <!-- Header -->
+  <header class="db-hdr">
+    <div style="display:flex;align-items:center;gap:13px;">
+      <button class="bbtn" id="btn-back" onclick="goBack()">← TEMAS</button>
+      <div>
+        <div id="logo-t" style="font-size:15px;font-weight:700;letter-spacing:4px;color:var(--ta);">FITBIT AIR</div>
+        <div id="logo-s" style="font-size:10px;letter-spacing:3px;opacity:0.3;">BIOMETRIC CORE v2.6</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <!-- Language toggle in header -->
+      <div class="hlang">
+        <button class="hlang-btn active" id="h-lang-es" onclick="setLang('es')">ES</button>
+        <button class="hlang-btn" id="h-lang-en" onclick="setLang('en')">EN</button>
+      </div>
+      <!-- Sync controls -->
+      <div id="swrap" style="display:none;align-items:center;gap:7px;font-size:12px;letter-spacing:2px;opacity:0.55;">
+        <div class="sring" id="sring"></div>
+        <span id="slbl">PRÓX. SYNC</span>
+        <span id="scd" style="color:var(--ta);font-size:13px;min-width:24px;">60s</span>
+        <select class="isel" id="isel" onchange="chgI(this.value)">
+          <option value="15">15s</option><option value="30">30s</option>
+          <option value="60" selected>60s</option><option value="120">2min</option>
+        </select>
+      </div>
+      <!-- Status dot -->
+      <div style="display:flex;align-items:center;gap:7px;font-size:12px;letter-spacing:2px;">
+        <div id="sdot" style="width:7px;height:7px;border-radius:50%;background:#aa7700;box-shadow:0 0 7px #aa7700;animation:blink 1.5s infinite;"></div>
+        <span id="stxt">DEMO</span>
+      </div>
+      <button class="cbtn" id="btn-connect" onclick="openModal()">CONECTAR</button>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="db-main">
+    <div class="db-greet">
+      <div class="db-eye" id="g-eye">// ANÁLISIS BIOMÉTRICO ACTIVO</div>
+      <div class="db-name"><span id="g-pfx">BUEN DÍA, </span><span id="uname" class="db-ac">USUARIO</span></div>
+      <div class="db-date" id="clock"></div>
+    </div>
+
+    <!-- Top: ring + vitals -->
+    <div class="tg">
+      <div class="card rw">
+        <span class="clbl" id="rl">// ÍNDICE DE PREPARACIÓN</span>
+        <div class="rc">
+          <svg class="rsvg" viewBox="0 0 128 128">
+            <circle class="rbg" cx="64" cy="64" r="54"/>
+            <circle class="rfil" cx="64" cy="64" r="54" id="rfil" style="stroke-dasharray:339;stroke-dashoffset:68;"/>
+          </svg>
+          <div class="ri">
+            <div class="rnum" id="rscore">80</div>
+            <div class="rdenom">/ 100</div>
+          </div>
+        </div>
+        <div class="rstatus" id="rstatus">ÓPTIMO</div>
+        <div id="mcex"></div>
+      </div>
+
+      <div class="vg">
+        <div class="vc"><span class="vlbl" id="lbl-hr">// FREC. CARDÍACA</span><div class="vval" id="hrv">68</div><span class="vunit" id="u-hr">BPM — REPOSO</span><div class="vtrd">↑ +2</div></div>
+        <div class="vc"><span class="vlbl" id="lbl-spo2">// SATURACIÓN O₂</span><div class="vval" id="spo2v">98</div><span class="vunit">% SpO2</span><div class="vtrd">→</div></div>
+        <div class="vc"><span class="vlbl" id="lbl-temp">// TEMP. CORPORAL</span><div class="vval" id="tempv">36.4</div><span class="vunit">°C PIEL</span><div class="vtrd">→</div></div>
+        <div class="vc"><span class="vlbl" id="lbl-stress">// NIVEL ESTRÉS</span><div class="vval" id="stressv">24</div><span class="vunit" id="u-stress">/ 100 — BAJO</span><div class="vtrd neg">↓</div></div>
+        <div class="vc"><span class="vlbl" id="lbl-cal">// CALORÍAS</span><div class="vval" id="calv">312</div><span class="vunit" id="u-cal">KCAL ACTIVAS</span><div class="vtrd">↑</div></div>
+        <div class="vc"><span class="vlbl" id="lbl-hrv">// HRV NOCTURNO</span><div class="vval" id="hrvv">48</div><span class="vunit">ms — BUENO</span><div class="vtrd">↑ +6</div></div>
+      </div>
+    </div>
+
+    <!-- Steps -->
+    <div class="card" style="margin-top:16px;">
+      <span class="clbl" id="lbl-steps">// ACTIVIDAD DIARIA — PASOS</span>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;">
+        <div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin:7px 0;">
+            <div class="snum" id="stepsv">7,842</div>
+            <div class="sgoal" id="goal-lbl">/ 10,000 OBJETIVO</div>
+          </div>
+          <div class="strk"><div class="sprg" id="stepsprog" style="width:78.4%;"></div></div>
+          <div class="spct" id="stepspct">78.4% COMPLETADO HOY</div>
+        </div>
+        <div>
+          <span class="clbl" id="lbl-week">// ESTA SEMANA</span>
+          <div class="wbrs" id="wbrs"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom grid -->
+    <div class="bg">
+      <!-- HR chart -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+          <div><span class="clbl" id="lbl-hrchart" style="margin-bottom:3px;">// FRECUENCIA CARDÍACA 24H</span><div style="font-size:10px;letter-spacing:2px;opacity:0.3;" id="lbl-last24">ÚLTIMAS 24 HORAS</div></div>
+          <div style="display:flex;align-items:baseline;gap:3px;"><span id="hrlive" style="font-size:28px;font-weight:700;color:var(--tneg);">68</span><span style="font-size:11px;opacity:0.35;letter-spacing:1px;"> BPM</span></div>
+        </div>
+        <svg class="spkl" viewBox="0 0 300 72" id="hrchart" preserveAspectRatio="none"></svg>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;">
+          <span style="font-size:10px;opacity:0.28;">00:00</span><span style="font-size:10px;opacity:0.28;">06:00</span><span style="font-size:10px;opacity:0.28;">12:00</span><span style="font-size:10px;opacity:0.28;">18:00</span><span style="font-size:10px;color:var(--ta)" id="lbl-now">AHORA</span>
+        </div>
+      </div>
+
+      <!-- Sleep -->
+      <div class="card">
+        <span class="clbl" id="lbl-sleep">// ANÁLISIS DE SUEÑO</span>
+        <div class="slrw"><div class="sllbl" id="sl-deep">PROF.</div><div class="sltr"><div class="slfi" id="sl0" style="width:35%;background:var(--ta2);"></div></div><div class="sltm">1h 44m</div></div>
+        <div class="slrw"><div class="sllbl">REM</div><div class="sltr"><div class="slfi" id="sl1" style="width:28%;background:var(--ta);"></div></div><div class="sltm">1h 22m</div></div>
+        <div class="slrw"><div class="sllbl" id="sl-light">LIGER.</div><div class="sltr"><div class="slfi" id="sl2" style="width:72%;background:rgba(255,255,255,0.22);"></div></div><div class="sltm">3h 34m</div></div>
+        <div class="slrw"><div class="sllbl" id="sl-awake">DESP.</div><div class="sltr"><div class="slfi" id="sl3" style="width:12%;background:var(--tneg);"></div></div><div class="sltm">0h 22m</div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--sub);">
+          <div><div style="font-size:10px;opacity:0.3;letter-spacing:2px;" id="lbl-total">TOTAL</div><div style="font-size:18px;font-weight:700;color:var(--ta2);">7h 22m</div></div>
+          <div><div style="font-size:10px;opacity:0.3;letter-spacing:2px;" id="lbl-start">INICIO</div><div style="font-size:15px;font-weight:600;">23:18</div></div>
+          <div><div style="font-size:10px;opacity:0.3;letter-spacing:2px;">SCORE</div><div style="font-size:15px;font-weight:700;color:var(--ta);">84/100</div></div>
+        </div>
+      </div>
+
+      <!-- Activity -->
+      <div class="card">
+        <span class="clbl" id="lbl-activity">// ACTIVIDADES</span>
+        <div class="acit"><div class="acio">🏃</div><div><div class="acnm" id="ac1n">CARRERA</div><div class="acmt">HOY 06:15 · 4.2KM</div></div><div class="acvl">287 kcal</div></div>
+        <div class="acit"><div class="acio">🧘</div><div><div class="acnm" id="ac2n">MEDITACIÓN</div><div class="acmt">AYER 22:10 · 15min</div></div><div class="acvl">58 bpm</div></div>
+        <div class="acit"><div class="acio">🚴</div><div><div class="acnm" id="ac3n">CICLISMO</div><div class="acmt">AYER 17:30 · 18KM</div></div><div class="acvl">420 kcal</div></div>
+      </div>
+    </div>
+
+    <!-- Insights -->
+    <div class="card" style="margin-top:16px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <span class="clbl" id="lbl-coach" style="margin-bottom:0;">// GOOGLE HEALTH COACH</span>
+        <div id="aibdg" style="font-size:11px;font-weight:700;letter-spacing:2px;padding:3px 8px;background:rgba(123,47,255,0.1);border:1px solid var(--ta2);color:var(--ta2);">GEMINI AI</div>
+      </div>
+      <div class="igrd">
+        <div class="iitm"><div class="ityp" id="i1t">◆ RECUPERACIÓN</div><div class="itxt" id="i1x">Tu HRV subió 6ms desde ayer. Señales sólidas de recuperación. Día ideal para entrenamiento moderado-alto.</div></div>
+        <div class="iitm"><div class="ityp" id="i2t">◆ SUEÑO</div><div class="itxt" id="i2x">Tu sueño profundo aumentó 12% esta semana. Consistencia de horario: ±20min de tu ventana óptima.</div></div>
+        <div class="iitm"><div class="ityp" id="i3t">◆ ACTIVIDAD</div><div class="itxt" id="i3x">4 días consecutivos cumpliendo tu meta. Si terminas hoy, será tu racha más larga del mes.</div></div>
+      </div>
+    </div>
+  </main>
+
+  <div class="dstrip" id="dstrip"><div class="ddot"></div><span id="demo-txt">DEMO — CONECTA TU FITBIT AIR</span></div>
+  <div class="lov" id="lov"><div class="ltxt" id="load-txt">SINCRONIZANDO...</div><div class="lbar"><div class="lfi"></div></div></div>
+
+  <!-- Modal -->
+  <div class="mov" id="modal">
+    <div class="mbox">
+      <div class="mhd">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div><div class="mh2" id="modal-title">CONECTAR FITBIT</div><div class="msub" id="modal-sub">Autorización OAuth · Solo una vez</div></div>
+          <button onclick="closeModal()" style="background:none;border:none;color:#3a3a3a;cursor:pointer;font-size:20px;">✕</button>
+        </div>
+      </div>
+      <div class="mbd">
+        <div class="srw">
+          <div class="sc"><div class="sn">1.</div><div class="st" id="m-s1">Ve a <a href="https://dev.fitbit.com/apps/new" target="_blank">dev.fitbit.com</a> y crea una app <strong style="color:#aaa;">gratis</strong></div></div>
+          <div class="sc"><div class="sn">2.</div><div class="st" id="m-s2">Tipo: <strong style="color:#aaa;">Personal</strong><br>Callback: esta página</div></div>
+          <div class="sc"><div class="sn">3.</div><div class="st" id="m-s3">Copia tu <strong style="color:#aaa;">Client ID</strong> y pégalo abajo</div></div>
+        </div>
+        <label class="mlbl" id="m-lbl">TU CLIENT ID</label>
+        <input type="text" class="minp" id="cid" placeholder="Ej: 23ABCD"/>
+        <div class="mcbu" id="m-cb">URL de callback: <span id="cburl"></span></div>
+        <button class="mbtn" id="m-btn" onclick="startOAuth()">AUTORIZAR CON FITBIT →</button>
+        <div class="mnote" id="m-note">Se abrirá Fitbit para autorizar con tu cuenta Google.<br>Tus datos nunca salen de tu dispositivo.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════ STATE ══════
+let theme = localStorage.getItem('fb_t') || null;
+let lang = localStorage.getItem('fb_lang') || 'es';
+let isReal = false, token = localStorage.getItem('fb_tok') || '';
+const REDIR = location.href.split('?')[0];
+let pSec = 60, cd = 60, ptmr = null, cdtmr = null;
+let hrHist = [62,60,58,57,56,58,60,65,72,78,82,75,68,71,74,70,68,72,69,67,70,69,68,68];
+
+// ══════ TRANSLATIONS ══════
+const T = {
+  es: {
+    sel_eye: '// selecciona tu interfaz de monitoreo biométrico',
+    mc_sub: 'ESTADÍSTICAS DE SUPERVIVENCIA',
+    halo_sub: 'BIOMONITOR SPARTAN',
+    naruto_sub: 'チャクラ · MONITOR DE CHAKRA',
+    fut_sub: 'NÚCLEO BIOMÉTRICO v2.6',
+    back: '← TEMAS',
+    connect: 'CONECTAR',
+    demo_txt: 'DEMO — CONECTA TU FITBIT AIR',
+    loading: 'SINCRONIZANDO...',
+    g_eye: '// ANÁLISIS BIOMÉTRICO ACTIVO',
+    g_pfx: 'BUEN DÍA, ',
+    rl: '// ÍNDICE DE PREPARACIÓN',
+    optimal: 'ÓPTIMO',
+    lbl_hr: '// FREC. CARDÍACA',
+    u_hr: 'BPM — REPOSO',
+    lbl_spo2: '// SATURACIÓN O₂',
+    lbl_temp: '// TEMP. CORPORAL',
+    lbl_stress: '// NIVEL ESTRÉS',
+    u_stress: '/ 100 — BAJO',
+    lbl_cal: '// CALORÍAS',
+    u_cal: 'KCAL ACTIVAS',
+    lbl_hrv: '// HRV NOCTURNO',
+    lbl_steps: '// ACTIVIDAD DIARIA — PASOS',
+    goal_lbl: '/ 10,000 OBJETIVO',
+    pct_lbl: '78.4% COMPLETADO HOY',
+    lbl_week: '// ESTA SEMANA',
+    lbl_hrchart: '// FRECUENCIA CARDÍACA 24H',
+    lbl_last24: 'ÚLTIMAS 24 HORAS',
+    lbl_now: 'AHORA',
+    lbl_sleep: '// ANÁLISIS DE SUEÑO',
+    sl_deep: 'PROF.', sl_light: 'LIGER.', sl_awake: 'DESP.',
+    lbl_total: 'TOTAL', lbl_start: 'INICIO',
+    lbl_activity: '// ACTIVIDADES',
+    ac1: 'CARRERA', ac2: 'MEDITACIÓN', ac3: 'CICLISMO',
+    lbl_coach: '// GOOGLE HEALTH COACH',
+    i1t: '◆ RECUPERACIÓN', i2t: '◆ SUEÑO', i3t: '◆ ACTIVIDAD',
+    i1x: 'Tu HRV subió 6ms desde ayer. Señales sólidas de recuperación. Día ideal para entrenamiento moderado-alto.',
+    i2x: 'Tu sueño profundo aumentó 12% esta semana. Consistencia de horario: ±20min de tu ventana óptima.',
+    i3x: '4 días consecutivos cumpliendo tu meta. Si terminas hoy, será tu racha más larga del mes.',
+    modal_title: 'CONECTAR FITBIT', modal_sub: 'Autorización OAuth · Solo una vez',
+    m_s1: 'Ve a dev.fitbit.com y crea una app <strong style="color:#aaa;">gratis</strong>',
+    m_s2: 'Tipo: <strong style="color:#aaa;">Personal</strong><br>Callback: esta página',
+    m_s3: 'Copia tu <strong style="color:#aaa;">Client ID</strong> y pégalo abajo',
+    m_lbl: 'TU CLIENT ID', m_cb: 'URL de callback: ',
+    m_btn: 'AUTORIZAR CON FITBIT →',
+    m_note: 'Se abrirá Fitbit para autorizar con tu cuenta Google.<br>Tus datos nunca salen de tu dispositivo.',
+    sync_lbl: 'PRÓX. SYNC', sync_lbl2: 'SYNC',
+    logo_s_fut: 'NÚCLEO BIOMÉTRICO v2.6',
+    logo_s_mc: 'HEALTH MOD v2.6',
+    logo_s_halo: 'UNSC MJOLNIR BIOMONITOR',
+    logo_s_naruto: '木ノ葉隠れの里 · KONOHA',
+    // Theme overrides
+    mc_eye: '> ESTADÍSTICAS DE JUGADOR',
+    mc_pfx: 'JUGADOR: ', mc_rl: '> BARRA DE VIDA', mc_status: 'VIDA COMPLETA',
+    mc_coach: '> CONSEJOS DEL JUEGO',
+    halo_eye: '// VISR OS — BIOMONITOR SPARTAN — CLASIFICADO UNSC',
+    halo_pfx: 'SPARTAN ', halo_rl: '// PREPARACIÓN DE COMBATE', halo_status: 'LISTO PARA COMBATE',
+    halo_coach: '// ANÁLISIS DE CORTANA',
+    naruto_eye: '木ノ葉の里 — SISTEMA SHINOBI KONOHA',
+    naruto_pfx: '忍者: ', naruto_rl: '// チャクラ PREPARACIÓN', naruto_status: '最大 · CHAKRA COMPLETO',
+    naruto_coach: '// 仙人モード ANÁLISIS SABIO',
+    connected: '◆ FITBIT AIR CONECTADO', live: 'EN VIVO',
+    sync_toast: (t) => `◆ SYNC ${t}`,
+  },
+  en: {
+    sel_eye: '// select your biometric monitoring interface',
+    mc_sub: 'SURVIVAL HEALTH STATS',
+    halo_sub: 'SPARTAN BIOMONITOR',
+    naruto_sub: 'チャクラ · CHAKRA MONITOR',
+    fut_sub: 'BIOMETRIC CORE v2.6',
+    back: '← THEMES',
+    connect: 'CONNECT',
+    demo_txt: 'DEMO — CONNECT YOUR FITBIT AIR',
+    loading: 'SYNCING...',
+    g_eye: '// BIOMETRIC ANALYSIS ACTIVE',
+    g_pfx: 'GOOD DAY, ',
+    rl: '// READINESS INDEX',
+    optimal: 'OPTIMAL',
+    lbl_hr: '// HEART RATE',
+    u_hr: 'BPM — RESTING',
+    lbl_spo2: '// O₂ SATURATION',
+    lbl_temp: '// BODY TEMP.',
+    lbl_stress: '// STRESS LEVEL',
+    u_stress: '/ 100 — LOW',
+    lbl_cal: '// CALORIES',
+    u_cal: 'ACTIVE KCAL',
+    lbl_hrv: '// OVERNIGHT HRV',
+    lbl_steps: '// DAILY ACTIVITY — STEPS',
+    goal_lbl: '/ 10,000 GOAL',
+    pct_lbl: '78.4% COMPLETED TODAY',
+    lbl_week: '// THIS WEEK',
+    lbl_hrchart: '// HEART RATE 24H',
+    lbl_last24: 'LAST 24 HOURS',
+    lbl_now: 'NOW',
+    lbl_sleep: '// SLEEP ANALYSIS',
+    sl_deep: 'DEEP', sl_light: 'LIGHT', sl_awake: 'AWAKE',
+    lbl_total: 'TOTAL', lbl_start: 'START',
+    lbl_activity: '// ACTIVITIES',
+    ac1: 'RUN', ac2: 'MEDITATION', ac3: 'CYCLING',
+    lbl_coach: '// GOOGLE HEALTH COACH',
+    i1t: '◆ RECOVERY', i2t: '◆ SLEEP', i3t: '◆ ACTIVITY',
+    i1x: 'Your HRV rose 6ms since yesterday. Strong recovery signals. Ideal day for moderate-high intensity training.',
+    i2x: 'Your deep sleep increased 12% this week. Schedule consistency improved: ±20min from your optimal window.',
+    i3x: '4 consecutive days hitting your step goal. Complete today and it\'ll be your longest streak this month.',
+    modal_title: 'CONNECT FITBIT', modal_sub: 'OAuth Authorization · One time only',
+    m_s1: 'Go to dev.fitbit.com and create a <strong style="color:#aaa;">free</strong> app',
+    m_s2: 'Type: <strong style="color:#aaa;">Personal</strong><br>Callback: this page',
+    m_s3: 'Copy your <strong style="color:#aaa;">Client ID</strong> and paste it below',
+    m_lbl: 'YOUR CLIENT ID', m_cb: 'Callback URL: ',
+    m_btn: 'AUTHORIZE WITH FITBIT →',
+    m_note: 'Fitbit will open to authorize with your Google account.<br>Your data never leaves your device.',
+    sync_lbl: 'NEXT SYNC', sync_lbl2: 'SYNC',
+    logo_s_fut: 'BIOMETRIC CORE v2.6',
+    logo_s_mc: 'HEALTH MOD v2.6',
+    logo_s_halo: 'UNSC MJOLNIR BIOMONITOR',
+    logo_s_naruto: '木ノ葉隠れの里 · KONOHA',
+    mc_eye: '> PLAYER STATS LOADED',
+    mc_pfx: 'PLAYER: ', mc_rl: '> HEALTH BAR', mc_status: 'FULL HP',
+    mc_coach: '> GAME TIPS',
+    halo_eye: '// VISR OS — SPARTAN BIOMONITOR — UNSC CLASSIFIED',
+    halo_pfx: 'SPARTAN ', halo_rl: '// COMBAT READINESS', halo_status: 'COMBAT READY',
+    halo_coach: '// CORTANA ANALYSIS',
+    naruto_eye: '木ノ葉の里 — KONOHA SHINOBI SYSTEM',
+    naruto_pfx: '忍者: ', naruto_rl: '// チャクラ READINESS', naruto_status: '最大 · CHAKRA FULL',
+    naruto_coach: '// 仙人モード SAGE ANALYSIS',
+    connected: '◆ FITBIT AIR CONNECTED', live: 'LIVE',
+    sync_toast: (t) => `◆ SYNC ${t}`,
+  }
+};
+
+// ══════ LANGUAGE ══════
+function setLang(l) {
+  lang = l; localStorage.setItem('fb_lang', l);
+  // selector buttons
+  document.getElementById('lang-es').classList.toggle('active', l === 'es');
+  document.getElementById('lang-en').classList.toggle('active', l === 'en');
+  document.getElementById('h-lang-es').classList.toggle('active', l === 'es');
+  document.getElementById('h-lang-en').classList.toggle('active', l === 'en');
+  const t = T[l];
+  // selector screen
+  setText('sel-eye', t.sel_eye);
+  setText('sel-mc-sub', t.mc_sub);
+  setText('sel-halo-sub', t.halo_sub);
+  setText('sel-naruto-sub', t.naruto_sub);
+  setText('sel-fut-sub', t.fut_sub);
+  // header
+  setText('btn-back', t.back);
+  setText('btn-connect', t.connect);
+  setText('demo-txt', t.demo_txt);
+  setText('load-txt', t.loading);
+  setText('slbl', t.sync_lbl);
+  // dashboard text
+  setText('g-eye', t.g_eye);
+  setText('g-pfx', t.g_pfx);
+  setText('rl', t.rl);
+  setText('rstatus', t.optimal);
+  setText('lbl-hr', t.lbl_hr); setText('u-hr', t.u_hr);
+  setText('lbl-spo2', t.lbl_spo2); setText('lbl-temp', t.lbl_temp);
+  setText('lbl-stress', t.lbl_stress); setText('u-stress', t.u_stress);
+  setText('lbl-cal', t.lbl_cal); setText('u-cal', t.u_cal);
+  setText('lbl-hrv', t.lbl_hrv);
+  setText('lbl-steps', t.lbl_steps);
+  setText('goal-lbl', t.goal_lbl);
+  setText('lbl-week', t.lbl_week);
+  setText('lbl-hrchart', t.lbl_hrchart);
+  setText('lbl-last24', t.lbl_last24);
+  setText('lbl-now', t.lbl_now);
+  setText('lbl-sleep', t.lbl_sleep);
+  setText('sl-deep', t.sl_deep); setText('sl-light', t.sl_light); setText('sl-awake', t.sl_awake);
+  setText('lbl-total', t.lbl_total); setText('lbl-start', t.lbl_start);
+  setText('lbl-activity', t.lbl_activity);
+  setText('ac1n', t.ac1); setText('ac2n', t.ac2); setText('ac3n', t.ac3);
+  setText('lbl-coach', t.lbl_coach);
+  setText('i1t', t.i1t); setText('i2t', t.i2t); setText('i3t', t.i3t);
+  setText('i1x', t.i1x); setText('i2x', t.i2x); setText('i3x', t.i3x);
+  // modal
+  setText('modal-title', t.modal_title); setText('modal-sub', t.modal_sub);
+  setHTML('m-s1', t.m_s1); setHTML('m-s2', t.m_s2); setHTML('m-s3', t.m_s3);
+  setText('m-lbl', t.m_lbl); setText('m-btn', t.m_btn);
+  setHTML('m-note', t.m_note);
+  document.getElementById('m-cb').innerHTML = t.m_cb + '<span id="cburl">' + REDIR + '</span>';
+  // Re-apply theme overrides if theme is active
+  if (theme) applyThemeText(theme);
+}
+
+function setText(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
+function setHTML(id, v) { const e = document.getElementById(id); if (e) e.innerHTML = v; }
+
+// ══════ MC GRID ══════
+(function() {
+  const g = document.getElementById('mc-pg'); if (!g) return;
+  const p = [0,0,0,1,1,8,8,8,8,8,8,8,8,8,8,5,5,5,5,5,9,0,0,0,1,1,8,8,3,3,3,3,3,3,3,3,5,5,5,5,1,1,0,0,0,1,8,8,3,3,3,3,3,3,3,3,5,5,5,5,2,2,2,2,2,2,2,2,3,3,3,2,2,2,2,3,6,6,6,6,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,6,6,6,6,4,4,4,4,3,3,3,4,4,4,4,4,4,4,4,4,7,7,7,7,5,5,5,5,3,3,3,5,5,5,5,5,5,5,5,5,7,7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,7,7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5];
+  const cls = ['b0','b1','b2','b3','b4','b5','b6','b7','b8','b9'];
+  g.innerHTML = p.map(v => `<div class="${cls[v]}"></div>`).join('');
+})();
+
+// ══════ SELECT THEME ══════
+function selectTheme(t) {
+  theme = t; localStorage.setItem('fb_t', t);
+  document.body.className = 't-' + t;
+  document.getElementById('sel').style.display = 'none';
+  document.getElementById('dash').style.display = 'block';
+  applyTheme(t);
+  setLang(lang); // apply current language
+  initDash();
+}
+
+function goBack() {
+  document.getElementById('dash').style.display = 'none';
+  document.getElementById('sel').style.display = 'flex';
+  document.body.className = '';
+  clearInterval(ptmr); clearInterval(cdtmr);
+  document.querySelectorAll('.nring').forEach(e => e.remove());
+}
+
+function applyTheme(t) {
+  document.getElementById('futtick').style.display = t === 'fut' ? 'block' : 'none';
+  // Naruto chakra rings
+  document.querySelectorAll('.nring').forEach(e => e.remove());
+  if (t === 'naruto') {
+    ['60vw','40vw','22vw'].forEach((s, i) => {
+      const d = document.createElement('div'); d.className = 'nring';
+      d.style.cssText = `width:${s};height:${s};top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:${i*0.8}s;`;
+      document.body.appendChild(d);
+    });
+  }
+  // MC extras
+  const mc = document.getElementById('mcex');
+  if (t === 'mc' && !mc.children.length) {
+    mc.innerHTML = `<div class="mc-bars"><div class="mc-blbl">❤ HEALTH</div><div class="mc-btr"><div class="mc-bfi mc-hp" style="width:80%"></div></div><div class="mc-blbl" style="margin-top:6px">✦ XP BAR</div><div class="mc-btr"><div class="mc-bfi mc-xp" style="width:60%"></div></div></div>`;
+  }
+  const ls = T[lang];
+  const logoSubMap = { fut: ls.logo_s_fut, mc: ls.logo_s_mc, halo: ls.logo_s_halo, naruto: ls.logo_s_naruto };
+  setText('logo-s', logoSubMap[t]);
+}
+
+function applyThemeText(t) {
+  const ls = T[lang];
+  const map = {
+    mc:     { 'g-eye': ls.mc_eye, 'g-pfx': ls.mc_pfx, rl: ls.mc_rl, rstatus: ls.mc_status, 'lbl-coach': ls.mc_coach, i1t: ls.i1t.replace('RECUPERACIÓN','RECOVERY').replace('RECOVERY','[!] RECOVERY'), i2t: '[!] ' + (lang==='es'?'SUEÑO':'SLEEP'), i3t: '[!] ' + (lang==='es'?'ACTIVIDAD':'ACTIVITY'), i1x: lang==='es'?'HRV +6ms. Recuperación completa. Listo para grind. Dificultad: Alta recomendada.':'HRV +6ms. Recovery full. Ready to grind. Difficulty: Hard recommended.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Buff: Bien descansado activo.':'Deep sleep +12% this week. Buff: Well Rested active.', i3x: lang==='es'?'Racha de 4 días. Logro: Marathon Runner si terminas hoy.':'4-day streak. Achievement: Marathon Runner incoming if today complete.' },
+    halo:   { 'g-eye': ls.halo_eye, 'g-pfx': ls.halo_pfx, rl: ls.halo_rl, rstatus: ls.halo_status, 'lbl-coach': ls.halo_coach, i1t: '◈ ' + (lang==='es'?'ESCUDOS':'SHIELDS'), i2t: '◈ ' + (lang==='es'?'CICLO DE DESCANSO':'REST CYCLE'), i3t: '◈ ' + (lang==='es'?'REGISTRO DE MISIÓN':'MISSION LOG'), i1x: lang==='es'?'Recarga de escudo nominal. HRV +6ms. Combate de alta intensidad recomendado. Aumentaciones al 98%.':'Shield recharge nominal. HRV +6ms. High-intensity engagement recommended. Augmentations at 98%.', i2x: lang==='es'?'Protocolo de sueño profundo +12%. Recuperación neural óptima. Aumentaciones Spartan-IV al máximo.':'Deep sleep protocol +12%. Neural recovery optimal. Spartan-IV augmentations at peak.', i3x: lang==='es'?'Racha de misión de 4 días activa. Objetivo de pasos 78%. Aumentar radio de patrulla.':'4-day mission streak active. Step objective 78%. Increase patrol radius to complete.' },
+    naruto: { 'g-eye': ls.naruto_eye, 'g-pfx': ls.naruto_pfx, rl: ls.naruto_rl, rstatus: ls.naruto_status, 'lbl-coach': ls.naruto_coach, i1t: '🔥 ' + (lang==='es'?'RECUPERACIÓN DE CHAKRA':'CHAKRA RECOVERY'), i2t: '🌙 ' + (lang==='es'?'JUTSU DE DESCANSO':'REST JUTSU'), i3t: '⚡ ' + (lang==='es'?'ARCO DE ENTRENAMIENTO':'TRAINING ARC'), i1x: lang==='es'?'Flujo de chakra +6ms. Bobinas a plena capacidad. Lista para misión S. Modo Sabio disponible.':'Chakra flow +6ms. Coils at full capacity. Ready for S-rank mission. Sage Mode available.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Reservas de chakra restauradas. Descanso nivel Bijuu.':'Deep sleep +12% this week. Chakra pools restored. Bijuu-level rest achieved. Dattebayo!', i3x: lang==='es'?'Racha de entrenamiento de 4 días. Completar hoy desbloquea: "El Camino del Ninja". ¡Dattebayo!':'4-day training arc streak. Complete today: "Ninja Way" achievement unlocked. Believe it!' },
+    fut:    {}
+  };
+  if (map[t]) Object.entries(map[t]).forEach(([id,v]) => setText(id, v));
+}
+
+// Apply lang on load
+setLang(lang);
+if (theme) selectTheme(theme);
+
+// ══════ INIT DASHBOARD ══════
+function initDash() {
+  document.getElementById('cburl').textContent = REDIR;
+  updateClock(); setInterval(updateClock, 1000);
+  buildWeeks(); buildHRC(hrHist);
+  setTimeout(animVals, 300);
+  const p = new URLSearchParams(location.search);
+  if (p.get('code')) handleOAuth(p.get('code'));
+  else if (token) loadReal();
+  if (!token) {
+    setInterval(() => {
+      if (isReal) return;
+      const c = parseInt(document.getElementById('hrlive').textContent);
+      const n = Math.max(55, Math.min(85, c + Math.floor(Math.random()*5)-2));
+      ['hrlive','hrv'].forEach(id => { const e = document.getElementById(id); if(e) e.textContent=n; });
+      if (document.getElementById('tickhr')) document.getElementById('tickhr').textContent = n;
+      hrHist.push(n); if (hrHist.length>48) hrHist.shift(); buildHRC(hrHist);
+    }, 4000);
+    setInterval(() => {
+      if (isReal) return;
+      const c = parseInt(document.getElementById('calv').textContent);
+      document.getElementById('calv').textContent = c + Math.floor(Math.random()*3);
+    }, 20000);
+  }
+}
+
+function updateClock() {
+  const n = new Date();
+  const D = lang==='es'
+    ? ['DOMINGO','LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES','SÁBADO']
+    : ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+  const M = lang==='es'
+    ? ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE']
+    : ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+  const e = document.getElementById('clock');
+  if (e) e.textContent = `${D[n.getDay()]} ${n.getDate()} ${M[n.getMonth()]} ${n.getFullYear()} — ${p2(n.getHours())}:${p2(n.getMinutes())}:${p2(n.getSeconds())}`;
+}
+function p2(n) { return String(n).padStart(2,'0'); }
+
+function buildWeeks(vals) {
+  const D = ['L','M','X','J','V','S','H'], V = vals || [8200,6100,9800,7500,10200,5300,7842];
+  const mx = Math.max(...V), c = document.getElementById('wbrs'); if (!c) return;
+  c.innerHTML = D.map((d,i) => `<div class="wb"><div class="wbar${i===6?' td':''}" style="height:${(V[i]/mx)*100}%"></div><div class="wdl">${d}</div></div>`).join('');
+}
+
+function buildHRC(hrs) {
+  const svg = document.getElementById('hrchart'); if (!svg||!hrs.length) return;
+  const w=300,h=72,mn=Math.min(...hrs)-5,mx=Math.max(...hrs)+5;
+  const pts = hrs.map((v,i) => { const x=(i/(hrs.length-1))*w; const y=h-((v-mn)/(mx-mn))*(h-8)-4; return `${x},${y}`; });
+  const pth = pts.join(' L ');
+  svg.innerHTML = `<defs><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--tneg)" stop-opacity="0.28"/><stop offset="100%" stop-color="var(--tneg)" stop-opacity="0"/></linearGradient></defs>
+    <path d="M ${pts[0]} L ${pth} L ${w},${h} L 0,${h} Z" fill="url(#hg)"/>
+    <path d="M ${pts[0]} L ${pth}" fill="none" stroke="var(--tneg)" stroke-width="1.5"/>
+    <circle cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="3.5" fill="var(--tneg)"/>`;
+}
+
+function animVals() {
+  animN('rscore',0,80,1200); animN('hrv',40,68,1000); animN('spo2v',90,98,800);
+  animN('stressv',0,24,900); animN('calv',0,312,1100); animN('hrvv',0,48,1000);
+  animN('hrlive',40,68,1000); animN('stepsv',0,7842,1400,true);
+}
+function animN(id,from,to,dur,comma) {
+  const el = document.getElementById(id); if (!el) return;
+  const s = performance.now();
+  (function f(now) { const t=Math.min((now-s)/dur,1); const e=1-Math.pow(1-t,3); const v=Math.round(from+(to-from)*e); el.textContent=comma?v.toLocaleString('es'):v; if(t<1)requestAnimationFrame(f); })(performance.now());
+}
+function flash(id) { const e=document.getElementById(id); if(!e)return; e.classList.remove('vflash'); void e.offsetWidth; e.classList.add('vflash'); setTimeout(()=>e.classList.remove('vflash'),500); }
+
+function openModal() { document.getElementById('modal').classList.add('on'); }
+function closeModal() { document.getElementById('modal').classList.remove('on'); }
+document.addEventListener('click', e => { if (e.target.id==='modal') closeModal(); });
+
+function startOAuth() {
+  const id = document.getElementById('cid').value.trim();
+  if (!id) { alert('Client ID'); return; }
+  localStorage.setItem('fb_cid', id);
+  const sc = 'activity heartrate sleep profile weight oxygen_saturation temperature';
+  location.href = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=${id}&redirect_uri=${encodeURIComponent(REDIR)}&scope=${encodeURIComponent(sc)}&expires_in=604800`;
+}
+async function handleOAuth(code) {
+  const cid = localStorage.getItem('fb_cid'); if (!cid) return; showLoad();
+  try {
+    const r = await fetch('https://api.fitbit.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','Authorization':'Basic '+btoa(cid+':')},body:new URLSearchParams({code,grant_type:'authorization_code',redirect_uri:REDIR,client_id:cid})});
+    const d = await r.json();
+    if (d.access_token) { localStorage.setItem('fb_tok',d.access_token); if(d.refresh_token)localStorage.setItem('fb_rt',d.refresh_token); token=d.access_token; history.replaceState({},'',location.pathname); await loadReal(); }
+  } catch(e) { hideLoad(); }
+}
+async function refreshTok() {
+  const rt=localStorage.getItem('fb_rt'),cid=localStorage.getItem('fb_cid'); if(!rt||!cid)return false;
+  try { const r=await fetch('https://api.fitbit.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','Authorization':'Basic '+btoa(cid+':')},body:new URLSearchParams({grant_type:'refresh_token',refresh_token:rt})}); const d=await r.json(); if(d.access_token){localStorage.setItem('fb_tok',d.access_token);if(d.refresh_token)localStorage.setItem('fb_rt',d.refresh_token);token=d.access_token;return true;} } catch(e) {} return false;
+}
+function startCd() {
+  clearInterval(cdtmr); cd = pSec;
+  const ec=document.getElementById('scd'), el=document.getElementById('slbl'), ls=T[lang];
+  cdtmr = setInterval(() => {
+    cd--; if(cd<=0){ec.textContent='...';el.textContent=ls.sync_lbl2;}
+    else{ec.textContent=cd+'s';el.textContent=ls.sync_lbl;}
+    ec.style.color = cd<=5?'var(--tneg)':'var(--ta)';
+  }, 1000);
+}
+function chgI(v) { pSec=parseInt(v); startCd(); clearInterval(ptmr); if(isReal)ptmr=setInterval(pollFast,pSec*1000); }
+function animSBar() { const f=document.getElementById('sbfi'); f.style.transition='none'; f.style.width='0%'; requestAnimationFrame(()=>{ f.style.transition=`width ${pSec*1000}ms linear`; f.style.width='100%'; setTimeout(()=>{ f.style.transition='width 0.3s'; f.style.width='0%'; },pSec*1000); }); }
+function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('sh'); setTimeout(()=>t.classList.remove('sh'),2500); }
+function startPoll() { document.getElementById('swrap').style.display='flex'; startCd(); animSBar(); clearInterval(ptmr); ptmr=setInterval(pollFast,pSec*1000); setInterval(pollSlow,5*60*1000); }
+async function pollFast() {
+  if (!token) return;
+  const ring=document.getElementById('sring'); ring.classList.add('on'); startCd();
+  try {
+    const h={'Authorization':'Bearer '+token}, td=new Date().toISOString().split('T')[0];
+    const [hr,act] = await Promise.all([fetch(`https://api.fitbit.com/1/user/-/activities/heart/date/${td}/1d/1min.json`,{headers:h}),fetch(`https://api.fitbit.com/1/user/-/activities/date/${td}.json`,{headers:h})]);
+    if (hr.status===401) { if(await refreshTok())await pollFast(); else stopPoll(); return; }
+    const hd=await hr.json(), ad=await act.json();
+    if (hd?.['activities-heart-intraday']?.dataset?.length) {
+      const ds=hd['activities-heart-intraday'].dataset, lat=ds[ds.length-1]?.value;
+      if (lat&&lat!==parseInt(document.getElementById('hrv').textContent)) { document.getElementById('hrv').textContent=lat; document.getElementById('hrlive').textContent=lat; flash('hrv'); flash('hrlive'); }
+      const st=Math.max(1,Math.floor(ds.length/48)); hrHist=ds.filter((_,i)=>i%st===0).slice(-48).map(d=>d.value); buildHRC(hrHist);
+    }
+    if (ad?.summary) {
+      const s=ad.summary, ns=s.steps||0;
+      if (String(ns)!==document.getElementById('stepsv').textContent.replace(/\D/g,'')) { document.getElementById('stepsv').textContent=ns.toLocaleString('es'); const pct=Math.min((ns/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); flash('stepsv'); }
+      const nc=s.activityCalories||0; if(String(nc)!==document.getElementById('calv').textContent){document.getElementById('calv').textContent=nc;flash('calv');}
+    }
+    animSBar(); showToast(T[lang].sync_toast(new Date().toLocaleTimeString(lang==='es'?'es':'en',{hour:'2-digit',minute:'2-digit',second:'2-digit'})));
+  } catch(e) { console.warn(e); } finally { ring.classList.remove('on'); }
+}
+async function pollSlow() { if(!token)return; try{const r=await fetch('https://api.fitbit.com/1.2/user/-/sleep/date/today.json',{headers:{'Authorization':'Bearer '+token}});const d=await r.json();if(d?.summary?.stages)updSl(d.summary.stages);}catch(e){} }
+function stopPoll() { clearInterval(ptmr);clearInterval(cdtmr);isReal=false;token='';localStorage.removeItem('fb_tok'); }
+async function loadReal() {
+  showLoad();
+  try {
+    const h={'Authorization':'Bearer '+token}, td=new Date().toISOString().split('T')[0];
+    const [pr,ac,hr,sl] = await Promise.all([fetch('https://api.fitbit.com/1/user/-/profile.json',{headers:h}).then(r=>r.json()),fetch(`https://api.fitbit.com/1/user/-/activities/date/${td}.json`,{headers:h}).then(r=>r.json()),fetch(`https://api.fitbit.com/1/user/-/activities/heart/date/${td}/1d/1min.json`,{headers:h}).then(r=>r.json()),fetch('https://api.fitbit.com/1.2/user/-/sleep/date/today.json',{headers:h}).then(r=>r.json())]);
+    if (pr?.user) document.getElementById('uname').textContent = (pr.user.displayName||pr.user.firstName||'USUARIO').toUpperCase();
+    if (ac?.summary) { const s=ac.summary; document.getElementById('stepsv').textContent=(s.steps||0).toLocaleString('es'); document.getElementById('calv').textContent=s.activityCalories||0; const pct=Math.min((s.steps/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); }
+    if (hr?.['activities-heart-intraday']?.dataset?.length) { const ds=hr['activities-heart-intraday'].dataset; const lat=ds[ds.length-1]?.value||68; document.getElementById('hrv').textContent=lat; document.getElementById('hrlive').textContent=lat; const st=Math.max(1,Math.floor(ds.length/48)); hrHist=ds.filter((_,i)=>i%st===0).slice(-48).map(d=>d.value); buildHRC(hrHist); }
+    if (sl?.summary?.stages) updSl(sl.summary.stages);
+    isReal=true; setText('stxt',T[lang].live); const dot=document.getElementById('sdot'); dot.style.background='#00ff88'; dot.style.boxShadow='0 0 8px #00ff88'; document.getElementById('dstrip').style.display='none'; closeModal(); startPoll(); showToast(T[lang].connected);
+  } catch(e) { if(String(e).includes('401')){if(await refreshTok())await loadReal();else{localStorage.removeItem('fb_tok');token='';}} } finally { hideLoad(); }
+}
+function updSl(s) {
+  const tot=(s.deep||0)+(s.rem||0)+(s.light||0)+(s.wake||0); if(!tot)return;
+  const hm=m=>`${Math.floor(m/60)}h ${m%60}m`, pct=m=>(m/tot*100)+'%';
+  const fs=document.querySelectorAll('.slfi'), ts=document.querySelectorAll('.sltm');
+  [[0,s.deep],[1,s.rem],[2,s.light],[3,s.wake]].forEach(([i,v])=>{ if(fs[i]){fs[i].style.width=pct(v||0);ts[i].textContent=hm(v||0);} });
+}
+function showLoad() { document.getElementById('lov').classList.add('on'); }
+function hideLoad() { document.getElementById('lov').classList.remove('on'); }
+</script>
+</body>
+</html>
