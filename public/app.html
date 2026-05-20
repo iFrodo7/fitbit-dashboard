@@ -2610,20 +2610,24 @@ function showLocalNotification(title, body, tag, url) {
 
 // ── Triggers (called from polling) ──
 window._notifState = { lastSync: Date.now(), lastRhrAlert: 0 };
-function notifCheckRHR(rhr) {
+async function notifCheckRHR(rhr) {
   if (!notifEnabled() || !rhr) return;
-  // Personal baseline from cached history (avg of completed days), fallback 65
+  // Baseline personal: media de RHR de días completos cacheados en IndexedDB.
+  // Necesita ≥3 días para ser fiable; si no, usa 65 como fallback neutro.
   let base = 65;
   try {
-    if (window._histDB) { /* best-effort; history may not be loaded */ }
-  } catch(e) {}
-  const HIGH = base + 12; // sustained elevation threshold
+    const rows = await _hGetAll();
+    const vals = rows.filter(r => r._complete && r.rhr != null).map(r => r.rhr);
+    if (vals.length >= 3) base = vals.reduce((a, b) => a + b, 0) / vals.length;
+  } catch (e) {}
+  const HIGH = Math.round(base + 7); // +7 bpm sobre tu base = elevación significativa
   const now = Date.now();
   if (rhr >= HIGH && (now - window._notifState.lastRhrAlert) > 2*60*60*1000) {
     window._notifState.lastRhrAlert = now;
+    const over = Math.round(rhr - base);
     showLocalNotification(
       lang==='es' ? '⚠️ FC en reposo elevada' : '⚠️ Elevated resting HR',
-      lang==='es' ? `Tu FC en reposo (${rhr} bpm) está sobre tu rango habitual. Considera descansar.` : `Your resting HR (${rhr} bpm) is above your usual range. Consider resting.`,
+      lang==='es' ? `Tu FC en reposo (${rhr} bpm) está ${over} bpm sobre tu base (${Math.round(base)}). Considera descansar.` : `Your resting HR (${rhr} bpm) is ${over} bpm above your baseline (${Math.round(base)}). Consider resting.`,
       'rhr-alert'
     );
   }
