@@ -1116,38 +1116,38 @@ body.t-naruto span.vval{
       </div>
 
       <div class="vg">
-        <div class="vc exp" id="hr-card" onclick="toggleHR()">
+        <div class="vc exp" id="hr-card" onclick="toggleHR()" data-onb="rhr">
           <span class="vlbl" id="lbl-hr">// FREC. CARDÍACA</span><button class="onb-q" onclick="showOnb('rhr')" aria-label="info">?</button>
           <div class="vval" id="hrv">68</div>
           <span class="vunit" id="u-hr">BPM — REPOSO</span>
           <!-- Siempre visible: Reposo + Máximo del día -->
           <div class="cal-split">
             <div class="cal-box">
-              <div class="cal-box-lbl">REPOSO</div>
+              <div class="cal-box-lbl" id="hr-rest-lbl">REPOSO</div>
               <div class="cal-box-val" id="hr-rest">61</div>
               <div class="cal-box-unit">BPM</div>
             </div>
             <div class="cal-box">
-              <div class="cal-box-lbl">MÁXIMO</div>
+              <div class="cal-box-lbl" id="hr-max-lbl">MÁXIMO</div>
               <div class="cal-box-val" id="hr-max">172</div>
-              <div class="cal-box-unit">BPM HOY</div>
+              <div class="cal-box-unit" id="hr-max-unit">BPM HOY</div>
             </div>
           </div>
           <div class="xarrow">▼</div>
           <!-- Expandible: zonas cardíacas estilo Whoop -->
           <div class="vc-xpnd">
             <div class="cal-bars">
-              <div class="cal-bar-row"><span class="cal-bar-lbl">BASE</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="hrbar-base" style="width:0%;background:rgba(255,255,255,0.25)"></div></div><span class="cal-bar-val" id="hrmin-base">840m</span></div>
-              <div class="cal-bar-row"><span class="cal-bar-lbl">QUEMA</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="hrbar-fat" style="width:0%;background:var(--ta);opacity:0.7"></div></div><span class="cal-bar-val" id="hrmin-fat">52m</span></div>
-              <div class="cal-bar-row"><span class="cal-bar-lbl">CARDIO</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="hrbar-cardio" style="width:0%;background:#f59e0b"></div></div><span class="cal-bar-val" id="hrmin-cardio">22m</span></div>
-              <div class="cal-bar-row"><span class="cal-bar-lbl">PICO</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="hrbar-peak" style="width:0%;background:var(--tneg)"></div></div><span class="cal-bar-val" id="hrmin-peak">6m</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl" id="hrz-base">BASE</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="hrbar-base" style="width:0%;background:rgba(255,255,255,0.25)"></div></div><span class="cal-bar-val" id="hrmin-base">840m</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl" id="hrz-fat">QUEMA</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="hrbar-fat" style="width:0%;background:var(--ta);opacity:0.7"></div></div><span class="cal-bar-val" id="hrmin-fat">52m</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl" id="hrz-cardio">CARDIO</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="hrbar-cardio" style="width:0%;background:#f59e0b"></div></div><span class="cal-bar-val" id="hrmin-cardio">22m</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl" id="hrz-peak">PICO</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="hrbar-peak" style="width:0%;background:var(--tneg)"></div></div><span class="cal-bar-val" id="hrmin-peak">6m</span></div>
             </div>
           </div>
         </div>
-        <div class="vc"><span class="vlbl" id="lbl-hrv">// HRV NOCTURNO</span><button class="onb-q" onclick="showOnb('hrv')" aria-label="info">?</button><div class="vval" id="hrvv">48</div><span class="vunit">ms — BUENO</span><div class="vtrd">↑ +6</div></div>
+        <div class="vc" data-onb="hrv"><span class="vlbl" id="lbl-hrv">// HRV NOCTURNO</span><button class="onb-q" onclick="showOnb('hrv')" aria-label="info">?</button><div class="vval" id="hrvv">48</div><span class="vunit" id="u-hrv">ms — BUENO</span><div class="vtrd">↑ +6</div></div>
         <div class="vc"><span class="vlbl" id="lbl-spo2">// SATURACIÓN O₂</span><div class="vval" id="spo2v">98</div><span class="vunit">% SpO2</span><div class="vtrd">→</div></div>
-        <div class="vc"><span class="vlbl" id="lbl-temp">// TEMP. CORPORAL</span><div class="vval" id="tempv">36.4</div><span class="vunit">°C PIEL</span><div class="vtrd">→</div></div>
-        <div class="vc exp" id="stress-card" onclick="toggleStress()">
+        <div class="vc"><span class="vlbl" id="lbl-temp">// TEMP. CORPORAL</span><div class="vval" id="tempv">36.4</div><span class="vunit" id="u-temp">°C PIEL</span><div class="vtrd">→</div></div>
+        <div class="vc exp" id="stress-card" onclick="toggleStress()" data-onb="strain">
           <span class="vlbl" id="lbl-stress">// NIVEL ESTRÉS</span>
           <div class="vval" id="stressv">24</div>
           <span class="vunit" id="u-stress">/ 100 — BAJO</span>
@@ -1159,7 +1159,7 @@ body.t-naruto span.vval{
               <div class="cal-box-unit">MS RMSSD</div>
             </div>
             <div class="cal-box">
-              <div class="cal-box-lbl">FC REPOSO</div>
+              <div class="cal-box-lbl" id="str-rhr-lbl">FC REPOSO</div>
               <div class="cal-box-val" id="str-rhr">61</div>
               <div class="cal-box-unit">BPM</div>
             </div>
@@ -1169,8 +1169,8 @@ body.t-naruto span.vval{
           <div class="vc-xpnd">
             <div class="cal-bars">
               <div class="cal-bar-row"><span class="cal-bar-lbl">HRV</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="sbar-hrv" style="width:0%"></div></div><span class="cal-bar-val" id="sval-hrv">68ms</span></div>
-              <div class="cal-bar-row"><span class="cal-bar-lbl">FC</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="sbar-rhr" style="width:0%"></div></div><span class="cal-bar-val" id="sval-rhr">61bpm</span></div>
-              <div class="cal-bar-row"><span class="cal-bar-lbl">RESP.</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="sbar-br" style="width:0%"></div></div><span class="cal-bar-val" id="sval-br">14rpm</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl" id="sbar-fc-lbl">FC</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="sbar-rhr" style="width:0%"></div></div><span class="cal-bar-val" id="sval-rhr">61bpm</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl" id="sbar-br-lbl">RESP.</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="sbar-br" style="width:0%"></div></div><span class="cal-bar-val" id="sval-br">14rpm</span></div>
             </div>
           </div>
         </div>
@@ -1181,12 +1181,12 @@ body.t-naruto span.vval{
           <!-- Siempre visible: split BMR / Activas -->
           <div class="cal-split">
             <div class="cal-box">
-              <div class="cal-box-lbl">BASAL</div>
+              <div class="cal-box-lbl" id="cal-basal-lbl">BASAL</div>
               <div class="cal-box-val" id="cal-bmr">1,620</div>
               <div class="cal-box-unit">KCAL BMR</div>
             </div>
             <div class="cal-box">
-              <div class="cal-box-lbl">ACTIVAS</div>
+              <div class="cal-box-lbl" id="cal-active-lbl">ACTIVAS</div>
               <div class="cal-box-val" id="cal-act">564</div>
               <div class="cal-box-unit">KCAL</div>
             </div>
@@ -1195,10 +1195,10 @@ body.t-naruto span.vval{
           <!-- Solo las barras de intensidad se expanden -->
           <div class="vc-xpnd">
             <div class="cal-bars">
-              <div class="cal-bar-row"><span class="cal-bar-lbl">SEDET.</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="cbar-sed" style="width:0%;background:rgba(255,255,255,0.25)"></div></div><span class="cal-bar-val" id="cmin-sed">520m</span></div>
-              <div class="cal-bar-row"><span class="cal-bar-lbl">LIGERO</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="cbar-lig" style="width:0%;background:var(--ta);opacity:0.6"></div></div><span class="cal-bar-val" id="cmin-lig">185m</span></div>
-              <div class="cal-bar-row"><span class="cal-bar-lbl">MODER.</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="cbar-mod" style="width:0%;background:#f59e0b"></div></div><span class="cal-bar-val" id="cmin-mod">18m</span></div>
-              <div class="cal-bar-row"><span class="cal-bar-lbl">INTENSO</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="cbar-int" style="width:0%;background:var(--tneg)"></div></div><span class="cal-bar-val" id="cmin-int">27m</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl" id="cbar-sed-lbl">SEDET.</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="cbar-sed" style="width:0%;background:rgba(255,255,255,0.25)"></div></div><span class="cal-bar-val" id="cmin-sed">520m</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl" id="cbar-lig-lbl">LIGERO</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="cbar-lig" style="width:0%;background:var(--ta);opacity:0.6"></div></div><span class="cal-bar-val" id="cmin-lig">185m</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl" id="cbar-mod-lbl">MODER.</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="cbar-mod" style="width:0%;background:#f59e0b"></div></div><span class="cal-bar-val" id="cmin-mod">18m</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl" id="cbar-int-lbl">INTENSO</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="cbar-int" style="width:0%;background:var(--tneg)"></div></div><span class="cal-bar-val" id="cmin-int">27m</span></div>
             </div>
           </div>
         </div>
@@ -1264,9 +1264,9 @@ body.t-naruto span.vval{
     <div class="bot">
       <div class="card">
         <span class="clbl" id="lbl-activity">// ACTIVIDADES</span>
-        <div class="acit"><div class="acio">🏃</div><div><div class="acnm" id="ac1n">CARRERA</div><div class="acmt">HOY 06:15 · 4.2KM</div></div><div class="acvl">287 kcal</div></div>
-        <div class="acit"><div class="acio">🧘</div><div><div class="acnm" id="ac2n">MEDITACIÓN</div><div class="acmt">AYER 22:10 · 15min</div></div><div class="acvl">58 bpm</div></div>
-        <div class="acit"><div class="acio">🚴</div><div><div class="acnm" id="ac3n">CICLISMO</div><div class="acmt">AYER 17:30 · 18KM</div></div><div class="acvl">420 kcal</div></div>
+        <div class="acit"><div class="acio">🏃</div><div><div class="acnm" id="ac1n">CARRERA</div><div class="acmt" id="ac1m">HOY 06:15 · 4.2KM</div></div><div class="acvl">287 kcal</div></div>
+        <div class="acit"><div class="acio">🧘</div><div><div class="acnm" id="ac2n">MEDITACIÓN</div><div class="acmt" id="ac2m">AYER 22:10 · 15min</div></div><div class="acvl">58 bpm</div></div>
+        <div class="acit"><div class="acio">🚴</div><div><div class="acnm" id="ac3n">CICLISMO</div><div class="acmt" id="ac3m">AYER 17:30 · 18KM</div></div><div class="acvl">420 kcal</div></div>
       </div>
       <div class="card">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
@@ -1293,16 +1293,16 @@ body.t-naruto span.vval{
   <!-- Bottom Navigation (mobile only) -->
   <nav class="bnav" id="bnav">
     <button class="bnav-btn active" data-tab="home" onclick="navigate('home')">
-      <span class="bnav-ic">⌂</span><span class="bnav-lbl">Inicio</span>
+      <span class="bnav-ic">⌂</span><span class="bnav-lbl" id="bnav-home">Inicio</span>
     </button>
     <button class="bnav-btn" data-tab="stats" onclick="navigate('stats')">
-      <span class="bnav-ic">◴</span><span class="bnav-lbl">Stats</span>
+      <span class="bnav-ic">◴</span><span class="bnav-lbl" id="bnav-stats">Stats</span>
     </button>
     <button class="bnav-btn" data-tab="history" onclick="navigate('history')">
-      <span class="bnav-ic">▤</span><span class="bnav-lbl">Historial</span>
+      <span class="bnav-ic">▤</span><span class="bnav-lbl" id="bnav-history">Historial</span>
     </button>
     <button class="bnav-btn" data-tab="profile" onclick="navigate('profile')">
-      <span class="bnav-ic">◉</span><span class="bnav-lbl">Perfil</span>
+      <span class="bnav-ic">◉</span><span class="bnav-lbl" id="bnav-profile">Perfil</span>
     </button>
   </nav>
 
@@ -1464,6 +1464,18 @@ const T = {
     lbl_total: 'TOTAL', lbl_start: 'INICIO',
     lbl_activity: '// ACTIVIDADES',
     ac1: 'CARRERA', ac2: 'MEDITACIÓN', ac3: 'CICLISMO',
+    ac1m: 'HOY 06:15 · 4.2KM', ac2m: 'AYER 22:10 · 15MIN', ac3m: 'AYER 17:30 · 18KM',
+    user_demo: 'USUARIO',
+    u_hrv: 'ms — BUENO', u_temp: '°C PIEL',
+    nav_home: 'Inicio', nav_stats: 'Stats', nav_history: 'Historial', nav_profile: 'Perfil',
+    // Detalle FC
+    hr_rest_lbl: 'REPOSO', hr_max_lbl: 'MÁXIMO', hr_max_unit: 'BPM HOY',
+    hrz_base: 'BASE', hrz_fat: 'QUEMA', hrz_cardio: 'CARDIO', hrz_peak: 'PICO',
+    // Detalle estrés
+    str_rhr_lbl: 'FC REPOSO', sbar_fc_lbl: 'FC', sbar_br_lbl: 'RESP.',
+    // Detalle calorías
+    cal_basal_lbl: 'BASAL', cal_active_lbl: 'ACTIVAS',
+    cbar_sed_lbl: 'SEDET.', cbar_lig_lbl: 'LIGERO', cbar_mod_lbl: 'MODER.', cbar_int_lbl: 'INTENSO',
     lbl_coach: '// GOOGLE HEALTH COACH',
     i1t: '◆ RECUPERACIÓN', i2t: '◆ SUEÑO', i3t: '◆ ACTIVIDAD',
     i1x: 'Tu HRV subió 6ms desde ayer. Señales sólidas de recuperación. Día ideal para entrenamiento moderado-alto.',
@@ -1548,6 +1560,18 @@ const T = {
     lbl_total: 'TOTAL', lbl_start: 'START',
     lbl_activity: '// ACTIVITIES',
     ac1: 'RUN', ac2: 'MEDITATION', ac3: 'CYCLING',
+    ac1m: 'TODAY 06:15 · 4.2KM', ac2m: 'YESTERDAY 22:10 · 15MIN', ac3m: 'YESTERDAY 17:30 · 18KM',
+    user_demo: 'USER',
+    u_hrv: 'ms — GOOD', u_temp: '°C SKIN',
+    nav_home: 'Home', nav_stats: 'Stats', nav_history: 'History', nav_profile: 'Profile',
+    // HR detail
+    hr_rest_lbl: 'RESTING', hr_max_lbl: 'MAX', hr_max_unit: 'BPM TODAY',
+    hrz_base: 'BASE', hrz_fat: 'FAT BURN', hrz_cardio: 'CARDIO', hrz_peak: 'PEAK',
+    // Stress detail
+    str_rhr_lbl: 'RESTING HR', sbar_fc_lbl: 'HR', sbar_br_lbl: 'RESP.',
+    // Calories detail
+    cal_basal_lbl: 'BASAL', cal_active_lbl: 'ACTIVE',
+    cbar_sed_lbl: 'SEDENT.', cbar_lig_lbl: 'LIGHT', cbar_mod_lbl: 'MODERATE', cbar_int_lbl: 'INTENSE',
     lbl_coach: '// GOOGLE HEALTH COACH',
     i1t: '◆ RECOVERY', i2t: '◆ SLEEP', i3t: '◆ ACTIVITY',
     i1x: 'Your HRV rose 6ms since yesterday. Strong recovery signals. Ideal day for moderate-high intensity training.',
@@ -1607,6 +1631,8 @@ function setLang(l) {
   setText('rstatus', t.optimal);
   setText('lbl-hr', t.lbl_hr); setText('u-hr', t.u_hr);
   setText('lbl-spo2', t.lbl_spo2); setText('lbl-temp', t.lbl_temp);
+  setText('u-hrv', t.u_hrv); setText('u-temp', t.u_temp);
+  setText('bnav-home', t.nav_home); setText('bnav-stats', t.nav_stats); setText('bnav-history', t.nav_history); setText('bnav-profile', t.nav_profile);
   setText('lbl-stress', t.lbl_stress); setText('u-stress', t.u_stress);
   setText('lbl-cal', t.lbl_cal); setText('u-cal', t.u_cal);
   setText('lbl-hrv', t.lbl_hrv);
@@ -1624,6 +1650,18 @@ function setLang(l) {
   setText('lbl-total', t.lbl_total); setText('lbl-start', t.lbl_start);
   setText('lbl-activity', t.lbl_activity);
   setText('ac1n', t.ac1); setText('ac2n', t.ac2); setText('ac3n', t.ac3);
+  setText('ac1m', t.ac1m); setText('ac2m', t.ac2m); setText('ac3m', t.ac3m);
+  // Detalle FC / estrés / calorías (labels estáticos)
+  setText('hr-rest-lbl', t.hr_rest_lbl); setText('hr-max-lbl', t.hr_max_lbl); setText('hr-max-unit', t.hr_max_unit);
+  setText('hrz-base', t.hrz_base); setText('hrz-fat', t.hrz_fat); setText('hrz-cardio', t.hrz_cardio); setText('hrz-peak', t.hrz_peak);
+  setText('str-rhr-lbl', t.str_rhr_lbl); setText('sbar-fc-lbl', t.sbar_fc_lbl); setText('sbar-br-lbl', t.sbar_br_lbl);
+  setText('cal-basal-lbl', t.cal_basal_lbl); setText('cal-active-lbl', t.cal_active_lbl);
+  setText('cbar-sed-lbl', t.cbar_sed_lbl); setText('cbar-lig-lbl', t.cbar_lig_lbl); setText('cbar-mod-lbl', t.cbar_mod_lbl); setText('cbar-int-lbl', t.cbar_int_lbl);
+  // Valores dinámicos: solo en modo demo (no pisar datos reales conectados)
+  if (!isReal) { setText('stepspct', t.pct_lbl); setText('uname', t.user_demo); }
+  // Re-render piezas dependientes del idioma que se calculan en runtime
+  if (window._lastRec != null) setText('wrec', recTextFor(window._lastRec));
+  if (typeof renderRecoveryScore === 'function') renderRecoveryScore(); // re-pinta el label del badge en el idioma actual
   setText('lbl-coach', t.lbl_coach);
   setText('i1t', t.i1t); setText('i2t', t.i2t); setText('i3t', t.i3t);
   setText('i1x', t.i1x); setText('i2x', t.i2x); setText('i3x', t.i3x);
@@ -1660,6 +1698,7 @@ function selectTheme(t) {
   initDash();
   maybeAutoTour();
   refreshBell();
+  initSwipeNav();
 }
 
 function goBack() {
@@ -1710,7 +1749,11 @@ function applyThemeText(t) {
 
 // Apply lang on load
 setLang(lang);
-if (theme) selectTheme(theme);
+// NOTE: theme auto-init moved to the very end of the script (see "BOOT").
+// Calling selectTheme() here threw a TDZ error because it reaches
+// `const THEME_COLORS` which is declared further down — that abort was the
+// root cause of historical bug #12. Do NOT call selectTheme before all
+// top-level const/function definitions exist.
 
 // ══════ PULL TO REFRESH (mobile) ══════
 (function initPTR() {
@@ -1762,6 +1805,87 @@ if (theme) selectTheme(theme);
     }
   }, { passive: true });
 })();
+
+// ══════ SWIPE NAVIGATION (touch gestures #7) ══════
+// Función (no IIFE top-level) llamada desde selectTheme para esquivar bug #12.
+// Estado en closure (function-scoped, no top-level → sin TDZ).
+function initSwipeNav() {
+  if (window._swipeNavInit) return;
+  window._swipeNavInit = true;
+  if (!('ontouchstart' in window)) return;
+  const TABS = ['home', 'stats', 'history', 'profile'];
+  let startX = 0, startY = 0, tracking = false, horizontal = null;
+
+  const overlayOpen = () => !!document.querySelector('.onb-ov.on, .tour-ov.on, .mov.on');
+  const currentTab = () => document.querySelector('.bnav-btn.active')?.dataset.tab || 'home';
+
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1 || overlayOpen()) { tracking = false; return; }
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    tracking = true; horizontal = null;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', (e) => {
+    if (!tracking) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if (horizontal === null && (Math.abs(dx) > 12 || Math.abs(dy) > 12)) {
+      // Lock direction: horizontal only if clearly more X than Y movement
+      horizontal = Math.abs(dx) > Math.abs(dy) * 1.6;
+    }
+    if (horizontal) {
+      // Subtle visual feedback: nudge the active view
+      const el = (currentTab() === 'history') ? document.getElementById('hview') : document.querySelector('.db-main');
+      if (el) el.style.transform = `translateX(${Math.max(-40, Math.min(40, dx * 0.18))}px)`;
+    }
+  }, { passive: true });
+
+  const reset = () => {
+    document.querySelectorAll('.db-main, #hview').forEach(el => {
+      el.style.transition = 'transform 0.25s cubic-bezier(.4,0,.2,1)';
+      el.style.transform = '';
+      setTimeout(() => { el.style.transition = ''; }, 260);
+    });
+  };
+
+  document.addEventListener('touchend', (e) => {
+    if (!tracking) return;
+    tracking = false;
+    if (!horizontal) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    reset();
+    if (Math.abs(dx) < 55) return;
+    const idx = TABS.indexOf(currentTab());
+    if (dx < 0 && idx < TABS.length - 1) navigate(TABS[idx + 1]);      // swipe izquierda → siguiente tab
+    else if (dx > 0 && idx > 0) navigate(TABS[idx - 1]);              // swipe derecha → tab anterior
+  }, { passive: true });
+
+  document.addEventListener('touchcancel', () => { tracking = false; reset(); }, { passive: true });
+
+  // Long-press en cards con data-onb → abre su tooltip explicativo
+  let lpTimer = null, lpEl = null, lpStartX = 0, lpStartY = 0;
+  const clearLP = () => { if (lpTimer) { clearTimeout(lpTimer); lpTimer = null; } if (lpEl) { lpEl.style.transform=''; lpEl = null; } };
+  document.addEventListener('touchstart', (e) => {
+    const card = e.target.closest('[data-onb]');
+    if (!card || overlayOpen()) return;
+    lpEl = card; lpStartX = e.touches[0].clientX; lpStartY = e.touches[0].clientY;
+    card.style.transition = 'transform 0.5s ease';
+    card.style.transform = 'scale(0.97)';
+    lpTimer = setTimeout(() => {
+      card.style.transform = '';
+      if (navigator.vibrate) navigator.vibrate([12, 8, 12]);
+      showOnb(card.dataset.onb);
+      lpTimer = null; lpEl = null;
+    }, 500);
+  }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    if (!lpTimer) return;
+    const dx = Math.abs(e.touches[0].clientX - lpStartX), dy = Math.abs(e.touches[0].clientY - lpStartY);
+    if (dx > 10 || dy > 10) clearLP();
+  }, { passive: true });
+  document.addEventListener('touchend', clearLP, { passive: true });
+}
 
 // ══════ BOTTOM NAV ══════
 function navigate(tab) {
@@ -2063,14 +2187,16 @@ function updateScores({ rec, strain, sleepPct }) {
   if (spb) setTimeout(()=>{ spb.style.width=sleepPct+'%'; },100);
   animN('sleep-pct-val', 0, sleepPct, 1000);
   // Recomendación y color del status
-  const ls=T[lang];
-  const rec_txt = rec>=67 ? (lang==='es'?'Listo para entrenar al máximo':'Ready for peak training') :
-                  rec>=50 ? (lang==='es'?'Entrenamiento moderado-alto recomendado':'Moderate-high training recommended') :
-                  rec>=34 ? (lang==='es'?'Mantén la intensidad baja hoy':'Keep intensity low today') :
-                            (lang==='es'?'Prioriza el descanso hoy':'Prioritize rest today');
-  setText('wrec', rec_txt);
+  window._lastRec = rec; // para re-traducir en setLang
+  setText('wrec', recTextFor(rec));
   const statusEl=document.getElementById('rstatus');
   if (statusEl) statusEl.style.color = rec>=67?'var(--tpos)':rec>=34?'#f59e0b':'var(--tneg)';
+}
+function recTextFor(rec) {
+  return rec>=67 ? (lang==='es'?'Listo para entrenar al máximo':'Ready for peak training') :
+         rec>=50 ? (lang==='es'?'Entrenamiento moderado-alto recomendado':'Moderate-high training recommended') :
+         rec>=34 ? (lang==='es'?'Mantén la intensidad baja hoy':'Keep intensity low today') :
+                   (lang==='es'?'Prioriza el descanso hoy':'Prioritize rest today');
 }
 
 function animVals() {
@@ -2088,7 +2214,7 @@ function animVals() {
 function animN(id,from,to,dur,comma) {
   const el = document.getElementById(id); if (!el) return;
   const s = performance.now();
-  (function f(now) { const t=Math.min((now-s)/dur,1); const e=1-Math.pow(1-t,3); const v=Math.round(from+(to-from)*e); el.textContent=comma?v.toLocaleString('es'):v; if(t<1)requestAnimationFrame(f); })(performance.now());
+  (function f(now) { const t=Math.min((now-s)/dur,1); const e=1-Math.pow(1-t,3); const v=Math.round(from+(to-from)*e); el.textContent=comma?v.toLocaleString('en-US'):v; if(t<1)requestAnimationFrame(f); })(performance.now());
 }
 function flash(id) { const e=document.getElementById(id); if(!e)return; e.classList.remove('vflash'); void e.offsetWidth; e.classList.add('vflash'); setTimeout(()=>e.classList.remove('vflash'),500); }
 
@@ -2204,7 +2330,7 @@ async function pollFast() {
     }
     if (ad?.summary) {
       const s=ad.summary, ns=s.steps||0;
-      if (String(ns)!==document.getElementById('stepsv').textContent.replace(/\D/g,'')) { document.getElementById('stepsv').textContent=ns.toLocaleString('es'); const pct=Math.min((ns/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); flash('stepsv'); }
+      if (String(ns)!==document.getElementById('stepsv').textContent.replace(/\D/g,'')) { document.getElementById('stepsv').textContent=ns.toLocaleString('en-US'); const pct=Math.min((ns/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); flash('stepsv'); }
       const nc=s.activityCalories||0; if(String(nc)!==document.getElementById('calv').textContent){document.getElementById('calv').textContent=nc;flash('calv');}
     }
     animSBar(); showToast(T[lang].sync_toast(new Date().toLocaleTimeString(lang==='es'?'es':'en',{hour:'2-digit',minute:'2-digit',second:'2-digit'})));
@@ -2233,7 +2359,7 @@ async function loadReal() {
     const h={'Authorization':'Bearer '+token}, td=new Date().toISOString().split('T')[0];
     const [pr,ac,hr,sl] = await Promise.all([fetch('https://api.fitbit.com/1/user/-/profile.json',{headers:h}).then(r=>r.json()),fetch(`https://api.fitbit.com/1/user/-/activities/date/${td}.json`,{headers:h}).then(r=>r.json()),fetch(`https://api.fitbit.com/1/user/-/activities/heart/date/${td}/1d/1min.json`,{headers:h}).then(r=>r.json()),fetch('https://api.fitbit.com/1.2/user/-/sleep/date/today.json',{headers:h}).then(r=>r.json())]);
     if (pr?.user) document.getElementById('uname').textContent = (pr.user.displayName||pr.user.firstName||'USUARIO').toUpperCase();
-    if (ac?.summary) { const s=ac.summary; document.getElementById('stepsv').textContent=(s.steps||0).toLocaleString('es'); document.getElementById('calv').textContent=s.activityCalories||0; const pct=Math.min((s.steps/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); document.getElementById('cal-bmr').textContent=(s.caloriesBMR||0).toLocaleString(); document.getElementById('cal-act').textContent=(s.activityCalories||0).toLocaleString(); setCalbars({sed:s.sedentaryMinutes||0,lig:s.lightlyActiveMinutes||0,mod:s.fairlyActiveMinutes||0,int:s.veryActiveMinutes||0}); }
+    if (ac?.summary) { const s=ac.summary; document.getElementById('stepsv').textContent=(s.steps||0).toLocaleString('en-US'); document.getElementById('calv').textContent=s.activityCalories||0; const pct=Math.min((s.steps/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); document.getElementById('cal-bmr').textContent=(s.caloriesBMR||0).toLocaleString(); document.getElementById('cal-act').textContent=(s.activityCalories||0).toLocaleString(); setCalbars({sed:s.sedentaryMinutes||0,lig:s.lightlyActiveMinutes||0,mod:s.fairlyActiveMinutes||0,int:s.veryActiveMinutes||0}); }
     let maxHR_real=0; if (hr?.['activities-heart-intraday']?.dataset?.length) { const ds=hr['activities-heart-intraday'].dataset; const lat=ds[ds.length-1]?.value||68; maxHR_real=Math.max(...ds.map(d=>d.value)); document.getElementById('hrv').textContent=lat; document.getElementById('hrlive').textContent=lat; const st=Math.max(1,Math.floor(ds.length/48)); hrHist=ds.filter((_,i)=>i%st===0).slice(-48).map(d=>d.value); buildHRC(hrHist); }
     if (sl?.summary?.stages) updSl(sl.summary.stages);
     renderHypnogram(sl?.sleep?.find(s=>s.isMainSleep) ?? sl?.sleep?.[0]);
@@ -2713,6 +2839,14 @@ function setHistoryRange(n) {
   if (navigator.vibrate) navigator.vibrate(8);
   renderHistory();
 }
+
+// ══════════════════════════════════════════════════════════════════════
+// BOOT — runs LAST so every top-level const/function is initialized.
+// This is the fix for bug #12 (TDZ abort). If you add new top-level state,
+// you can now safely use `let`/`const` again as long as it's declared
+// above this line.
+// ══════════════════════════════════════════════════════════════════════
+if (theme) selectTheme(theme);
 </script>
 </body>
 </html>
