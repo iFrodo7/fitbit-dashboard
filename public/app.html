@@ -2174,7 +2174,7 @@ function animVals() {
 function animN(id,from,to,dur,comma) {
   const el = document.getElementById(id); if (!el) return;
   const s = performance.now();
-  (function f(now) { const t=Math.min((now-s)/dur,1); const e=1-Math.pow(1-t,3); const v=Math.round(from+(to-from)*e); el.textContent=comma?v.toLocaleString('es'):v; if(t<1)requestAnimationFrame(f); })(performance.now());
+  (function f(now) { const t=Math.min((now-s)/dur,1); const e=1-Math.pow(1-t,3); const v=Math.round(from+(to-from)*e); el.textContent=comma?v.toLocaleString('en-US'):v; if(t<1)requestAnimationFrame(f); })(performance.now());
 }
 function flash(id) { const e=document.getElementById(id); if(!e)return; e.classList.remove('vflash'); void e.offsetWidth; e.classList.add('vflash'); setTimeout(()=>e.classList.remove('vflash'),500); }
 
@@ -2290,7 +2290,7 @@ async function pollFast() {
     }
     if (ad?.summary) {
       const s=ad.summary, ns=s.steps||0;
-      if (String(ns)!==document.getElementById('stepsv').textContent.replace(/\D/g,'')) { document.getElementById('stepsv').textContent=ns.toLocaleString('es'); const pct=Math.min((ns/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); flash('stepsv'); }
+      if (String(ns)!==document.getElementById('stepsv').textContent.replace(/\D/g,'')) { document.getElementById('stepsv').textContent=ns.toLocaleString('en-US'); const pct=Math.min((ns/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); flash('stepsv'); }
       const nc=s.activityCalories||0; if(String(nc)!==document.getElementById('calv').textContent){document.getElementById('calv').textContent=nc;flash('calv');}
     }
     animSBar(); showToast(T[lang].sync_toast(new Date().toLocaleTimeString(lang==='es'?'es':'en',{hour:'2-digit',minute:'2-digit',second:'2-digit'})));
@@ -2319,7 +2319,7 @@ async function loadReal() {
     const h={'Authorization':'Bearer '+token}, td=new Date().toISOString().split('T')[0];
     const [pr,ac,hr,sl] = await Promise.all([fetch('https://api.fitbit.com/1/user/-/profile.json',{headers:h}).then(r=>r.json()),fetch(`https://api.fitbit.com/1/user/-/activities/date/${td}.json`,{headers:h}).then(r=>r.json()),fetch(`https://api.fitbit.com/1/user/-/activities/heart/date/${td}/1d/1min.json`,{headers:h}).then(r=>r.json()),fetch('https://api.fitbit.com/1.2/user/-/sleep/date/today.json',{headers:h}).then(r=>r.json())]);
     if (pr?.user) document.getElementById('uname').textContent = (pr.user.displayName||pr.user.firstName||'USUARIO').toUpperCase();
-    if (ac?.summary) { const s=ac.summary; document.getElementById('stepsv').textContent=(s.steps||0).toLocaleString('es'); document.getElementById('calv').textContent=s.activityCalories||0; const pct=Math.min((s.steps/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); document.getElementById('cal-bmr').textContent=(s.caloriesBMR||0).toLocaleString(); document.getElementById('cal-act').textContent=(s.activityCalories||0).toLocaleString(); setCalbars({sed:s.sedentaryMinutes||0,lig:s.lightlyActiveMinutes||0,mod:s.fairlyActiveMinutes||0,int:s.veryActiveMinutes||0}); }
+    if (ac?.summary) { const s=ac.summary; document.getElementById('stepsv').textContent=(s.steps||0).toLocaleString('en-US'); document.getElementById('calv').textContent=s.activityCalories||0; const pct=Math.min((s.steps/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); document.getElementById('cal-bmr').textContent=(s.caloriesBMR||0).toLocaleString(); document.getElementById('cal-act').textContent=(s.activityCalories||0).toLocaleString(); setCalbars({sed:s.sedentaryMinutes||0,lig:s.lightlyActiveMinutes||0,mod:s.fairlyActiveMinutes||0,int:s.veryActiveMinutes||0}); }
     let maxHR_real=0; if (hr?.['activities-heart-intraday']?.dataset?.length) { const ds=hr['activities-heart-intraday'].dataset; const lat=ds[ds.length-1]?.value||68; maxHR_real=Math.max(...ds.map(d=>d.value)); document.getElementById('hrv').textContent=lat; document.getElementById('hrlive').textContent=lat; const st=Math.max(1,Math.floor(ds.length/48)); hrHist=ds.filter((_,i)=>i%st===0).slice(-48).map(d=>d.value); buildHRC(hrHist); }
     if (sl?.summary?.stages) updSl(sl.summary.stages);
     renderHypnogram(sl?.sleep?.find(s=>s.isMainSleep) ?? sl?.sleep?.[0]);
