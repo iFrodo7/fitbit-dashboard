@@ -12,6 +12,7 @@
 2. `feature/history-trends`    — PR [#11](https://github.com/iFrodo7/fitbit-dashboard/pull/11) → `feature/pwa-mobile-ready`
 3. `feature/sprint-3-ux`       — PR [#13](https://github.com/iFrodo7/fitbit-dashboard/pull/13) → `feature/history-trends`
 4. `feature/push-notifications`— PR [#14](https://github.com/iFrodo7/fitbit-dashboard/pull/14) → `feature/sprint-3-ux`
+5. `feature/touch-gestures`    — PR [#15](https://github.com/iFrodo7/fitbit-dashboard/pull/15) → `feature/push-notifications` *(incluye el fix del bug #12)*
 
 **Estrategia de merge recomendada:**
 1. Review + squash merge **#10** → `main`
@@ -19,7 +20,8 @@
 3. Review + squash merge **#11** → `main`
 4. Igual con **#13** → `main`
 5. Igual con **#14** → `main`
-6. Sprint 2 cerrado; Sprint 3 casi cerrado (solo falta server push, ver #4)
+6. Igual con **#15** → `main`
+7. Sprint 2 cerrado; Sprint 3 casi cerrado (solo server push, #4); Sprint 4 arrancado (#7 done)
 
 ---
 
@@ -48,12 +50,14 @@ polling (alerta RHR fuera de rango, marca de sync), y listeners `push`/`message`
 alertas con la app **cerrada**. Ver issue #4 (tiene comentario con el estado).
 
 ### Sprint 4 — Diferenciación (milestone #3)
-- #7 Touch gestures — swipe entre cards
-- #8 Capacitor — app nativa (TestFlight / Play Store)
-- #9 Migración progresiva a Next.js
+| # | Item | Estado | PR |
+|---|---|---|---|
+| #7 | Touch gestures — swipe + long-press | ✅ done | #15 |
+| #8 | Capacitor — app nativa (TestFlight / Play Store) | ⏳ pending | — |
+| #9 | Migración progresiva a Next.js | ⏳ pending | — |
 
-### Bugs abiertos
-- **#12 [P2]** Top-level `let`/`const` queda en TDZ — script aborta silenciosamente. **LEE ESTO ANTES DE TOCAR app.html**. Ver sección "Bugs conocidos" abajo.
+### Bugs
+- **#12 [P2]** Top-level `let`/`const` TDZ abort — ✅ **RESUELTO** en #15. Causa raíz: `if (theme) selectTheme(theme)` corría antes de que `const THEME_COLORS` estuviera declarado. Fix: auto-init movida a un bloque BOOT al final del script. Ya **puedes volver a usar `let`/`const` top-level** siempre que estén declarados antes del bloque BOOT.
 
 ---
 
@@ -122,22 +126,17 @@ git checkout feature/sprint-3-ux   # incluye todo lo de #10 + #11 + #13
 
 ## 🐛 Bugs conocidos — **leer antes de tocar `public/app.html`**
 
-### 🔴 #12 — Top-level `let`/`const` TDZ abort (P2, intermitente, ha bloqueado 3 features)
+### ✅ #12 — Top-level `let`/`const` TDZ abort — **RESUELTO** (PR #15)
 
-**Síntoma:** cualquier `let foo = X;` o `const bar = Y;` declarado al nivel superior del único `<script>` queda permanentemente en TDZ. Las funciones declaradas en el mismo bloque sí son llamables (hoisted) pero al ejecutarse leen el binding y lanzan:
-```
-Cannot access '_X' before initialization
-```
-**Pero `console.error` está vacío** — no logueas el error porque algo lo silencia.
+**Era:** un `Cannot access 'X' before initialization` que abortaba el script a mitad de ejecución, dejando todo el state top-level posterior sin inicializar. Solo se manifestaba con un tema guardado en localStorage.
 
-**Workaround universal:** Usar `window._foo` en lugar de `let _foo`. Ejemplos en el código:
-- `window._rsData` (Recovery Score state)
-- `window._histRange`, `window._histDB`, `window._histFetching` (Historial)
-- `window._tourIdx` (Onboarding tour)
+**Causa raíz (no era hoisting):** `if (theme) selectTheme(theme)` se ejecutaba a ~línea 1714. `selectTheme` → `updateThemeColor` → lee `const THEME_COLORS`, declarado ~200 líneas más abajo (~1922). Acceder a un `const` antes de su línea de declaración = TDZ throw. Ese throw abortaba todo lo que venía después (por eso `_rsData`, `_histRange`, `_tourIdx` quedaban muertos).
 
-**Cómo reproducir:** Añade `let _testVar = 42;` cerca del final de `<script>`, recarga, abre consola y haz `typeof window._testVar` → `'undefined'`. Pero `typeof renderHypnogram` → `'function'`.
+**Fix:** la auto-init de tema se movió a un bloque `// BOOT` al **final del script**, después de todas las definiciones. Ahora el script corre completo.
 
-**Qué falta:** Encontrar el IIFE / addEventListener / getElementById fallido entre `setLang(lang)` (~línea 1660) y el final del script que está silenciando el error y abortando la ejecución. Cuando lo arregles, podrás migrar los `window.*` de vuelta a `let`.
+**Implicación para ti:** ya **puedes usar `let`/`const` top-level normalmente**, siempre que la declaración esté antes del bloque BOOT (que es lo último). Los `window._foo` existentes (`_rsData`, `_histRange`, `_histDB`, `_histFetching`, `_tourIdx`, `_notifState`, `_swipeNavInit`) funcionan bien y no es urgente migrarlos, pero ya no son obligatorios.
+
+**Lección general:** nunca invoques una función al top-level que dependa de `const`/`let` declarados más abajo. Mantén toda invocación de arranque en el bloque BOOT final.
 
 ### 🟡 Otros bugs vivos
 2. **Service Worker no se activa al primer load** — necesita reload manual una vez. Workaround: pasa por `/app.html` dos veces, ya queda.
@@ -196,12 +195,11 @@ Cannot access '_X' before initialization
 - Probar el flujo completo en mobile
 
 ### Si tienes 2 h
-- **Arreglar #12** (el TDZ bug). Es el bug más urgente porque afecta a TODO futuro desarrollo en `public/app.html`. Estrategia: añadir `console.log` en cada función llamada al nivel superior hasta encontrar la que aborta silenciosamente.
-- O empezar #4 (Push Notifications) con VAPID en Vercel — issue tiene todos los pasos.
+- Completar la **segunda fase de #4** (server push): Vercel API route + `web-push` + VAPID, para alertas con la app cerrada. El cliente ya está listo.
+- O probar en device real el swipe/long-press de #7 y pulir thresholds.
 
 ### Si tienes una tarde
-- Avanzar Sprint 4. Recomiendo arrancar por **#7 Touch gestures** (impacto inmediato visible en mobile, scope contenido).
-- Luego #8 Capacitor (mucho más pesado, pero abre la puerta a App Store).
+- Avanzar Sprint 4 con **#8 Capacitor** (abre la puerta a App Store / Play Store) o **#9 migración a Next.js** (discútelo con el owner antes — es decisión arquitectónica).
 
 ---
 
@@ -213,8 +211,9 @@ Al empezar tu sesión, pega esto **exactamente**:
 Lee HANDOFF.md y CLAUDE.md primero. Estoy continuando el desarrollo
 de Fitbit Air Dashboard.
 
-Estado: Sprint 2 done, Sprint 3 casi done (#4 push notifications pendiente),
-Sprint 4 sin empezar. Bug crítico #12 sigue abierto.
+Estado: Sprint 2 done, Sprint 3 casi done (solo falta server push de #4),
+Sprint 4 arrancado (#7 touch gestures done). Bug #12 ya está resuelto.
+5 PRs stacked esperando review: #10 → #11 → #13 → #14 → #15.
 
 Quiero trabajar en: [DESCRIBE TU OBJETIVO]
 ```
@@ -227,7 +226,7 @@ Quiero trabajar en: [DESCRIBE TU OBJETIVO]
 - `gh issue list --milestone "Sprint 3 — Premium UX"` — Filtrar por milestone
 
 ### Cosas que NO debes hacer
-- ❌ Añadir `let` o `const` al top-level del `<script>` en `public/app.html` (ver #12). Usa `window.*` hasta que #12 esté arreglado.
+- ❌ Invocar funciones de arranque al top-level que dependan de `const`/`let` declarados más abajo (causó el bug #12). Pon toda la init en el bloque `// BOOT` al final del script.
 - ❌ Hard-codear colores. Usa CSS vars (`var(--ta)`, etc.).
 - ❌ Romper paridad ES/EN. Si añades un string nuevo en `T.es`, añádelo también en `T.en`.
 - ❌ Olvidar `applyThemeText` cuando añades labels nuevos por tema.
