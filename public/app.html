@@ -1628,7 +1628,10 @@ function initDash() {
       if (isReal) return;
       const c = parseInt(document.getElementById('hrlive').textContent);
       const n = Math.max(55, Math.min(85, c + Math.floor(Math.random()*5)-2));
-      ['hrlive','hrv'].forEach(id => { const e = document.getElementById(id); if(e) e.textContent=n; });
+      ['hrlive','hrv'].forEach(id => {
+        const e = document.getElementById(id);
+        if (e && n !== c) { e.textContent = n; pulseValue(e); }
+      });
       if (document.getElementById('tickhr')) document.getElementById('tickhr').textContent = n;
       hrHist.push(n); if (hrHist.length>48) hrHist.shift(); buildHRC(hrHist);
     }, 4000);
@@ -1880,6 +1883,12 @@ function startCd() {
 }
 function chgI(v) { pSec=parseInt(v); startCd(); clearInterval(ptmr); if(isReal)ptmr=setInterval(pollFast,pSec*1000); }
 function animSBar() { const f=document.getElementById('sbfi'); f.style.transition='none'; f.style.width='0%'; requestAnimationFrame(()=>{ f.style.transition=`width ${pSec*1000}ms linear`; f.style.width='100%'; setTimeout(()=>{ f.style.transition='width 0.3s'; f.style.width='0%'; },pSec*1000); }); }
+function pulseValue(el) {
+  if (!el) return;
+  el.classList.remove('value-updated');
+  void el.offsetWidth;
+  el.classList.add('value-updated');
+}
 function showToast(msg, type) {
   const t = document.getElementById('toast');
   const icons = { success: '✓', error: '✕', warning: '⚠', info: '◆' };
