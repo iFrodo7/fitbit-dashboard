@@ -1908,7 +1908,22 @@ function navigate(tab) {
 // ══════ PWA: Register Service Worker + theme-color sync ══════
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW registration failed:', err));
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => {
+        // Primera visita: aún no hay SW controller → cuando clients.claim() lo
+        // active, recargamos UNA sola vez para que esta página corra bajo SW
+        // desde el inicio (habilita offline mode y cache sin reload manual).
+        // Las visitas siguientes ya tienen controller → este listener no se añade.
+        if (!navigator.serviceWorker.controller) {
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            // No recargar durante el callback de OAuth — el code es de un solo uso
+            if (!new URLSearchParams(location.search).get('code')) {
+              window.location.reload();
+            }
+          });
+        }
+      })
+      .catch(err => console.warn('SW registration failed:', err));
   });
 }
 
