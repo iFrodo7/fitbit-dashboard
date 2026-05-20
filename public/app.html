@@ -171,6 +171,42 @@ body{width:100%;min-height:100vh;}
 /* Steps card layout */
 .scard-inner{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;}
 
+/* ── HISTORY VIEW (overlay) ── */
+#hview{position:fixed;inset:0;bottom:64px;overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;-webkit-overflow-scrolling:touch;}
+body.view-history #hview{display:block;}
+body.view-history #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#hview){visibility:hidden;}
+body.view-history #dash > #install-banner{visibility:visible;}
+.hv-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--sub);}
+.hv-title{font-size:14px;font-weight:700;letter-spacing:3px;color:var(--ta);text-transform:uppercase;}
+.hv-sub{font-size:9px;letter-spacing:2px;opacity:0.45;margin-top:3px;}
+.hv-pills{display:flex;gap:6px;}
+.hv-pill{background:var(--sub);border:1px solid var(--bdr);color:var(--tx);font-size:10px;letter-spacing:2px;padding:6px 10px;cursor:pointer;font-family:inherit;text-transform:uppercase;transition:all 0.2s;border-radius:3px;-webkit-tap-highlight-color:transparent;}
+.hv-pill.on{background:var(--ta);color:var(--bg);border-color:var(--ta);font-weight:700;}
+.hv-card{margin-bottom:14px;}
+.hv-card .clbl{display:flex;justify-content:space-between;align-items:baseline;}
+.hv-stat{font-size:9px;letter-spacing:2px;opacity:0.5;}
+.hv-stat strong{color:var(--ta);font-weight:700;}
+.hv-chart{width:100%;display:block;margin-top:8px;}
+.hv-chart .grid{stroke:var(--sub);stroke-width:1;}
+.hv-chart .axlbl{font-size:9px;fill:var(--tx);opacity:0.4;letter-spacing:1px;font-family:inherit;}
+.hv-chart .ln{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.hv-chart .ln.rec{stroke:var(--ta);}
+.hv-chart .ln.rhr{stroke:var(--ta2);}
+.hv-chart .area{opacity:0.12;}
+.hv-chart .pt{r:2.5;}
+.hv-chart .pt-rec{fill:var(--ta);}
+.hv-chart .pt-rhr{fill:var(--ta2);}
+.hv-chart .bar-deep{fill:var(--ta2);}
+.hv-chart .bar-rem{fill:var(--ta);}
+.hv-chart .bar-light{fill:rgba(255,255,255,0.22);}
+.hv-chart .bar-wake{fill:var(--tneg);}
+.hv-empty{display:flex;align-items:center;justify-content:center;height:140px;font-size:10px;opacity:0.4;letter-spacing:2px;flex-direction:column;gap:6px;}
+.hv-skel{height:140px;background:linear-gradient(90deg,var(--sub) 0%,var(--rbg) 50%,var(--sub) 100%);background-size:200% 100%;animation:hvShim 1.4s linear infinite;border-radius:4px;margin-top:8px;}
+@keyframes hvShim{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+.hv-tt{position:absolute;background:var(--rbg);border:1px solid var(--bdr);color:var(--tx);padding:6px 9px;font-size:10px;letter-spacing:1px;pointer-events:none;transform:translate(-50%,-110%);white-space:nowrap;z-index:2;box-shadow:0 2px 12px rgba(0,0,0,0.4);display:none;border-radius:3px;}
+.hv-tt strong{color:var(--ta);font-weight:700;}
+.hv-chart-wrap{position:relative;}
+
 /* Sleep */
 .hypno{margin:8px 0 10px;}
 .hypno-track{position:relative;width:100%;height:48px;background:var(--rbg);border-radius:3px;overflow:hidden;display:flex;}
@@ -1213,6 +1249,36 @@ body.t-naruto span.vval{
     </button>
   </nav>
 
+  <!-- ══════════════ HISTORY VIEW ══════════════ -->
+  <section id="hview" aria-hidden="true">
+    <div class="hv-hd">
+      <div>
+        <div class="hv-title" id="hv-title">HISTORIAL</div>
+        <div class="hv-sub" id="hv-sub">// TENDENCIAS BIOMÉTRICAS</div>
+      </div>
+      <div class="hv-pills" role="tablist">
+        <button class="hv-pill on" data-range="7"  onclick="setHistoryRange(7)">7D</button>
+        <button class="hv-pill"    data-range="30" onclick="setHistoryRange(30)">30D</button>
+        <button class="hv-pill"    data-range="90" onclick="setHistoryRange(90)">90D</button>
+      </div>
+    </div>
+
+    <div class="card hv-card">
+      <div class="clbl"><span id="hv-rec-lbl">// RECOVERY SCORE</span><span class="hv-stat" id="hv-rec-stat"></span></div>
+      <div class="hv-chart-wrap"><div id="hv-rec-skel" class="hv-skel"></div><svg class="hv-chart" id="hv-rec-svg" style="display:none"></svg><div class="hv-tt" id="hv-rec-tt"></div></div>
+    </div>
+
+    <div class="card hv-card">
+      <div class="clbl"><span id="hv-rhr-lbl">// FRECUENCIA EN REPOSO</span><span class="hv-stat" id="hv-rhr-stat"></span></div>
+      <div class="hv-chart-wrap"><div id="hv-rhr-skel" class="hv-skel"></div><svg class="hv-chart" id="hv-rhr-svg" style="display:none"></svg><div class="hv-tt" id="hv-rhr-tt"></div></div>
+    </div>
+
+    <div class="card hv-card">
+      <div class="clbl"><span id="hv-sleep-lbl">// SUEÑO POR NOCHE</span><span class="hv-stat" id="hv-sleep-stat"></span></div>
+      <div class="hv-chart-wrap"><div id="hv-sleep-skel" class="hv-skel"></div><svg class="hv-chart" id="hv-sleep-svg" style="display:none"></svg><div class="hv-tt" id="hv-sleep-tt"></div></div>
+    </div>
+  </section>
+
   <div class="dstrip" id="dstrip"><div class="ddot"></div><span id="demo-txt">DEMO — CONECTA TU FITBIT AIR</span></div>
   <div class="lov" id="lov"><div class="ltxt" id="load-txt">SINCRONIZANDO...</div><div class="lbar"><div class="lfi"></div></div></div>
 
@@ -1284,6 +1350,10 @@ const T = {
     lbl_now: 'AHORA',
     lbl_sleep: '// ANÁLISIS DE SUEÑO',
     sl_deep: 'PROF.', sl_light: 'LIGER.', sl_awake: 'DESP.',
+    hv_title:'HISTORIAL', hv_sub:'// TENDENCIAS BIOMÉTRICAS',
+    hv_rec_lbl:'// RECOVERY SCORE', hv_rhr_lbl:'// FRECUENCIA EN REPOSO', hv_sleep_lbl:'// SUEÑO POR NOCHE',
+    hv_empty:'CONECTA FITBIT PARA VER TUS TENDENCIAS', hv_no_data:'SIN DATOS EN ESTE RANGO',
+    hv_avg:'PROMEDIO', hv_min:'MÍN', hv_max:'MÁX', hv_hrs:'h', hv_bpm:'bpm',
     lbl_total: 'TOTAL', lbl_start: 'INICIO',
     lbl_activity: '// ACTIVIDADES',
     ac1: 'CARRERA', ac2: 'MEDITACIÓN', ac3: 'CICLISMO',
@@ -1349,6 +1419,10 @@ const T = {
     lbl_now: 'NOW',
     lbl_sleep: '// SLEEP ANALYSIS',
     sl_deep: 'DEEP', sl_light: 'LIGHT', sl_awake: 'AWAKE',
+    hv_title:'HISTORY', hv_sub:'// BIOMETRIC TRENDS',
+    hv_rec_lbl:'// RECOVERY SCORE', hv_rhr_lbl:'// RESTING HEART RATE', hv_sleep_lbl:'// SLEEP PER NIGHT',
+    hv_empty:'CONNECT FITBIT TO SEE TRENDS', hv_no_data:'NO DATA IN THIS RANGE',
+    hv_avg:'AVG', hv_min:'MIN', hv_max:'MAX', hv_hrs:'h', hv_bpm:'bpm',
     lbl_total: 'TOTAL', lbl_start: 'START',
     lbl_activity: '// ACTIVITIES',
     ac1: 'RUN', ac2: 'MEDITATION', ac3: 'CYCLING',
@@ -1423,6 +1497,8 @@ function setLang(l) {
   setText('lbl-sleep', t.lbl_sleep);
   setText('sl-deep', t.sl_deep); setText('sl-light', t.sl_light); setText('sl-awake', t.sl_awake);
   setText('hl-deep', t.sl_deep); setText('hl-light', t.sl_light); setText('hl-wake', t.sl_awake);
+  setText('hv-title', t.hv_title); setText('hv-sub', t.hv_sub);
+  setText('hv-rec-lbl', t.hv_rec_lbl); setText('hv-rhr-lbl', t.hv_rhr_lbl); setText('hv-sleep-lbl', t.hv_sleep_lbl);
   setText('lbl-total', t.lbl_total); setText('lbl-start', t.lbl_start);
   setText('lbl-activity', t.lbl_activity);
   setText('ac1n', t.ac1); setText('ac2n', t.ac2); setText('ac3n', t.ac3);
@@ -1566,11 +1642,19 @@ if (theme) selectTheme(theme);
 // ══════ BOTTOM NAV ══════
 function navigate(tab) {
   document.querySelectorAll('.bnav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-  // Smooth scroll to corresponding section (placeholder for full routing)
-  const sections = { home: 0, stats: document.querySelector('.mg')?.offsetTop, history: document.querySelector('.hrc-card')?.offsetTop, profile: document.body.scrollHeight };
+  if (navigator.vibrate) navigator.vibrate(10);
+  if (tab === 'history') {
+    document.body.classList.add('view-history');
+    document.getElementById('hview')?.setAttribute('aria-hidden','false');
+    document.getElementById('hview').scrollTop = 0;
+    renderHistory(); // triggers fetch + draw
+    return;
+  }
+  document.body.classList.remove('view-history');
+  document.getElementById('hview')?.setAttribute('aria-hidden','true');
+  const sections = { home: 0, stats: document.querySelector('.mg')?.offsetTop, profile: document.body.scrollHeight };
   const y = sections[tab] || 0;
   window.scrollTo({ top: Math.max(0, y - 70), behavior: 'smooth' });
-  if (navigator.vibrate) navigator.vibrate(10);
 }
 
 // ══════ PWA: Register Service Worker + theme-color sync ══════
@@ -2094,6 +2178,281 @@ function renderHypnogram(main) {
 }
 function showLoad() { document.getElementById('lov').classList.add('on'); }
 function hideLoad() { document.getElementById('lov').classList.remove('on'); }
+
+// ══════════════════════════════════════════════════════════════════════
+// HISTORY MODULE — IndexedDB cache + Fitbit time-series + SVG charts
+// ══════════════════════════════════════════════════════════════════════
+window._histRange = 7;
+window._histDB = null;
+window._histFetching = false;
+
+function _hOpenDB() {
+  if (window._histDB) return Promise.resolve(window._histDB);
+  return new Promise((res, rej) => {
+    const req = indexedDB.open('fb_history', 1);
+    req.onupgradeneeded = (e) => { e.target.result.createObjectStore('daily', { keyPath: 'date' }); };
+    req.onsuccess = (e) => { window._histDB = e.target.result; res(window._histDB); };
+    req.onerror = (e) => rej(e.target.error);
+  });
+}
+function _hGetAll() {
+  return _hOpenDB().then(db => new Promise((res,rej) => {
+    const tx = db.transaction('daily','readonly').objectStore('daily').getAll();
+    tx.onsuccess = () => res(tx.result || []);
+    tx.onerror = () => rej(tx.error);
+  })).catch(() => []);
+}
+function _hPut(rec) {
+  return _hOpenDB().then(db => new Promise((res,rej) => {
+    const tx = db.transaction('daily','readwrite').objectStore('daily').put(rec);
+    tx.onsuccess = () => res(); tx.onerror = () => rej(tx.error);
+  })).catch(() => {});
+}
+function _hDays(n) {
+  const out = [];
+  const today = new Date(); today.setHours(0,0,0,0);
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(today); d.setDate(d.getDate() - i);
+    out.push(d.toISOString().split('T')[0]);
+  }
+  return out;
+}
+function _hFmtDate(d) {
+  const dd = new Date(d);
+  return dd.toLocaleDateString(lang==='es'?'es':'en',{day:'2-digit',month:'short'}).toUpperCase();
+}
+
+async function _hFetchRange(range) {
+  if (!token) return;
+  if (window._histFetching) return;
+  window._histFetching = true;
+  try {
+    const days = _hDays(range);
+    const end  = days[days.length-1];
+    const start= days[0];
+    const cache = await _hGetAll();
+    const byDate = Object.fromEntries(cache.map(r => [r.date, r]));
+    const today = new Date().toISOString().split('T')[0];
+    const missing = days.filter(d => !byDate[d] || d === today || !byDate[d]._complete);
+    if (!missing.length) return;
+    const h = { 'Authorization':'Bearer '+token };
+    // Time-series endpoints accept date/period or date/startDate-endDate
+    const fetchSafe = async (url) => {
+      try { const r = await fetch(url, { headers:h }); if (r.status===429) { showToast(lang==='es'?'Límite de Fitbit, intenta luego':'Fitbit rate limit, try later','warning'); return null; } if (r.status===401) { if (await refreshTok()) return fetchSafe(url); return null; } return await r.json(); } catch(e) { return null; }
+    };
+    const [hrTs, sleepTs] = await Promise.all([
+      fetchSafe(`https://api.fitbit.com/1/user/-/activities/heart/date/${start}/${end}.json`),
+      fetchSafe(`https://api.fitbit.com/1.2/user/-/sleep/date/${start}/${end}.json`),
+    ]);
+    // Index Fitbit responses by date
+    const hrByDate = {};
+    (hrTs?.['activities-heart'] || []).forEach(h => { hrByDate[h.dateTime] = h.value; });
+    const slByDate = {};
+    (sleepTs?.sleep || []).forEach(s => {
+      if (!s.isMainSleep && slByDate[s.dateOfSleep]) return;
+      slByDate[s.dateOfSleep] = s;
+    });
+    // Merge into cache
+    for (const date of missing) {
+      const prev = byDate[date] || { date };
+      const rhr  = hrByDate[date]?.restingHeartRate ?? prev.rhr;
+      const sl   = slByDate[date];
+      const sumStages = sl?.levels?.summary;
+      const deep = sumStages?.deep?.minutes ?? prev.deep;
+      const rem  = sumStages?.rem?.minutes  ?? prev.rem;
+      const light= sumStages?.light?.minutes?? prev.light;
+      const wake = sumStages?.wake?.minutes ?? prev.wake;
+      const minutesAsleep = sl?.minutesAsleep ?? prev.minutesAsleep;
+      const timeInBed     = sl?.timeInBed     ?? prev.timeInBed;
+      const eff           = sl?.efficiency    ?? prev.eff;
+      // Recovery 0-100 (same formula as calcRecoveryScore)
+      let recovery = prev.recovery;
+      if (minutesAsleep != null && rhr != null) {
+        const sd = Math.round(Math.min((minutesAsleep||0)/480,1)*30);
+        const se = timeInBed > 0 ? Math.round(Math.min(Math.max((minutesAsleep/timeInBed-0.7)/0.25,0),1)*25) : 20;
+        const qr = (minutesAsleep>0) ? ((deep||0)+(rem||0))/minutesAsleep : 0;
+        const sq = Math.round(Math.min(qr/0.45,1)*20);
+        const hs = Math.round(Math.max(0,Math.min((80-rhr)/40,1))*25);
+        recovery = Math.min(100, sd+se+sq+hs);
+      }
+      const _complete = date !== today && rhr != null && minutesAsleep != null;
+      await _hPut({ date, rhr, deep, rem, light, wake, minutesAsleep, timeInBed, eff, recovery, _complete });
+    }
+  } finally {
+    window._histFetching = false;
+  }
+}
+
+function _hLine(rows, key, opts={}) {
+  const w = opts.w || 320, h = opts.h || 140, pad = { l:34, r:24, t:10, b:22 };
+  const vals = rows.map(r => r[key]).filter(v => v != null);
+  if (!vals.length) return null;
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const lo = opts.fixedMin != null ? opts.fixedMin : Math.floor(min - (max-min)*0.15 - 1);
+  const hi = opts.fixedMax != null ? opts.fixedMax : Math.ceil(max + (max-min)*0.15 + 1);
+  const range = Math.max(1, hi - lo);
+  const innerW = w - pad.l - pad.r;
+  const innerH = h - pad.t - pad.b;
+  const xAt = (i) => pad.l + (rows.length === 1 ? innerW/2 : (i/(rows.length-1))*innerW);
+  const yAt = (v) => pad.t + (1 - (v - lo)/range) * innerH;
+  let d = '', area = '';
+  const pts = [];
+  rows.forEach((r,i) => {
+    const v = r[key];
+    if (v == null) return;
+    const x = xAt(i), y = yAt(v);
+    d += (d ? ' L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+    pts.push({ x, y, v, date: r.date });
+  });
+  if (pts.length > 1) {
+    area = d + ` L${pts[pts.length-1].x.toFixed(1)} ${(pad.t+innerH).toFixed(1)} L${pts[0].x.toFixed(1)} ${(pad.t+innerH).toFixed(1)} Z`;
+  }
+  return { w, h, d, area, pts, lo, hi, pad, innerW, innerH, vals };
+}
+
+function _hRenderLineSVG(svg, plot, cls, range) {
+  if (!plot) { svg.style.display='none'; return; }
+  const { w, h, d, area, pts, lo, hi, pad, innerH } = plot;
+  const gridLines = 3;
+  let grid = '';
+  for (let i = 0; i <= gridLines; i++) {
+    const y = pad.t + (i/gridLines)*innerH;
+    const val = Math.round(hi - (i/gridLines)*(hi - lo));
+    grid += `<line class="grid" x1="${pad.l}" x2="${w - pad.r}" y1="${y}" y2="${y}"/>`;
+    grid += `<text class="axlbl" x="${pad.l - 4}" y="${y + 3}" text-anchor="end">${val}</text>`;
+  }
+  // x-axis labels: first, middle, last
+  const tickIdx = pts.length <= 2 ? [0] : (pts.length <= 7 ? pts.map((_,i)=>i) : [0, Math.floor(pts.length/2), pts.length-1]);
+  let xax = '';
+  tickIdx.forEach(i => { const p=pts[i]; if(!p) return; xax += `<text class="axlbl" x="${p.x}" y="${h - 6}" text-anchor="middle">${_hFmtDate(p.date)}</text>`; });
+  const ptsSvg = pts.map(p => `<circle class="pt pt-${cls}" cx="${p.x}" cy="${p.y}" data-v="${p.v}" data-d="${p.date}"/>`).join('');
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  svg.innerHTML = `${grid}${area?`<path class="area pt-${cls}" d="${area}" style="fill:currentColor;color:var(--ta${cls==='rhr'?'2':''})"/>`:''}<path class="ln ${cls}" d="${d}"/>${ptsSvg}${xax}`;
+  svg.style.display = 'block';
+}
+
+function _hRenderStackedBars(svg, rows) {
+  const w = 320, h = 140, pad = { l:34, r:24, t:10, b:22 };
+  const innerW = w - pad.l - pad.r, innerH = h - pad.t - pad.b;
+  const slpRows = rows.filter(r => r.minutesAsleep != null);
+  if (!slpRows.length) { svg.style.display='none'; return; }
+  const maxMin = Math.max(...slpRows.map(r => (r.deep||0)+(r.rem||0)+(r.light||0)+(r.wake||0)), 480);
+  const hi = Math.ceil(maxMin/60) * 60; // round up to hour
+  const n  = rows.length;
+  const barW = (innerW / n) * 0.72;
+  const gap  = (innerW / n) * 0.28;
+  const grid = [0, 2*60, 4*60, 6*60, 8*60].filter(v => v <= hi);
+  let gridSvg = '';
+  grid.forEach(v => {
+    const y = pad.t + (1 - v/hi) * innerH;
+    gridSvg += `<line class="grid" x1="${pad.l}" x2="${w-pad.r}" y1="${y}" y2="${y}"/>`;
+    gridSvg += `<text class="axlbl" x="${pad.l - 4}" y="${y + 3}" text-anchor="end">${v/60}h</text>`;
+  });
+  let bars = '';
+  rows.forEach((r,i) => {
+    if (r.minutesAsleep == null) return;
+    const x = pad.l + (i + 0.5) * (innerW / n) - barW/2;
+    const segs = [['deep', r.deep||0],['rem', r.rem||0],['light', r.light||0],['wake', r.wake||0]];
+    let acc = 0;
+    segs.forEach(([cls, v]) => {
+      if (!v) return;
+      const segH = (v/hi) * innerH;
+      const y    = pad.t + (1 - (acc+v)/hi) * innerH;
+      bars += `<rect class="bar-${cls}" x="${x}" y="${y}" width="${barW}" height="${segH}"/>`;
+      acc += v;
+    });
+  });
+  const tickIdx = n <= 7 ? rows.map((_,i)=>i) : [0, Math.floor(n/2), n-1];
+  let xax = '';
+  tickIdx.forEach(i => { const r = rows[i]; if(!r) return; const x = pad.l + (i + 0.5) * (innerW / n); xax += `<text class="axlbl" x="${x}" y="${h-6}" text-anchor="middle">${_hFmtDate(r.date)}</text>`; });
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  svg.innerHTML = `${gridSvg}${bars}${xax}`;
+  svg.style.display = 'block';
+}
+
+function _hStat(rows, key, fmt) {
+  const vals = rows.map(r => r[key]).filter(v => v != null);
+  if (!vals.length) return '';
+  const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const t = T[lang];
+  return `<strong>${fmt(avg)}</strong> ${t.hv_avg} · ${fmt(min)} ${t.hv_min} · ${fmt(max)} ${t.hv_max}`;
+}
+
+async function renderHistory() {
+  if (window._histRange == null) window._histRange = 7;
+  const t = T[lang];
+  const recSvg = document.getElementById('hv-rec-svg');
+  const rhrSvg = document.getElementById('hv-rhr-svg');
+  const slpSvg = document.getElementById('hv-sleep-svg');
+  const recSkel= document.getElementById('hv-rec-skel');
+  const rhrSkel= document.getElementById('hv-rhr-skel');
+  const slpSkel= document.getElementById('hv-sleep-skel');
+  // Show skeletons
+  [recSkel, rhrSkel, slpSkel].forEach(e => e.style.display='block');
+  [recSvg, rhrSvg, slpSvg].forEach(e => e.style.display='none');
+  // Fetch if real
+  if (token) await _hFetchRange(window._histRange);
+  // Pull from cache (or mock if demo)
+  let cache = await _hGetAll();
+  const wanted = _hDays(window._histRange);
+  let rows = wanted.map(d => cache.find(c => c.date === d) || { date: d });
+  // Demo fallback if nothing real
+  if (!token || !rows.some(r => r.rhr != null)) {
+    rows = wanted.map((d, i) => {
+      const seed = i * 7 % 13;
+      return { date: d,
+        rhr: 60 + (seed % 8),
+        deep: 70 + (seed*3 % 30), rem: 80 + (seed*5 % 40), light: 200 + (seed*4 % 60), wake: 15 + (seed%10),
+        minutesAsleep: 365 + (seed*7 % 90), timeInBed: 420 + (seed*5 % 50),
+        recovery: 55 + (seed*6 % 35) };
+    });
+  }
+  // Stats labels
+  const recStat = _hStat(rows, 'recovery', v => Math.round(v));
+  const rhrStat = _hStat(rows, 'rhr', v => Math.round(v) + ' ' + t.hv_bpm);
+  const slpStat = _hStat(rows, 'minutesAsleep', v => (v/60).toFixed(1) + t.hv_hrs);
+  document.getElementById('hv-rec-stat').innerHTML = recStat || '';
+  document.getElementById('hv-rhr-stat').innerHTML = rhrStat || '';
+  document.getElementById('hv-sleep-stat').innerHTML = slpStat || '';
+  // Draw
+  _hRenderLineSVG(recSvg, _hLine(rows, 'recovery', { fixedMin:0, fixedMax:100 }), 'rec');
+  _hRenderLineSVG(rhrSvg, _hLine(rows, 'rhr'), 'rhr');
+  _hRenderStackedBars(slpSvg, rows);
+  [recSkel, rhrSkel, slpSkel].forEach(e => e.style.display='none');
+  // Bind tooltips
+  _hBindTooltip(recSvg, 'hv-rec-tt', v => `<strong>${Math.round(v)}</strong> ${t.hv_avg.replace(/PROMEDIO|AVG/,'RECOVERY')}`);
+  _hBindTooltip(rhrSvg, 'hv-rhr-tt', v => `<strong>${Math.round(v)}</strong> ${t.hv_bpm}`);
+}
+
+function _hBindTooltip(svg, ttId, fmt) {
+  const tt = document.getElementById(ttId);
+  if (!svg || !tt) return;
+  svg.querySelectorAll('.pt').forEach(p => {
+    const show = () => {
+      const v = parseFloat(p.dataset.v), d = p.dataset.d;
+      const rect = svg.getBoundingClientRect();
+      const wrapRect = svg.parentElement.getBoundingClientRect();
+      const cx = +p.getAttribute('cx'), cy = +p.getAttribute('cy');
+      const vb = svg.viewBox.baseVal;
+      const x = (cx / vb.width) * rect.width + (rect.left - wrapRect.left);
+      const y = (cy / vb.height) * rect.height + (rect.top - wrapRect.top);
+      tt.style.left = x + 'px'; tt.style.top = y + 'px';
+      tt.innerHTML = `${fmt(v)} <span style="opacity:0.5;margin-left:6px">${_hFmtDate(d)}</span>`;
+      tt.style.display = 'block';
+    };
+    p.addEventListener('mouseenter', show);
+    p.addEventListener('touchstart', show, { passive: true });
+    p.addEventListener('mouseleave', () => tt.style.display = 'none');
+  });
+}
+
+function setHistoryRange(n) {
+  window._histRange = n;
+  document.querySelectorAll('.hv-pill').forEach(b => b.classList.toggle('on', +b.dataset.range === n));
+  if (navigator.vibrate) navigator.vibrate(8);
+  renderHistory();
+}
 </script>
 </body>
 </html>
