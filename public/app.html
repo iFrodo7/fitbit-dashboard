@@ -2542,6 +2542,7 @@ async function toggleNotifications() {
   // Already enabled → turn off (preference only; can't revoke browser permission)
   if (notifEnabled()) {
     try { localStorage.setItem('fb_notif','0'); } catch(e) {}
+    unsubscribeWebPush(); // best-effort server unsubscribe
     refreshBell();
     showToast(lang==='es'?'Notificaciones desactivadas':'Notifications off','info');
     return;
@@ -2552,6 +2553,7 @@ async function toggleNotifications() {
   if (perm === 'granted') {
     try { localStorage.setItem('fb_notif','1'); } catch(e) {}
     refreshBell();
+    subscribeWebPush(); // best-effort: server push si el backend está configurado
     showLocalNotification(
       lang==='es' ? '🔔 Notificaciones activas' : '🔔 Notifications on',
       lang==='es' ? 'Te avisaremos de cambios importantes en tu biometría.' : "We'll alert you to important biometric changes.",
@@ -2562,6 +2564,39 @@ async function toggleNotifications() {
     showToast(lang==='es'?'Permiso no concedido':'Permission not granted','warning');
     refreshBell();
   }
+}
+
+// ── Web Push (server) — degrada en silencio si el backend no tiene VAPID ──
+function _urlB64ToUint8(base64) {
+  const padding = '='.repeat((4 - base64.length % 4) % 4);
+  const b64 = (base64 + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(b64); const arr = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+  return arr;
+}
+async function subscribeWebPush() {
+  try {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    const reg = await navigator.serviceWorker.ready;
+    // ¿backend con VAPID configurado?
+    const r = await fetch('/api/push/vapid-public-key');
+    if (!r.ok) return; // 503 = sin backend → solo notificaciones locales
+    const { publicKey } = await r.json();
+    if (!publicKey) return;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: _urlB64ToUint8(publicKey) });
+    await fetch('/api/push/subscribe', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(sub) });
+  } catch (e) { /* push opcional; nunca rompe el flujo */ }
+}
+async function unsubscribeWebPush() {
+  try {
+    if (!('serviceWorker' in navigator)) return;
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (!sub) return;
+    await fetch('/api/push/subscribe', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ endpoint: sub.endpoint }) }).catch(()=>{});
+    await sub.unsubscribe().catch(()=>{});
+  } catch (e) {}
 }
 function showLocalNotification(title, body, tag, url) {
   if (!notifEnabled()) return;
