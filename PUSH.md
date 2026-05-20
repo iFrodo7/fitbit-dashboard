@@ -56,16 +56,13 @@ curl -X POST https://tu-app.vercel.app/api/push/send \
   -d '{"title":"Buenos días","body":"Tu Recovery de hoy está listo","url":"/app.html"}'
 ```
 
-### Vercel Cron (recordatorio diario)
-Añade a `vercel.json`:
-```json
-{
-  "crons": [{ "path": "/api/push/cron-daily", "schedule": "0 8 * * *" }]
-}
-```
-Y crea `app/api/push/cron-daily/route.ts` que llame internamente a la lógica de
-`send` (Vercel Cron incluye el header `Authorization: Bearer $CRON_SECRET`; valida eso
-en vez de `x-push-secret`). Útil para: recordatorio de sync matutino, alerta de RHR, etc.
+### Vercel Cron (recordatorio diario) — YA implementado
+- `vercel.json` ya define el cron a las 08:00: `{ "crons": [{ "path": "/api/push/cron-daily", "schedule": "0 8 * * *" }] }`
+- `app/api/push/cron-daily/route.ts` ya existe: valida `Authorization: Bearer $CRON_SECRET`
+  y hace broadcast de un recordatorio de sync.
+- Solo falta poner **`CRON_SECRET`** en las env de Vercel (Vercel lo inyecta en el header
+  automáticamente cuando dispara el cron). Cambia el texto del recordatorio en ese archivo
+  si quieres. Para más triggers (alerta RHR server-side, etc.) duplica el patrón.
 
 ## Notas
 - La app es **personal** → el broadcast a todas las subs es aceptable. Si algún día hay
