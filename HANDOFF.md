@@ -56,9 +56,11 @@ alertas con la app **cerrada**. Ver issue #4 (tiene comentario con el estado).
 |---|---|---|---|
 | #7 | Touch gestures — swipe + long-press | ✅ done | #15 |
 | #8 | Capacitor — app nativa | 🟡 JS scaffolding done, native build pending | #16 |
-| #9 | Migración progresiva a Next.js | ⏳ pending (discutir con owner antes) | — |
+| #9 | Limpieza arquitectura (ex-"migración Next.js") | ✅ done | merge directo |
 
 **#8:** todo el lado JS está listo (config, deps, entry, scripts, OAuth deeplink). Falta `npx cap add ios/android` + build en Xcode/Android Studio + registrar el scheme `fitbitair`. Guía completa en **`CAPACITOR.md`**.
+
+**#9:** replanteado (con OK del owner) de "migrar app.html → React" a **eliminar código muerto**. Borrado el dashboard React paralelo (`app/dashboard`, `app/demo`, `components/`, `lib/hooks`, `lib/i18n`, `lib/themes`, `lib/supabase/client.ts`, `lib/analytics/scores.ts`). Conservadas las API routes (`app/api/*`) + deps como base de backend futuro. **Ya no hay arquitectura dual.** `npm run typecheck` pasa.
 
 ### Bugs
 - **#12 [P2]** Top-level `let`/`const` TDZ abort — ✅ **RESUELTO** en #15. Causa raíz: `if (theme) selectTheme(theme)` corría antes de que `const THEME_COLORS` estuviera declarado. Fix: auto-init movida a un bloque BOOT al final del script. Ya **puedes volver a usar `let`/`const` top-level** siempre que estén declarados antes del bloque BOOT.
@@ -95,11 +97,10 @@ git checkout feature/sprint-3-ux   # incluye todo lo de #10 + #11 + #13
 
 ## 🧠 Contexto crítico que tu Claude debe saber
 
-### Arquitectura dual confusa
-- **`public/app.html`** ← El prototipo vivo (~2400 líneas, SPA pura, OAuth client-side, IndexedDB cache)
-- **`app/dashboard/*`** ← Next.js App Router (vacío, redirige a app.html)
-
-**Decisión pendiente:** Migrar app.html → Next.js (issue #9). Mientras tanto, **todo el trabajo sigue ocurriendo en `public/app.html`**.
+### Arquitectura (ya NO es dual — limpiada en #9)
+- **`public/app.html`** ← El único frontend (~2400 líneas, SPA pura, OAuth client-side, IndexedDB cache). **Todo el desarrollo ocurre acá.**
+- **`app/api/*`** ← API routes Next.js (server-side OAuth + proxy Fitbit + preferencias). Existen pero `app.html` no las consume todavía; son la base para el backend futuro (server push #4, histórico en nube).
+- `app/page.tsx` solo redirige `/` → `/app.html`.
 
 ### Sistema de temas (4 mundos)
 | ID | Nombre | Font | Acento |
@@ -203,7 +204,7 @@ git checkout feature/sprint-3-ux   # incluye todo lo de #10 + #11 + #13
 - O probar en device real el swipe/long-press de #7 y pulir thresholds.
 
 ### Si tienes una tarde
-- Avanzar Sprint 4 con **#8 Capacitor** (abre la puerta a App Store / Play Store) o **#9 migración a Next.js** (discútelo con el owner antes — es decisión arquitectónica).
+- Completar el **build nativo de #8** en una Mac con Xcode/Android Studio (ver `CAPACITOR.md`), o construir el **backend de #4** (Vercel + web-push + VAPID) reutilizando las `app/api/*` que quedaron.
 
 ---
 

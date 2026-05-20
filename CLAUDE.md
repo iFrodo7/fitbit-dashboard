@@ -38,24 +38,29 @@ public/icons/                ← Iconos PWA generados (32 → 512)
 scripts/generate-icons.js    ← Regenerar iconos desde icon.svg
 ```
 
-### Arquitectura paralela (no usada todavía)
+### Backend Next.js (mínimo, server-side opcional)
+El dashboard React paralelo se **eliminó en #9** (era código muerto que generaba
+confusión). Lo que queda de Next es solo el shell que sirve la SPA + las API routes
+que servirán de base para el backend futuro (server push de #4, histórico en nube):
 ```
-app/                         ← Next.js App Router (placeholder)
-  api/auth/                  ← OAuth server-side (alternativa)
-  api/fitbit/                ← Proxy a Fitbit API con caché
-  dashboard/                 ← Dashboard React con SWR (sin implementar)
-components/dashboard/        ← Componentes React placeholder (no usados)
+app/
+  page.tsx                   ← redirige / → /app.html
+  layout.tsx, globals.css    ← shell Next mínimo
+  api/auth/                  ← OAuth server-side (alternativa, aún no usada por app.html)
+  api/fitbit/                ← Proxy a Fitbit API con caché en Supabase
+  api/user/preferences/      ← Preferencias de usuario
 lib/
-  fitbit/auth.ts             ← Token exchange y refresh automático
-  fitbit/client.ts           ← API client con caché en Supabase
+  fitbit/auth.ts             ← Token exchange y refresh (usado por api/)
+  fitbit/client.ts           ← API client con caché en Supabase (usado por api/)
   fitbit/types.ts            ← Tipos compartidos
-  analytics/scores.ts        ← Motor Recovery/Strain/Sleep (ya portado a vanilla en app.html)
-  themes/index.ts            ← Definición de 4 temas
-  i18n/{es,en}.ts            ← Traducciones (la versión activa está dentro de app.html)
+  supabase/server.ts, types.ts ← Cliente Supabase server-side
 supabase/migrations/         ← Schema SQL con RLS (no aplicado todavía)
+capacitor.config.ts          ← Config app nativa (ver CAPACITOR.md)
 ```
 
-**Decisión arquitectónica pendiente** (issue #9): migrar `app.html` → Next.js componentes o mantener dual. Mientras tanto **todo el desarrollo activo ocurre en `public/app.html`**.
+> La arquitectura ya **NO es dual**: `public/app.html` es el único frontend.
+> Las API routes existen pero `app.html` no las consume todavía (hace OAuth
+> client-side). Son el punto de partida para cuando se construya el backend.
 
 ## Sistemas dentro de `public/app.html`
 
