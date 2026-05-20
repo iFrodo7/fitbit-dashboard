@@ -2222,20 +2222,50 @@ function openModal() { document.getElementById('modal').classList.add('on'); }
 function closeModal() { document.getElementById('modal').classList.remove('on'); }
 document.addEventListener('click', e => { if (e.target.id==='modal') closeModal(); });
 
+// Capacitor native detection + OAuth redirect URI selection.
+// In a native build Fitbit can't redirect to capacitor://localhost, so we use a
+// custom scheme deeplink (registered in the native projects). See CAPACITOR.md.
+function isNativeApp() { return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()); }
+const NATIVE_REDIR = 'fitbitair://callback';
+function getRedirectUri() { return isNativeApp() ? NATIVE_REDIR : REDIR; }
+
 function startOAuth() {
   const id = document.getElementById('cid').value.trim();
   if (!id) { alert('Client ID'); return; }
   localStorage.setItem('fb_cid', id);
   const sc = 'activity heartrate sleep profile weight oxygen_saturation temperature';
-  location.href = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=${id}&redirect_uri=${encodeURIComponent(REDIR)}&scope=${encodeURIComponent(sc)}&expires_in=604800`;
+  const url = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=${id}&redirect_uri=${encodeURIComponent(getRedirectUri())}&scope=${encodeURIComponent(sc)}&expires_in=604800`;
+  if (isNativeApp() && window.Capacitor?.Plugins?.Browser) {
+    // Open the system browser; the deeplink listener (initCapacitor) catches the callback
+    window.Capacitor.Plugins.Browser.open({ url });
+  } else {
+    location.href = url;
+  }
 }
 async function handleOAuth(code) {
   const cid = localStorage.getItem('fb_cid'); if (!cid) return; showLoad();
   try {
-    const r = await fetch('https://api.fitbit.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','Authorization':'Basic '+btoa(cid+':')},body:new URLSearchParams({code,grant_type:'authorization_code',redirect_uri:REDIR,client_id:cid})});
+    const r = await fetch('https://api.fitbit.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','Authorization':'Basic '+btoa(cid+':')},body:new URLSearchParams({code,grant_type:'authorization_code',redirect_uri:getRedirectUri(),client_id:cid})});
     const d = await r.json();
-    if (d.access_token) { localStorage.setItem('fb_tok',d.access_token); if(d.refresh_token)localStorage.setItem('fb_rt',d.refresh_token); token=d.access_token; history.replaceState({},'',location.pathname); await loadReal(); }
+    if (d.access_token) { localStorage.setItem('fb_tok',d.access_token); if(d.refresh_token)localStorage.setItem('fb_rt',d.refresh_token); token=d.access_token; if(!isNativeApp())history.replaceState({},'',location.pathname); await loadReal(); }
   } catch(e) { hideLoad(); }
+}
+
+// Native-only: catch the OAuth deeplink (fitbitair://callback?code=...) and hide splash.
+function initCapacitor() {
+  if (!isNativeApp()) return;
+  const P = window.Capacitor.Plugins || {};
+  if (P.App && P.App.addListener) {
+    P.App.addListener('appUrlOpen', (data) => {
+      try {
+        const url = data && data.url; if (!url) return;
+        const q = url.split('?')[1] || '';
+        const code = new URLSearchParams(q).get('code');
+        if (code) { if (P.Browser && P.Browser.close) P.Browser.close(); handleOAuth(code); }
+      } catch (e) {}
+    });
+  }
+  if (P.SplashScreen && P.SplashScreen.hide) setTimeout(() => P.SplashScreen.hide(), 400);
 }
 async function refreshTok() {
   const rt=localStorage.getItem('fb_rt'),cid=localStorage.getItem('fb_cid'); if(!rt||!cid)return false;
@@ -2847,6 +2877,7 @@ function setHistoryRange(n) {
 // above this line.
 // ══════════════════════════════════════════════════════════════════════
 if (theme) selectTheme(theme);
+initCapacitor();
 </script>
 </body>
 </html>
