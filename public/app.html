@@ -1116,7 +1116,7 @@ body.t-naruto span.vval{
       </div>
 
       <div class="vg">
-        <div class="vc exp" id="hr-card" onclick="toggleHR()">
+        <div class="vc exp" id="hr-card" onclick="toggleHR()" data-onb="rhr">
           <span class="vlbl" id="lbl-hr">// FREC. CARDÍACA</span><button class="onb-q" onclick="showOnb('rhr')" aria-label="info">?</button>
           <div class="vval" id="hrv">68</div>
           <span class="vunit" id="u-hr">BPM — REPOSO</span>
@@ -1144,10 +1144,10 @@ body.t-naruto span.vval{
             </div>
           </div>
         </div>
-        <div class="vc"><span class="vlbl" id="lbl-hrv">// HRV NOCTURNO</span><button class="onb-q" onclick="showOnb('hrv')" aria-label="info">?</button><div class="vval" id="hrvv">48</div><span class="vunit">ms — BUENO</span><div class="vtrd">↑ +6</div></div>
+        <div class="vc" data-onb="hrv"><span class="vlbl" id="lbl-hrv">// HRV NOCTURNO</span><button class="onb-q" onclick="showOnb('hrv')" aria-label="info">?</button><div class="vval" id="hrvv">48</div><span class="vunit">ms — BUENO</span><div class="vtrd">↑ +6</div></div>
         <div class="vc"><span class="vlbl" id="lbl-spo2">// SATURACIÓN O₂</span><div class="vval" id="spo2v">98</div><span class="vunit">% SpO2</span><div class="vtrd">→</div></div>
         <div class="vc"><span class="vlbl" id="lbl-temp">// TEMP. CORPORAL</span><div class="vval" id="tempv">36.4</div><span class="vunit">°C PIEL</span><div class="vtrd">→</div></div>
-        <div class="vc exp" id="stress-card" onclick="toggleStress()">
+        <div class="vc exp" id="stress-card" onclick="toggleStress()" data-onb="strain">
           <span class="vlbl" id="lbl-stress">// NIVEL ESTRÉS</span>
           <div class="vval" id="stressv">24</div>
           <span class="vunit" id="u-stress">/ 100 — BAJO</span>
@@ -1660,6 +1660,7 @@ function selectTheme(t) {
   initDash();
   maybeAutoTour();
   refreshBell();
+  initSwipeNav();
 }
 
 function goBack() {
@@ -1710,7 +1711,11 @@ function applyThemeText(t) {
 
 // Apply lang on load
 setLang(lang);
-if (theme) selectTheme(theme);
+// NOTE: theme auto-init moved to the very end of the script (see "BOOT").
+// Calling selectTheme() here threw a TDZ error because it reaches
+// `const THEME_COLORS` which is declared further down — that abort was the
+// root cause of historical bug #12. Do NOT call selectTheme before all
+// top-level const/function definitions exist.
 
 // ══════ PULL TO REFRESH (mobile) ══════
 (function initPTR() {
@@ -1762,6 +1767,87 @@ if (theme) selectTheme(theme);
     }
   }, { passive: true });
 })();
+
+// ══════ SWIPE NAVIGATION (touch gestures #7) ══════
+// Función (no IIFE top-level) llamada desde selectTheme para esquivar bug #12.
+// Estado en closure (function-scoped, no top-level → sin TDZ).
+function initSwipeNav() {
+  if (window._swipeNavInit) return;
+  window._swipeNavInit = true;
+  if (!('ontouchstart' in window)) return;
+  const TABS = ['home', 'stats', 'history', 'profile'];
+  let startX = 0, startY = 0, tracking = false, horizontal = null;
+
+  const overlayOpen = () => !!document.querySelector('.onb-ov.on, .tour-ov.on, .mov.on');
+  const currentTab = () => document.querySelector('.bnav-btn.active')?.dataset.tab || 'home';
+
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1 || overlayOpen()) { tracking = false; return; }
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    tracking = true; horizontal = null;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', (e) => {
+    if (!tracking) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if (horizontal === null && (Math.abs(dx) > 12 || Math.abs(dy) > 12)) {
+      // Lock direction: horizontal only if clearly more X than Y movement
+      horizontal = Math.abs(dx) > Math.abs(dy) * 1.6;
+    }
+    if (horizontal) {
+      // Subtle visual feedback: nudge the active view
+      const el = (currentTab() === 'history') ? document.getElementById('hview') : document.querySelector('.db-main');
+      if (el) el.style.transform = `translateX(${Math.max(-40, Math.min(40, dx * 0.18))}px)`;
+    }
+  }, { passive: true });
+
+  const reset = () => {
+    document.querySelectorAll('.db-main, #hview').forEach(el => {
+      el.style.transition = 'transform 0.25s cubic-bezier(.4,0,.2,1)';
+      el.style.transform = '';
+      setTimeout(() => { el.style.transition = ''; }, 260);
+    });
+  };
+
+  document.addEventListener('touchend', (e) => {
+    if (!tracking) return;
+    tracking = false;
+    if (!horizontal) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    reset();
+    if (Math.abs(dx) < 55) return;
+    const idx = TABS.indexOf(currentTab());
+    if (dx < 0 && idx < TABS.length - 1) navigate(TABS[idx + 1]);      // swipe izquierda → siguiente tab
+    else if (dx > 0 && idx > 0) navigate(TABS[idx - 1]);              // swipe derecha → tab anterior
+  }, { passive: true });
+
+  document.addEventListener('touchcancel', () => { tracking = false; reset(); }, { passive: true });
+
+  // Long-press en cards con data-onb → abre su tooltip explicativo
+  let lpTimer = null, lpEl = null, lpStartX = 0, lpStartY = 0;
+  const clearLP = () => { if (lpTimer) { clearTimeout(lpTimer); lpTimer = null; } if (lpEl) { lpEl.style.transform=''; lpEl = null; } };
+  document.addEventListener('touchstart', (e) => {
+    const card = e.target.closest('[data-onb]');
+    if (!card || overlayOpen()) return;
+    lpEl = card; lpStartX = e.touches[0].clientX; lpStartY = e.touches[0].clientY;
+    card.style.transition = 'transform 0.5s ease';
+    card.style.transform = 'scale(0.97)';
+    lpTimer = setTimeout(() => {
+      card.style.transform = '';
+      if (navigator.vibrate) navigator.vibrate([12, 8, 12]);
+      showOnb(card.dataset.onb);
+      lpTimer = null; lpEl = null;
+    }, 500);
+  }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    if (!lpTimer) return;
+    const dx = Math.abs(e.touches[0].clientX - lpStartX), dy = Math.abs(e.touches[0].clientY - lpStartY);
+    if (dx > 10 || dy > 10) clearLP();
+  }, { passive: true });
+  document.addEventListener('touchend', clearLP, { passive: true });
+}
 
 // ══════ BOTTOM NAV ══════
 function navigate(tab) {
@@ -2713,6 +2799,14 @@ function setHistoryRange(n) {
   if (navigator.vibrate) navigator.vibrate(8);
   renderHistory();
 }
+
+// ══════════════════════════════════════════════════════════════════════
+// BOOT — runs LAST so every top-level const/function is initialized.
+// This is the fix for bug #12 (TDZ abort). If you add new top-level state,
+// you can now safely use `let`/`const` again as long as it's declared
+// above this line.
+// ══════════════════════════════════════════════════════════════════════
+if (theme) selectTheme(theme);
 </script>
 </body>
 </html>
