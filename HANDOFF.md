@@ -189,7 +189,7 @@ git checkout feature/sprint-3-ux   # incluye todo lo de #10 + #11 + #13
 - Estado en `window._notifState`
 - `sw.js` tiene listeners `push` / `message` / `notificationclick` (cache v2)
 - **Para añadir un nuevo tipo de alerta:** crea una función `notifCheckXxx()` y llámala desde el poll relevante. Respeta cooldowns para no spamear.
-- **Server push (app cerrada):** código completo (cliente `subscribeWebPush()` + backend `app/api/push/*` + `lib/push.ts`). Solo falta deploy + VAPID. Ver **`PUSH.md`**.
+- **Server push (app cerrada):** ✅ **desplegado y activo en producción** (cliente `subscribeWebPush()` + backend `app/api/push/*` + `lib/push.ts`, VAPID + cron en Vercel). Verificado con app cerrada en iPhone. Ver **`PUSH.md`** (incluye guía para rotar llaves/reproducir).
 
 ---
 
@@ -223,8 +223,10 @@ Lee HANDOFF.md y CLAUDE.md primero. Estoy continuando el desarrollo
 de Fitbit Air Dashboard.
 
 Estado: todo el código de Sprints 2/3/4 está mergeado en main. Bug #12 resuelto.
-Solo quedan 2 tareas de infra: activar server push (#4, ver PUSH.md) y
-build nativo Capacitor (#8, ver CAPACITOR.md). No hay PRs abiertos.
+Server push (#4) YA está desplegado y activo en producción
+(https://fitbit-dashboard-zeta.vercel.app). Queda UNA sola tarea de infra:
+build nativo Capacitor (#8, ver CAPACITOR.md) — requiere Xcode/Android Studio.
+No hay PRs abiertos.
 
 Quiero trabajar en: [DESCRIBE TU OBJETIVO]
 ```

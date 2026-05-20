@@ -53,7 +53,7 @@ Next.js 15 · TypeScript · Tailwind · Supabase · Fitbit OAuth 2.0 · Capacito
 |---|---|
 | `CLAUDE.md` | Referencia técnica (sistemas de app.html, endpoints, convenciones) |
 | `HANDOFF.md` | Estado actual, qué falta, cómo continuar |
-| `PUSH.md` | Activar server push (VAPID + deploy + cron) |
+| `PUSH.md` | Server push — ✅ ya desplegado; guía VAPID/deploy/cron para rotar o reproducir |
 | `CAPACITOR.md` | Build nativo iOS/Android |
 
 ## 🧪 Scripts
@@ -68,7 +68,7 @@ npm run db:push     # aplicar migraciones Supabase
 
 ## 📍 Estado
 
-Sprints 2–4 completos a nivel de código. Pendiente solo de infra: deploy del server push (ver `PUSH.md`) y build nativo (ver `CAPACITOR.md`).
+Sprints 2–4 completos a nivel de código. Server push (#4) **desplegado y activo en producción** (https://fitbit-dashboard-zeta.vercel.app, ver `PUSH.md`). Pendiente solo de infra: build nativo Capacitor (#8, ver `CAPACITOR.md`).
 
 ---
 
