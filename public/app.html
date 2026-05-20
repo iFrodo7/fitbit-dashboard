@@ -332,13 +332,58 @@ body.view-history #dash > #install-banner{visibility:visible;}
 .sbar{position:fixed;top:0;left:0;right:0;height:2px;z-index:200;pointer-events:none;}
 .sbfi{height:100%;width:0%;background:var(--ta);transition:width 0.4s;}
 
-/* Loading overlay */
-.lov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:900;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+/* Loading overlay — premium skeleton */
+.lov{display:none;position:fixed;inset:0;background:var(--bg);z-index:900;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:30px 20px;}
 .lov.on{display:flex;}
-.ltxt{font-size:13px;letter-spacing:4px;color:var(--ta);animation:blink 1s infinite;}
+.ltxt{font-size:13px;letter-spacing:4px;color:var(--ta);animation:blink 1s infinite;text-align:center;}
 .lbar{width:180px;height:2px;background:rgba(255,255,255,0.07);}
 .lfi{height:100%;background:var(--ta);animation:ld 2s ease-in-out infinite;}
 @keyframes ld{0%{width:0%;margin-left:0;}50%{width:60%;margin-left:20%;}100%{width:0%;margin-left:100%;}}
+.lskel{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:380px;margin-top:14px;}
+.lskel-card{height:74px;border:1px solid var(--sub);border-radius:6px;padding:10px;position:relative;overflow:hidden;background:var(--sub);}
+.lskel-card::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.06) 50%,transparent 100%);background-size:200% 100%;animation:lskShim 1.4s linear infinite;}
+.lskel-card.tall{height:120px;grid-column:span 2;}
+.lskel-lbl{width:50%;height:7px;background:var(--rbg);border-radius:2px;margin-bottom:10px;}
+.lskel-val{width:35%;height:18px;background:var(--rbg);border-radius:2px;}
+@keyframes lskShim{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* Inline shimmer for individual values during sync */
+.v-skel{display:inline-block;min-width:40px;height:1em;background:linear-gradient(90deg,var(--sub) 0%,rgba(255,255,255,0.12) 50%,var(--sub) 100%);background-size:200% 100%;animation:lskShim 1.2s linear infinite;border-radius:3px;vertical-align:middle;}
+body.is-syncing .pulsable{position:relative;}
+body.is-syncing .pulsable::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.04),transparent);background-size:200% 100%;animation:lskShim 1.6s linear infinite;pointer-events:none;}
+
+/* ── Onboarding tooltips (metric explanations) ── */
+.onb-q{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border:1px solid var(--bdr);border-radius:50%;font-size:9px;font-weight:700;cursor:pointer;color:var(--ta);background:var(--sub);margin-left:6px;opacity:0.55;transition:all 0.2s;-webkit-tap-highlight-color:transparent;font-family:inherit;letter-spacing:0;vertical-align:middle;line-height:1;padding:0;}
+.onb-q:hover{opacity:1;transform:scale(1.12);box-shadow:0 0 8px var(--ta);}
+.onb-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:950;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);animation:onbFade 0.25s ease-out;}
+.onb-ov.on{display:flex;}
+@keyframes onbFade{from{opacity:0;}to{opacity:1;}}
+.onb-card{background:var(--bg);border:1px solid var(--ta);border-bottom:none;width:100%;max-width:480px;padding:22px 22px calc(28px + env(safe-area-inset-bottom));border-radius:8px 8px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,0.6);animation:onbSlide 0.3s cubic-bezier(.4,0,.2,1);}
+@keyframes onbSlide{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.onb-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px;}
+.onb-ttl{font-size:14px;font-weight:700;letter-spacing:3px;color:var(--ta);text-transform:uppercase;line-height:1.3;}
+.onb-x{background:none;border:none;color:var(--tx);opacity:0.5;cursor:pointer;font-size:22px;line-height:1;padding:0 4px;-webkit-tap-highlight-color:transparent;}
+.onb-x:hover{opacity:1;color:var(--ta);}
+.onb-bd{font-size:12px;line-height:1.6;color:var(--tx);opacity:0.85;letter-spacing:0.5px;}
+.onb-bd p{margin:0 0 10px;}
+.onb-bd p:last-child{margin-bottom:0;}
+.onb-bd strong{color:var(--ta);font-weight:700;}
+.onb-bd code{background:var(--sub);padding:1px 6px;border-radius:2px;font-size:11px;color:var(--ta);font-family:inherit;letter-spacing:1px;}
+
+/* ── First-time welcome tour ── */
+.tour-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:960;align-items:center;justify-content:center;backdrop-filter:blur(6px);padding:24px;}
+.tour-ov.on{display:flex;}
+.tour-card{background:var(--bg);border:1px solid var(--ta);max-width:380px;padding:26px 24px;border-radius:8px;text-align:center;box-shadow:0 0 60px rgba(0,245,255,0.15);}
+.tour-step{font-size:9px;letter-spacing:3px;opacity:0.45;margin-bottom:8px;}
+.tour-ttl{font-size:18px;font-weight:800;letter-spacing:3px;color:var(--ta);text-transform:uppercase;margin-bottom:14px;line-height:1.3;}
+.tour-bd{font-size:12px;line-height:1.65;opacity:0.85;margin-bottom:22px;letter-spacing:0.4px;}
+.tour-nav{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.tour-btn{background:var(--ta);color:var(--bg);border:none;padding:10px 20px;font-size:11px;letter-spacing:3px;font-weight:700;cursor:pointer;font-family:inherit;text-transform:uppercase;border-radius:3px;-webkit-tap-highlight-color:transparent;transition:all 0.2s;}
+.tour-btn:hover{filter:brightness(1.15);}
+.tour-btn.gh{background:transparent;color:var(--tx);border:1px solid var(--bdr);}
+.tour-dots{display:flex;gap:6px;justify-content:center;margin-bottom:16px;}
+.tour-dot{width:6px;height:6px;border-radius:50%;background:var(--sub);transition:all 0.3s;}
+.tour-dot.on{background:var(--ta);width:18px;border-radius:3px;}
 
 /* Modal */
 .mov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:1000;align-items:center;justify-content:center;}
@@ -1036,7 +1081,7 @@ body.t-naruto span.vval{
         <!-- Scores: Esfuerzo | Resp | Sueño -->
         <div class="wsrow">
           <div class="wsitem">
-            <div class="wslbl" id="ws-strain-lbl">ESFUERZO</div>
+            <div class="wslbl" id="ws-strain-lbl">ESFUERZO<button class="onb-q" onclick="showOnb('strain')" aria-label="info">?</button></div>
             <div class="wsval"><span class="wsn" id="strain-val">8.4</span><span class="wsd">/21</span></div>
             <div class="wsbar"><div class="wsfil" id="strain-bar" style="width:40%"></div></div>
           </div>
@@ -1048,19 +1093,19 @@ body.t-naruto span.vval{
           </div>
           <div class="wssep"></div>
           <div class="wsitem">
-            <div class="wslbl" id="ws-sleep-lbl">SUEÑO</div>
+            <div class="wslbl" id="ws-sleep-lbl">SUEÑO<button class="onb-q" onclick="showOnb('sleep')" aria-label="info">?</button></div>
             <div class="wsval"><span class="wsn" id="sleep-pct-val">90</span><span class="wsd">%</span></div>
             <div class="wsbar"><div class="wsfil sl" id="sleep-pct-bar" style="width:90%"></div></div>
           </div>
         </div>
         <div class="wrec" id="wrec">Listo para entrenar al máximo</div>
         <!-- Recovery Score Badge (ported from scores.ts) -->
-        <div class="rs-badge" id="recovery-score-badge"></div>
+        <div class="rs-badge" id="recovery-score-badge" onclick="showOnb('recovery')" style="cursor:pointer" title="¿Qué es esto?"></div>
       </div>
 
       <div class="vg">
         <div class="vc exp" id="hr-card" onclick="toggleHR()">
-          <span class="vlbl" id="lbl-hr">// FREC. CARDÍACA</span>
+          <span class="vlbl" id="lbl-hr">// FREC. CARDÍACA</span><button class="onb-q" onclick="showOnb('rhr')" aria-label="info">?</button>
           <div class="vval" id="hrv">68</div>
           <span class="vunit" id="u-hr">BPM — REPOSO</span>
           <!-- Siempre visible: Reposo + Máximo del día -->
@@ -1087,7 +1132,7 @@ body.t-naruto span.vval{
             </div>
           </div>
         </div>
-        <div class="vc"><span class="vlbl" id="lbl-hrv">// HRV NOCTURNO</span><div class="vval" id="hrvv">48</div><span class="vunit">ms — BUENO</span><div class="vtrd">↑ +6</div></div>
+        <div class="vc"><span class="vlbl" id="lbl-hrv">// HRV NOCTURNO</span><button class="onb-q" onclick="showOnb('hrv')" aria-label="info">?</button><div class="vval" id="hrvv">48</div><span class="vunit">ms — BUENO</span><div class="vtrd">↑ +6</div></div>
         <div class="vc"><span class="vlbl" id="lbl-spo2">// SATURACIÓN O₂</span><div class="vval" id="spo2v">98</div><span class="vunit">% SpO2</span><div class="vtrd">→</div></div>
         <div class="vc"><span class="vlbl" id="lbl-temp">// TEMP. CORPORAL</span><div class="vval" id="tempv">36.4</div><span class="vunit">°C PIEL</span><div class="vtrd">→</div></div>
         <div class="vc exp" id="stress-card" onclick="toggleStress()">
@@ -1160,7 +1205,7 @@ body.t-naruto span.vval{
           </div>
         </div>
         <div class="card">
-          <span class="clbl" id="lbl-sleep">// ANÁLISIS DE SUEÑO</span>
+          <span class="clbl" id="lbl-sleep">// ANÁLISIS DE SUEÑO</span><button class="onb-q" onclick="showOnb('sleep')" aria-label="info">?</button>
           <div class="hypno">
             <div class="hypno-track" id="hypno-track"><div class="hypno-empty" id="hypno-empty">— SIN DATOS DE ETAPAS —</div></div>
             <div class="hypno-axis"><span id="hypno-t0">23:00</span><span id="hypno-t1">07:00</span></div>
@@ -1188,7 +1233,7 @@ body.t-naruto span.vval{
     <div class="card scard">
       <div class="scard-inner">
         <div>
-          <span class="clbl" id="lbl-steps">// ACTIVIDAD DIARIA — PASOS</span>
+          <span class="clbl" id="lbl-steps">// ACTIVIDAD DIARIA — PASOS</span><button class="onb-q" onclick="showOnb('steps')" aria-label="info">?</button>
           <div style="display:flex;align-items:baseline;gap:8px;margin:5px 0;">
             <div class="snum" id="stepsv">7,842</div>
             <div class="sgoal" id="goal-lbl">/ 10,000 OBJETIVO</div>
@@ -1249,6 +1294,31 @@ body.t-naruto span.vval{
     </button>
   </nav>
 
+  <!-- ══════════════ ONBOARDING ══════════════ -->
+  <div class="onb-ov" id="onb-ov" onclick="if(event.target.id==='onb-ov')closeOnb()">
+    <div class="onb-card">
+      <div class="onb-hd">
+        <div class="onb-ttl" id="onb-ttl"></div>
+        <button class="onb-x" onclick="closeOnb()" aria-label="close">✕</button>
+      </div>
+      <div class="onb-bd" id="onb-bd"></div>
+    </div>
+  </div>
+
+  <!-- First-time welcome tour -->
+  <div class="tour-ov" id="tour-ov">
+    <div class="tour-card">
+      <div class="tour-dots" id="tour-dots"></div>
+      <div class="tour-step" id="tour-step"></div>
+      <div class="tour-ttl" id="tour-ttl"></div>
+      <div class="tour-bd"  id="tour-bd"></div>
+      <div class="tour-nav">
+        <button class="tour-btn gh" id="tour-skip" onclick="endTour()"></button>
+        <button class="tour-btn"    id="tour-next" onclick="nextTour()"></button>
+      </div>
+    </div>
+  </div>
+
   <!-- ══════════════ HISTORY VIEW ══════════════ -->
   <section id="hview" aria-hidden="true">
     <div class="hv-hd">
@@ -1280,7 +1350,17 @@ body.t-naruto span.vval{
   </section>
 
   <div class="dstrip" id="dstrip"><div class="ddot"></div><span id="demo-txt">DEMO — CONECTA TU FITBIT AIR</span></div>
-  <div class="lov" id="lov"><div class="ltxt" id="load-txt">SINCRONIZANDO...</div><div class="lbar"><div class="lfi"></div></div></div>
+  <div class="lov" id="lov">
+    <div class="ltxt" id="load-txt">SINCRONIZANDO...</div>
+    <div class="lbar"><div class="lfi"></div></div>
+    <div class="lskel" aria-hidden="true">
+      <div class="lskel-card"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
+      <div class="lskel-card"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
+      <div class="lskel-card"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
+      <div class="lskel-card"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
+      <div class="lskel-card tall"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
+    </div>
+  </div>
 
   <!-- Modal -->
   <div class="mov" id="modal">
@@ -1354,6 +1434,21 @@ const T = {
     hv_rec_lbl:'// RECOVERY SCORE', hv_rhr_lbl:'// FRECUENCIA EN REPOSO', hv_sleep_lbl:'// SUEÑO POR NOCHE',
     hv_empty:'CONECTA FITBIT PARA VER TUS TENDENCIAS', hv_no_data:'SIN DATOS EN ESTE RANGO',
     hv_avg:'PROMEDIO', hv_min:'MÍN', hv_max:'MÁX', hv_hrs:'h', hv_bpm:'bpm',
+    onb: {
+      recovery: { ttl:'Recovery Score', bd:'<p>Indica qué tan <strong>recuperado</strong> está tu cuerpo hoy, en una escala de <strong>0 a 100</strong>.</p><p>Combina cuatro factores: duración del sueño, eficiencia, % de sueño profundo+REM, y tu frecuencia cardíaca en reposo.</p><p><strong>67+</strong> en forma · <strong>50-66</strong> buena · <strong>34-49</strong> moderada · <strong>0-33</strong> descansa.</p>' },
+      strain:   { ttl:'Esfuerzo (Strain)', bd:'<p>Mide la carga cardiovascular acumulada en el día, escala <strong>0 a 21</strong>.</p><p>Pondera los minutos en zonas de frecuencia cardíaca: <code>Fat Burn ×0.6</code>, <code>Cardio ×2.0</code>, <code>Peak ×4.5</code>.</p><p>Un día de descanso debería estar en 0-3, un entrenamiento intenso 14+.</p>' },
+      sleep:    { ttl:'Sueño', bd:'<p>Sleep performance = <strong>minutos dormidos / 480</strong> (8h ideales).</p><p>El hipnograma muestra las etapas reales: profundo (recuperación física), REM (memoria/sueños), ligero, despierto.</p><p>Ideal: ~45% del sueño en <strong>deep + REM</strong>.</p>' },
+      hrv:      { ttl:'HRV — Variabilidad Cardíaca', bd:'<p>La <strong>HRV</strong> mide la variación de tiempo entre latidos. Más alta = mejor recuperación del sistema nervioso.</p><p>Se mide mejor durante el sueño profundo. Tu base personal es lo que importa, no comparar con otros.</p><p>Caídas marcadas pueden indicar fatiga, estrés o enfermedad incipiente.</p>' },
+      rhr:      { ttl:'FC en Reposo', bd:'<p>Tu frecuencia cardíaca en reposo (<strong>RHR</strong>) es el menor número de latidos por minuto medido en el día.</p><p>Más baja = mejor estado cardiovascular. Atletas <strong>40-60 bpm</strong>, persona promedio <strong>60-80 bpm</strong>.</p><p>Una subida sostenida de 5+ bpm sobre tu base puede indicar sobreentrenamiento o estrés.</p>' },
+      steps:    { ttl:'Pasos', bd:'<p>Meta diaria estándar: <strong>10,000 pasos</strong> (~7-8km).</p><p>El indicador muestra el porcentaje cumplido. Constancia &gt; volumen — mejor 7,000 todos los días que 15,000 un día y 2,000 los demás.</p>' },
+    },
+    tour: [
+      { ttl:'¡Bienvenido!', bd:'Esta es tu interfaz biométrica personal. Mide HRV, sueño, recovery y mucho más en tiempo real desde tu Fitbit.' },
+      { ttl:'Cuatro mundos visuales', bd:'Elegiste un tema arriba. Cada uno tiene su propia identidad: Minecraft pixelado, Halo militar, Naruto chakra, o Futuristic minimal.' },
+      { ttl:'Tap en el <strong>?</strong>', bd:'Junto a cada métrica importante verás un botón <strong>?</strong>. Tócalo para entender qué significa: Recovery, HRV, Strain, etc.' },
+      { ttl:'Conecta tu Fitbit', bd:'Al pulsar <strong>CONECTAR</strong> abrirás OAuth de Fitbit. Tus datos viajan directo del dispositivo al navegador — no pasan por ningún servidor nuestro.' },
+    ],
+    tour_skip:'Saltar', tour_next:'Siguiente', tour_done:'Empezar',
     lbl_total: 'TOTAL', lbl_start: 'INICIO',
     lbl_activity: '// ACTIVIDADES',
     ac1: 'CARRERA', ac2: 'MEDITACIÓN', ac3: 'CICLISMO',
@@ -1423,6 +1518,21 @@ const T = {
     hv_rec_lbl:'// RECOVERY SCORE', hv_rhr_lbl:'// RESTING HEART RATE', hv_sleep_lbl:'// SLEEP PER NIGHT',
     hv_empty:'CONNECT FITBIT TO SEE TRENDS', hv_no_data:'NO DATA IN THIS RANGE',
     hv_avg:'AVG', hv_min:'MIN', hv_max:'MAX', hv_hrs:'h', hv_bpm:'bpm',
+    onb: {
+      recovery: { ttl:'Recovery Score', bd:'<p>Shows how <strong>recovered</strong> your body is today, on a <strong>0 to 100</strong> scale.</p><p>It blends four factors: sleep duration, efficiency, % of deep+REM, and resting heart rate.</p><p><strong>67+</strong> peak · <strong>50-66</strong> good · <strong>34-49</strong> moderate · <strong>0-33</strong> rest.</p>' },
+      strain:   { ttl:'Strain', bd:'<p>Measures cardio load accumulated today, scale <strong>0 to 21</strong>.</p><p>Weights minutes in heart-rate zones: <code>Fat Burn ×0.6</code>, <code>Cardio ×2.0</code>, <code>Peak ×4.5</code>.</p><p>A rest day should sit at 0-3, an intense workout 14+.</p>' },
+      sleep:    { ttl:'Sleep', bd:'<p>Sleep performance = <strong>minutes asleep / 480</strong> (ideal 8h).</p><p>The hypnogram shows real stages: deep (physical recovery), REM (memory/dreams), light, awake.</p><p>Ideal: ~45% of sleep in <strong>deep + REM</strong>.</p>' },
+      hrv:      { ttl:'HRV — Heart Rate Variability', bd:'<p><strong>HRV</strong> measures the variation in time between heartbeats. Higher = better nervous system recovery.</p><p>Best measured during deep sleep. Your personal baseline is what matters — don\\u2019t compare across people.</p><p>Sharp drops can signal fatigue, stress, or incipient illness.</p>' },
+      rhr:      { ttl:'Resting Heart Rate', bd:'<p>Your <strong>RHR</strong> is the lowest BPM measured during the day.</p><p>Lower = better cardiovascular shape. Athletes <strong>40-60 bpm</strong>, average person <strong>60-80 bpm</strong>.</p><p>A sustained rise of 5+ bpm above your baseline may indicate overtraining or stress.</p>' },
+      steps:    { ttl:'Steps', bd:'<p>Standard daily target: <strong>10,000 steps</strong> (~7-8km).</p><p>The bar shows percent achieved. Consistency &gt; volume — 7,000 every day beats 15,000 once + 2,000 the rest.</p>' },
+    },
+    tour: [
+      { ttl:'Welcome!', bd:'This is your personal biometric interface. Tracks HRV, sleep, recovery and more in real-time from your Fitbit.' },
+      { ttl:'Four visual worlds', bd:'You picked a theme above. Each has its own identity: pixelated Minecraft, military Halo, chakra Naruto, or minimal Futuristic.' },
+      { ttl:'Tap the <strong>?</strong>', bd:'Next to each key metric you\\u2019ll see a <strong>?</strong> button. Tap it to understand what it means: Recovery, HRV, Strain, etc.' },
+      { ttl:'Connect your Fitbit', bd:'When you press <strong>CONNECT</strong> you\\u2019ll open Fitbit OAuth. Your data flows straight from the device to the browser — no server of ours sees it.' },
+    ],
+    tour_skip:'Skip', tour_next:'Next', tour_done:'Start',
     lbl_total: 'TOTAL', lbl_start: 'START',
     lbl_activity: '// ACTIVITIES',
     ac1: 'RUN', ac2: 'MEDITATION', ac3: 'CYCLING',
@@ -1536,6 +1646,7 @@ function selectTheme(t) {
   setLang(lang); // apply current language
   if (typeof updateThemeColor === 'function') updateThemeColor(t);
   initDash();
+  maybeAutoTour();
 }
 
 function goBack() {
@@ -2067,7 +2178,7 @@ function showToast(msg, type) {
 function startPoll() { document.getElementById('swrap').style.display='flex'; startCd(); animSBar(); clearInterval(ptmr); ptmr=setInterval(pollFast,pSec*1000); setInterval(pollSlow,5*60*1000); }
 async function pollFast() {
   if (!token) return;
-  const ring=document.getElementById('sring'); ring.classList.add('on'); startCd();
+  const ring=document.getElementById('sring'); ring.classList.add('on'); document.body.classList.add('is-syncing'); startCd();
   try {
     const h={'Authorization':'Bearer '+token}, td=new Date().toISOString().split('T')[0];
     const [hr,act] = await Promise.all([fetch(`https://api.fitbit.com/1/user/-/activities/heart/date/${td}/1d/1min.json`,{headers:h}),fetch(`https://api.fitbit.com/1/user/-/activities/date/${td}.json`,{headers:h})]);
@@ -2084,7 +2195,7 @@ async function pollFast() {
       const nc=s.activityCalories||0; if(String(nc)!==document.getElementById('calv').textContent){document.getElementById('calv').textContent=nc;flash('calv');}
     }
     animSBar(); showToast(T[lang].sync_toast(new Date().toLocaleTimeString(lang==='es'?'es':'en',{hour:'2-digit',minute:'2-digit',second:'2-digit'})));
-  } catch(e) { console.warn(e); } finally { ring.classList.remove('on'); }
+  } catch(e) { console.warn(e); } finally { ring.classList.remove('on'); document.body.classList.remove('is-syncing'); }
 }
 async function pollSlow() {
   if(!token) return;
@@ -2178,6 +2289,58 @@ function renderHypnogram(main) {
 }
 function showLoad() { document.getElementById('lov').classList.add('on'); }
 function hideLoad() { document.getElementById('lov').classList.remove('on'); }
+
+// ══════ ONBOARDING — metric tooltips ══════
+function showOnb(key) {
+  const ov = document.getElementById('onb-ov');
+  const data = T[lang]?.onb?.[key]; if (!data || !ov) return;
+  document.getElementById('onb-ttl').textContent = data.ttl;
+  document.getElementById('onb-bd').innerHTML = data.bd;
+  ov.classList.add('on');
+  if (navigator.vibrate) navigator.vibrate(8);
+}
+function closeOnb() {
+  document.getElementById('onb-ov')?.classList.remove('on');
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeOnb(); endTour(); } });
+
+// ══════ FIRST-TIME TOUR ══════
+// (KNOWN BUG: top-level `let` lands in TDZ on this script. See HANDOFF "TDZ abort". Using window.* defensively.)
+function _renderTour() {
+  const steps = T[lang].tour || [];
+  const step = steps[window._tourIdx]; if (!step) return endTour();
+  document.getElementById('tour-step').textContent = (lang==='es' ? 'PASO' : 'STEP') + ' ' + (window._tourIdx+1) + ' / ' + steps.length;
+  document.getElementById('tour-ttl').innerHTML  = step.ttl;
+  document.getElementById('tour-bd').innerHTML   = step.bd;
+  document.getElementById('tour-next').textContent = (window._tourIdx === steps.length - 1) ? T[lang].tour_done : T[lang].tour_next;
+  document.getElementById('tour-skip').textContent = T[lang].tour_skip;
+  // Dots
+  const dots = steps.map((_,i) => `<span class="tour-dot${i===window._tourIdx?' on':''}"></span>`).join('');
+  document.getElementById('tour-dots').innerHTML = dots;
+}
+function startTour() {
+  if (window._tourIdx == null) window._tourIdx = 0;
+  window._tourIdx = 0;
+  _renderTour();
+  document.getElementById('tour-ov').classList.add('on');
+}
+function nextTour() {
+  const steps = T[lang].tour || [];
+  if (window._tourIdx >= steps.length - 1) return endTour();
+  window._tourIdx++;
+  _renderTour();
+  if (navigator.vibrate) navigator.vibrate(6);
+}
+function endTour() {
+  document.getElementById('tour-ov')?.classList.remove('on');
+  try { localStorage.setItem('fb_seen_tour', '1'); } catch(e) {}
+}
+function maybeAutoTour() {
+  try { if (localStorage.getItem('fb_seen_tour')) return; } catch(e) {}
+  // Wait until user picked a theme (i.e., past the selector) and is on dashboard
+  if (!theme) return;
+  setTimeout(startTour, 800);
+}
 
 // ══════════════════════════════════════════════════════════════════════
 // HISTORY MODULE — IndexedDB cache + Fitbit time-series + SVG charts
