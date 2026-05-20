@@ -42,6 +42,17 @@ export interface MetricsHistoryRow {
   created_at: string;
 }
 
+export interface PushSubscriptionRow {
+  id: string;
+  user_id: string | null;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  user_agent: string | null;
+  created_at: string;
+  last_seen: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -64,6 +75,11 @@ export interface Database {
         Row: MetricsHistoryRow;
         Insert: Omit<MetricsHistoryRow, "id" | "created_at">;
         Update: Partial<Omit<MetricsHistoryRow, "id" | "created_at">>;
+      };
+      push_subscriptions: {
+        Row: PushSubscriptionRow;
+        Insert: Omit<PushSubscriptionRow, "id" | "created_at" | "last_seen">;
+        Update: Partial<Omit<PushSubscriptionRow, "id" | "created_at">>;
       };
     };
   };
