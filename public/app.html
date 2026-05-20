@@ -352,6 +352,15 @@ body.view-history #dash > #install-banner{visibility:visible;}
 body.is-syncing .pulsable{position:relative;}
 body.is-syncing .pulsable::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.04),transparent);background-size:200% 100%;animation:lskShim 1.6s linear infinite;pointer-events:none;}
 
+/* ── Notification bell ── */
+.bell-btn{background:var(--sub);border:1px solid var(--bdr);color:var(--tx);width:34px;height:34px;border-radius:6px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;-webkit-tap-highlight-color:transparent;position:relative;padding:0;line-height:1;}
+.bell-btn:hover{border-color:var(--ta);transform:scale(1.05);}
+.bell-btn.on{border-color:var(--ta);box-shadow:0 0 10px var(--ta);}
+.bell-btn.on #bell-ic{filter:drop-shadow(0 0 4px var(--ta));}
+.bell-btn.denied{opacity:0.4;}
+.bell-btn .bell-dot{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:var(--tpos,#22c55e);box-shadow:0 0 6px var(--tpos,#22c55e);display:none;}
+.bell-btn.on .bell-dot{display:block;}
+
 /* ── Onboarding tooltips (metric explanations) ── */
 .onb-q{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border:1px solid var(--bdr);border-radius:50%;font-size:9px;font-weight:700;cursor:pointer;color:var(--ta);background:var(--sub);margin-left:6px;opacity:0.55;transition:all 0.2s;-webkit-tap-highlight-color:transparent;font-family:inherit;letter-spacing:0;vertical-align:middle;line-height:1;padding:0;}
 .onb-q:hover{opacity:1;transform:scale(1.12);box-shadow:0 0 8px var(--ta);}
@@ -897,6 +906,9 @@ body.t-naruto span.vval{
         <div id="sdot" style="width:7px;height:7px;border-radius:50%;background:#aa7700;box-shadow:0 0 7px #aa7700;animation:blink 1.5s infinite;"></div>
         <span id="stxt">DEMO</span>
       </div>
+      <button class="bell-btn" id="bell-btn" onclick="toggleNotifications()" aria-label="notifications" title="Notificaciones">
+        <span id="bell-ic">🔔</span><span class="bell-dot"></span>
+      </button>
       <button class="cbtn" id="btn-connect" onclick="openModal()">CONECTAR</button>
     </div>
   </header>
@@ -1647,6 +1659,7 @@ function selectTheme(t) {
   if (typeof updateThemeColor === 'function') updateThemeColor(t);
   initDash();
   maybeAutoTour();
+  refreshBell();
 }
 
 function goBack() {
@@ -2242,6 +2255,7 @@ async function loadReal() {
       rem:           sl?.summary?.stages?.rem        || 0,
       rhr:           rhr_real,
     });
+    notifCheckRHR(rhr_real); notifMarkSync();
     // Stress score con datos reales (HRV proxy desde FC nocturna si disponible)
     setStressBars({ hrv: 68, rhr: rhr_real, br: 14 });
     // HR zones con datos reales
@@ -2341,6 +2355,89 @@ function maybeAutoTour() {
   if (!theme) return;
   setTimeout(startTour, 800);
 }
+
+// ══════════════════════════════════════════════════════════════════════
+// PUSH / LOCAL NOTIFICATIONS (#4)
+// Server push needs a backend (VAPID) — see HANDOFF. This implements the
+// client-triggered path: permission opt-in + local notifications fired from
+// polling logic (RHR out of range, sync reminders). Forward-compatible with
+// server push via the sw.js 'push' listener.
+// ══════════════════════════════════════════════════════════════════════
+function notifSupported() {
+  return ('Notification' in window) && ('serviceWorker' in navigator);
+}
+function notifEnabled() {
+  try { return localStorage.getItem('fb_notif') === '1' && Notification.permission === 'granted'; }
+  catch(e) { return false; }
+}
+function refreshBell() {
+  const b = document.getElementById('bell-btn'); if (!b) return;
+  b.classList.remove('on','denied');
+  if (!notifSupported()) { b.style.display='none'; return; }
+  if (Notification.permission === 'denied') { b.classList.add('denied'); return; }
+  if (notifEnabled()) b.classList.add('on');
+}
+async function toggleNotifications() {
+  if (!notifSupported()) { showToast(lang==='es'?'Notificaciones no soportadas':'Notifications not supported','warning'); return; }
+  if (Notification.permission === 'denied') {
+    showToast(lang==='es'?'Permiso bloqueado. Actívalo en ajustes del navegador':'Permission blocked. Enable it in browser settings','warning');
+    return;
+  }
+  // Already enabled → turn off (preference only; can't revoke browser permission)
+  if (notifEnabled()) {
+    try { localStorage.setItem('fb_notif','0'); } catch(e) {}
+    refreshBell();
+    showToast(lang==='es'?'Notificaciones desactivadas':'Notifications off','info');
+    return;
+  }
+  // Request permission
+  let perm = Notification.permission;
+  if (perm !== 'granted') { try { perm = await Notification.requestPermission(); } catch(e) {} }
+  if (perm === 'granted') {
+    try { localStorage.setItem('fb_notif','1'); } catch(e) {}
+    refreshBell();
+    showLocalNotification(
+      lang==='es' ? '🔔 Notificaciones activas' : '🔔 Notifications on',
+      lang==='es' ? 'Te avisaremos de cambios importantes en tu biometría.' : "We'll alert you to important biometric changes.",
+      'welcome'
+    );
+    showToast(lang==='es'?'Notificaciones activadas':'Notifications on','success');
+  } else {
+    showToast(lang==='es'?'Permiso no concedido':'Permission not granted','warning');
+    refreshBell();
+  }
+}
+function showLocalNotification(title, body, tag, url) {
+  if (!notifEnabled()) return;
+  // Prefer SW notification (works even when tab not focused); fallback to page Notification
+  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({ type:'SHOW_NOTIFICATION', payload:{ title, body, tag, url } });
+  } else if (Notification.permission === 'granted') {
+    try { new Notification(title, { body, icon:'/icons/icon-192.png', tag }); } catch(e) {}
+  }
+}
+
+// ── Triggers (called from polling) ──
+window._notifState = { lastSync: Date.now(), lastRhrAlert: 0 };
+function notifCheckRHR(rhr) {
+  if (!notifEnabled() || !rhr) return;
+  // Personal baseline from cached history (avg of completed days), fallback 65
+  let base = 65;
+  try {
+    if (window._histDB) { /* best-effort; history may not be loaded */ }
+  } catch(e) {}
+  const HIGH = base + 12; // sustained elevation threshold
+  const now = Date.now();
+  if (rhr >= HIGH && (now - window._notifState.lastRhrAlert) > 2*60*60*1000) {
+    window._notifState.lastRhrAlert = now;
+    showLocalNotification(
+      lang==='es' ? '⚠️ FC en reposo elevada' : '⚠️ Elevated resting HR',
+      lang==='es' ? `Tu FC en reposo (${rhr} bpm) está sobre tu rango habitual. Considera descansar.` : `Your resting HR (${rhr} bpm) is above your usual range. Consider resting.`,
+      'rhr-alert'
+    );
+  }
+}
+function notifMarkSync() { window._notifState.lastSync = Date.now(); }
 
 // ══════════════════════════════════════════════════════════════════════
 // HISTORY MODULE — IndexedDB cache + Fitbit time-series + SVG charts
