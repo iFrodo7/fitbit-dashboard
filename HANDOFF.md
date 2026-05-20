@@ -16,6 +16,10 @@
 - ✅ Safe-area-insets para iPhone notch / home indicator
 - ✅ Haptic feedback en navegación
 - ✅ Banner DEMO ya no se superpone con contenido en mobile
+- ✅ Install prompt PWA con banner sticky (auto-aparece en mobile Chrome)
+- ✅ Pull-to-refresh nativo en mobile con animación rotación + vibración
+- ✅ Toast system mejorado: tipos success/error/warning/info con iconos y colores
+- ✅ Onboarding hint: welcome message + pull-to-refresh discoverability tip
 
 ### Archivos nuevos creados:
 ```
@@ -137,6 +141,30 @@ Cada tema tiene barras HEALTH/XP únicas (ver `public/app.html:430+`)
 3. **Capacitor no está instalado** — requerido para App Store/Play Store
 4. **No hay TypeScript types** para el código de `public/app.html` (es JS vanilla)
 5. **`/lib/analytics/scores.ts` no se ejecuta** — código muerto hasta que se conecte al HTML
+6. **Service Worker puede cachear el HTML** — durante desarrollo, si haces cambios CSS/JS y no se ven, abre DevTools → Application → Clear storage. Solo es un problema en dev, no en producción
+7. **Bottom nav `navigate(tab)`** es placeholder — solo hace smooth scroll. Falta implementar rutas reales (Stats/Historial/Perfil)
+8. **Install prompt** solo aparece en Chrome desktop/Android. iOS Safari requiere instrucciones manuales ("Compartir → Añadir a pantalla de inicio")
+
+## 🎁 Features recién agregadas que el siguiente dev debe considerar
+
+### Pull-to-refresh (`public/app.html:initPTR`)
+Llama `pollFast()` y `pollSlow()`. Si en Sprint 2 cambias el sistema de polling/data fetching, **actualiza también el handler**.
+
+### Toast system con tipos
+Ya soporta: `showToast(msg, 'success'|'error'|'warning'|'info')`. Aprovéchalo para errores de API:
+```js
+fetch('/api/fitbit').catch(() => showToast('Error de red', 'error'));
+```
+
+### `navigate(tab)` para bottom nav
+Cuando crees páginas reales (Sprint 2 history), reemplaza el scroll por router push:
+```js
+function navigate(tab) {
+  // En vez de scrollTo, hacer:
+  history.pushState({}, '', `/${tab}`);
+  renderTab(tab);
+}
+```
 
 ---
 
