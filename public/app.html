@@ -347,6 +347,54 @@ body{width:100%;min-height:100vh;}
 }
 
 /* ═══════════════════════════════════════
+   PWA INSTALL BANNER
+═══════════════════════════════════════ */
+.install-banner{
+  position:sticky;top:0;z-index:300;
+  display:flex;align-items:center;gap:12px;padding:12px 16px;
+  padding-top:calc(12px + env(safe-area-inset-top,0));
+  background:linear-gradient(135deg,rgba(0,245,255,0.18),rgba(123,43,255,0.12));
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--ta,rgba(0,245,255,0.3));
+  animation:slideDown 0.5s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideDown{from{transform:translateY(-100%);}to{transform:translateY(0);}}
+.install-icon{font-size:28px;flex-shrink:0;}
+.install-text{flex:1;min-width:0;}
+.install-title{font-size:14px;font-weight:700;color:var(--ta);letter-spacing:1px;}
+.install-sub{font-size:11px;opacity:0.6;margin-top:2px;}
+.install-btn{
+  padding:8px 18px;border-radius:6px;border:1px solid var(--ta);
+  background:var(--ta);color:#000;font-weight:700;font-size:12px;
+  letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;
+  transition:all 0.2s;flex-shrink:0;
+}
+.install-btn:active{transform:scale(0.95);}
+.install-close{
+  background:transparent;border:none;color:var(--txt);
+  font-size:24px;cursor:pointer;opacity:0.5;padding:0 4px;
+  line-height:1;flex-shrink:0;
+}
+.install-close:hover{opacity:1;}
+body[data-pwa="installed"] .install-banner{display:none!important;}
+
+/* ═══════════════════════════════════════
+   PULL-TO-REFRESH
+═══════════════════════════════════════ */
+.ptr{
+  position:fixed;top:0;left:50%;transform:translateX(-50%) translateY(-60px);
+  z-index:250;background:var(--bg2,rgba(2,8,16,0.95));
+  border:1px solid var(--ta,rgba(0,245,255,0.3));border-radius:50%;
+  width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:var(--ta);transition:transform 0.25s,opacity 0.25s;
+  pointer-events:none;backdrop-filter:blur(10px);opacity:0;
+  box-shadow:0 4px 14px rgba(0,0,0,0.5),0 0 12px var(--ta,rgba(0,245,255,0.3));
+}
+.ptr.show{transform:translateX(-50%) translateY(20px);opacity:1;}
+.ptr.refreshing .ptr-ic{animation:ptr-spin 0.8s linear infinite;}
+@keyframes ptr-spin{to{transform:rotate(360deg);}}
+
+/* ═══════════════════════════════════════
    BOTTOM NAV (mobile)
 ═══════════════════════════════════════ */
 .bnav{display:none;}
@@ -662,6 +710,17 @@ body.t-naruto span.vval{
 </div>
 
 <!-- ══════════════ DASHBOARD ══════════════ -->
+<!-- PWA Install Banner (sticky at top) -->
+<div class="install-banner" id="install-banner" style="display:none;">
+  <div class="install-icon">📲</div>
+  <div class="install-text">
+    <div class="install-title">Instalar Fitbit Air</div>
+    <div class="install-sub">Acceso rápido desde tu pantalla de inicio</div>
+  </div>
+  <button class="install-btn" onclick="installPWA()">Instalar</button>
+  <button class="install-close" onclick="dismissInstall()" aria-label="Cerrar">×</button>
+</div>
+
 <div id="dash">
   <div class="sbar"><div class="sbfi" id="sbfi"></div></div>
   <div class="toast" id="toast"></div>
@@ -1059,6 +1118,9 @@ body.t-naruto span.vval{
     </div>
   </main>
 
+  <!-- Pull to Refresh indicator -->
+  <div class="ptr" id="ptr"><span class="ptr-ic">↻</span></div>
+
   <!-- Bottom Navigation (mobile only) -->
   <nav class="bnav" id="bnav">
     <button class="bnav-btn active" data-tab="home" onclick="navigate('home')">
@@ -1373,6 +1435,57 @@ function applyThemeText(t) {
 setLang(lang);
 if (theme) selectTheme(theme);
 
+// ══════ PULL TO REFRESH (mobile) ══════
+(function initPTR() {
+  if (!('ontouchstart' in window)) return;
+  let startY = 0, currentY = 0, pulling = false, refreshing = false;
+  const THRESHOLD = 80;
+  const ptr = document.getElementById('ptr');
+
+  document.addEventListener('touchstart', (e) => {
+    if (window.scrollY > 0 || refreshing) return;
+    startY = e.touches[0].clientY;
+    pulling = true;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', (e) => {
+    if (!pulling) return;
+    currentY = e.touches[0].clientY;
+    const diff = currentY - startY;
+    if (diff > 0 && window.scrollY === 0) {
+      const progress = Math.min(diff / THRESHOLD, 1.2);
+      if (ptr) {
+        ptr.style.transform = `translateX(-50%) translateY(${Math.min(diff * 0.4, 80) - 60}px) rotate(${diff * 2}deg)`;
+        ptr.style.opacity = progress;
+        if (diff > THRESHOLD) ptr.classList.add('show');
+      }
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', () => {
+    if (!pulling) return;
+    pulling = false;
+    const diff = currentY - startY;
+    if (diff > THRESHOLD && !refreshing) {
+      refreshing = true;
+      ptr.classList.add('show', 'refreshing');
+      if (navigator.vibrate) navigator.vibrate(20);
+      // Trigger data refresh (placeholder for real poll)
+      setTimeout(() => {
+        if (typeof pollFast === 'function') pollFast();
+        if (typeof pollSlow === 'function') pollSlow();
+        ptr.classList.remove('show', 'refreshing');
+        ptr.style.cssText = '';
+        refreshing = false;
+        if (typeof showToast === 'function') showToast(lang === 'es' ? 'Datos actualizados' : 'Data refreshed');
+      }, 900);
+    } else {
+      ptr.classList.remove('show');
+      ptr.style.cssText = '';
+    }
+  }, { passive: true });
+})();
+
 // ══════ BOTTOM NAV ══════
 function navigate(tab) {
   document.querySelectorAll('.bnav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
@@ -1388,6 +1501,36 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW registration failed:', err));
   });
+}
+
+// ══════ PWA: Install Prompt ══════
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const banner = document.getElementById('install-banner');
+  if (banner && !localStorage.getItem('fb_install_dismissed')) {
+    banner.style.display = 'flex';
+  }
+});
+
+function installPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(() => {
+    deferredPrompt = null;
+    document.getElementById('install-banner').style.display = 'none';
+  });
+}
+
+function dismissInstall() {
+  localStorage.setItem('fb_install_dismissed', '1');
+  document.getElementById('install-banner').style.display = 'none';
+}
+
+// Detect standalone (already installed)
+if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+  document.body.setAttribute('data-pwa', 'installed');
 }
 // Sync theme-color meta with active theme for status bar
 const THEME_COLORS = { mc: '#1a1200', halo: '#03070e', naruto: '#0c0400', fut: '#020810' };
