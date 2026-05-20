@@ -672,6 +672,13 @@ body.t-naruto span.vval{
 .wsfil{height:100%;background:var(--ta);transition:width 1.4s cubic-bezier(.4,0,.2,1);}
 .wsfil.sl{background:var(--ta2);}
 .wrec{font-size:9px;letter-spacing:2px;text-transform:uppercase;opacity:0.55;text-align:center;margin-top:10px;line-height:1.5;color:var(--tpos);}
+/* Recovery Score Badge */
+.rs-badge{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:14px;padding:10px 14px;border:1px solid var(--bdr);border-radius:8px;background:var(--sub);transition:border-color 0.4s;}
+.rs-num{font-size:32px;font-weight:800;line-height:1;letter-spacing:1px;}
+.rs-lbl{font-size:9px;letter-spacing:3px;font-weight:700;text-transform:uppercase;}
+.rs-bd{display:flex;gap:4px;width:100%;margin-top:4px;}
+.rs-bar{flex:1;height:3px;background:var(--rbg);overflow:hidden;border-radius:2px;}
+.rs-bar span{display:block;height:100%;transition:width 1s cubic-bezier(.4,0,.2,1);}
 
 /* ── Calorías expandible ── */
 .vc.exp{cursor:pointer;-webkit-tap-highlight-color:transparent;overflow:hidden;clip-path:none!important;position:relative;}
@@ -999,6 +1006,8 @@ body.t-naruto span.vval{
           </div>
         </div>
         <div class="wrec" id="wrec">Listo para entrenar al máximo</div>
+        <!-- Recovery Score Badge (ported from scores.ts) -->
+        <div class="rs-badge" id="recovery-score-badge"></div>
       </div>
 
       <div class="vg">
@@ -1610,6 +1619,7 @@ function initDash() {
   updateClock(); setInterval(updateClock, 1000);
   buildWeeks(); buildHRC(hrHist);
   setTimeout(animVals, 300);
+  setTimeout(renderRecoveryScore, 500);
   // Welcome onboarding hint (first visit)
   if (!localStorage.getItem('fb_welcomed')) {
     setTimeout(() => {
@@ -1885,6 +1895,50 @@ function startCd() {
 }
 function chgI(v) { pSec=parseInt(v); startCd(); clearInterval(ptmr); if(isReal)ptmr=setInterval(pollFast,pSec*1000); }
 function animSBar() { const f=document.getElementById('sbfi'); f.style.transition='none'; f.style.width='0%'; requestAnimationFrame(()=>{ f.style.transition=`width ${pSec*1000}ms linear`; f.style.width='100%'; setTimeout(()=>{ f.style.transition='width 0.3s'; f.style.width='0%'; },pSec*1000); }); }
+// ══════ RECOVERY SCORE (ported from lib/analytics/scores.ts) ══════
+function calcRecoveryScore({ minutesAsleep = 432, timeInBed = 480, deep = 80, rem = 95, rhr = 65 } = {}) {
+  // Sleep duration (0-30 pts): ideal 8h=480min
+  const sleepDuration = Math.round(Math.min(minutesAsleep / 480, 1) * 30);
+  // Sleep efficiency (0-25 pts)
+  const eff = timeInBed > 0 ? minutesAsleep / timeInBed : 0;
+  const sleepEfficiency = Math.round(Math.min(Math.max((eff - 0.7) / 0.25, 0), 1) * 25);
+  // Sleep quality (0-20 pts): deep+REM should be ~45% of sleep
+  const qRatio = minutesAsleep > 0 ? (deep + rem) / minutesAsleep : 0;
+  const sleepQuality = Math.round(Math.min(qRatio / 0.45, 1) * 20);
+  // RHR (0-25 pts): healthy range 40-80
+  const restingHR = Math.round(Math.max(0, Math.min((80 - rhr) / 40, 1)) * 25);
+
+  const score = Math.min(100, sleepDuration + sleepEfficiency + sleepQuality + restingHR);
+  const level = score >= 67 ? 'peak' : score >= 50 ? 'good' : score >= 34 ? 'moderate' : 'low';
+  const labels = { peak: 'EN FORMA', good: 'BUENA', moderate: 'MODERADA', low: 'DESCANSA' };
+  const labelsEn = { peak: 'PEAK', good: 'GOOD', moderate: 'MODERATE', low: 'REST' };
+  const colors = { peak: '#22c55e', good: '#84cc16', moderate: '#f59e0b', low: '#ef4444' };
+
+  return {
+    score, level,
+    label: lang === 'es' ? labels[level] : labelsEn[level],
+    color: colors[level],
+    breakdown: { sleepDuration, sleepEfficiency, sleepQuality, restingHR }
+  };
+}
+
+function renderRecoveryScore() {
+  const el = document.getElementById('recovery-score-badge');
+  if (!el) return;
+  const r = calcRecoveryScore();
+  el.innerHTML = `
+    <div class="rs-num" style="color:${r.color}">${r.score}</div>
+    <div class="rs-lbl" style="color:${r.color}">${r.label}</div>
+    <div class="rs-bd">
+      <div class="rs-bar"><span style="width:${(r.breakdown.sleepDuration/30)*100}%;background:${r.color}"></span></div>
+      <div class="rs-bar"><span style="width:${(r.breakdown.sleepEfficiency/25)*100}%;background:${r.color}"></span></div>
+      <div class="rs-bar"><span style="width:${(r.breakdown.sleepQuality/20)*100}%;background:${r.color}"></span></div>
+      <div class="rs-bar"><span style="width:${(r.breakdown.restingHR/25)*100}%;background:${r.color}"></span></div>
+    </div>
+  `;
+  el.style.borderColor = r.color;
+}
+
 function pulseValue(el) {
   if (!el) return;
   el.classList.remove('value-updated');
