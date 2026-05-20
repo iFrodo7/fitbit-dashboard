@@ -2,7 +2,16 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#020810" id="theme-color-meta">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fitbit Air">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Panel biométrico personal con 4 temas visuales y datos reales de Fitbit">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
 <title>FITBIT AIR — BIOMETRIC DASHBOARD</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=IBM+Plex+Mono:wght@400;700&family=VT323&family=Silkscreen:wght@400;700&family=Oxanium:wght@400;600;700;800&family=Electrolize&family=Noto+Serif+JP:wght@400;700;900&family=Permanent+Marker&display=swap" rel="stylesheet">
 <style>
@@ -163,6 +172,18 @@ body{width:100%;min-height:100vh;}
 .scard-inner{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;}
 
 /* Sleep */
+.hypno{margin:8px 0 10px;}
+.hypno-track{position:relative;width:100%;height:48px;background:var(--rbg);border-radius:3px;overflow:hidden;display:flex;}
+.hypno-seg{height:100%;transition:flex-grow 0.6s ease;flex-shrink:0;flex-basis:0;}
+.hypno-seg.deep{background:var(--ta2);}
+.hypno-seg.rem{background:var(--ta);}
+.hypno-seg.light{background:rgba(255,255,255,0.22);}
+.hypno-seg.wake{background:var(--tneg);}
+.hypno-axis{display:flex;justify-content:space-between;margin-top:4px;font-size:9px;opacity:0.35;letter-spacing:1px;}
+.hypno-lgnd{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:9px;letter-spacing:1px;opacity:0.55;}
+.hypno-lgnd span{display:inline-flex;align-items:center;gap:4px;}
+.hypno-lgnd i{width:8px;height:8px;display:inline-block;border-radius:1px;}
+.hypno-empty{display:flex;align-items:center;justify-content:center;height:100%;font-size:10px;opacity:0.35;letter-spacing:2px;}
 .slrw{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--sub);}
 .slrw:last-child{border:none;}
 .sllbl{font-size:11px;letter-spacing:2px;opacity:0.35;width:48px;flex-shrink:0;}
@@ -261,8 +282,13 @@ body{width:100%;min-height:100vh;}
 @keyframes sp{to{transform:rotate(360deg);}}
 
 /* Toast, demo strip, sync bar */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--cbg);border:1px solid var(--ta);padding:9px 20px;font-size:12px;letter-spacing:2px;color:var(--ta);z-index:500;transition:transform 0.3s;white-space:nowrap;}
-.toast.sh{transform:translateX(-50%) translateY(0);}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg2,rgba(2,8,16,0.95));border:1px solid var(--ta);padding:12px 22px;font-size:12px;letter-spacing:1.5px;color:var(--ta);z-index:500;transition:transform 0.35s cubic-bezier(.4,0,.2,1),opacity 0.25s;white-space:nowrap;border-radius:8px;backdrop-filter:blur(14px);box-shadow:0 8px 24px rgba(0,0,0,0.5),0 0 18px var(--ta,rgba(0,245,255,0.2));display:flex;align-items:center;gap:10px;opacity:0;}
+.toast.sh{transform:translateX(-50%) translateY(0)!important;opacity:1!important;}
+.toast-ic{font-size:16px;line-height:1;}
+.toast.success{border-color:#00ff88;color:#00ff88;box-shadow:0 8px 24px rgba(0,0,0,0.5),0 0 18px rgba(0,255,136,0.35);}
+.toast.error{border-color:#ff4466;color:#ff4466;box-shadow:0 8px 24px rgba(0,0,0,0.5),0 0 18px rgba(255,68,102,0.35);}
+.toast.warning{border-color:#ffaa00;color:#ffaa00;box-shadow:0 8px 24px rgba(0,0,0,0.5),0 0 18px rgba(255,170,0,0.35);}
+@media(max-width:640px){.toast{bottom:calc(90px + env(safe-area-inset-bottom));max-width:calc(100vw - 32px);white-space:normal;text-align:center;}}
 .dstrip{position:fixed;bottom:16px;right:16px;background:rgba(255,160,0,0.06);border:1px solid #886600;padding:8px 14px;display:flex;align-items:center;gap:8px;z-index:100;}
 .ddot{width:7px;height:7px;border-radius:50%;background:#ffaa00;animation:blink 1.5s infinite;}
 .dstrip span{font-size:12px;letter-spacing:2px;color:#886600;}
@@ -325,8 +351,8 @@ body{width:100%;min-height:100vh;}
   .igrd{grid-template-columns:repeat(2,1fr);}
 }
 @media(max-width:640px){
-  .db-hdr{padding:10px 14px;flex-wrap:wrap;gap:8px;}
-  .db-main{padding:10px 12px;}
+  .db-hdr{padding:10px 14px;flex-wrap:wrap;gap:8px;padding-top:max(10px,env(safe-area-inset-top));}
+  .db-main{padding:10px 12px;padding-bottom:calc(72px + env(safe-area-inset-bottom));}
   .db-name{font-size:22px;}
   .vg{grid-template-columns:repeat(2,1fr);}
   .igrd{grid-template-columns:1fr;}
@@ -334,6 +360,117 @@ body{width:100%;min-height:100vh;}
   .rw{flex-direction:column;align-items:center;}
   .wsrow{width:100%;}
   .scard-inner{grid-template-columns:1fr;}
+  .dstrip{bottom:calc(72px + env(safe-area-inset-bottom));right:12px;left:12px;justify-content:center;}
+}
+
+/* ═══════════════════════════════════════
+   PWA INSTALL BANNER
+═══════════════════════════════════════ */
+.install-banner{
+  position:sticky;top:0;z-index:300;
+  display:flex;align-items:center;gap:12px;padding:12px 16px;
+  padding-top:calc(12px + env(safe-area-inset-top,0));
+  background:linear-gradient(135deg,rgba(0,245,255,0.18),rgba(123,43,255,0.12));
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--ta,rgba(0,245,255,0.3));
+  animation:slideDown 0.5s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideDown{from{transform:translateY(-100%);}to{transform:translateY(0);}}
+.install-icon{font-size:28px;flex-shrink:0;}
+.install-text{flex:1;min-width:0;}
+.install-title{font-size:14px;font-weight:700;color:var(--ta);letter-spacing:1px;}
+.install-sub{font-size:11px;opacity:0.6;margin-top:2px;}
+.install-btn{
+  padding:8px 18px;border-radius:6px;border:1px solid var(--ta);
+  background:var(--ta);color:#000;font-weight:700;font-size:12px;
+  letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;
+  transition:all 0.2s;flex-shrink:0;
+}
+.install-btn:active{transform:scale(0.95);}
+.install-close{
+  background:transparent;border:none;color:var(--txt);
+  font-size:24px;cursor:pointer;opacity:0.5;padding:0 4px;
+  line-height:1;flex-shrink:0;
+}
+.install-close:hover{opacity:1;}
+body[data-pwa="installed"] .install-banner{display:none!important;}
+
+/* ═══════════════════════════════════════
+   OFFLINE BADGE
+═══════════════════════════════════════ */
+.offline-badge{
+  position:fixed;top:env(safe-area-inset-top,8px);left:50%;
+  transform:translateX(-50%);z-index:400;
+  display:flex;align-items:center;gap:8px;
+  padding:6px 14px;background:rgba(255,68,68,0.15);
+  border:1px solid #ff4444;border-radius:20px;
+  backdrop-filter:blur(12px);
+  font-size:10px;letter-spacing:2px;color:#ff6666;
+  font-weight:700;
+  animation:offlinePulse 2s ease-in-out infinite;
+}
+.offline-dot{
+  width:6px;height:6px;border-radius:50%;background:#ff4444;
+  box-shadow:0 0 6px #ff4444;
+  animation:offlinePulse 1.2s ease-in-out infinite;
+}
+@keyframes offlinePulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+body.is-offline{filter:saturate(0.85);}
+body.is-offline .dstrip{display:none;}
+@media(max-width:640px){.offline-badge{top:calc(env(safe-area-inset-top,0px) + 8px);}}
+
+/* ═══════════════════════════════════════
+   VALUE UPDATE PULSE (when data refreshes)
+═══════════════════════════════════════ */
+@keyframes valuePulse{
+  0%{transform:scale(1);}
+  40%{transform:scale(1.08);filter:brightness(1.3);}
+  100%{transform:scale(1);}
+}
+.value-updated{animation:valuePulse 0.6s cubic-bezier(.4,0,.2,1);}
+
+/* ═══════════════════════════════════════
+   PULL-TO-REFRESH
+═══════════════════════════════════════ */
+.ptr{
+  position:fixed;top:0;left:50%;transform:translateX(-50%) translateY(-60px);
+  z-index:250;background:var(--bg2,rgba(2,8,16,0.95));
+  border:1px solid var(--ta,rgba(0,245,255,0.3));border-radius:50%;
+  width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:var(--ta);transition:transform 0.25s,opacity 0.25s;
+  pointer-events:none;backdrop-filter:blur(10px);opacity:0;
+  box-shadow:0 4px 14px rgba(0,0,0,0.5),0 0 12px var(--ta,rgba(0,245,255,0.3));
+}
+.ptr.show{transform:translateX(-50%) translateY(20px);opacity:1;}
+.ptr.refreshing .ptr-ic{animation:ptr-spin 0.8s linear infinite;}
+@keyframes ptr-spin{to{transform:rotate(360deg);}}
+
+/* ═══════════════════════════════════════
+   BOTTOM NAV (mobile)
+═══════════════════════════════════════ */
+.bnav{display:none;}
+@media(max-width:640px){
+  .bnav{
+    display:flex;position:fixed;bottom:0;left:0;right:0;z-index:200;
+    background:rgba(2,8,16,0.95);backdrop-filter:blur(18px);
+    border-top:1px solid var(--bdr,rgba(0,245,255,0.15));
+    padding:6px 0 calc(6px + env(safe-area-inset-bottom));
+    justify-content:space-around;align-items:center;
+  }
+  .bnav-btn{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+    padding:6px 4px;background:transparent;border:none;cursor:pointer;
+    color:var(--txt);opacity:0.5;transition:all 0.2s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .bnav-btn.active{opacity:1;color:var(--ta);}
+  .bnav-btn:active{transform:scale(0.92);}
+  .bnav-ic{font-size:20px;line-height:1;}
+  .bnav-lbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
+  .t-mc .bnav{background:#1e1600;border-top:3px solid #6a5020;}
+  .t-mc .bnav-btn.active{color:#6aff3a;}
+  .t-halo .bnav{border-top:1px solid rgba(74,184,255,0.25);}
+  .t-naruto .bnav{border-top:2px solid rgba(255,69,0,0.3);background:rgba(12,4,0,0.95);}
 }
 
 /* ═══════════════════════════════════════
@@ -547,6 +684,13 @@ body.t-naruto span.vval{
 .wsfil{height:100%;background:var(--ta);transition:width 1.4s cubic-bezier(.4,0,.2,1);}
 .wsfil.sl{background:var(--ta2);}
 .wrec{font-size:9px;letter-spacing:2px;text-transform:uppercase;opacity:0.55;text-align:center;margin-top:10px;line-height:1.5;color:var(--tpos);}
+/* Recovery Score Badge */
+.rs-badge{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:14px;padding:10px 14px;border:1px solid var(--bdr);border-radius:8px;background:var(--sub);transition:border-color 0.4s;}
+.rs-num{font-size:32px;font-weight:800;line-height:1;letter-spacing:1px;}
+.rs-lbl{font-size:9px;letter-spacing:3px;font-weight:700;text-transform:uppercase;}
+.rs-bd{display:flex;gap:4px;width:100%;margin-top:4px;}
+.rs-bar{flex:1;height:3px;background:var(--rbg);overflow:hidden;border-radius:2px;}
+.rs-bar span{display:block;height:100%;transition:width 1s cubic-bezier(.4,0,.2,1);}
 
 /* ── Calorías expandible ── */
 .vc.exp{cursor:pointer;-webkit-tap-highlight-color:transparent;overflow:hidden;clip-path:none!important;position:relative;}
@@ -624,6 +768,17 @@ body.t-naruto span.vval{
 </div>
 
 <!-- ══════════════ DASHBOARD ══════════════ -->
+<!-- PWA Install Banner (sticky at top) -->
+<div class="install-banner" id="install-banner" style="display:none;">
+  <div class="install-icon">📲</div>
+  <div class="install-text">
+    <div class="install-title">Instalar Fitbit Air</div>
+    <div class="install-sub">Acceso rápido desde tu pantalla de inicio</div>
+  </div>
+  <button class="install-btn" onclick="installPWA()">Instalar</button>
+  <button class="install-close" onclick="dismissInstall()" aria-label="Cerrar">×</button>
+</div>
+
 <div id="dash">
   <div class="sbar"><div class="sbfi" id="sbfi"></div></div>
   <div class="toast" id="toast"></div>
@@ -863,6 +1018,8 @@ body.t-naruto span.vval{
           </div>
         </div>
         <div class="wrec" id="wrec">Listo para entrenar al máximo</div>
+        <!-- Recovery Score Badge (ported from scores.ts) -->
+        <div class="rs-badge" id="recovery-score-badge"></div>
       </div>
 
       <div class="vg">
@@ -968,6 +1125,16 @@ body.t-naruto span.vval{
         </div>
         <div class="card">
           <span class="clbl" id="lbl-sleep">// ANÁLISIS DE SUEÑO</span>
+          <div class="hypno">
+            <div class="hypno-track" id="hypno-track"><div class="hypno-empty" id="hypno-empty">— SIN DATOS DE ETAPAS —</div></div>
+            <div class="hypno-axis"><span id="hypno-t0">23:00</span><span id="hypno-t1">07:00</span></div>
+            <div class="hypno-lgnd">
+              <span><i style="background:var(--ta2)"></i><span id="hl-deep">PROF.</span></span>
+              <span><i style="background:var(--ta)"></i>REM</span>
+              <span><i style="background:rgba(255,255,255,0.22)"></i><span id="hl-light">LIGER.</span></span>
+              <span><i style="background:var(--tneg)"></i><span id="hl-wake">DESP.</span></span>
+            </div>
+          </div>
           <div class="slrw"><div class="sllbl" id="sl-deep">PROF.</div><div class="sltr"><div class="slfi" id="sl0" style="width:35%;background:var(--ta2);"></div></div><div class="sltm">1h 44m</div></div>
           <div class="slrw"><div class="sllbl">REM</div><div class="sltr"><div class="slfi" id="sl1" style="width:28%;background:var(--ta);"></div></div><div class="sltm">1h 22m</div></div>
           <div class="slrw"><div class="sllbl" id="sl-light">LIGER.</div><div class="sltr"><div class="slfi" id="sl2" style="width:72%;background:rgba(255,255,255,0.22);"></div></div><div class="sltm">3h 34m</div></div>
@@ -1020,6 +1187,31 @@ body.t-naruto span.vval{
       </div>
     </div>
   </main>
+
+  <!-- Pull to Refresh indicator -->
+  <div class="ptr" id="ptr"><span class="ptr-ic">↻</span></div>
+
+  <!-- Offline Badge -->
+  <div class="offline-badge" id="offline-badge" style="display:none;">
+    <span class="offline-dot"></span>
+    <span id="offline-txt">SIN CONEXIÓN</span>
+  </div>
+
+  <!-- Bottom Navigation (mobile only) -->
+  <nav class="bnav" id="bnav">
+    <button class="bnav-btn active" data-tab="home" onclick="navigate('home')">
+      <span class="bnav-ic">⌂</span><span class="bnav-lbl">Inicio</span>
+    </button>
+    <button class="bnav-btn" data-tab="stats" onclick="navigate('stats')">
+      <span class="bnav-ic">◴</span><span class="bnav-lbl">Stats</span>
+    </button>
+    <button class="bnav-btn" data-tab="history" onclick="navigate('history')">
+      <span class="bnav-ic">▤</span><span class="bnav-lbl">Historial</span>
+    </button>
+    <button class="bnav-btn" data-tab="profile" onclick="navigate('profile')">
+      <span class="bnav-ic">◉</span><span class="bnav-lbl">Perfil</span>
+    </button>
+  </nav>
 
   <div class="dstrip" id="dstrip"><div class="ddot"></div><span id="demo-txt">DEMO — CONECTA TU FITBIT AIR</span></div>
   <div class="lov" id="lov"><div class="ltxt" id="load-txt">SINCRONIZANDO...</div><div class="lbar"><div class="lfi"></div></div></div>
@@ -1230,6 +1422,7 @@ function setLang(l) {
   setText('lbl-now', t.lbl_now);
   setText('lbl-sleep', t.lbl_sleep);
   setText('sl-deep', t.sl_deep); setText('sl-light', t.sl_light); setText('sl-awake', t.sl_awake);
+  setText('hl-deep', t.sl_deep); setText('hl-light', t.sl_light); setText('hl-wake', t.sl_awake);
   setText('lbl-total', t.lbl_total); setText('lbl-start', t.lbl_start);
   setText('lbl-activity', t.lbl_activity);
   setText('ac1n', t.ac1); setText('ac2n', t.ac2); setText('ac3n', t.ac3);
@@ -1265,6 +1458,7 @@ function selectTheme(t) {
   document.getElementById('dash').style.display = 'block';
   applyTheme(t);
   setLang(lang); // apply current language
+  if (typeof updateThemeColor === 'function') updateThemeColor(t);
   initDash();
 }
 
@@ -1318,12 +1512,147 @@ function applyThemeText(t) {
 setLang(lang);
 if (theme) selectTheme(theme);
 
+// ══════ PULL TO REFRESH (mobile) ══════
+(function initPTR() {
+  if (!('ontouchstart' in window)) return;
+  let startY = 0, currentY = 0, pulling = false, refreshing = false;
+  const THRESHOLD = 80;
+  const ptr = document.getElementById('ptr');
+
+  document.addEventListener('touchstart', (e) => {
+    if (window.scrollY > 0 || refreshing) return;
+    startY = e.touches[0].clientY;
+    pulling = true;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', (e) => {
+    if (!pulling) return;
+    currentY = e.touches[0].clientY;
+    const diff = currentY - startY;
+    if (diff > 0 && window.scrollY === 0) {
+      const progress = Math.min(diff / THRESHOLD, 1.2);
+      if (ptr) {
+        ptr.style.transform = `translateX(-50%) translateY(${Math.min(diff * 0.4, 80) - 60}px) rotate(${diff * 2}deg)`;
+        ptr.style.opacity = progress;
+        if (diff > THRESHOLD) ptr.classList.add('show');
+      }
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', () => {
+    if (!pulling) return;
+    pulling = false;
+    const diff = currentY - startY;
+    if (diff > THRESHOLD && !refreshing) {
+      refreshing = true;
+      ptr.classList.add('show', 'refreshing');
+      if (navigator.vibrate) navigator.vibrate(20);
+      // Trigger data refresh (placeholder for real poll)
+      setTimeout(() => {
+        if (typeof pollFast === 'function') pollFast();
+        if (typeof pollSlow === 'function') pollSlow();
+        ptr.classList.remove('show', 'refreshing');
+        ptr.style.cssText = '';
+        refreshing = false;
+        if (typeof showToast === 'function') showToast(lang === 'es' ? 'Datos actualizados' : 'Data refreshed');
+      }, 900);
+    } else {
+      ptr.classList.remove('show');
+      ptr.style.cssText = '';
+    }
+  }, { passive: true });
+})();
+
+// ══════ BOTTOM NAV ══════
+function navigate(tab) {
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  // Smooth scroll to corresponding section (placeholder for full routing)
+  const sections = { home: 0, stats: document.querySelector('.mg')?.offsetTop, history: document.querySelector('.hrc-card')?.offsetTop, profile: document.body.scrollHeight };
+  const y = sections[tab] || 0;
+  window.scrollTo({ top: Math.max(0, y - 70), behavior: 'smooth' });
+  if (navigator.vibrate) navigator.vibrate(10);
+}
+
+// ══════ PWA: Register Service Worker + theme-color sync ══════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW registration failed:', err));
+  });
+}
+
+// ══════ ONLINE / OFFLINE DETECTION ══════
+function updateOnlineStatus() {
+  const offline = !navigator.onLine;
+  document.body.classList.toggle('is-offline', offline);
+  const badge = document.getElementById('offline-badge');
+  if (badge) badge.style.display = offline ? 'flex' : 'none';
+  if (offline) {
+    showToast(lang === 'es' ? 'Sin conexión — datos en caché' : 'Offline — cached data', 'warning');
+  } else if (document.body.dataset.wasOffline === '1') {
+    showToast(lang === 'es' ? 'Conexión restaurada' : 'Connection restored', 'success');
+    if (typeof pollFast === 'function') pollFast();
+  }
+  document.body.dataset.wasOffline = offline ? '1' : '0';
+}
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+// Initial check
+setTimeout(updateOnlineStatus, 500);
+
+// ══════ PWA: Install Prompt ══════
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const banner = document.getElementById('install-banner');
+  if (banner && !localStorage.getItem('fb_install_dismissed')) {
+    banner.style.display = 'flex';
+  }
+});
+
+function installPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(() => {
+    deferredPrompt = null;
+    document.getElementById('install-banner').style.display = 'none';
+  });
+}
+
+function dismissInstall() {
+  localStorage.setItem('fb_install_dismissed', '1');
+  document.getElementById('install-banner').style.display = 'none';
+}
+
+// Detect standalone (already installed)
+if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+  document.body.setAttribute('data-pwa', 'installed');
+}
+// Sync theme-color meta with active theme for status bar
+const THEME_COLORS = { mc: '#1a1200', halo: '#03070e', naruto: '#0c0400', fut: '#020810' };
+function updateThemeColor(t) {
+  const meta = document.getElementById('theme-color-meta');
+  if (meta && THEME_COLORS[t]) meta.setAttribute('content', THEME_COLORS[t]);
+}
+if (theme) updateThemeColor(theme);
+
 // ══════ INIT DASHBOARD ══════
 function initDash() {
   document.getElementById('cburl').textContent = REDIR;
   updateClock(); setInterval(updateClock, 1000);
   buildWeeks(); buildHRC(hrHist);
   setTimeout(animVals, 300);
+  setTimeout(renderRecoveryScore, 500);
+  // Welcome onboarding hint (first visit)
+  if (!localStorage.getItem('fb_welcomed')) {
+    setTimeout(() => {
+      showToast(lang === 'es' ? '👋 Bienvenido a Fitbit Air' : '👋 Welcome to Fitbit Air', 'info');
+      localStorage.setItem('fb_welcomed', '1');
+    }, 1200);
+    setTimeout(() => {
+      showToast(lang === 'es' ? 'Desliza hacia abajo para refrescar' : 'Pull down to refresh', 'info');
+    }, 4500);
+  }
   const p = new URLSearchParams(location.search);
   if (p.get('code')) handleOAuth(p.get('code'));
   else if (token) loadReal();
@@ -1332,14 +1661,19 @@ function initDash() {
       if (isReal) return;
       const c = parseInt(document.getElementById('hrlive').textContent);
       const n = Math.max(55, Math.min(85, c + Math.floor(Math.random()*5)-2));
-      ['hrlive','hrv'].forEach(id => { const e = document.getElementById(id); if(e) e.textContent=n; });
+      ['hrlive','hrv'].forEach(id => {
+        const e = document.getElementById(id);
+        if (e && n !== c) { e.textContent = n; pulseValue(e); }
+      });
       if (document.getElementById('tickhr')) document.getElementById('tickhr').textContent = n;
       hrHist.push(n); if (hrHist.length>48) hrHist.shift(); buildHRC(hrHist);
     }, 4000);
     setInterval(() => {
       if (isReal) return;
-      const c = parseInt(document.getElementById('calv').textContent);
-      document.getElementById('calv').textContent = c + Math.floor(Math.random()*3);
+      const el = document.getElementById('calv');
+      const c = parseInt(el.textContent);
+      const inc = Math.floor(Math.random()*3);
+      if (inc > 0) { el.textContent = c + inc; pulseValue(el); }
     }, 20000);
   }
 }
@@ -1584,7 +1918,68 @@ function startCd() {
 }
 function chgI(v) { pSec=parseInt(v); startCd(); clearInterval(ptmr); if(isReal)ptmr=setInterval(pollFast,pSec*1000); }
 function animSBar() { const f=document.getElementById('sbfi'); f.style.transition='none'; f.style.width='0%'; requestAnimationFrame(()=>{ f.style.transition=`width ${pSec*1000}ms linear`; f.style.width='100%'; setTimeout(()=>{ f.style.transition='width 0.3s'; f.style.width='0%'; },pSec*1000); }); }
-function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('sh'); setTimeout(()=>t.classList.remove('sh'),2500); }
+// ══════ RECOVERY SCORE (ported from lib/analytics/scores.ts) ══════
+function calcRecoveryScore({ minutesAsleep = 432, timeInBed = 480, deep = 80, rem = 95, rhr = 65 } = {}) {
+  // Sleep duration (0-30 pts): ideal 8h=480min
+  const sleepDuration = Math.round(Math.min(minutesAsleep / 480, 1) * 30);
+  // Sleep efficiency (0-25 pts)
+  const eff = timeInBed > 0 ? minutesAsleep / timeInBed : 0;
+  const sleepEfficiency = Math.round(Math.min(Math.max((eff - 0.7) / 0.25, 0), 1) * 25);
+  // Sleep quality (0-20 pts): deep+REM should be ~45% of sleep
+  const qRatio = minutesAsleep > 0 ? (deep + rem) / minutesAsleep : 0;
+  const sleepQuality = Math.round(Math.min(qRatio / 0.45, 1) * 20);
+  // RHR (0-25 pts): healthy range 40-80
+  const restingHR = Math.round(Math.max(0, Math.min((80 - rhr) / 40, 1)) * 25);
+
+  const score = Math.min(100, sleepDuration + sleepEfficiency + sleepQuality + restingHR);
+  const level = score >= 67 ? 'peak' : score >= 50 ? 'good' : score >= 34 ? 'moderate' : 'low';
+  const labels = { peak: 'EN FORMA', good: 'BUENA', moderate: 'MODERADA', low: 'DESCANSA' };
+  const labelsEn = { peak: 'PEAK', good: 'GOOD', moderate: 'MODERATE', low: 'REST' };
+  const colors = { peak: '#22c55e', good: '#84cc16', moderate: '#f59e0b', low: '#ef4444' };
+
+  return {
+    score, level,
+    label: lang === 'es' ? labels[level] : labelsEn[level],
+    color: colors[level],
+    breakdown: { sleepDuration, sleepEfficiency, sleepQuality, restingHR }
+  };
+}
+
+function renderRecoveryScore(data) {
+  const el = document.getElementById('recovery-score-badge');
+  if (!el) return;
+  if (data) window._rsData = { ...(window._rsData || {}), ...data };
+  const r = calcRecoveryScore(window._rsData || undefined);
+  el.innerHTML = `
+    <div class="rs-num" style="color:${r.color}">${r.score}</div>
+    <div class="rs-lbl" style="color:${r.color}">${r.label}</div>
+    <div class="rs-bd">
+      <div class="rs-bar"><span style="width:${(r.breakdown.sleepDuration/30)*100}%;background:${r.color}"></span></div>
+      <div class="rs-bar"><span style="width:${(r.breakdown.sleepEfficiency/25)*100}%;background:${r.color}"></span></div>
+      <div class="rs-bar"><span style="width:${(r.breakdown.sleepQuality/20)*100}%;background:${r.color}"></span></div>
+      <div class="rs-bar"><span style="width:${(r.breakdown.restingHR/25)*100}%;background:${r.color}"></span></div>
+    </div>
+  `;
+  el.style.borderColor = r.color;
+}
+
+function pulseValue(el) {
+  if (!el) return;
+  el.classList.remove('value-updated');
+  void el.offsetWidth;
+  el.classList.add('value-updated');
+}
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  const icons = { success: '✓', error: '✕', warning: '⚠', info: '◆' };
+  t.className = 'toast' + (type ? ' ' + type : '');
+  t.innerHTML = `<span class="toast-ic">${icons[type] || icons.info}</span><span>${msg}</span>`;
+  void t.offsetWidth; // restart animation
+  t.classList.add('sh');
+  if (navigator.vibrate) navigator.vibrate(type === 'error' ? [40, 30, 40] : 12);
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('sh'), 2800);
+}
 function startPoll() { document.getElementById('swrap').style.display='flex'; startCd(); animSBar(); clearInterval(ptmr); ptmr=setInterval(pollFast,pSec*1000); setInterval(pollSlow,5*60*1000); }
 async function pollFast() {
   if (!token) return;
@@ -1607,7 +2002,22 @@ async function pollFast() {
     animSBar(); showToast(T[lang].sync_toast(new Date().toLocaleTimeString(lang==='es'?'es':'en',{hour:'2-digit',minute:'2-digit',second:'2-digit'})));
   } catch(e) { console.warn(e); } finally { ring.classList.remove('on'); }
 }
-async function pollSlow() { if(!token)return; try{const r=await fetch('https://api.fitbit.com/1.2/user/-/sleep/date/today.json',{headers:{'Authorization':'Bearer '+token}});const d=await r.json();if(d?.summary?.stages)updSl(d.summary.stages);}catch(e){} }
+async function pollSlow() {
+  if(!token) return;
+  try {
+    const r = await fetch('https://api.fitbit.com/1.2/user/-/sleep/date/today.json',{headers:{'Authorization':'Bearer '+token}});
+    const d = await r.json();
+    if (d?.summary?.stages) updSl(d.summary.stages);
+    const main = d?.sleep?.find(s=>s.isMainSleep) ?? d?.sleep?.[0];
+    renderHypnogram(main);
+    renderRecoveryScore({
+      minutesAsleep: d?.summary?.totalMinutesAsleep || 0,
+      timeInBed:     d?.summary?.totalTimeInBed     || 0,
+      deep:          d?.summary?.stages?.deep       || 0,
+      rem:           d?.summary?.stages?.rem        || 0,
+    });
+  } catch(e) {}
+}
 function stopPoll() { clearInterval(ptmr);clearInterval(cdtmr);isReal=false;token='';localStorage.removeItem('fb_tok'); }
 async function loadReal() {
   showLoad();
@@ -1618,16 +2028,25 @@ async function loadReal() {
     if (ac?.summary) { const s=ac.summary; document.getElementById('stepsv').textContent=(s.steps||0).toLocaleString('es'); document.getElementById('calv').textContent=s.activityCalories||0; const pct=Math.min((s.steps/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); document.getElementById('cal-bmr').textContent=(s.caloriesBMR||0).toLocaleString(); document.getElementById('cal-act').textContent=(s.activityCalories||0).toLocaleString(); setCalbars({sed:s.sedentaryMinutes||0,lig:s.lightlyActiveMinutes||0,mod:s.fairlyActiveMinutes||0,int:s.veryActiveMinutes||0}); }
     let maxHR_real=0; if (hr?.['activities-heart-intraday']?.dataset?.length) { const ds=hr['activities-heart-intraday'].dataset; const lat=ds[ds.length-1]?.value||68; maxHR_real=Math.max(...ds.map(d=>d.value)); document.getElementById('hrv').textContent=lat; document.getElementById('hrlive').textContent=lat; const st=Math.max(1,Math.floor(ds.length/48)); hrHist=ds.filter((_,i)=>i%st===0).slice(-48).map(d=>d.value); buildHRC(hrHist); }
     if (sl?.summary?.stages) updSl(sl.summary.stages);
+    renderHypnogram(sl?.sleep?.find(s=>s.isMainSleep) ?? sl?.sleep?.[0]);
     // Whoop-style scores con datos reales
     const rhr_real = hr?.['activities-heart']?.[0]?.value?.restingHeartRate || 68;
+    const mainSleep = sl?.sleep?.find(s=>s.isMainSleep) ?? sl?.sleep?.[0];
     updateScores(calcScores({
       sleepMin: sl?.summary?.totalMinutesAsleep || 0,
-      sleepEff: sl?.sleep?.find(s=>s.isMainSleep)?.efficiency || sl?.sleep?.[0]?.efficiency || 85,
+      sleepEff: mainSleep?.efficiency || 85,
       deep:     sl?.summary?.stages?.deep || 0,
       rem:      sl?.summary?.stages?.rem  || 0,
       rhr:      rhr_real,
       zones:    hr?.['activities-heart']?.[0]?.value?.heartRateZones || [],
     }));
+    renderRecoveryScore({
+      minutesAsleep: sl?.summary?.totalMinutesAsleep || 0,
+      timeInBed:     sl?.summary?.totalTimeInBed     || 0,
+      deep:          sl?.summary?.stages?.deep       || 0,
+      rem:           sl?.summary?.stages?.rem        || 0,
+      rhr:           rhr_real,
+    });
     // Stress score con datos reales (HRV proxy desde FC nocturna si disponible)
     setStressBars({ hrv: 68, rhr: rhr_real, br: 14 });
     // HR zones con datos reales
@@ -1641,6 +2060,37 @@ function updSl(s) {
   const hm=m=>`${Math.floor(m/60)}h ${m%60}m`, pct=m=>(m/tot*100)+'%';
   const fs=document.querySelectorAll('.slfi'), ts=document.querySelectorAll('.sltm');
   [[0,s.deep],[1,s.rem],[2,s.light],[3,s.wake]].forEach(([i,v])=>{ if(fs[i]){fs[i].style.width=pct(v||0);ts[i].textContent=hm(v||0);} });
+}
+// Sleep Stages Timeline — Oura-style hypnogram from Fitbit `sleep[].levels.data`
+function renderHypnogram(main) {
+  const track = document.getElementById('hypno-track');
+  if (!track) return;
+  const data = main?.levels?.data;
+  if (!data || !data.length) return; // keep empty placeholder
+  const startMs = new Date(main.startTime).getTime();
+  const endMs   = new Date(main.endTime).getTime();
+  const total   = endMs - startMs;
+  if (total <= 0) return;
+  const fmt = (ms) => {
+    const d = new Date(ms);
+    return d.toLocaleTimeString(lang==='es'?'es':'en',{hour:'2-digit',minute:'2-digit',hour12:false});
+  };
+  // Map Fitbit levels (stages: deep/rem/light/wake; classic: asleep/restless/awake) to our 4 lanes
+  const cls = (lvl) => {
+    if (lvl === 'deep')                  return 'deep';
+    if (lvl === 'rem')                   return 'rem';
+    if (lvl === 'light' || lvl === 'asleep' || lvl === 'restless') return 'light';
+    return 'wake';
+  };
+  const segs = data.map(d => {
+    const pct = (d.seconds * 1000) / total * 100;
+    return `<div class="hypno-seg ${cls(d.level)}" style="flex-grow:${pct.toFixed(3)}" title="${d.level} · ${Math.round(d.seconds/60)}min"></div>`;
+  }).join('');
+  track.innerHTML = segs;
+  const t0 = document.getElementById('hypno-t0');
+  const t1 = document.getElementById('hypno-t1');
+  if (t0) t0.textContent = fmt(startMs);
+  if (t1) t1.textContent = fmt(endMs);
 }
 function showLoad() { document.getElementById('lov').classList.add('on'); }
 function hideLoad() { document.getElementById('lov').classList.remove('on'); }
