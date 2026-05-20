@@ -172,6 +172,18 @@ body{width:100%;min-height:100vh;}
 .scard-inner{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;}
 
 /* Sleep */
+.hypno{margin:8px 0 10px;}
+.hypno-track{position:relative;width:100%;height:48px;background:var(--rbg);border-radius:3px;overflow:hidden;display:flex;}
+.hypno-seg{height:100%;transition:flex-grow 0.6s ease;flex-shrink:0;flex-basis:0;}
+.hypno-seg.deep{background:var(--ta2);}
+.hypno-seg.rem{background:var(--ta);}
+.hypno-seg.light{background:rgba(255,255,255,0.22);}
+.hypno-seg.wake{background:var(--tneg);}
+.hypno-axis{display:flex;justify-content:space-between;margin-top:4px;font-size:9px;opacity:0.35;letter-spacing:1px;}
+.hypno-lgnd{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:9px;letter-spacing:1px;opacity:0.55;}
+.hypno-lgnd span{display:inline-flex;align-items:center;gap:4px;}
+.hypno-lgnd i{width:8px;height:8px;display:inline-block;border-radius:1px;}
+.hypno-empty{display:flex;align-items:center;justify-content:center;height:100%;font-size:10px;opacity:0.35;letter-spacing:2px;}
 .slrw{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--sub);}
 .slrw:last-child{border:none;}
 .sllbl{font-size:11px;letter-spacing:2px;opacity:0.35;width:48px;flex-shrink:0;}
@@ -1113,6 +1125,16 @@ body.t-naruto span.vval{
         </div>
         <div class="card">
           <span class="clbl" id="lbl-sleep">// ANÁLISIS DE SUEÑO</span>
+          <div class="hypno">
+            <div class="hypno-track" id="hypno-track"><div class="hypno-empty" id="hypno-empty">— SIN DATOS DE ETAPAS —</div></div>
+            <div class="hypno-axis"><span id="hypno-t0">23:00</span><span id="hypno-t1">07:00</span></div>
+            <div class="hypno-lgnd">
+              <span><i style="background:var(--ta2)"></i><span id="hl-deep">PROF.</span></span>
+              <span><i style="background:var(--ta)"></i>REM</span>
+              <span><i style="background:rgba(255,255,255,0.22)"></i><span id="hl-light">LIGER.</span></span>
+              <span><i style="background:var(--tneg)"></i><span id="hl-wake">DESP.</span></span>
+            </div>
+          </div>
           <div class="slrw"><div class="sllbl" id="sl-deep">PROF.</div><div class="sltr"><div class="slfi" id="sl0" style="width:35%;background:var(--ta2);"></div></div><div class="sltm">1h 44m</div></div>
           <div class="slrw"><div class="sllbl">REM</div><div class="sltr"><div class="slfi" id="sl1" style="width:28%;background:var(--ta);"></div></div><div class="sltm">1h 22m</div></div>
           <div class="slrw"><div class="sllbl" id="sl-light">LIGER.</div><div class="sltr"><div class="slfi" id="sl2" style="width:72%;background:rgba(255,255,255,0.22);"></div></div><div class="sltm">3h 34m</div></div>
@@ -1400,6 +1422,7 @@ function setLang(l) {
   setText('lbl-now', t.lbl_now);
   setText('lbl-sleep', t.lbl_sleep);
   setText('sl-deep', t.sl_deep); setText('sl-light', t.sl_light); setText('sl-awake', t.sl_awake);
+  setText('hl-deep', t.sl_deep); setText('hl-light', t.sl_light); setText('hl-wake', t.sl_awake);
   setText('lbl-total', t.lbl_total); setText('lbl-start', t.lbl_start);
   setText('lbl-activity', t.lbl_activity);
   setText('ac1n', t.ac1); setText('ac2n', t.ac2); setText('ac3n', t.ac3);
@@ -1922,10 +1945,11 @@ function calcRecoveryScore({ minutesAsleep = 432, timeInBed = 480, deep = 80, re
   };
 }
 
-function renderRecoveryScore() {
+function renderRecoveryScore(data) {
   const el = document.getElementById('recovery-score-badge');
   if (!el) return;
-  const r = calcRecoveryScore();
+  if (data) window._rsData = { ...(window._rsData || {}), ...data };
+  const r = calcRecoveryScore(window._rsData || undefined);
   el.innerHTML = `
     <div class="rs-num" style="color:${r.color}">${r.score}</div>
     <div class="rs-lbl" style="color:${r.color}">${r.label}</div>
@@ -1978,7 +2002,22 @@ async function pollFast() {
     animSBar(); showToast(T[lang].sync_toast(new Date().toLocaleTimeString(lang==='es'?'es':'en',{hour:'2-digit',minute:'2-digit',second:'2-digit'})));
   } catch(e) { console.warn(e); } finally { ring.classList.remove('on'); }
 }
-async function pollSlow() { if(!token)return; try{const r=await fetch('https://api.fitbit.com/1.2/user/-/sleep/date/today.json',{headers:{'Authorization':'Bearer '+token}});const d=await r.json();if(d?.summary?.stages)updSl(d.summary.stages);}catch(e){} }
+async function pollSlow() {
+  if(!token) return;
+  try {
+    const r = await fetch('https://api.fitbit.com/1.2/user/-/sleep/date/today.json',{headers:{'Authorization':'Bearer '+token}});
+    const d = await r.json();
+    if (d?.summary?.stages) updSl(d.summary.stages);
+    const main = d?.sleep?.find(s=>s.isMainSleep) ?? d?.sleep?.[0];
+    renderHypnogram(main);
+    renderRecoveryScore({
+      minutesAsleep: d?.summary?.totalMinutesAsleep || 0,
+      timeInBed:     d?.summary?.totalTimeInBed     || 0,
+      deep:          d?.summary?.stages?.deep       || 0,
+      rem:           d?.summary?.stages?.rem        || 0,
+    });
+  } catch(e) {}
+}
 function stopPoll() { clearInterval(ptmr);clearInterval(cdtmr);isReal=false;token='';localStorage.removeItem('fb_tok'); }
 async function loadReal() {
   showLoad();
@@ -1989,16 +2028,25 @@ async function loadReal() {
     if (ac?.summary) { const s=ac.summary; document.getElementById('stepsv').textContent=(s.steps||0).toLocaleString('es'); document.getElementById('calv').textContent=s.activityCalories||0; const pct=Math.min((s.steps/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); document.getElementById('cal-bmr').textContent=(s.caloriesBMR||0).toLocaleString(); document.getElementById('cal-act').textContent=(s.activityCalories||0).toLocaleString(); setCalbars({sed:s.sedentaryMinutes||0,lig:s.lightlyActiveMinutes||0,mod:s.fairlyActiveMinutes||0,int:s.veryActiveMinutes||0}); }
     let maxHR_real=0; if (hr?.['activities-heart-intraday']?.dataset?.length) { const ds=hr['activities-heart-intraday'].dataset; const lat=ds[ds.length-1]?.value||68; maxHR_real=Math.max(...ds.map(d=>d.value)); document.getElementById('hrv').textContent=lat; document.getElementById('hrlive').textContent=lat; const st=Math.max(1,Math.floor(ds.length/48)); hrHist=ds.filter((_,i)=>i%st===0).slice(-48).map(d=>d.value); buildHRC(hrHist); }
     if (sl?.summary?.stages) updSl(sl.summary.stages);
+    renderHypnogram(sl?.sleep?.find(s=>s.isMainSleep) ?? sl?.sleep?.[0]);
     // Whoop-style scores con datos reales
     const rhr_real = hr?.['activities-heart']?.[0]?.value?.restingHeartRate || 68;
+    const mainSleep = sl?.sleep?.find(s=>s.isMainSleep) ?? sl?.sleep?.[0];
     updateScores(calcScores({
       sleepMin: sl?.summary?.totalMinutesAsleep || 0,
-      sleepEff: sl?.sleep?.find(s=>s.isMainSleep)?.efficiency || sl?.sleep?.[0]?.efficiency || 85,
+      sleepEff: mainSleep?.efficiency || 85,
       deep:     sl?.summary?.stages?.deep || 0,
       rem:      sl?.summary?.stages?.rem  || 0,
       rhr:      rhr_real,
       zones:    hr?.['activities-heart']?.[0]?.value?.heartRateZones || [],
     }));
+    renderRecoveryScore({
+      minutesAsleep: sl?.summary?.totalMinutesAsleep || 0,
+      timeInBed:     sl?.summary?.totalTimeInBed     || 0,
+      deep:          sl?.summary?.stages?.deep       || 0,
+      rem:           sl?.summary?.stages?.rem        || 0,
+      rhr:           rhr_real,
+    });
     // Stress score con datos reales (HRV proxy desde FC nocturna si disponible)
     setStressBars({ hrv: 68, rhr: rhr_real, br: 14 });
     // HR zones con datos reales
@@ -2012,6 +2060,37 @@ function updSl(s) {
   const hm=m=>`${Math.floor(m/60)}h ${m%60}m`, pct=m=>(m/tot*100)+'%';
   const fs=document.querySelectorAll('.slfi'), ts=document.querySelectorAll('.sltm');
   [[0,s.deep],[1,s.rem],[2,s.light],[3,s.wake]].forEach(([i,v])=>{ if(fs[i]){fs[i].style.width=pct(v||0);ts[i].textContent=hm(v||0);} });
+}
+// Sleep Stages Timeline — Oura-style hypnogram from Fitbit `sleep[].levels.data`
+function renderHypnogram(main) {
+  const track = document.getElementById('hypno-track');
+  if (!track) return;
+  const data = main?.levels?.data;
+  if (!data || !data.length) return; // keep empty placeholder
+  const startMs = new Date(main.startTime).getTime();
+  const endMs   = new Date(main.endTime).getTime();
+  const total   = endMs - startMs;
+  if (total <= 0) return;
+  const fmt = (ms) => {
+    const d = new Date(ms);
+    return d.toLocaleTimeString(lang==='es'?'es':'en',{hour:'2-digit',minute:'2-digit',hour12:false});
+  };
+  // Map Fitbit levels (stages: deep/rem/light/wake; classic: asleep/restless/awake) to our 4 lanes
+  const cls = (lvl) => {
+    if (lvl === 'deep')                  return 'deep';
+    if (lvl === 'rem')                   return 'rem';
+    if (lvl === 'light' || lvl === 'asleep' || lvl === 'restless') return 'light';
+    return 'wake';
+  };
+  const segs = data.map(d => {
+    const pct = (d.seconds * 1000) / total * 100;
+    return `<div class="hypno-seg ${cls(d.level)}" style="flex-grow:${pct.toFixed(3)}" title="${d.level} · ${Math.round(d.seconds/60)}min"></div>`;
+  }).join('');
+  track.innerHTML = segs;
+  const t0 = document.getElementById('hypno-t0');
+  const t1 = document.getElementById('hypno-t1');
+  if (t0) t0.textContent = fmt(startMs);
+  if (t1) t1.textContent = fmt(endMs);
 }
 function showLoad() { document.getElementById('lov').classList.add('on'); }
 function hideLoad() { document.getElementById('lov').classList.remove('on'); }
