@@ -23,7 +23,7 @@
 5. Igual con **#14** → `main`
 6. Igual con **#15** → `main`
 7. Igual con **#16** → `main`
-8. Sprint 2 cerrado; Sprint 3 casi (solo server push, #4); Sprint 4 avanzado (#7 done, #8 scaffolding done)
+8. Todo el código de los sprints está en `main`. Lo único que falta es **infra/deploy**: #4 (VAPID+deploy) y #8 (build nativo en Xcode/Android Studio). Cero trabajo de código pendiente en este entorno.
 
 ---
 
@@ -41,15 +41,14 @@
 ### Sprint 3 — Premium UX (milestone #2)
 | # | Item | Estado | PR |
 |---|---|---|---|
-| #4 | Push Notifications | 🟡 client-side done, server push pending | #14 |
+| #4 | Push Notifications | 🟡 código completo (cliente #14 + backend #17), falta deploy | #14, #17 |
 | #5 | Skeleton loaders premium | ✅ done | #13 |
 | #6 | Onboarding flow + tooltips | ✅ done | #13 |
 
-**Pendiente Sprint 3:** Solo la **segunda fase de #4** (server push). Lo client-side ya está vivo:
-campana de opt-in en el header, permisos, notificaciones locales disparadas por
-polling (alerta RHR fuera de rango, marca de sync), y listeners `push`/`message`/
-`notificationclick` en `sw.js`. Falta el backend (Vercel + `web-push` + VAPID) para
-alertas con la app **cerrada**. Ver issue #4 (tiene comentario con el estado).
+**Pendiente Sprint 3:** #4 ya tiene **todo el código** — cliente (campana, permisos,
+notificaciones locales, listeners en `sw.js`) **y backend** (VAPID, API `subscribe`/`send`/
+`vapid-public-key`, migración `002_push_subscriptions.sql`). Solo falta **infra**:
+generar llaves VAPID, aplicar la migración a Supabase y deploy a Vercel. Pasos en **`PUSH.md`**.
 
 ### Sprint 4 — Diferenciación (milestone #3)
 | # | Item | Estado | PR |
@@ -186,25 +185,30 @@ git checkout feature/sprint-3-ux   # incluye todo lo de #10 + #11 + #13
 - `toggleNotifications()` maneja el opt-in de permiso; preferencia en `localStorage.fb_notif`
 - `showLocalNotification(title, body, tag, url)` enruta vía `navigator.serviceWorker.controller.postMessage({type:'SHOW_NOTIFICATION'})`, fallback a `new Notification()`
 - Triggers en `loadReal()`: `notifCheckRHR(rhr)` (alerta si RHR ≥ base+12, cooldown 2h) y `notifMarkSync()`
-- Estado en `window._notifState` (NO usar `let` por bug #12)
-- `sw.js` tiene listeners `push` / `message` / `notificationclick` (cache bumped a v2 — fuerza update del SW)
+- Estado en `window._notifState`
+- `sw.js` tiene listeners `push` / `message` / `notificationclick` (cache v2)
 - **Para añadir un nuevo tipo de alerta:** crea una función `notifCheckXxx()` y llámala desde el poll relevante. Respeta cooldowns para no spamear.
-- **Server push (app cerrada)** todavía NO existe — requiere backend, ver #4
+- **Server push (app cerrada):** código completo (cliente `subscribeWebPush()` + backend `app/api/push/*` + `lib/push.ts`). Solo falta deploy + VAPID. Ver **`PUSH.md`**.
 
 ---
 
 ## 🎯 Recomendación para tu próxima sesión
 
+> **Nota:** todo el código de Sprints 2/3/4 ya está en `main` (PRs #10–#17 mergeados,
+> ramas borradas). Lo que queda son **dos tareas de infra/deploy**, no de código.
+
 ### Si tienes 30 min
-- Hacer review de PR #10 / #11 / #13 y mergear en orden
-- Probar el flujo completo en mobile
+- Probar el flujo completo en mobile real (swipe, long-press, idioma, historial, campana)
 
-### Si tienes 2 h
-- Completar la **segunda fase de #4** (server push): Vercel API route + `web-push` + VAPID, para alertas con la app cerrada. El cliente ya está listo.
-- O probar en device real el swipe/long-press de #7 y pulir thresholds.
+### Si tienes 1–2 h — activar server push (#4)
+Todo el código está. Solo infra (pasos en **`PUSH.md`**):
+1. `npx web-push generate-vapid-keys` → env en Vercel (`VAPID_*`, `PUSH_ADMIN_SECRET`)
+2. aplicar `supabase/migrations/002_push_subscriptions.sql`
+3. deploy → activar campana → `curl POST /api/push/send` y verificar que llega con la app cerrada
 
-### Si tienes una tarde
-- Completar el **build nativo de #8** en una Mac con Xcode/Android Studio (ver `CAPACITOR.md`), o construir el **backend de #4** (Vercel + web-push + VAPID) reutilizando las `app/api/*` que quedaron.
+### Si tienes una tarde — build nativo (#8)
+En una Mac con Xcode/Android Studio, seguir **`CAPACITOR.md`**:
+`npx cap add ios/android` → registrar scheme `fitbitair` → build → TestFlight / Play Internal.
 
 ---
 
@@ -216,9 +220,9 @@ Al empezar tu sesión, pega esto **exactamente**:
 Lee HANDOFF.md y CLAUDE.md primero. Estoy continuando el desarrollo
 de Fitbit Air Dashboard.
 
-Estado: Sprint 2 done, Sprint 3 casi done (solo falta server push de #4),
-Sprint 4 arrancado (#7 touch gestures done). Bug #12 ya está resuelto.
-5 PRs stacked esperando review: #10 → #11 → #13 → #14 → #15.
+Estado: todo el código de Sprints 2/3/4 está mergeado en main. Bug #12 resuelto.
+Solo quedan 2 tareas de infra: activar server push (#4, ver PUSH.md) y
+build nativo Capacitor (#8, ver CAPACITOR.md). No hay PRs abiertos.
 
 Quiero trabajar en: [DESCRIBE TU OBJETIVO]
 ```
