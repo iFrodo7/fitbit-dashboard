@@ -23,7 +23,7 @@
 5. Igual con **#14** → `main`
 6. Igual con **#15** → `main`
 7. Igual con **#16** → `main`
-8. Todo el código de los sprints está en `main`. Lo único que falta es **infra/deploy**: #4 (VAPID+deploy) y #8 (build nativo en Xcode/Android Studio). Cero trabajo de código pendiente en este entorno.
+8. Todo el código de los sprints está en `main`. **#4 (server push) ya está DESPLEGADO y activo en producción** (2026-05-20). Lo único pendiente es **#8** (build nativo en Xcode/Android Studio). Cero trabajo de código pendiente en este entorno.
 
 ---
 
@@ -41,14 +41,15 @@
 ### Sprint 3 — Premium UX (milestone #2)
 | # | Item | Estado | PR |
 |---|---|---|---|
-| #4 | Push Notifications | 🟡 código completo (cliente #14 + backend #17), falta deploy | #14, #17 |
+| #4 | Push Notifications | ✅ done — **desplegado en Vercel**, server push live (app cerrada OK) | #14, #17 |
 | #5 | Skeleton loaders premium | ✅ done | #13 |
 | #6 | Onboarding flow + tooltips | ✅ done | #13 |
 
-**Pendiente Sprint 3:** #4 ya tiene **todo el código** — cliente (campana, permisos,
-notificaciones locales, listeners en `sw.js`) **y backend** (VAPID, API `subscribe`/`send`/
-`vapid-public-key`, migración `002_push_subscriptions.sql`). Solo falta **infra**:
-generar llaves VAPID, aplicar la migración a Supabase y deploy a Vercel. Pasos en **`PUSH.md`**.
+**Sprint 3 completo.** #4 está **desplegado y activo en producción** (2026-05-20):
+VAPID + secretos + Supabase configurados en Vercel, migraciones `001`/`002` aplicadas
+(tabla `push_subscriptions` con RLS), cron diario `0 8 * * *` registrado, y push con
+**app cerrada verificado en iPhone (iOS 18.7, APNs)**. Prod: **https://fitbit-dashboard-zeta.vercel.app**.
+Detalle en **`PUSH.md`**.
 
 ### Sprint 4 — Diferenciación (milestone #3)
 | # | Item | Estado | PR |
@@ -195,16 +196,17 @@ git checkout feature/sprint-3-ux   # incluye todo lo de #10 + #11 + #13
 ## 🎯 Recomendación para tu próxima sesión
 
 > **Nota:** todo el código de Sprints 2/3/4 ya está en `main` (PRs #10–#17 mergeados,
-> ramas borradas). Lo que queda son **dos tareas de infra/deploy**, no de código.
+> ramas borradas). #4 (server push) ya está **desplegado**. Lo único que queda es
+> **una tarea de infra/deploy: #8 (build nativo)**, no de código.
 
 ### Si tienes 30 min
 - Probar el flujo completo en mobile real (swipe, long-press, idioma, historial, campana)
 
-### Si tienes 1–2 h — activar server push (#4)
-Todo el código está. Solo infra (pasos en **`PUSH.md`**):
-1. `npx web-push generate-vapid-keys` → env en Vercel (`VAPID_*`, `PUSH_ADMIN_SECRET`)
-2. aplicar `supabase/migrations/002_push_subscriptions.sql`
-3. deploy → activar campana → `curl POST /api/push/send` y verificar que llega con la app cerrada
+### ✅ Server push (#4) — YA DESPLEGADO (2026-05-20)
+Hecho y verificado en producción (https://fitbit-dashboard-zeta.vercel.app):
+VAPID + secretos + Supabase en Vercel, migraciones aplicadas, cron `0 8 * * *` registrado,
+push con app cerrada confirmado en iPhone. Para rotar llaves o reproducir en otro entorno,
+ver **`PUSH.md`**.
 
 ### Si tienes una tarde — build nativo (#8)
 En una Mac con Xcode/Android Studio, seguir **`CAPACITOR.md`**:
@@ -247,4 +249,4 @@ Quiero trabajar en: [DESCRIBE TU OBJETIVO]
 - Repo: https://github.com/iFrodo7/fitbit-dashboard
 - Owner: Diego Castillo (`@iFrodo7`)
 - Stack: Next.js 15 + TypeScript + Tailwind + Supabase + Fitbit OAuth
-- Última actualización del handoff: **2026-05-19** (Sprint 2 + Sprint 3 parcial)
+- Última actualización del handoff: **2026-05-20** (server push #4 desplegado y verificado en prod)

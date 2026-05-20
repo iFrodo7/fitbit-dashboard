@@ -14,6 +14,10 @@ out/
 # vercel
 .vercel
 
+# supabase (local link state)
+supabase/.temp/
+supabase/.branches/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

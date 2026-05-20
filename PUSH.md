@@ -1,8 +1,13 @@
 # 🔔 Server Push — setup (#4 fase 2)
 
-> El **lado código está completo**. Falta config de infra (VAPID + deploy) para que
-> las notificaciones lleguen con la app **cerrada**. Sin esto, siguen funcionando las
-> notificaciones **locales** (con la app abierta/en background) — el cliente degrada solo.
+> ✅ **DESPLEGADO Y ACTIVO (2026-05-20).** Server push funcionando en producción,
+> verificado con **app cerrada** en iPhone (iOS 18.7, vía APNs) y en Chromium (FCM).
+> - Producción: **https://fitbit-dashboard-zeta.vercel.app**
+> - VAPID + `PUSH_ADMIN_SECRET` + `CRON_SECRET` + Supabase: configurados en Vercel (Production).
+> - Migraciones `001` + `002` aplicadas a Supabase (tabla `push_subscriptions` con RLS).
+> - Cron diario registrado en Vercel: `/api/push/cron-daily` → `0 8 * * *`.
+>
+> Lo de abajo es la guía original de setup (útil para reproducir en otro entorno o rotar llaves).
 
 ---
 
