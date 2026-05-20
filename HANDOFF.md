@@ -12,7 +12,8 @@
 2. `feature/history-trends`    — PR [#11](https://github.com/iFrodo7/fitbit-dashboard/pull/11) → `feature/pwa-mobile-ready`
 3. `feature/sprint-3-ux`       — PR [#13](https://github.com/iFrodo7/fitbit-dashboard/pull/13) → `feature/history-trends`
 4. `feature/push-notifications`— PR [#14](https://github.com/iFrodo7/fitbit-dashboard/pull/14) → `feature/sprint-3-ux`
-5. `feature/touch-gestures`    — PR [#15](https://github.com/iFrodo7/fitbit-dashboard/pull/15) → `feature/push-notifications` *(incluye el fix del bug #12)*
+5. `feature/touch-gestures`    — PR [#15](https://github.com/iFrodo7/fitbit-dashboard/pull/15) → `feature/push-notifications` *(incluye fix bug #12, fix coma en pasos, y fix i18n completo)*
+6. `feature/capacitor-native`  — PR [#16](https://github.com/iFrodo7/fitbit-dashboard/pull/16) → `feature/touch-gestures`
 
 **Estrategia de merge recomendada:**
 1. Review + squash merge **#10** → `main`
@@ -21,7 +22,8 @@
 4. Igual con **#13** → `main`
 5. Igual con **#14** → `main`
 6. Igual con **#15** → `main`
-7. Sprint 2 cerrado; Sprint 3 casi cerrado (solo server push, #4); Sprint 4 arrancado (#7 done)
+7. Igual con **#16** → `main`
+8. Sprint 2 cerrado; Sprint 3 casi (solo server push, #4); Sprint 4 avanzado (#7 done, #8 scaffolding done)
 
 ---
 
@@ -53,8 +55,10 @@ alertas con la app **cerrada**. Ver issue #4 (tiene comentario con el estado).
 | # | Item | Estado | PR |
 |---|---|---|---|
 | #7 | Touch gestures — swipe + long-press | ✅ done | #15 |
-| #8 | Capacitor — app nativa (TestFlight / Play Store) | ⏳ pending | — |
-| #9 | Migración progresiva a Next.js | ⏳ pending | — |
+| #8 | Capacitor — app nativa | 🟡 JS scaffolding done, native build pending | #16 |
+| #9 | Migración progresiva a Next.js | ⏳ pending (discutir con owner antes) | — |
+
+**#8:** todo el lado JS está listo (config, deps, entry, scripts, OAuth deeplink). Falta `npx cap add ios/android` + build en Xcode/Android Studio + registrar el scheme `fitbitair`. Guía completa en **`CAPACITOR.md`**.
 
 ### Bugs
 - **#12 [P2]** Top-level `let`/`const` TDZ abort — ✅ **RESUELTO** en #15. Causa raíz: `if (theme) selectTheme(theme)` corría antes de que `const THEME_COLORS` estuviera declarado. Fix: auto-init movida a un bloque BOOT al final del script. Ya **puedes volver a usar `let`/`const` top-level** siempre que estén declarados antes del bloque BOOT.
