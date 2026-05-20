@@ -8,16 +8,18 @@
 
 **Rama principal:** `main`
 **Ramas activas (stacked, mergear en orden):**
-1. `feature/pwa-mobile-ready` — PR [#10](https://github.com/iFrodo7/fitbit-dashboard/pull/10) → `main`
-2. `feature/history-trends`   — PR [#11](https://github.com/iFrodo7/fitbit-dashboard/pull/11) → `feature/pwa-mobile-ready`
-3. `feature/sprint-3-ux`      — PR [#13](https://github.com/iFrodo7/fitbit-dashboard/pull/13) → `feature/history-trends`
+1. `feature/pwa-mobile-ready`  — PR [#10](https://github.com/iFrodo7/fitbit-dashboard/pull/10) → `main`
+2. `feature/history-trends`    — PR [#11](https://github.com/iFrodo7/fitbit-dashboard/pull/11) → `feature/pwa-mobile-ready`
+3. `feature/sprint-3-ux`       — PR [#13](https://github.com/iFrodo7/fitbit-dashboard/pull/13) → `feature/history-trends`
+4. `feature/push-notifications`— PR [#14](https://github.com/iFrodo7/fitbit-dashboard/pull/14) → `feature/sprint-3-ux`
 
 **Estrategia de merge recomendada:**
 1. Review + squash merge **#10** → `main`
 2. Cuando #10 se merge, GitHub recalcula la base de #11 automáticamente
 3. Review + squash merge **#11** → `main`
 4. Igual con **#13** → `main`
-5. Sprint 2 y Sprint 3 cerrados
+5. Igual con **#14** → `main`
+6. Sprint 2 cerrado; Sprint 3 casi cerrado (solo falta server push, ver #4)
 
 ---
 
@@ -35,11 +37,15 @@
 ### Sprint 3 — Premium UX (milestone #2)
 | # | Item | Estado | PR |
 |---|---|---|---|
-| #4 | Push Notifications | ⏳ pending | — |
+| #4 | Push Notifications | 🟡 client-side done, server push pending | #14 |
 | #5 | Skeleton loaders premium | ✅ done | #13 |
 | #6 | Onboarding flow + tooltips | ✅ done | #13 |
 
-**Pendiente Sprint 3:** Push Notifications (#4). Requiere backend con Vercel + `web-push` + VAPID. Ver issue #4 para detalle.
+**Pendiente Sprint 3:** Solo la **segunda fase de #4** (server push). Lo client-side ya está vivo:
+campana de opt-in en el header, permisos, notificaciones locales disparadas por
+polling (alerta RHR fuera de rango, marca de sync), y listeners `push`/`message`/
+`notificationclick` en `sw.js`. Falta el backend (Vercel + `web-push` + VAPID) para
+alertas con la app **cerrada**. Ver issue #4 (tiene comentario con el estado).
 
 ### Sprint 4 — Diferenciación (milestone #3)
 - #7 Touch gestures — swipe entre cards
@@ -171,6 +177,15 @@ Cannot access '_X' before initialization
 - Contenido en `T[lang].onb[key]` — para añadir métrica nueva, añade ambos idiomas
 - Tour automático en primer login: `T[lang].tour[]` (4 pasos editable)
 - `localStorage.fb_seen_tour` controla el auto-show
+
+### Notificaciones (campana en header)
+- `toggleNotifications()` maneja el opt-in de permiso; preferencia en `localStorage.fb_notif`
+- `showLocalNotification(title, body, tag, url)` enruta vía `navigator.serviceWorker.controller.postMessage({type:'SHOW_NOTIFICATION'})`, fallback a `new Notification()`
+- Triggers en `loadReal()`: `notifCheckRHR(rhr)` (alerta si RHR ≥ base+12, cooldown 2h) y `notifMarkSync()`
+- Estado en `window._notifState` (NO usar `let` por bug #12)
+- `sw.js` tiene listeners `push` / `message` / `notificationclick` (cache bumped a v2 — fuerza update del SW)
+- **Para añadir un nuevo tipo de alerta:** crea una función `notifCheckXxx()` y llámala desde el poll relevante. Respeta cooldowns para no spamear.
+- **Server push (app cerrada)** todavía NO existe — requiere backend, ver #4
 
 ---
 
