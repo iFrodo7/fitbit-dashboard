@@ -1637,8 +1637,10 @@ function initDash() {
     }, 4000);
     setInterval(() => {
       if (isReal) return;
-      const c = parseInt(document.getElementById('calv').textContent);
-      document.getElementById('calv').textContent = c + Math.floor(Math.random()*3);
+      const el = document.getElementById('calv');
+      const c = parseInt(el.textContent);
+      const inc = Math.floor(Math.random()*3);
+      if (inc > 0) { el.textContent = c + inc; pulseValue(el); }
     }, 20000);
   }
 }
