@@ -270,8 +270,13 @@ body{width:100%;min-height:100vh;}
 @keyframes sp{to{transform:rotate(360deg);}}
 
 /* Toast, demo strip, sync bar */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--cbg);border:1px solid var(--ta);padding:9px 20px;font-size:12px;letter-spacing:2px;color:var(--ta);z-index:500;transition:transform 0.3s;white-space:nowrap;}
-.toast.sh{transform:translateX(-50%) translateY(0);}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg2,rgba(2,8,16,0.95));border:1px solid var(--ta);padding:12px 22px;font-size:12px;letter-spacing:1.5px;color:var(--ta);z-index:500;transition:transform 0.35s cubic-bezier(.4,0,.2,1),opacity 0.25s;white-space:nowrap;border-radius:8px;backdrop-filter:blur(14px);box-shadow:0 8px 24px rgba(0,0,0,0.5),0 0 18px var(--ta,rgba(0,245,255,0.2));display:flex;align-items:center;gap:10px;opacity:0;}
+.toast.sh{transform:translateX(-50%) translateY(0)!important;opacity:1!important;}
+.toast-ic{font-size:16px;line-height:1;}
+.toast.success{border-color:#00ff88;color:#00ff88;box-shadow:0 8px 24px rgba(0,0,0,0.5),0 0 18px rgba(0,255,136,0.35);}
+.toast.error{border-color:#ff4466;color:#ff4466;box-shadow:0 8px 24px rgba(0,0,0,0.5),0 0 18px rgba(255,68,102,0.35);}
+.toast.warning{border-color:#ffaa00;color:#ffaa00;box-shadow:0 8px 24px rgba(0,0,0,0.5),0 0 18px rgba(255,170,0,0.35);}
+@media(max-width:640px){.toast{bottom:calc(90px + env(safe-area-inset-bottom));max-width:calc(100vw - 32px);white-space:normal;text-align:center;}}
 .dstrip{position:fixed;bottom:16px;right:16px;background:rgba(255,160,0,0.06);border:1px solid #886600;padding:8px 14px;display:flex;align-items:center;gap:8px;z-index:100;}
 .ddot{width:7px;height:7px;border-radius:50%;background:#ffaa00;animation:blink 1.5s infinite;}
 .dstrip span{font-size:12px;letter-spacing:2px;color:#886600;}
@@ -1546,6 +1551,16 @@ function initDash() {
   updateClock(); setInterval(updateClock, 1000);
   buildWeeks(); buildHRC(hrHist);
   setTimeout(animVals, 300);
+  // Welcome onboarding hint (first visit)
+  if (!localStorage.getItem('fb_welcomed')) {
+    setTimeout(() => {
+      showToast(lang === 'es' ? '👋 Bienvenido a Fitbit Air' : '👋 Welcome to Fitbit Air', 'info');
+      localStorage.setItem('fb_welcomed', '1');
+    }, 1200);
+    setTimeout(() => {
+      showToast(lang === 'es' ? 'Desliza hacia abajo para refrescar' : 'Pull down to refresh', 'info');
+    }, 4500);
+  }
   const p = new URLSearchParams(location.search);
   if (p.get('code')) handleOAuth(p.get('code'));
   else if (token) loadReal();
@@ -1806,7 +1821,17 @@ function startCd() {
 }
 function chgI(v) { pSec=parseInt(v); startCd(); clearInterval(ptmr); if(isReal)ptmr=setInterval(pollFast,pSec*1000); }
 function animSBar() { const f=document.getElementById('sbfi'); f.style.transition='none'; f.style.width='0%'; requestAnimationFrame(()=>{ f.style.transition=`width ${pSec*1000}ms linear`; f.style.width='100%'; setTimeout(()=>{ f.style.transition='width 0.3s'; f.style.width='0%'; },pSec*1000); }); }
-function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('sh'); setTimeout(()=>t.classList.remove('sh'),2500); }
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  const icons = { success: '✓', error: '✕', warning: '⚠', info: '◆' };
+  t.className = 'toast' + (type ? ' ' + type : '');
+  t.innerHTML = `<span class="toast-ic">${icons[type] || icons.info}</span><span>${msg}</span>`;
+  void t.offsetWidth; // restart animation
+  t.classList.add('sh');
+  if (navigator.vibrate) navigator.vibrate(type === 'error' ? [40, 30, 40] : 12);
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('sh'), 2800);
+}
 function startPoll() { document.getElementById('swrap').style.display='flex'; startCd(); animSBar(); clearInterval(ptmr); ptmr=setInterval(pollFast,pSec*1000); setInterval(pollSlow,5*60*1000); }
 async function pollFast() {
   if (!token) return;
