@@ -5,6 +5,12 @@ import { useTheme } from "@/components/providers/AppProviders";
 import { useI18n } from "@/components/providers/AppProviders";
 import { Header } from "@/components/dashboard/Header";
 import { MetricCard } from "@/components/dashboard/MetricCard";
+import { RecoveryBanner } from "@/components/dashboard/RecoveryBanner";
+import {
+  calcRecoveryScore,
+  calcStrainScore,
+  calcSleepPerformance,
+} from "@/lib/analytics/scores";
 import {
   useActivity,
   useSleep,
@@ -31,10 +37,15 @@ export default function DashboardPage() {
     }
   }, [activity]);
 
-  const summary = activity?.summary;
-  const goals = activity?.goals;
+  const summary     = activity?.summary;
+  const goals       = activity?.goals;
   const sleepSummary = sleep?.summary;
-  const heartData = heart?.["activities-heart"]?.[0]?.value;
+  const heartData   = heart?.["activities-heart"]?.[0]?.value;
+
+  // ── Scores al estilo Whoop ──────────────────────────────────────────────────
+  const recoveryScore    = calcRecoveryScore(sleep ?? null, heart ?? null);
+  const strainScore      = calcStrainScore(heart ?? null);
+  const sleepPerformance = calcSleepPerformance(sleep ?? null);
 
   return (
     <div className={clsx("min-h-screen flex flex-col", config.bg)}>
@@ -45,6 +56,14 @@ export default function DashboardPage() {
       />
 
       <main className="flex-1 p-6">
+        {/* ── Banner de Recuperación / Esfuerzo / Sueño (Whoop-style) ── */}
+        <RecoveryBanner
+          recovery={recoveryScore}
+          strain={strainScore}
+          sleep={sleepPerformance}
+          loading={loadS || loadH}
+        />
+
         {/* Error de sesión expirada */}
         {errA?.message === "UNAUTHORIZED" && (
           <div className="mb-4 bg-red-500/20 border border-red-500/40 rounded-lg px-4 py-3 text-red-300 text-sm">
@@ -80,6 +99,58 @@ export default function DashboardPage() {
             goal={goals?.caloriesOut}
             goalLabel={tr.metrics.goal}
             loading={loadA}
+            expandable
+            expandedContent={
+              summary ? (
+                <div className="mt-3 pt-3 border-t border-white/10 space-y-3">
+                  {/* BMR vs Activas */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-white/5 rounded p-2 text-center">
+                      <p className={clsx("text-xs opacity-50 mb-1", config.text)}>Basal (BMR)</p>
+                      <p className={clsx("text-lg font-bold tabular-nums", config.text)}>
+                        {summary.caloriesBMR?.toLocaleString() ?? "--"}
+                      </p>
+                      <p className={clsx("text-xs opacity-40", config.text)}>kcal</p>
+                    </div>
+                    <div className="bg-white/5 rounded p-2 text-center">
+                      <p className={clsx("text-xs opacity-50 mb-1", config.text)}>Activas</p>
+                      <p className={clsx("text-lg font-bold tabular-nums", config.text)}>
+                        {summary.activityCalories?.toLocaleString() ?? "--"}
+                      </p>
+                      <p className={clsx("text-xs opacity-40", config.text)}>kcal</p>
+                    </div>
+                  </div>
+
+                  {/* Desglose por intensidad */}
+                  <div className="space-y-2">
+                    <p className={clsx("text-xs opacity-40 uppercase tracking-wider", config.text)}>
+                      Minutos por intensidad
+                    </p>
+                    {[
+                      { label: "Sedentario", min: summary.sedentaryMinutes ?? 0, color: "bg-white/25" },
+                      { label: "Ligero",     min: summary.lightlyActiveMinutes ?? 0, color: "bg-blue-400/60" },
+                      { label: "Moderado",   min: summary.fairlyActiveMinutes ?? 0, color: "bg-yellow-400/60" },
+                      { label: "Intenso",    min: summary.veryActiveMinutes ?? 0, color: "bg-red-400/70" },
+                    ].map(({ label, min, color }) => (
+                      <div key={label} className="flex items-center gap-2">
+                        <span className={clsx("text-xs opacity-60 w-16 shrink-0", config.text)}>
+                          {label}
+                        </span>
+                        <div className="flex-1 bg-white/10 rounded-full h-1.5 overflow-hidden">
+                          <div
+                            className={clsx(color, "h-1.5 rounded-full transition-all duration-700")}
+                            style={{ width: `${Math.min((min / 1440) * 100, 100)}%` }}
+                          />
+                        </div>
+                        <span className={clsx("text-xs opacity-50 w-12 text-right tabular-nums", config.text)}>
+                          {min}m
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null
+            }
           />
 
           {/* Distancia */}

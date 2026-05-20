@@ -96,54 +96,71 @@ body{width:100%;min-height:100vh;}
   display:flex;align-items:center;justify-content:space-between;
   padding:14px 28px;position:sticky;top:0;z-index:100;
 }
-.db-main{padding:24px 28px;max-width:1440px;margin:0 auto;position:relative;z-index:1;}
+.db-main{padding:14px 20px;max-width:1600px;margin:0 auto;position:relative;z-index:1;}
 
 /* Greeting */
-.db-greet{margin-bottom:24px;}
+.db-greet{margin-bottom:12px;display:flex;align-items:baseline;gap:20px;flex-wrap:wrap;}
 .db-eye{font-size:12px;letter-spacing:4px;text-transform:uppercase;opacity:0.4;margin-bottom:6px;}
 .db-name{font-weight:700;text-transform:uppercase;line-height:1.1;font-size:clamp(28px,3.8vw,44px);}
 .db-ac{color:var(--ta);}
 .db-date{font-size:13px;letter-spacing:2px;margin-top:6px;opacity:0.35;}
 
 /* Grid layouts */
-.tg{display:grid;grid-template-columns:280px 1fr;gap:16px;margin-bottom:16px;}
-.vg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-.bg{display:grid;grid-template-columns:1fr 1fr 290px;gap:16px;margin-top:16px;}
+.mg{display:grid;grid-template-columns:236px 1fr 268px;gap:12px;margin-bottom:12px;align-items:start;}
+.vg{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;align-items:start;}
+.rcs{display:flex;flex-direction:column;gap:10px;}
+.bot{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-top:12px;}
+.scard{margin-bottom:12px;}
 
 /* Cards */
-.card{padding:20px;border:var(--cbdr);background:var(--cbg);position:relative;overflow:hidden;}
-.clbl{font-size:12px;letter-spacing:3px;text-transform:uppercase;opacity:0.4;margin-bottom:12px;display:block;}
-.vc{padding:16px;border:var(--cbdr);background:var(--cbg);position:relative;overflow:hidden;transition:border-color 0.2s;}
+.card{padding:12px 14px;border:var(--cbdr);background:var(--cbg);position:relative;overflow:hidden;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}
+.card:hover{border-color:var(--ta);box-shadow:0 0 12px rgba(0,0,0,0.3);}
+.clbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;opacity:0.4;margin-bottom:8px;display:block;}
+.vc{padding:10px 12px;border:var(--cbdr);background:var(--cbg);position:relative;overflow:hidden;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}
+.vc:hover{border-color:var(--ta);box-shadow:0 0 12px rgba(0,0,0,0.3);transform:translateY(-2px);}
 
 /* Readiness ring */
-.rw{display:flex;flex-direction:column;align-items:center;gap:14px;}
-.rc{position:relative;width:145px;height:145px;}
+.rw{display:flex;flex-direction:column;align-items:center;gap:12px;transition:all 0.3s;}
+.rw:hover{filter:brightness(1.1);}
+.rc{position:relative;width:220px;height:220px;transition:all 0.4s;}
 .rsvg{width:100%;height:100%;transform:rotate(-90deg);}
-.rbg{fill:none;stroke-width:9;stroke:var(--rbg);}
-.rfil{fill:none;stroke-width:9;stroke-linecap:round;stroke-dasharray:365;stroke-dashoffset:73;stroke:var(--ta);transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1);}
+.rbg{fill:none;stroke-width:11;stroke:var(--rbg);}
+.rfil{fill:none;stroke-width:11;stroke-linecap:round;stroke-dasharray:570;stroke-dashoffset:114;stroke:var(--ta);transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1);}
 .ri{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.rnum{font-size:42px;font-weight:700;line-height:1;color:var(--ta);}
-.rdenom{font-size:12px;letter-spacing:2px;opacity:0.35;margin-top:3px;}
-.rstatus{font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--tpos);}
+.rnum{font-size:56px;font-weight:700;line-height:1;color:var(--ta);}
+.rdenom{font-size:14px;letter-spacing:2px;opacity:0.35;margin-top:4px;}
+.rstatus{font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--tpos);}
 
 /* Vital cards */
-.vlbl{font-size:11px;letter-spacing:3px;text-transform:uppercase;opacity:0.4;margin-bottom:6px;display:block;}
-.vval{font-size:34px;font-weight:700;line-height:1;color:var(--txt);}
-.vunit{font-size:11px;letter-spacing:1px;opacity:0.35;margin-top:3px;display:block;}
-.vtrd{position:absolute;top:12px;right:12px;font-size:12px;color:var(--tpos);}
+.vlbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;opacity:0.4;margin-bottom:3px;display:block;}
+.vval{font-size:38px;font-weight:700;line-height:1;color:var(--txt);}
+.vunit{font-size:10px;letter-spacing:1px;opacity:0.35;margin-top:2px;display:block;}
+.vtrd{position:absolute;top:8px;right:8px;font-size:11px;color:var(--tpos);font-weight:700;}
 .vtrd.neg{color:var(--tneg);}
 
+/* Per-theme glow on key numbers */
+.t-fut .vval,.t-fut .rnum,.t-fut .snum{text-shadow:0 0 20px rgba(0,245,255,0.6),0 0 40px rgba(0,245,255,0.3);}
+.t-halo .vval,.t-halo .rnum,.t-halo .snum{text-shadow:0 0 20px rgba(74,184,255,0.6),0 0 40px rgba(74,184,255,0.3);}
+.t-naruto .vval,.t-naruto .rnum,.t-naruto .snum{text-shadow:0 0 20px rgba(255,69,0,0.6),0 0 40px rgba(255,69,0,0.25);}
+.t-fut .wsn,.t-fut .snum{text-shadow:0 0 16px rgba(0,245,255,0.7),0 0 32px rgba(0,245,255,0.4);}
+.t-halo .wsn{text-shadow:0 0 16px rgba(74,184,255,0.7),0 0 32px rgba(74,184,255,0.4);}
+.t-naruto .wsn{text-shadow:0 0 16px rgba(255,69,0,0.6),0 0 32px rgba(255,69,0,0.3);}
+
 /* Steps */
-.snum{font-size:clamp(34px,4.5vw,50px);font-weight:700;line-height:1;}
-.sgoal{font-size:13px;letter-spacing:2px;opacity:0.35;}
-.strk{width:100%;height:4px;margin-top:12px;background:var(--rbg);}
-.sprg{height:100%;background:var(--ta);transition:width 1.5s cubic-bezier(.4,0,.2,1);}
-.spct{font-size:12px;letter-spacing:2px;color:var(--ta);margin-top:6px;}
-.wbrs{display:flex;gap:4px;align-items:flex-end;height:52px;margin-top:12px;}
-.wb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end;}
-.wbar{width:100%;background:var(--rbg);min-height:3px;}
-.wbar.td{background:var(--ta);}
-.wdl{font-size:11px;letter-spacing:1px;opacity:0.35;}
+.snum{font-size:clamp(28px,3.5vw,48px);font-weight:700;line-height:1;animation:snumload 0.9s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes snumload{from{opacity:0;transform:scale(0.9);}to{opacity:1;transform:scale(1);}}
+.sgoal{font-size:12px;letter-spacing:2px;opacity:0.35;}
+.strk{width:100%;height:4px;margin-top:10px;background:var(--rbg);border-radius:2px;overflow:hidden;box-shadow:inset 0 0 8px rgba(0,0,0,0.3);}
+.sprg{height:100%;background:var(--ta);transition:width 1.5s cubic-bezier(.4,0,.2,1);box-shadow:0 0 12px rgba(0,0,0,0.3);}
+.spct{font-size:11px;letter-spacing:2px;color:var(--ta);margin-top:5px;font-weight:600;}
+.wbrs{display:flex;gap:6px;align-items:flex-end;height:56px;margin-top:0;}
+.wb{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;transition:all 0.3s;}
+.wb:hover .wbar{filter:brightness(1.3);box-shadow:0 0 8px rgba(0,0,0,0.4);}
+.wbar{width:100%;background:var(--rbg);min-height:4px;border-radius:2px;transition:all 0.4s;box-shadow:0 2px 4px rgba(0,0,0,0.2);}
+.wbar.td{background:var(--ta);box-shadow:0 0 12px rgba(0,0,0,0.3);}
+.wdl{font-size:10px;letter-spacing:1px;opacity:0.5;font-weight:600;}
+/* Steps card layout */
+.scard-inner{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;}
 
 /* Sleep */
 .slrw{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--sub);}
@@ -154,10 +171,12 @@ body{width:100%;min-height:100vh;}
 .sltm{font-size:11px;opacity:0.35;width:36px;text-align:right;flex-shrink:0;}
 
 /* Activity */
-.acit{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--sub);}
+.acit{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--sub);transition:all 0.3s;}
 .acit:last-child{border:none;}
-.acio{width:36px;height:36px;border:1px solid var(--sub);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
-.acnm{font-size:14px;font-weight:600;letter-spacing:1px;}
+.acit:hover{transform:translateX(4px);filter:brightness(1.1);}
+.acio{width:40px;height:40px;border:1px solid var(--sub);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border-radius:4px;transition:all 0.3s;background:rgba(0,0,0,0.1);}
+.acit:hover .acio{border-color:var(--ta);background:rgba(0,0,0,0.2);}
+.acnm{font-size:14px;font-weight:700;letter-spacing:1px;}
 .acmt{font-size:11px;opacity:0.35;letter-spacing:1px;margin-top:2px;}
 .acvl{font-size:13px;font-weight:700;text-align:right;color:var(--ta);margin-left:auto;}
 
@@ -166,17 +185,59 @@ body{width:100%;min-height:100vh;}
 
 /* Insights */
 .igrd{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;}
-.iitm{padding:14px;border:1px solid var(--sub);background:rgba(0,0,0,0.18);}
-.ityp{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--ta2);margin-bottom:6px;}
-.itxt{font-size:13px;line-height:1.6;opacity:0.65;}
+.iitm{padding:14px;border:1px solid var(--sub);background:rgba(0,0,0,0.18);transition:all 0.3s cubic-bezier(0.4,0,0.2,1);border-radius:4px;position:relative;overflow:hidden;}
+.iitm::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--ta2);transform:scaleX(0);transform-origin:left;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);}
+.iitm:hover{border-color:var(--ta2);background:rgba(0,0,0,0.25);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.3);}
+.iitm:hover::before{transform:scaleX(1);}
+.ityp{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--ta2);margin-bottom:6px;font-weight:700;}
+.itxt{font-size:13px;line-height:1.6;opacity:0.7;}
+
+/* ═══════════════════════════════════════
+   FASE 4: THEME-SPECIFIC VISUAL DIFFERENTIATION
+═══════════════════════════════════════ */
+
+/* FUTURISTIC: Data stream effects */
+.t-fut .iitm{background:rgba(0,245,255,0.05);border-color:rgba(0,245,255,0.12);}
+.t-fut .iitm::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,245,255,0.6),transparent);animation:fut-data 3s ease-in-out infinite;}
+@keyframes fut-data{0%,100%{opacity:0;transform:translateX(-100%);}50%{opacity:1;transform:translateX(100%);}}
+.t-fut .vc::before{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,245,255,0.5),transparent);opacity:0;animation:fut-scan 2.5s ease-in-out infinite;}
+@keyframes fut-scan{0%{opacity:0;}50%{opacity:1;}100%{opacity:0;}}
+
+/* HALO: Tactical scanning and HUD effects */
+.t-halo .iitm{background:rgba(74,184,255,0.04);border-color:rgba(74,184,255,0.15);}
+.t-halo .iitm::after{content:'◈';position:absolute;top:-8px;right:-8px;font-size:48px;color:rgba(74,184,255,0.08);animation:halo-scan 4s linear infinite;pointer-events:none;}
+@keyframes halo-scan{0%{transform:rotate(0deg) scale(1);opacity:0.3;}50%{opacity:0.15;}100%{transform:rotate(360deg) scale(1);opacity:0.3;}}
+.t-halo .vc::before{content:'';position:absolute;top:0;right:0;width:40px;height:40px;border:1px solid rgba(74,184,255,0.2);border-left:none;border-bottom:none;animation:halo-corner 3s ease-in-out infinite;}
+@keyframes halo-corner{0%,100%{opacity:0.2;}50%{opacity:0.7;}}
+
+/* NARUTO: Chakra ripple and glow effects */
+.t-naruto .iitm{background:rgba(255,69,0,0.05);border-color:rgba(255,69,0,0.2);}
+.t-naruto .iitm::after{content:'';position:absolute;inset:0;border:1px solid rgba(255,69,0,0.25);border-radius:4px;animation:naruto-pulse 3.5s ease-in-out infinite;pointer-events:none;}
+@keyframes naruto-pulse{0%,100%{transform:scale(1);opacity:0;box-shadow:0 0 0 rgba(255,69,0,0.3);}50%{transform:scale(1.02);opacity:0.4;box-shadow:0 0 12px rgba(255,69,0,0.4);}}
+.t-naruto .typ{animation:naruto-glow 2.2s ease-in-out infinite;}
+@keyframes naruto-glow{0%,100%{text-shadow:0 0 8px rgba(255,69,0,0.3);}50%{text-shadow:0 0 16px rgba(255,69,0,0.7),0 0 24px rgba(255,69,0,0.4);}}
+
+/* MINECRAFT: Ore/block glow effects */
+.t-mc .iitm{background:rgba(106,255,58,0.03);border-color:rgba(106,255,58,0.15);}
+.t-mc .iitm::after{content:'▪';position:absolute;top:2px;right:4px;font-size:18px;color:rgba(106,255,58,0.25);text-shadow:0 0 6px rgba(106,255,58,0.4);animation:mc-ore 2s ease-in-out infinite;}
+@keyframes mc-ore{0%,100%{opacity:0.4;}50%{opacity:0.8;text-shadow:0 0 12px rgba(106,255,58,0.6);}}
+.t-mc .vc{box-shadow:inset 0 0 8px rgba(0,0,0,0.3);}
+.t-mc .vc:hover{box-shadow:inset 0 0 8px rgba(0,0,0,0.3),0 0 10px rgba(106,255,58,0.3);}
+
+/* Enhanced card hover states for all themes */
+.t-fut .card:hover,.t-fut .vc:hover{border-color:rgba(0,245,255,0.4);box-shadow:0 0 16px rgba(0,245,255,0.15);}
+.t-halo .card:hover,.t-halo .vc:hover{border-color:rgba(74,184,255,0.4);box-shadow:0 0 16px rgba(74,184,255,0.15);}
+.t-naruto .card:hover,.t-naruto .vc:hover{border-color:rgba(255,69,0,0.4);box-shadow:0 0 16px rgba(255,69,0,0.15);}
+.t-mc .card:hover,.t-mc .vc:hover{border-color:rgba(106,255,58,0.4);box-shadow:0 0 16px rgba(106,255,58,0.15);}
 
 /* Header controls */
 .cbtn{
   font-size:13px;font-weight:700;letter-spacing:2px;padding:9px 20px;
   background:transparent;border:1px solid var(--ta);color:var(--ta);
-  cursor:pointer;text-transform:uppercase;transition:all 0.15s;
+  cursor:pointer;text-transform:uppercase;transition:all 0.25s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:0 0 0 rgba(0,0,0,0);
 }
-.cbtn:hover{background:var(--ta);color:var(--bg);}
+.cbtn:hover{background:var(--ta);color:var(--bg);box-shadow:0 0 16px rgba(0,0,0,0.4);transform:translateY(-1px);}
 .bbtn{
   font-size:12px;letter-spacing:2px;padding:7px 12px;
   background:transparent;border:1px solid var(--sub);
@@ -241,8 +302,8 @@ body{width:100%;min-height:100vh;}
 .mbtn:hover{opacity:0.85;}
 .mnote{font-size:11px;color:#2e2e2e;text-align:center;margin-top:10px;line-height:1.7;}
 
-.vflash{animation:vf 0.4s ease;}
-@keyframes vf{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.vflash{animation:vf 0.5s ease;}
+@keyframes vf{0%{opacity:1;transform:scale(1);}50%{opacity:0.6;transform:scale(1.1);}100%{opacity:1;transform:scale(1);}}
 
 /* Ticker */
 #futtick{border-top:1px solid rgba(0,245,255,0.07);padding:5px 0;background:rgba(2,8,16,0.88);overflow:hidden;white-space:nowrap;position:relative;z-index:10;display:none;}
@@ -250,8 +311,30 @@ body{width:100%;min-height:100vh;}
 @keyframes tcktick{from{transform:translateX(100vw);}to{transform:translateX(-100%);}}
 
 /* Responsive */
-@media(max-width:1080px){.tg{grid-template-columns:1fr;}.vg{grid-template-columns:repeat(3,1fr);}.bg{grid-template-columns:1fr 1fr;}.igrd{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:640px){.db-hdr{padding:10px 14px;flex-wrap:wrap;gap:8px;}.db-main{padding:14px;}.vg{grid-template-columns:repeat(2,1fr);}.bg{grid-template-columns:1fr;}.igrd{grid-template-columns:1fr;}.t-grid{grid-template-columns:1fr;}.db-name{font-size:24px;}}
+@media(max-width:1400px){
+  .mg{grid-template-columns:220px 1fr;gap:14px;}
+  .rcs{grid-column:1/-1;margin-top:8px;display:grid;grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:1200px){
+  .rcs{grid-template-columns:1fr;}
+}
+@media(max-width:900px){
+  .mg{grid-template-columns:1fr;}
+  .vg{grid-template-columns:repeat(3,1fr);}
+  .bot{grid-template-columns:1fr;}
+  .igrd{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:640px){
+  .db-hdr{padding:10px 14px;flex-wrap:wrap;gap:8px;}
+  .db-main{padding:10px 12px;}
+  .db-name{font-size:22px;}
+  .vg{grid-template-columns:repeat(2,1fr);}
+  .igrd{grid-template-columns:1fr;}
+  .t-grid{grid-template-columns:1fr;}
+  .rw{flex-direction:column;align-items:center;}
+  .wsrow{width:100%;}
+  .scard-inner{grid-template-columns:1fr;}
+}
 
 /* ═══════════════════════════════════════
    THEME: FUTURISTIC
@@ -275,6 +358,26 @@ body.t-fut::after{content:'';position:fixed;inset:0;background:repeating-linear-
 .t-fut .rfil{filter:drop-shadow(0 0 5px #00f5ff);}
 .t-fut #logo-t{font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:5px;}
 .t-fut .cbtn{font-family:'IBM Plex Mono',monospace;}
+/* ── Futuristic HUD Ring ── */
+.hud-rc{display:none;position:relative;width:145px;height:145px;}
+.hud-leg{display:none;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;opacity:0.5;margin-top:6px;justify-content:center;}
+.hud-dot{width:5px;height:5px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.t-fut .rc{display:none;}
+.t-fut .hud-rc{display:block;}
+.t-fut .hud-leg{display:flex;}
+.hud-rsvg{width:100%;height:100%;}
+@keyframes hudCW{to{transform:rotate(360deg);}}
+@keyframes hudCCW{to{transform:rotate(-360deg);}}
+@keyframes hudPulse{0%,100%{opacity:0.2;}50%{opacity:0.9;}}
+.hud-s1{transform-box:fill-box;transform-origin:center;animation:hudCW 22s linear infinite;}
+.hud-s2{transform-box:fill-box;transform-origin:center;animation:hudCCW 38s linear infinite;}
+.hud-s3{transform-box:fill-box;transform-origin:center;animation:hudCCW 16s linear infinite;}
+.hud-fan{transform-box:fill-box;transform-origin:center;animation:hudCW 6s linear infinite;}
+.hud-blnk{animation:hudPulse 2.4s ease-in-out infinite;}
+.hud-blnk2{animation:hudPulse 2.4s ease-in-out infinite;animation-delay:-1.2s;}
+#hud-rfil{fill:none;stroke:#00f5ff;stroke-width:7;stroke-linecap:round;stroke-dasharray:439.8;stroke-dashoffset:88;transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 0 6px #00f5ff);}
+#hud-spfil{fill:none;stroke:#a855f7;stroke-width:5;stroke-linecap:round;stroke-dasharray:345.6;stroke-dashoffset:35;transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1) .2s;filter:drop-shadow(0 0 4px #a855f7);}
+#hud-sfil{fill:none;stroke:#f59e0b;stroke-width:4;stroke-linecap:round;stroke-dasharray:251.3;stroke-dashoffset:151;transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1) .4s;filter:drop-shadow(0 0 4px #f59e0b);}
 
 /* ═══════════════════════════════════════
    THEME: MINECRAFT
@@ -314,6 +417,50 @@ body.t-mc::before{content:'';position:fixed;inset:0;background-image:repeating-l
 .mc-bfi{height:100%;}
 .mc-hp{background:repeating-linear-gradient(90deg,#ff5555 0,#ff5555 12px,#aa0000 12px,#aa0000 14px);}
 .mc-xp{background:repeating-linear-gradient(90deg,#6aff3a 0,#6aff3a 12px,#3aaa1a 12px,#3aaa1a 14px);}
+/* ── Minecraft HUD Ring ── */
+.mc-rc{display:none;position:relative;width:145px;height:142px;}
+.mc-leg{display:none;align-items:center;gap:6px;font-size:13px!important;letter-spacing:1px;opacity:0.85;margin-top:4px;justify-content:center;}
+.mc-ldot{width:8px;height:8px;display:inline-block;flex-shrink:0;}
+.t-mc .rc{display:none;}
+.t-mc .mc-rc{display:block;}
+.t-mc .mc-leg{display:flex;}
+.mc-rsvg{width:100%;height:100%;}
+@keyframes mcBlink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
+.mc-pulse{animation:mcBlink 1s steps(1) infinite;}
+
+/* ═══════════════════════════════════════
+   THEME-SPECIFIC BARS: Health/Experience
+═══════════════════════════════════════ */
+
+/* ── HALO: SHIELDS & AMMO ── */
+.halo-bars{margin-top:10px;width:100%;}
+.halo-blbl{font-size:12px;letter-spacing:2px;color:#4ab8ff;text-shadow:0 0 8px rgba(74,184,255,0.3);margin-bottom:4px;font-family:'Oxanium',sans-serif;}
+.halo-btr{width:100%;height:8px;background:rgba(3,7,14,0.8);border:1px solid rgba(74,184,255,0.25);box-shadow:inset 0 0 4px rgba(0,0,0,0.6),0 0 6px rgba(74,184,255,0.1);}
+.halo-bfi{height:100%;transition:width 0.5s cubic-bezier(.4,0,.2,1);}
+.halo-shields{background:linear-gradient(90deg,#4ab8ff 0%,#00e5c8 100%);box-shadow:0 0 8px rgba(74,184,255,0.6),inset 0 1px 0 rgba(255,255,255,0.2);}
+.halo-ammo{background:linear-gradient(90deg,#ff6b6b 0%,#ff4444 100%);box-shadow:0 0 8px rgba(255,68,68,0.6),inset 0 1px 0 rgba(255,255,255,0.1);}
+.t-halo .halo-bars{display:block;}
+.t-halo .mc-bars,.t-naruto-bars,.t-fut-bars{display:none;}
+
+/* ── NARUTO: CHAKRA & STAMINA ── */
+.naruto-bars{margin-top:10px;width:100%;}
+.naruto-blbl{font-size:13px;letter-spacing:1px;color:#ff4500;text-shadow:0 0 10px rgba(255,69,0,0.5),2px 0 4px rgba(0,0,0,0.4);margin-bottom:4px;font-family:'Permanent Marker',cursive;}
+.naruto-btr{width:100%;height:10px;background:rgba(12,4,0,0.8);border:1.5px solid rgba(255,69,0,0.3);box-shadow:inset 0 0 3px rgba(0,0,0,0.8),0 0 6px rgba(255,69,0,0.15);}
+.naruto-bfi{height:100%;transition:width 0.5s cubic-bezier(.4,0,.2,1);}
+.naruto-chakra{background:linear-gradient(90deg,#ff4500 0%,#ff6b35 100%);box-shadow:0 0 10px rgba(255,69,0,0.7),inset 0 1px 2px rgba(255,100,50,0.3);}
+.naruto-stamina{background:linear-gradient(90deg,#ffd700 0%,#ffaa00 100%);box-shadow:0 0 10px rgba(255,170,0,0.6),inset 0 1px 2px rgba(255,180,0,0.2);}
+.t-naruto .naruto-bars{display:block;}
+.t-naruto .mc-bars,.halo-bars,.t-fut-bars{display:none;}
+
+/* ── FUTURISTIC: ENERGY & PROCESSOR ── */
+.fut-bars{margin-top:10px;width:100%;}
+.fut-blbl{font-size:11px;letter-spacing:2px;color:#00f5ff;text-shadow:0 0 8px rgba(0,245,255,0.5);margin-bottom:4px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;}
+.fut-btr{width:100%;height:8px;background:rgba(2,8,16,0.9);border:1px solid rgba(0,245,255,0.2);box-shadow:inset 0 0 4px rgba(0,0,0,0.8),0 0 8px rgba(0,245,255,0.2);}
+.fut-bfi{height:100%;transition:width 0.5s cubic-bezier(.4,0,.2,1);}
+.fut-energy{background:linear-gradient(90deg,#00f5ff 0%,#00ff88 100%);box-shadow:0 0 10px rgba(0,245,255,0.8),inset 0 1px 2px rgba(0,255,136,0.3);}
+.fut-processor{background:linear-gradient(90deg,#7b2fff 0%,#ff2d78 100%);box-shadow:0 0 10px rgba(123,43,255,0.7),inset 0 1px 2px rgba(255,45,120,0.2);}
+.t-fut .fut-bars{display:block;}
+.t-fut .mc-bars,.halo-bars,.naruto-bars{display:none;}
 
 /* ═══════════════════════════════════════
    THEME: HALO VISR
@@ -384,6 +531,44 @@ body.t-naruto span.vval{
 .t-naruto .card::after{content:'';position:absolute;bottom:8px;right:9px;width:18px;height:18px;border:1px solid rgba(255,69,0,0.1);transform:rotate(45deg);}
 .t-naruto .vc::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,69,0,0.45),transparent);}
 .t-naruto .rfil{filter:drop-shadow(0 0 6px #ff4500);}
+/* ── Whoop-style scores dentro del ring card ── */
+.wsrow{display:flex;width:100%;margin-top:10px;border-top:1px solid var(--sub);padding-top:14px;animation:wsload 0.8s ease-out;}
+@keyframes wsload{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+.wsitem{flex:1;display:flex;flex-direction:column;gap:5px;padding:0 14px;transition:all 0.3s;}
+.wsitem:hover{filter:brightness(1.15);}
+.wsitem:first-child{padding-left:0;}
+.wsitem:last-child{padding-right:0;}
+.wssep{width:1px;background:var(--sub);flex-shrink:0;}
+.wslbl{font-size:9px;letter-spacing:3px;opacity:0.35;text-transform:uppercase;}
+.wsval{display:flex;align-items:baseline;gap:2px;}
+.wsn{font-size:22px;font-weight:700;line-height:1;color:var(--ta);}
+.wsd{font-size:10px;opacity:0.35;letter-spacing:1px;}
+.wsbar{width:100%;height:2px;background:var(--rbg);overflow:hidden;margin-top:2px;}
+.wsfil{height:100%;background:var(--ta);transition:width 1.4s cubic-bezier(.4,0,.2,1);}
+.wsfil.sl{background:var(--ta2);}
+.wrec{font-size:9px;letter-spacing:2px;text-transform:uppercase;opacity:0.55;text-align:center;margin-top:10px;line-height:1.5;color:var(--tpos);}
+
+/* ── Calorías expandible ── */
+.vc.exp{cursor:pointer;-webkit-tap-highlight-color:transparent;overflow:hidden;clip-path:none!important;position:relative;}
+.xarrow{position:absolute;top:12px;right:12px;font-size:9px;opacity:0.3;transition:transform 0.3s;pointer-events:none;}
+.vc.open .xarrow{transform:rotate(180deg);}
+/* Ocultar contenido inicial cuando se abre para evitar overlap */
+.vc.open .cal-split{display:none;}
+/* Dropdown expandido — crece dentro del card */
+.vc-xpnd{max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(.4,0,.2,1),padding 0.35s cubic-bezier(.4,0,.2,1),opacity 0.25s;opacity:0;margin-top:0;}
+.vc.open .vc-xpnd{max-height:140px;padding:10px 0;opacity:1;margin-top:10px;}
+.cal-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.cal-box{background:var(--rbg);padding:8px 10px;}
+.cal-box-lbl{font-size:9px;letter-spacing:2px;opacity:0.35;text-transform:uppercase;}
+.cal-box-val{font-size:18px;font-weight:700;color:var(--ta);margin-top:2px;line-height:1;}
+.cal-box-unit{font-size:9px;opacity:0.3;letter-spacing:1px;margin-top:2px;}
+.cal-bars{margin-top:10px;display:flex;flex-direction:column;gap:7px;}
+.cal-bar-row{display:flex;align-items:center;gap:8px;}
+.cal-bar-lbl{font-size:9px;letter-spacing:2px;opacity:0.35;width:50px;flex-shrink:0;text-transform:uppercase;}
+.cal-bar-trk{flex:1;height:3px;background:var(--rbg);overflow:hidden;}
+.cal-bar-fil{height:100%;transition:width 1.2s cubic-bezier(.4,0,.2,1);}
+.cal-bar-val{font-size:9px;opacity:0.35;width:32px;text-align:right;flex-shrink:0;}
+
 /* Chakra pulse rings */
 .nring{position:fixed;border-radius:50%;pointer-events:none;z-index:0;border:1px solid rgba(255,69,0,0.055);animation:cpls 5s ease-in-out infinite;}
 @keyframes cpls{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.5;}50%{transform:translate(-50%,-50%) scale(1.07);opacity:1;}}
@@ -483,13 +668,15 @@ body.t-naruto span.vval{
   <!-- Main content -->
   <main class="db-main">
     <div class="db-greet">
-      <div class="db-eye" id="g-eye">// ANÁLISIS BIOMÉTRICO ACTIVO</div>
-      <div class="db-name"><span id="g-pfx">BUEN DÍA, </span><span id="uname" class="db-ac">USUARIO</span></div>
-      <div class="db-date" id="clock"></div>
+      <div>
+        <div class="db-eye" id="g-eye">// ANÁLISIS BIOMÉTRICO ACTIVO</div>
+        <div class="db-name"><span id="g-pfx">BUEN DÍA, </span><span id="uname" class="db-ac">USUARIO</span></div>
+      </div>
+      <div class="db-date" id="clock" style="margin-top:0;align-self:flex-end;padding-bottom:4px;"></div>
     </div>
 
-    <!-- Top: ring + vitals -->
-    <div class="tg">
+    <!-- ═══ 3-col: ring | vitals | chart+sleep ═══ -->
+    <div class="mg">
       <div class="card rw">
         <span class="clbl" id="rl">// ÍNDICE DE PREPARACIÓN</span>
         <div class="rc">
@@ -502,26 +689,304 @@ body.t-naruto span.vval{
             <div class="rdenom">/ 100</div>
           </div>
         </div>
+
+        <!-- HUD Ring — futuristic theme only -->
+        <div class="hud-rc">
+          <svg class="hud-rsvg" viewBox="0 0 160 160">
+            <!-- Corner brackets (estáticos) -->
+            <path d="M12 22 L12 12 L22 12" fill="none" stroke="rgba(0,245,255,0.35)" stroke-width="1.5"/>
+            <path d="M148 22 L148 12 L138 12" fill="none" stroke="rgba(0,245,255,0.35)" stroke-width="1.5"/>
+            <path d="M12 138 L12 148 L22 148" fill="none" stroke="rgba(0,245,255,0.35)" stroke-width="1.5"/>
+            <path d="M148 138 L148 148 L138 148" fill="none" stroke="rgba(0,245,255,0.35)" stroke-width="1.5"/>
+            <!-- Anillo segmentado exterior: rota CW lento -->
+            <circle class="hud-s1" cx="80" cy="80" r="76" fill="none" stroke="rgba(0,245,255,0.18)" stroke-width="3" stroke-dasharray="10 7.6"/>
+            <!-- 4 marcas cardinales: rota CCW muy lento -->
+            <circle class="hud-s2" cx="80" cy="80" r="76" fill="none" stroke="rgba(0,245,255,0.7)" stroke-width="3" stroke-dasharray="3 116.4"/>
+            <!-- Anillo de puntos: rota CCW -->
+            <circle class="hud-s3" cx="80" cy="80" r="63" fill="none" stroke="rgba(0,245,255,0.22)" stroke-width="1" stroke-dasharray="1.5 8.4"/>
+            <!-- RECOVERY — pista de fondo -->
+            <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(0,245,255,0.08)" stroke-width="7"/>
+            <!-- RECOVERY — arco animado (cyan) -->
+            <circle id="hud-rfil" cx="80" cy="80" r="70" transform="rotate(-90 80 80)"/>
+            <!-- SUEÑO — pista de fondo -->
+            <circle cx="80" cy="80" r="55" fill="none" stroke="rgba(168,85,247,0.08)" stroke-width="5"/>
+            <!-- SUEÑO — arco animado (morado) -->
+            <circle id="hud-spfil" cx="80" cy="80" r="55" transform="rotate(-90 80 80)"/>
+            <!-- ESTRÉS — pista de fondo -->
+            <circle cx="80" cy="80" r="40" fill="none" stroke="rgba(245,158,11,0.08)" stroke-width="4"/>
+            <!-- ESTRÉS — arco animado (ámbar) -->
+            <circle id="hud-sfil" cx="80" cy="80" r="40" transform="rotate(-90 80 80)"/>
+            <!-- Rueda interna entre arco y backdrop: gira rápido -->
+            <circle class="hud-fan" cx="80" cy="80" r="35" fill="none" stroke="rgba(0,245,255,0.18)" stroke-width="5" stroke-dasharray="4 5"/>
+            <!-- Backdrop oscuro: aísla el número del reactor -->
+            <circle cx="80" cy="80" r="31" fill="rgba(4,6,20,0.9)"/>
+            <!-- Centro pulsante -->
+            <circle class="hud-blnk" cx="80" cy="80" r="11" fill="none" stroke="rgba(0,245,255,0.55)" stroke-width="1"/>
+            <circle class="hud-blnk2" cx="80" cy="80" r="5" fill="rgba(0,245,255,0.85)"/>
+          </svg>
+          <div class="ri">
+            <div class="rnum" id="hud-rscore">80</div>
+            <div class="rdenom">/ 100</div>
+          </div>
+        </div>
+        <!-- Leyenda de anillos (futuristic only) -->
+        <div class="hud-leg">
+          <span class="hud-dot" style="background:#00f5ff;box-shadow:0 0 5px #00f5ff;"></span>REC
+          <span class="hud-dot" style="background:#a855f7;box-shadow:0 0 5px #a855f7;margin-left:8px;"></span>SLP
+          <span class="hud-dot" style="background:#f59e0b;box-shadow:0 0 5px #f59e0b;margin-left:8px;"></span>EST
+        </div>
+
+        <!-- MC Ring — Minecraft theme only -->
+        <div class="mc-rc">
+          <svg class="mc-rsvg" viewBox="0 0 160 142">
+            <defs>
+              <!-- ⚡ Rayo pixel-art (10×14) — diagonal arriba-derecha a abajo-izquierda -->
+              <symbol id="mc-ic-bolt" viewBox="0 0 10 14">
+                <rect x="4" y="0"  width="6" height="2" fill="currentColor"/>
+                <rect x="2" y="2"  width="8" height="2" fill="currentColor"/>
+                <rect x="0" y="4"  width="10" height="2" fill="currentColor"/>
+                <rect x="0" y="6"  width="8" height="2" fill="currentColor"/>
+                <rect x="0" y="8"  width="6" height="2" fill="currentColor"/>
+                <rect x="0" y="10" width="4" height="2" fill="currentColor"/>
+                <rect x="0" y="12" width="2" height="2" fill="currentColor"/>
+              </symbol>
+              <!-- 🌙 Luna creciente pixel-art (14×12) — C-shape abre a la derecha -->
+              <symbol id="mc-ic-z" viewBox="0 0 14 12">
+                <rect x="2" y="0"  width="6" height="2" fill="currentColor"/>
+                <rect x="0" y="2"  width="8" height="2" fill="currentColor"/>
+                <rect x="0" y="4"  width="6" height="2" fill="currentColor"/>
+                <rect x="0" y="6"  width="6" height="2" fill="currentColor"/>
+                <rect x="0" y="8"  width="8" height="2" fill="currentColor"/>
+                <rect x="2" y="10" width="6" height="2" fill="currentColor"/>
+                <!-- Estrellita decorativa a la derecha -->
+                <rect x="10" y="1"  width="2" height="2" fill="currentColor" opacity="0.7"/>
+                <rect x="12" y="5"  width="2" height="2" fill="currentColor" opacity="0.4"/>
+              </symbol>
+              <!-- ❤ Corazón pixel-art clásico Minecraft (14×12) -->
+              <symbol id="mc-ic-heart" viewBox="0 0 14 12">
+                <!-- Cuerpo principal -->
+                <rect x="2" y="0"  width="4"  height="2" fill="currentColor"/>
+                <rect x="8" y="0"  width="4"  height="2" fill="currentColor"/>
+                <rect x="0" y="2"  width="14" height="2" fill="currentColor"/>
+                <rect x="0" y="4"  width="14" height="2" fill="currentColor"/>
+                <rect x="2" y="6"  width="10" height="2" fill="currentColor"/>
+                <rect x="4" y="8"  width="6"  height="2" fill="currentColor"/>
+                <rect x="6" y="10" width="2"  height="2" fill="currentColor"/>
+                <!-- Pixel de brillo (esquina sup-izq, siempre blanco) -->
+                <rect x="2" y="2"  width="2"  height="2" fill="rgba(255,255,255,0.65)"/>
+                <!-- Pixel de sombra inferior -->
+                <rect x="4" y="6"  width="2"  height="2" fill="rgba(0,0,0,0.25)"/>
+              </symbol>
+            </defs>
+            <!-- Brackets esquina inventario -->
+            <rect x="2"   y="2"   width="12" height="3"  fill="#6a5020"/>
+            <rect x="2"   y="2"   width="3"  height="12" fill="#6a5020"/>
+            <rect x="146" y="2"   width="12" height="3"  fill="#6a5020"/>
+            <rect x="157" y="2"   width="3"  height="12" fill="#6a5020"/>
+            <rect x="2"   y="127" width="3"  height="12" fill="#6a5020"/>
+            <rect x="2"   y="137" width="12" height="3"  fill="#6a5020"/>
+            <rect x="157" y="127" width="3"  height="12" fill="#6a5020"/>
+            <rect x="146" y="137" width="12" height="3"  fill="#6a5020"/>
+            <!-- ── Fila 1: RECUPERACION (rayos) ── -->
+            <text x="8" y="11" font-family="VT323" font-size="13" fill="#ffdd00">* RECUPERACION</text>
+            <use id="mc-r-0" href="#mc-ic-bolt" x="5"   y="13" width="10" height="14" color="#2a2000"/>
+            <use id="mc-r-1" href="#mc-ic-bolt" x="20"  y="13" width="10" height="14" color="#2a2000"/>
+            <use id="mc-r-2" href="#mc-ic-bolt" x="35"  y="13" width="10" height="14" color="#2a2000"/>
+            <use id="mc-r-3" href="#mc-ic-bolt" x="50"  y="13" width="10" height="14" color="#2a2000"/>
+            <use id="mc-r-4" href="#mc-ic-bolt" x="65"  y="13" width="10" height="14" color="#2a2000"/>
+            <use id="mc-r-5" href="#mc-ic-bolt" x="80"  y="13" width="10" height="14" color="#2a2000"/>
+            <use id="mc-r-6" href="#mc-ic-bolt" x="95"  y="13" width="10" height="14" color="#2a2000"/>
+            <use id="mc-r-7" href="#mc-ic-bolt" x="110" y="13" width="10" height="14" color="#2a2000"/>
+            <use id="mc-r-8" href="#mc-ic-bolt" x="125" y="13" width="10" height="14" color="#2a2000"/>
+            <use id="mc-r-9" href="#mc-ic-bolt" x="140" y="13" width="10" height="14" color="#2a2000"/>
+            <rect x="8" y="29" width="144" height="2" fill="#3a2800"/>
+            <!-- ── Fila 2: SUENO (Zs) ── -->
+            <text x="8" y="42" font-family="VT323" font-size="13" fill="#5bc8ff">* SUENO</text>
+            <use id="mc-s-0" href="#mc-ic-z" x="3"   y="44" width="14" height="12" color="#001830"/>
+            <use id="mc-s-1" href="#mc-ic-z" x="18"  y="44" width="14" height="12" color="#001830"/>
+            <use id="mc-s-2" href="#mc-ic-z" x="33"  y="44" width="14" height="12" color="#001830"/>
+            <use id="mc-s-3" href="#mc-ic-z" x="48"  y="44" width="14" height="12" color="#001830"/>
+            <use id="mc-s-4" href="#mc-ic-z" x="63"  y="44" width="14" height="12" color="#001830"/>
+            <use id="mc-s-5" href="#mc-ic-z" x="78"  y="44" width="14" height="12" color="#001830"/>
+            <use id="mc-s-6" href="#mc-ic-z" x="93"  y="44" width="14" height="12" color="#001830"/>
+            <use id="mc-s-7" href="#mc-ic-z" x="108" y="44" width="14" height="12" color="#001830"/>
+            <use id="mc-s-8" href="#mc-ic-z" x="123" y="44" width="14" height="12" color="#001830"/>
+            <use id="mc-s-9" href="#mc-ic-z" x="138" y="44" width="14" height="12" color="#001830"/>
+            <rect x="8" y="60" width="144" height="2" fill="#3a2800"/>
+            <!-- ── Fila 3: ESTRES (corazones) ── -->
+            <text x="8" y="73" font-family="VT323" font-size="13" fill="#ff5555">HP ESTRES</text>
+            <use id="mc-st-0" href="#mc-ic-heart" x="3"   y="75" width="14" height="12" color="#2a0000"/>
+            <use id="mc-st-1" href="#mc-ic-heart" x="18"  y="75" width="14" height="12" color="#2a0000"/>
+            <use id="mc-st-2" href="#mc-ic-heart" x="33"  y="75" width="14" height="12" color="#2a0000"/>
+            <use id="mc-st-3" href="#mc-ic-heart" x="48"  y="75" width="14" height="12" color="#2a0000"/>
+            <use id="mc-st-4" href="#mc-ic-heart" x="63"  y="75" width="14" height="12" color="#2a0000"/>
+            <use id="mc-st-5" href="#mc-ic-heart" x="78"  y="75" width="14" height="12" color="#2a0000"/>
+            <use id="mc-st-6" href="#mc-ic-heart" x="93"  y="75" width="14" height="12" color="#2a0000"/>
+            <use id="mc-st-7" href="#mc-ic-heart" x="108" y="75" width="14" height="12" color="#2a0000"/>
+            <use id="mc-st-8" href="#mc-ic-heart" x="123" y="75" width="14" height="12" color="#2a0000"/>
+            <use id="mc-st-9" href="#mc-ic-heart" x="138" y="75" width="14" height="12" color="#2a0000"/>
+            <rect x="8" y="93" width="144" height="2" fill="#3a2800"/>
+            <!-- Score (estilo inventario) -->
+            <rect x="22" y="99" width="116" height="22" fill="#171200" stroke="#6a5020" stroke-width="2"/>
+            <text id="mc-rscore" x="74" y="115" font-family="VT323" font-size="19" fill="#6aff3a" text-anchor="end">80</text>
+            <text x="78" y="115" font-family="VT323" font-size="16" fill="#888888">/100</text>
+          </svg>
+        </div>
+        <!-- Leyenda MC -->
+        <div class="mc-leg">
+          <span class="mc-ldot" style="background:#ffdd00;box-shadow:2px 2px 0 #2a2000;"></span>RECUP
+          <span class="mc-ldot" style="background:#5bc8ff;box-shadow:2px 2px 0 #001830;margin-left:8px;"></span>SUENO
+          <span class="mc-ldot" style="background:#ff5555;box-shadow:2px 2px 0 #600000;margin-left:8px;"></span>HP
+        </div>
+
         <div class="rstatus" id="rstatus">ÓPTIMO</div>
         <div id="mcex"></div>
+
+        <!-- Scores: Esfuerzo | Resp | Sueño -->
+        <div class="wsrow">
+          <div class="wsitem">
+            <div class="wslbl" id="ws-strain-lbl">ESFUERZO</div>
+            <div class="wsval"><span class="wsn" id="strain-val">8.4</span><span class="wsd">/21</span></div>
+            <div class="wsbar"><div class="wsfil" id="strain-bar" style="width:40%"></div></div>
+          </div>
+          <div class="wssep"></div>
+          <div class="wsitem">
+            <div class="wslbl" id="ws-resp-lbl">RESP.</div>
+            <div class="wsval"><span class="wsn" id="resp-val">14</span><span class="wsd">/m</span></div>
+            <div class="wsbar"><div class="wsfil rs" id="resp-bar" style="width:70%"></div></div>
+          </div>
+          <div class="wssep"></div>
+          <div class="wsitem">
+            <div class="wslbl" id="ws-sleep-lbl">SUEÑO</div>
+            <div class="wsval"><span class="wsn" id="sleep-pct-val">90</span><span class="wsd">%</span></div>
+            <div class="wsbar"><div class="wsfil sl" id="sleep-pct-bar" style="width:90%"></div></div>
+          </div>
+        </div>
+        <div class="wrec" id="wrec">Listo para entrenar al máximo</div>
       </div>
 
       <div class="vg">
-        <div class="vc"><span class="vlbl" id="lbl-hr">// FREC. CARDÍACA</span><div class="vval" id="hrv">68</div><span class="vunit" id="u-hr">BPM — REPOSO</span><div class="vtrd">↑ +2</div></div>
+        <div class="vc exp" id="hr-card" onclick="toggleHR()">
+          <span class="vlbl" id="lbl-hr">// FREC. CARDÍACA</span>
+          <div class="vval" id="hrv">68</div>
+          <span class="vunit" id="u-hr">BPM — REPOSO</span>
+          <!-- Siempre visible: Reposo + Máximo del día -->
+          <div class="cal-split">
+            <div class="cal-box">
+              <div class="cal-box-lbl">REPOSO</div>
+              <div class="cal-box-val" id="hr-rest">61</div>
+              <div class="cal-box-unit">BPM</div>
+            </div>
+            <div class="cal-box">
+              <div class="cal-box-lbl">MÁXIMO</div>
+              <div class="cal-box-val" id="hr-max">172</div>
+              <div class="cal-box-unit">BPM HOY</div>
+            </div>
+          </div>
+          <div class="xarrow">▼</div>
+          <!-- Expandible: zonas cardíacas estilo Whoop -->
+          <div class="vc-xpnd">
+            <div class="cal-bars">
+              <div class="cal-bar-row"><span class="cal-bar-lbl">BASE</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="hrbar-base" style="width:0%;background:rgba(255,255,255,0.25)"></div></div><span class="cal-bar-val" id="hrmin-base">840m</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl">QUEMA</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="hrbar-fat" style="width:0%;background:var(--ta);opacity:0.7"></div></div><span class="cal-bar-val" id="hrmin-fat">52m</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl">CARDIO</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="hrbar-cardio" style="width:0%;background:#f59e0b"></div></div><span class="cal-bar-val" id="hrmin-cardio">22m</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl">PICO</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="hrbar-peak" style="width:0%;background:var(--tneg)"></div></div><span class="cal-bar-val" id="hrmin-peak">6m</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="vc"><span class="vlbl" id="lbl-hrv">// HRV NOCTURNO</span><div class="vval" id="hrvv">48</div><span class="vunit">ms — BUENO</span><div class="vtrd">↑ +6</div></div>
         <div class="vc"><span class="vlbl" id="lbl-spo2">// SATURACIÓN O₂</span><div class="vval" id="spo2v">98</div><span class="vunit">% SpO2</span><div class="vtrd">→</div></div>
         <div class="vc"><span class="vlbl" id="lbl-temp">// TEMP. CORPORAL</span><div class="vval" id="tempv">36.4</div><span class="vunit">°C PIEL</span><div class="vtrd">→</div></div>
-        <div class="vc"><span class="vlbl" id="lbl-stress">// NIVEL ESTRÉS</span><div class="vval" id="stressv">24</div><span class="vunit" id="u-stress">/ 100 — BAJO</span><div class="vtrd neg">↓</div></div>
-        <div class="vc"><span class="vlbl" id="lbl-cal">// CALORÍAS</span><div class="vval" id="calv">312</div><span class="vunit" id="u-cal">KCAL ACTIVAS</span><div class="vtrd">↑</div></div>
-        <div class="vc"><span class="vlbl" id="lbl-hrv">// HRV NOCTURNO</span><div class="vval" id="hrvv">48</div><span class="vunit">ms — BUENO</span><div class="vtrd">↑ +6</div></div>
-      </div>
-    </div>
+        <div class="vc exp" id="stress-card" onclick="toggleStress()">
+          <span class="vlbl" id="lbl-stress">// NIVEL ESTRÉS</span>
+          <div class="vval" id="stressv">24</div>
+          <span class="vunit" id="u-stress">/ 100 — BAJO</span>
+          <!-- Siempre visible: HRV + FC reposo -->
+          <div class="cal-split">
+            <div class="cal-box">
+              <div class="cal-box-lbl">HRV</div>
+              <div class="cal-box-val" id="str-hrv">68</div>
+              <div class="cal-box-unit">MS RMSSD</div>
+            </div>
+            <div class="cal-box">
+              <div class="cal-box-lbl">FC REPOSO</div>
+              <div class="cal-box-val" id="str-rhr">61</div>
+              <div class="cal-box-unit">BPM</div>
+            </div>
+          </div>
+          <div class="xarrow">▼</div>
+          <!-- Expandible: contribución de cada factor -->
+          <div class="vc-xpnd">
+            <div class="cal-bars">
+              <div class="cal-bar-row"><span class="cal-bar-lbl">HRV</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="sbar-hrv" style="width:0%"></div></div><span class="cal-bar-val" id="sval-hrv">68ms</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl">FC</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="sbar-rhr" style="width:0%"></div></div><span class="cal-bar-val" id="sval-rhr">61bpm</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl">RESP.</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="sbar-br" style="width:0%"></div></div><span class="cal-bar-val" id="sval-br">14rpm</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="vc exp" id="cal-card" onclick="toggleCal()">
+          <span class="vlbl" id="lbl-cal">// CALORÍAS</span>
+          <div class="vval" id="calv">312</div>
+          <span class="vunit" id="u-cal">KCAL ACTIVAS</span>
+          <!-- Siempre visible: split BMR / Activas -->
+          <div class="cal-split">
+            <div class="cal-box">
+              <div class="cal-box-lbl">BASAL</div>
+              <div class="cal-box-val" id="cal-bmr">1,620</div>
+              <div class="cal-box-unit">KCAL BMR</div>
+            </div>
+            <div class="cal-box">
+              <div class="cal-box-lbl">ACTIVAS</div>
+              <div class="cal-box-val" id="cal-act">564</div>
+              <div class="cal-box-unit">KCAL</div>
+            </div>
+          </div>
+          <div class="xarrow">▼</div>
+          <!-- Solo las barras de intensidad se expanden -->
+          <div class="vc-xpnd">
+            <div class="cal-bars">
+              <div class="cal-bar-row"><span class="cal-bar-lbl">SEDET.</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="cbar-sed" style="width:0%;background:rgba(255,255,255,0.25)"></div></div><span class="cal-bar-val" id="cmin-sed">520m</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl">LIGERO</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="cbar-lig" style="width:0%;background:var(--ta);opacity:0.6"></div></div><span class="cal-bar-val" id="cmin-lig">185m</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl">MODER.</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="cbar-mod" style="width:0%;background:#f59e0b"></div></div><span class="cal-bar-val" id="cmin-mod">18m</span></div>
+              <div class="cal-bar-row"><span class="cal-bar-lbl">INTENSO</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="cbar-int" style="width:0%;background:var(--tneg)"></div></div><span class="cal-bar-val" id="cmin-int">27m</span></div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /vg -->
 
-    <!-- Steps -->
-    <div class="card" style="margin-top:16px;">
-      <span class="clbl" id="lbl-steps">// ACTIVIDAD DIARIA — PASOS</span>
-      <div style="display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;">
+      <!-- Col 3: HR chart + Sleep apilados -->
+      <div class="rcs">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+            <div><span class="clbl" id="lbl-hrchart" style="margin-bottom:2px;">// FREC. CARDÍACA 24H</span><div style="font-size:10px;letter-spacing:2px;opacity:0.3;" id="lbl-last24">ÚLTIMAS 24 HORAS</div></div>
+            <div style="display:flex;align-items:baseline;gap:3px;"><span id="hrlive" style="font-size:24px;font-weight:700;color:var(--tneg);">68</span><span style="font-size:10px;opacity:0.35;letter-spacing:1px;"> BPM</span></div>
+          </div>
+          <svg class="spkl" viewBox="0 0 300 72" id="hrchart" preserveAspectRatio="none"></svg>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <span style="font-size:9px;opacity:0.28;">00:00</span><span style="font-size:9px;opacity:0.28;">06:00</span><span style="font-size:9px;opacity:0.28;">12:00</span><span style="font-size:9px;opacity:0.28;">18:00</span><span style="font-size:9px;color:var(--ta)" id="lbl-now">AHORA</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="clbl" id="lbl-sleep">// ANÁLISIS DE SUEÑO</span>
+          <div class="slrw"><div class="sllbl" id="sl-deep">PROF.</div><div class="sltr"><div class="slfi" id="sl0" style="width:35%;background:var(--ta2);"></div></div><div class="sltm">1h 44m</div></div>
+          <div class="slrw"><div class="sllbl">REM</div><div class="sltr"><div class="slfi" id="sl1" style="width:28%;background:var(--ta);"></div></div><div class="sltm">1h 22m</div></div>
+          <div class="slrw"><div class="sllbl" id="sl-light">LIGER.</div><div class="sltr"><div class="slfi" id="sl2" style="width:72%;background:rgba(255,255,255,0.22);"></div></div><div class="sltm">3h 34m</div></div>
+          <div class="slrw"><div class="sllbl" id="sl-awake">DESP.</div><div class="sltr"><div class="slfi" id="sl3" style="width:12%;background:var(--tneg);"></div></div><div class="sltm">0h 22m</div></div>
+          <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--sub);">
+            <div><div style="font-size:9px;opacity:0.3;letter-spacing:2px;" id="lbl-total">TOTAL</div><div style="font-size:16px;font-weight:700;color:var(--ta2);">7h 22m</div></div>
+            <div><div style="font-size:9px;opacity:0.3;letter-spacing:2px;" id="lbl-start">INICIO</div><div style="font-size:14px;font-weight:600;">23:18</div></div>
+            <div><div style="font-size:9px;opacity:0.3;letter-spacing:2px;">SCORE</div><div style="font-size:14px;font-weight:700;color:var(--ta);">84/100</div></div>
+          </div>
+        </div>
+      </div><!-- /rcs -->
+    </div><!-- /mg -->
+
+    <!-- ═══ Pasos — fila compacta full-width ═══ -->
+    <div class="card scard">
+      <div class="scard-inner">
         <div>
-          <div style="display:flex;align-items:baseline;gap:8px;margin:7px 0;">
+          <span class="clbl" id="lbl-steps">// ACTIVIDAD DIARIA — PASOS</span>
+          <div style="display:flex;align-items:baseline;gap:8px;margin:5px 0;">
             <div class="snum" id="stepsv">7,842</div>
             <div class="sgoal" id="goal-lbl">/ 10,000 OBJETIVO</div>
           </div>
@@ -535,45 +1000,15 @@ body.t-naruto span.vval{
       </div>
     </div>
 
-    <!-- Bottom grid -->
-    <div class="bg">
-      <!-- HR chart -->
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
-          <div><span class="clbl" id="lbl-hrchart" style="margin-bottom:3px;">// FRECUENCIA CARDÍACA 24H</span><div style="font-size:10px;letter-spacing:2px;opacity:0.3;" id="lbl-last24">ÚLTIMAS 24 HORAS</div></div>
-          <div style="display:flex;align-items:baseline;gap:3px;"><span id="hrlive" style="font-size:28px;font-weight:700;color:var(--tneg);">68</span><span style="font-size:11px;opacity:0.35;letter-spacing:1px;"> BPM</span></div>
-        </div>
-        <svg class="spkl" viewBox="0 0 300 72" id="hrchart" preserveAspectRatio="none"></svg>
-        <div style="display:flex;justify-content:space-between;margin-top:5px;">
-          <span style="font-size:10px;opacity:0.28;">00:00</span><span style="font-size:10px;opacity:0.28;">06:00</span><span style="font-size:10px;opacity:0.28;">12:00</span><span style="font-size:10px;opacity:0.28;">18:00</span><span style="font-size:10px;color:var(--ta)" id="lbl-now">AHORA</span>
-        </div>
-      </div>
-
-      <!-- Sleep -->
-      <div class="card">
-        <span class="clbl" id="lbl-sleep">// ANÁLISIS DE SUEÑO</span>
-        <div class="slrw"><div class="sllbl" id="sl-deep">PROF.</div><div class="sltr"><div class="slfi" id="sl0" style="width:35%;background:var(--ta2);"></div></div><div class="sltm">1h 44m</div></div>
-        <div class="slrw"><div class="sllbl">REM</div><div class="sltr"><div class="slfi" id="sl1" style="width:28%;background:var(--ta);"></div></div><div class="sltm">1h 22m</div></div>
-        <div class="slrw"><div class="sllbl" id="sl-light">LIGER.</div><div class="sltr"><div class="slfi" id="sl2" style="width:72%;background:rgba(255,255,255,0.22);"></div></div><div class="sltm">3h 34m</div></div>
-        <div class="slrw"><div class="sllbl" id="sl-awake">DESP.</div><div class="sltr"><div class="slfi" id="sl3" style="width:12%;background:var(--tneg);"></div></div><div class="sltm">0h 22m</div></div>
-        <div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--sub);">
-          <div><div style="font-size:10px;opacity:0.3;letter-spacing:2px;" id="lbl-total">TOTAL</div><div style="font-size:18px;font-weight:700;color:var(--ta2);">7h 22m</div></div>
-          <div><div style="font-size:10px;opacity:0.3;letter-spacing:2px;" id="lbl-start">INICIO</div><div style="font-size:15px;font-weight:600;">23:18</div></div>
-          <div><div style="font-size:10px;opacity:0.3;letter-spacing:2px;">SCORE</div><div style="font-size:15px;font-weight:700;color:var(--ta);">84/100</div></div>
-        </div>
-      </div>
-
-      <!-- Activity -->
+    <!-- ═══ Bottom: Actividades | Coach ═══ -->
+    <div class="bot">
       <div class="card">
         <span class="clbl" id="lbl-activity">// ACTIVIDADES</span>
         <div class="acit"><div class="acio">🏃</div><div><div class="acnm" id="ac1n">CARRERA</div><div class="acmt">HOY 06:15 · 4.2KM</div></div><div class="acvl">287 kcal</div></div>
         <div class="acit"><div class="acio">🧘</div><div><div class="acnm" id="ac2n">MEDITACIÓN</div><div class="acmt">AYER 22:10 · 15min</div></div><div class="acvl">58 bpm</div></div>
         <div class="acit"><div class="acio">🚴</div><div><div class="acnm" id="ac3n">CICLISMO</div><div class="acmt">AYER 17:30 · 18KM</div></div><div class="acvl">420 kcal</div></div>
       </div>
-    </div>
-
-    <!-- Insights -->
-    <div class="card" style="margin-top:16px;">
+      <div class="card">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
         <span class="clbl" id="lbl-coach" style="margin-bottom:0;">// GOOGLE HEALTH COACH</span>
         <div id="aibdg" style="font-size:11px;font-weight:700;letter-spacing:2px;padding:3px 8px;background:rgba(123,47,255,0.1);border:1px solid var(--ta2);color:var(--ta2);">GEMINI AI</div>
@@ -852,10 +1287,16 @@ function applyTheme(t) {
       document.body.appendChild(d);
     });
   }
-  // MC extras
+  // Theme-specific bars
   const mc = document.getElementById('mcex');
-  if (t === 'mc' && !mc.children.length) {
+  if (t === 'mc') {
     mc.innerHTML = `<div class="mc-bars"><div class="mc-blbl">❤ HEALTH</div><div class="mc-btr"><div class="mc-bfi mc-hp" style="width:80%"></div></div><div class="mc-blbl" style="margin-top:6px">✦ XP BAR</div><div class="mc-btr"><div class="mc-bfi mc-xp" style="width:60%"></div></div></div>`;
+  } else if (t === 'halo') {
+    mc.innerHTML = `<div class="halo-bars"><div class="halo-blbl">◈ SHIELDS</div><div class="halo-btr"><div class="halo-bfi halo-shields" style="width:85%"></div></div><div class="halo-blbl" style="margin-top:6px">⬥ AMMO</div><div class="halo-btr"><div class="halo-bfi halo-ammo" style="width:72%"></div></div></div>`;
+  } else if (t === 'naruto') {
+    mc.innerHTML = `<div class="naruto-bars"><div class="naruto-blbl">🔥 CHAKRA</div><div class="naruto-btr"><div class="naruto-bfi naruto-chakra" style="width:88%"></div></div><div class="naruto-blbl" style="margin-top:6px">⚡ STAMINA</div><div class="naruto-btr"><div class="naruto-bfi naruto-stamina" style="width:76%"></div></div></div>`;
+  } else if (t === 'fut') {
+    mc.innerHTML = `<div class="fut-bars"><div class="fut-blbl">⚡ ENERGY</div><div class="fut-btr"><div class="fut-bfi fut-energy" style="width:82%"></div></div><div class="fut-blbl" style="margin-top:6px">⬢ PROCESSOR</div><div class="fut-btr"><div class="fut-bfi fut-processor" style="width:68%"></div></div></div>`;
   }
   const ls = T[lang];
   const logoSubMap = { fut: ls.logo_s_fut, mc: ls.logo_s_mc, halo: ls.logo_s_halo, naruto: ls.logo_s_naruto };
@@ -933,9 +1374,173 @@ function buildHRC(hrs) {
     <circle cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="3.5" fill="var(--tneg)"/>`;
 }
 
+// ══════ CALORÍAS EXPANDIBLE ══════
+function toggleCal() {
+  document.getElementById('cal-card').classList.toggle('open');
+}
+
+// ══════ HEART RATE EXPANDIBLE ══════
+function toggleHR() {
+  document.getElementById('hr-card').classList.toggle('open');
+}
+function setHRZones({ zones=[], restHR=61, maxHR=172 }) {
+  // Cajas siempre visibles
+  const rEl = document.getElementById('hr-rest'); if (rEl) rEl.textContent = restHR;
+  const mEl = document.getElementById('hr-max');  if (mEl) mEl.textContent = maxHR;
+  // Zonas (escala relativa al máximo de minutos entre todas)
+  const base  = zones.find(z => z.name === 'Out of Range')?.minutes || 0;
+  const fat   = zones.find(z => z.name === 'Fat Burn')?.minutes     || 0;
+  const card  = zones.find(z => z.name === 'Cardio')?.minutes       || 0;
+  const peak  = zones.find(z => z.name === 'Peak')?.minutes         || 0;
+  const top   = Math.max(base, fat, card, peak, 1);
+  const setBar = (bid, mid, min) => setTimeout(() => {
+    const b = document.getElementById(bid); if (b) b.style.width = (min / top * 100).toFixed(1) + '%';
+    const m = document.getElementById(mid); if (m) m.textContent = min + 'm';
+  }, 150);
+  setBar('hrbar-base',   'hrmin-base',   base);
+  setBar('hrbar-fat',    'hrmin-fat',    fat);
+  setBar('hrbar-cardio', 'hrmin-cardio', card);
+  setBar('hrbar-peak',   'hrmin-peak',   peak);
+}
+
+// ══════ MC RING — PIXEL ART ICONS ══════
+function setMCHearts(type, filled) {
+  const cols = {
+    r:  { on: '#ffdd00', off: '#2a2000' },  // rayos recuperación: dorado / oscuro
+    s:  { on: '#5bc8ff', off: '#001830' },  // Z sueño: azul diamante / oscuro
+    st: { on: '#ff5555', off: '#2a0000' }   // corazones estrés: rojo / rojo oscuro
+  };
+  const c = cols[type];
+  if (!c) return;
+  for (let i = 0; i < 10; i++) {
+    const el = document.getElementById(`mc-${type}-${i}`);
+    if (el) el.setAttribute('color', i < filled ? c.on : c.off);
+  }
+}
+
+// ══════ ESTRÉS EXPANDIBLE ══════
+function toggleStress() {
+  document.getElementById('stress-card').classList.toggle('open');
+}
+function calcStress({ hrv=68, rhr=61, br=14 }) {
+  // HRV: 20ms=máx estrés → 100ms=sin estrés (45%)
+  const hrvScore = Math.max(0, Math.min(1 - (hrv - 20) / 80, 1)) * 45;
+  // RHR: 40bpm=sin estrés → 90bpm=máx estrés (30%)
+  const rhrScore = Math.max(0, Math.min((rhr - 40) / 50, 1)) * 30;
+  // Resp.: 10rpm=sin estrés → 20rpm=máx estrés (25%)
+  const brScore  = Math.max(0, Math.min((br - 10) / 10, 1)) * 25;
+  return Math.round(hrvScore + rhrScore + brScore);
+}
+function setStressBars({ hrv=68, rhr=61, br=14 }) {
+  const score = calcStress({ hrv, rhr, br });
+  animN('stressv', 0, score, 900);
+  // Label dinámico según idioma activo
+  const lbls = lang === 'en'
+    ? ['LOW','MODERATE','HIGH','CRITICAL']
+    : ['BAJO','MODERADO','ALTO','CRÍTICO'];
+  const idx = score <= 25 ? 0 : score <= 50 ? 1 : score <= 75 ? 2 : 3;
+  setText('u-stress', `/ 100 — ${lbls[idx]}`);
+  // Cajas siempre visibles
+  const hEl = document.getElementById('str-hrv'); if (hEl) hEl.textContent = hrv;
+  const rEl = document.getElementById('str-rhr'); if (rEl) rEl.textContent = rhr;
+  // Barras de contribución (mayor barra = más estrés en ese factor)
+  const hrvPct = Math.max(0, Math.min((1 - (hrv - 20) / 80) * 100, 100));
+  const rhrPct = Math.max(0, Math.min((rhr - 40) / 50 * 100, 100));
+  const brPct  = Math.max(0, Math.min((br - 10) / 10 * 100, 100));
+  const col = p => p < 33 ? 'var(--tpos)' : p < 66 ? '#f59e0b' : 'var(--tneg)';
+  const setBar = (bid, vid, pct, val, unit) => setTimeout(() => {
+    const b = document.getElementById(bid);
+    if (b) { b.style.width = pct.toFixed(1) + '%'; b.style.background = col(pct); }
+    const v = document.getElementById(vid);
+    if (v) v.textContent = val + unit;
+  }, 150);
+  setBar('sbar-hrv', 'sval-hrv', hrvPct, hrv, 'ms');
+  setBar('sbar-rhr', 'sval-rhr', rhrPct, rhr, 'bpm');
+  setBar('sbar-br',  'sval-br',  brPct,  br,  'rpm');
+  // HUD ring — arco de estrés (ámbar, r=40)
+  const hsf = document.getElementById('hud-sfil');
+  if (hsf) hsf.style.strokeDashoffset = (251.3*(1-score/100)).toFixed(1);
+  // MC ring — corazones: más corazones = menos estrés (más salud)
+  setMCHearts('st', Math.round((100-score)/10));
+}
+function setCalbars({ sed=0, lig=0, mod=0, int=0 }) {
+  const total = 1440;
+  const set = (barId, minId, min) => {
+    const b = document.getElementById(barId);
+    const m = document.getElementById(minId);
+    if (m) m.textContent = min + 'm';
+    if (b) setTimeout(() => { b.style.width = Math.min(min / total * 100, 100).toFixed(1) + '%'; }, 150);
+  };
+  set('cbar-sed','cmin-sed', sed);
+  set('cbar-lig','cmin-lig', lig);
+  set('cbar-mod','cmin-mod', mod);
+  set('cbar-int','cmin-int', int);
+}
+
+// ══════ WHOOP-STYLE SCORES ══════
+function calcScores(opts) {
+  const { sleepMin=432, sleepEff=94, deep=85, rem=108, rhr=68, zones=[] } = opts;
+  // Recovery (0–100)
+  const rec = Math.min(100, Math.round(
+    Math.min(sleepMin/480,1)*30 +
+    (sleepEff/100)*25 +
+    (sleepMin>0 ? Math.min((deep+rem)/sleepMin/0.45,1) : 0)*20 +
+    Math.max(0,Math.min((80-rhr)/40,1))*25
+  ));
+  // Strain (0–21)
+  const fb=zones.find(z=>z.name==='Fat Burn')?.minutes||0;
+  const ca=zones.find(z=>z.name==='Cardio')?.minutes||0;
+  const pk=zones.find(z=>z.name==='Peak')?.minutes||0;
+  const strain = parseFloat(Math.min((fb*0.6+ca*2.0+pk*4.5)/60, 21).toFixed(1));
+  // Sleep %
+  const sleepPct = Math.min(Math.round(sleepMin/480*100), 100);
+  return { rec, strain, sleepPct };
+}
+
+function updateScores({ rec, strain, sleepPct }) {
+  // Anillo estándar (otros temas)
+  const rf = document.getElementById('rfil');
+  if (rf) rf.style.strokeDashoffset = (339*(1-rec/100)).toFixed(1);
+  animN('rscore', 0, rec, 1200);
+  // HUD ring (futuristic) — 3 arcos concéntricos
+  const hrf = document.getElementById('hud-rfil');
+  if (hrf) hrf.style.strokeDashoffset = (439.8*(1-rec/100)).toFixed(1);
+  const hsp = document.getElementById('hud-spfil');
+  if (hsp) hsp.style.strokeDashoffset = (345.6*(1-sleepPct/100)).toFixed(1);
+  animN('hud-rscore', 0, rec, 1200);
+  // MC ring — iconos de pixel art
+  setMCHearts('r', Math.round(rec/10));
+  setMCHearts('s', Math.round(sleepPct/10));
+  animN('mc-rscore', 0, rec, 1200);
+  // Strain
+  const sb = document.getElementById('strain-bar');
+  if (sb) setTimeout(()=>{ sb.style.width=(strain/21*100).toFixed(1)+'%'; },100);
+  setTimeout(()=>{ const sv=document.getElementById('strain-val'); if(sv) sv.textContent=strain.toFixed(1); },100);
+  // Sleep %
+  const spb = document.getElementById('sleep-pct-bar');
+  if (spb) setTimeout(()=>{ spb.style.width=sleepPct+'%'; },100);
+  animN('sleep-pct-val', 0, sleepPct, 1000);
+  // Recomendación y color del status
+  const ls=T[lang];
+  const rec_txt = rec>=67 ? (lang==='es'?'Listo para entrenar al máximo':'Ready for peak training') :
+                  rec>=50 ? (lang==='es'?'Entrenamiento moderado-alto recomendado':'Moderate-high training recommended') :
+                  rec>=34 ? (lang==='es'?'Mantén la intensidad baja hoy':'Keep intensity low today') :
+                            (lang==='es'?'Prioriza el descanso hoy':'Prioritize rest today');
+  setText('wrec', rec_txt);
+  const statusEl=document.getElementById('rstatus');
+  if (statusEl) statusEl.style.color = rec>=67?'var(--tpos)':rec>=34?'#f59e0b':'var(--tneg)';
+}
+
 function animVals() {
-  animN('rscore',0,80,1200); animN('hrv',40,68,1000); animN('spo2v',90,98,800);
-  animN('stressv',0,24,900); animN('calv',0,312,1100); animN('hrvv',0,48,1000);
+  // Scores demo: rhr=68, sueño 7h12m efic.94%, profundo 85m, REM 108m
+  updateScores(calcScores({ sleepMin:432, sleepEff:94, deep:85, rem:108, rhr:68, zones:[] }));
+  // Calorías demo
+  document.getElementById('cal-bmr').textContent = '1,620';
+  document.getElementById('cal-act').textContent = '564';
+  setCalbars({ sed:520, lig:185, mod:18, int:27 });
+  animN('hrv',40,68,1000); animN('spo2v',90,98,800);
+  setHRZones({ zones:[{name:'Out of Range',minutes:840},{name:'Fat Burn',minutes:52},{name:'Cardio',minutes:22},{name:'Peak',minutes:6}], restHR:61, maxHR:172 });
+  setStressBars({ hrv:68, rhr:61, br:14 }); animN('calv',0,312,1100); animN('hrvv',0,48,1000);
   animN('hrlive',40,68,1000); animN('stepsv',0,7842,1400,true);
 }
 function animN(id,from,to,dur,comma) {
@@ -1010,9 +1615,24 @@ async function loadReal() {
     const h={'Authorization':'Bearer '+token}, td=new Date().toISOString().split('T')[0];
     const [pr,ac,hr,sl] = await Promise.all([fetch('https://api.fitbit.com/1/user/-/profile.json',{headers:h}).then(r=>r.json()),fetch(`https://api.fitbit.com/1/user/-/activities/date/${td}.json`,{headers:h}).then(r=>r.json()),fetch(`https://api.fitbit.com/1/user/-/activities/heart/date/${td}/1d/1min.json`,{headers:h}).then(r=>r.json()),fetch('https://api.fitbit.com/1.2/user/-/sleep/date/today.json',{headers:h}).then(r=>r.json())]);
     if (pr?.user) document.getElementById('uname').textContent = (pr.user.displayName||pr.user.firstName||'USUARIO').toUpperCase();
-    if (ac?.summary) { const s=ac.summary; document.getElementById('stepsv').textContent=(s.steps||0).toLocaleString('es'); document.getElementById('calv').textContent=s.activityCalories||0; const pct=Math.min((s.steps/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); }
-    if (hr?.['activities-heart-intraday']?.dataset?.length) { const ds=hr['activities-heart-intraday'].dataset; const lat=ds[ds.length-1]?.value||68; document.getElementById('hrv').textContent=lat; document.getElementById('hrlive').textContent=lat; const st=Math.max(1,Math.floor(ds.length/48)); hrHist=ds.filter((_,i)=>i%st===0).slice(-48).map(d=>d.value); buildHRC(hrHist); }
+    if (ac?.summary) { const s=ac.summary; document.getElementById('stepsv').textContent=(s.steps||0).toLocaleString('es'); document.getElementById('calv').textContent=s.activityCalories||0; const pct=Math.min((s.steps/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); document.getElementById('cal-bmr').textContent=(s.caloriesBMR||0).toLocaleString(); document.getElementById('cal-act').textContent=(s.activityCalories||0).toLocaleString(); setCalbars({sed:s.sedentaryMinutes||0,lig:s.lightlyActiveMinutes||0,mod:s.fairlyActiveMinutes||0,int:s.veryActiveMinutes||0}); }
+    let maxHR_real=0; if (hr?.['activities-heart-intraday']?.dataset?.length) { const ds=hr['activities-heart-intraday'].dataset; const lat=ds[ds.length-1]?.value||68; maxHR_real=Math.max(...ds.map(d=>d.value)); document.getElementById('hrv').textContent=lat; document.getElementById('hrlive').textContent=lat; const st=Math.max(1,Math.floor(ds.length/48)); hrHist=ds.filter((_,i)=>i%st===0).slice(-48).map(d=>d.value); buildHRC(hrHist); }
     if (sl?.summary?.stages) updSl(sl.summary.stages);
+    // Whoop-style scores con datos reales
+    const rhr_real = hr?.['activities-heart']?.[0]?.value?.restingHeartRate || 68;
+    updateScores(calcScores({
+      sleepMin: sl?.summary?.totalMinutesAsleep || 0,
+      sleepEff: sl?.sleep?.find(s=>s.isMainSleep)?.efficiency || sl?.sleep?.[0]?.efficiency || 85,
+      deep:     sl?.summary?.stages?.deep || 0,
+      rem:      sl?.summary?.stages?.rem  || 0,
+      rhr:      rhr_real,
+      zones:    hr?.['activities-heart']?.[0]?.value?.heartRateZones || [],
+    }));
+    // Stress score con datos reales (HRV proxy desde FC nocturna si disponible)
+    setStressBars({ hrv: 68, rhr: rhr_real, br: 14 });
+    // HR zones con datos reales
+    const zones_real = hr?.['activities-heart']?.[0]?.value?.heartRateZones || [];
+    setHRZones({ zones: zones_real, restHR: rhr_real, maxHR: maxHR_real || 140 });
     isReal=true; setText('stxt',T[lang].live); const dot=document.getElementById('sdot'); dot.style.background='#00ff88'; dot.style.boxShadow='0 0 8px #00ff88'; document.getElementById('dstrip').style.display='none'; closeModal(); startPoll(); showToast(T[lang].connected);
   } catch(e) { if(String(e).includes('401')){if(await refreshTok())await loadReal();else{localStorage.removeItem('fb_tok');token='';}} } finally { hideLoad(); }
 }

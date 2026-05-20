@@ -10,6 +10,9 @@ export interface FitbitActivity {
   summary: {
     steps: number;
     caloriesOut: number;
+    caloriesBMR: number;
+    activityCalories: number;
+    marginalCalories: number;
     distances: Array<{ activity: string; distance: number }>;
     fairlyActiveMinutes: number;
     veryActiveMinutes: number;
