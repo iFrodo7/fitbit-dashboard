@@ -172,9 +172,9 @@ body{width:100%;min-height:100vh;}
 .scard-inner{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;}
 
 /* ── HISTORY VIEW (overlay) ── */
-#hview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;}
-body.view-history #hview{display:block;}
-body.view-history #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#hview){visibility:hidden;}
+#hview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
+body.view-history #hview{display:block;pointer-events:auto;}
+body.view-history #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#hview){visibility:hidden;pointer-events:none;}
 body.view-history #dash > #install-banner{visibility:visible;}
 .hv-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--sub);}
 .hv-title{font-size:14px;font-weight:700;letter-spacing:3px;color:var(--ta);text-transform:uppercase;}
@@ -208,14 +208,14 @@ body.view-history #dash > #install-banner{visibility:visible;}
 .hv-chart-wrap{position:relative;}
 
 /* ── STATS VIEW (overlay) ── */
-#sview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;}
-body.view-stats #sview{display:block;}
-body.view-stats #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#sview){visibility:hidden;}
+#sview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
+body.view-stats #sview{display:block;pointer-events:auto;}
+body.view-stats #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#sview){visibility:hidden;pointer-events:none;}
 
 /* ── PROFILE VIEW (overlay) ── */
-#pview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;}
-body.view-profile #pview{display:block;}
-body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#pview){visibility:hidden;}
+#pview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
+body.view-profile #pview{display:block;pointer-events:auto;}
+body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#pview){visibility:hidden;pointer-events:none;}
 
 /* Shared overlay header */
 .ov-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--sub);}
@@ -613,6 +613,7 @@ body.is-offline .dstrip{display:none;}
   padding:8px 4px;background:transparent;border:none;cursor:pointer;
   color:var(--txt);opacity:0.5;transition:all 0.2s;
   -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
   max-width:160px;
 }
 .bnav-btn.active{opacity:1;color:var(--ta);}
@@ -2205,19 +2206,19 @@ function navigate(tab) {
   if (tab === 'history') {
     document.body.classList.add('view-history');
     document.getElementById('hview')?.setAttribute('aria-hidden','false');
-    renderHistory();
+    try { renderHistory(); } catch(e) { console.error('[nav] renderHistory:', e); }
     return;
   }
   if (tab === 'stats') {
     document.body.classList.add('view-stats');
     document.getElementById('sview')?.setAttribute('aria-hidden','false');
-    renderStats();
+    try { renderStats(); } catch(e) { console.error('[nav] renderStats:', e); }
     return;
   }
   if (tab === 'profile') {
     document.body.classList.add('view-profile');
     document.getElementById('pview')?.setAttribute('aria-hidden','false');
-    renderProfile();
+    try { renderProfile(); } catch(e) { console.error('[nav] renderProfile:', e); }
     return;
   }
   // home — scroll to top
