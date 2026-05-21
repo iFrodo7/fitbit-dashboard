@@ -17,6 +17,9 @@
 <style>
 /* === RESET === */
 *{margin:0;padding:0;box-sizing:border-box;}
+:root{--sat:env(safe-area-inset-top,0px);}
+/* Snappier taps on touch: kill the 300ms delay + double-tap-zoom on interactive elements */
+.bnav-btn,.cbtn,.bbtn,.hlang-btn,.bell-btn,.vc,.card,.pv-t-btn,.pv-lang-btn,.pv-connect-btn,.pv-disconnect-btn,.pv-export-btn,.hv-pill,.onb-q,button,select,[onclick]{touch-action:manipulation;}
 html{font-size:16px;}
 body{width:100%;min-height:100vh;}
 
@@ -103,7 +106,7 @@ body{width:100%;min-height:100vh;}
 
 .db-hdr{
   display:flex;align-items:center;justify-content:space-between;
-  padding:14px 28px;position:sticky;top:0;z-index:100;
+  padding:14px 28px;padding-top:calc(14px + var(--sat));position:sticky;top:0;z-index:100;
 }
 .db-main{padding:14px 20px;max-width:1600px;margin:0 auto;position:relative;z-index:1;}
 
@@ -497,7 +500,9 @@ body.is-syncing .pulsable::after{content:"";position:absolute;inset:0;background
 @keyframes vf{0%{opacity:1;transform:scale(1);}50%{opacity:0.6;transform:scale(1.1);}100%{opacity:1;transform:scale(1);}}
 
 /* Ticker */
-#futtick{border-top:1px solid rgba(0,245,255,0.07);padding:5px 0;background:rgba(2,8,16,0.88);overflow:hidden;white-space:nowrap;position:relative;z-index:10;display:none;}
+#futtick{border-top:1px solid rgba(0,245,255,0.07);padding:calc(5px + var(--sat)) 0 5px;background:rgba(2,8,16,0.88);overflow:hidden;white-space:nowrap;position:relative;z-index:10;display:none;}
+/* In fut the ticker already reserves the island strip, so the header below it shouldn't double-reserve at rest. */
+body.t-fut .db-hdr{padding-top:14px;}
 .fti{display:inline-block;animation:tcktick 32s linear infinite;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;color:#1a4050;}
 @keyframes tcktick{from{transform:translateX(100vw);}to{transform:translateX(-100%);}}
 
@@ -519,7 +524,7 @@ body.is-syncing .pulsable::after{content:"";position:absolute;inset:0;background
 .db-main{padding-bottom:calc(72px + env(safe-area-inset-bottom));}
 .dstrip{bottom:calc(72px + env(safe-area-inset-bottom));}
 @media(max-width:640px){
-  .db-hdr{padding:10px 14px;flex-wrap:wrap;gap:8px;padding-top:max(10px,env(safe-area-inset-top));}
+  .db-hdr{padding:10px 14px;flex-wrap:wrap;gap:8px;padding-top:calc(10px + var(--sat));}
   .db-main{padding:10px 12px;padding-bottom:calc(72px + env(safe-area-inset-bottom));}
   .db-name{font-size:22px;}
   .vg{grid-template-columns:repeat(2,1fr);}
@@ -2251,8 +2256,8 @@ function initSwipeNav() {
     const card = e.target.closest('[data-onb]');
     if (!card || overlayOpen()) return;
     lpEl = card; lpStartX = e.touches[0].clientX; lpStartY = e.touches[0].clientY;
-    card.style.transition = 'transform 0.5s ease';
-    card.style.transform = 'scale(0.97)';
+    card.style.transition = 'transform 0.12s ease';
+    card.style.transform = 'scale(0.985)';
     lpTimer = setTimeout(() => {
       card.style.transform = '';
       if (navigator.vibrate) navigator.vibrate([12, 8, 12]);
@@ -2266,6 +2271,7 @@ function initSwipeNav() {
     if (dx > 10 || dy > 10) clearLP();
   }, { passive: true });
   document.addEventListener('touchend', clearLP, { passive: true });
+  document.addEventListener('touchcancel', clearLP, { passive: true });
 }
 
 // ══════ BOTTOM NAV ══════
