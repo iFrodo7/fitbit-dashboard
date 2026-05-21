@@ -2906,7 +2906,7 @@ function getRedirectUri() { return isNativeApp() ? NATIVE_REDIR : REDIR; }
 // dev.fitbit.com, enable PKCE, set its redirect URL to this app's deployed URL,
 // then paste its Client ID here. Empty → users fall back to the manual flow.
 const SHARED_CLIENT_ID = '';
-const OAUTH_SCOPE = 'activity heartrate sleep profile weight oxygen_saturation temperature';
+const OAUTH_SCOPE = 'activity heartrate sleep profile weight oxygen_saturation temperature respiratory_rate cardio_fitness';
 
 // PKCE (RFC 7636) lets a public client authorize with no secret in client-side JS.
 function b64url(bytes) {
@@ -3092,8 +3092,27 @@ async function loadReal() {
     const zones_real = hr?.['activities-heart']?.[0]?.value?.heartRateZones || [];
     setHRZones({ zones: zones_real, restHR: rhr_real, maxHR: maxHR_real || 140 });
     syncTicker();
+    loadHealthMetrics(h, td); // best-effort; populates SpO2/HRV/breathing from daily summaries
     isReal=true; setText('stxt',T[lang].live); const dot=document.getElementById('sdot'); dot.style.background='#00ff88'; dot.style.boxShadow='0 0 8px #00ff88'; document.getElementById('dstrip').style.display='none'; closeModal(); startPoll(); showToast(T[lang].connected);
   } catch(e) { if(String(e).includes('401')){if(await refreshTok())await loadReal();else{localStorage.removeItem('fb_tok');token='';}} } finally { hideLoad(); }
+}
+// Daily health summaries from Fitbit/Google (needs oxygen_saturation, heartrate,
+// respiratory_rate scopes). Best-effort: any failure leaves the prior value intact.
+// Skin temp (relative Δ) and VO2max need card/units decisions — wired on-device later.
+async function loadHealthMetrics(h, td) {
+  const get = (u) => fetch(u, { headers: h }).then(r => r.ok ? r.json() : null).catch(() => null);
+  const set = (id, v) => { const el = document.getElementById(id); if (el && v != null && !isNaN(v)) el.textContent = v; };
+  try {
+    const [spo2, hrv, br] = await Promise.all([
+      get(`https://api.fitbit.com/1/user/-/spo2/date/${td}.json`),
+      get(`https://api.fitbit.com/1/user/-/hrv/date/${td}.json`),
+      get(`https://api.fitbit.com/1/user/-/br/date/${td}.json`),
+    ]);
+    set('spo2v', spo2?.value?.avg != null ? Math.round(spo2.value.avg) : null);          // SpO2 daily avg %
+    set('hrvv',  hrv?.hrv?.[0]?.value?.dailyRmssd != null ? Math.round(hrv.hrv[0].value.dailyRmssd) : null); // HRV RMSSD ms
+    set('resp-val', br?.br?.[0]?.value?.breathingRate != null ? Math.round(br.br[0].value.breathingRate) : null); // breaths/min
+    if (typeof syncTicker === 'function') syncTicker();
+  } catch (e) {}
 }
 function updSl(s) {
   const tot=(s.deep||0)+(s.rem||0)+(s.light||0)+(s.wake||0); if(!tot)return;
