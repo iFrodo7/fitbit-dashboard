@@ -1306,9 +1306,9 @@ body.t-naruto span.vval{
           <div class="slrw"><div class="sllbl" id="sl-light">LIGER.</div><div class="sltr"><div class="slfi" id="sl2" style="width:72%;background:rgba(255,255,255,0.22);"></div></div><div class="sltm">3h 34m</div></div>
           <div class="slrw"><div class="sllbl" id="sl-awake">DESP.</div><div class="sltr"><div class="slfi" id="sl3" style="width:12%;background:var(--tneg);"></div></div><div class="sltm">0h 22m</div></div>
           <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--sub);">
-            <div><div style="font-size:9px;opacity:0.3;letter-spacing:2px;" id="lbl-total">TOTAL</div><div style="font-size:16px;font-weight:700;color:var(--ta2);">7h 22m</div></div>
+            <div><div style="font-size:9px;opacity:0.3;letter-spacing:2px;" id="lbl-total">TOTAL</div><div style="font-size:16px;font-weight:700;color:var(--ta2);" id="sl-total-v">7h 22m</div></div>
             <div><div style="font-size:9px;opacity:0.3;letter-spacing:2px;" id="lbl-start">INICIO</div><div style="font-size:14px;font-weight:600;">23:18</div></div>
-            <div><div style="font-size:9px;opacity:0.3;letter-spacing:2px;">SCORE</div><div style="font-size:14px;font-weight:700;color:var(--ta);">84/100</div></div>
+            <div><div style="font-size:9px;opacity:0.3;letter-spacing:2px;">SCORE</div><div style="font-size:14px;font-weight:700;color:var(--ta);" id="sl-score-v">84/100</div></div>
           </div>
         </div>
       </div><!-- /rcs -->
@@ -1436,22 +1436,7 @@ body.t-naruto span.vval{
         <span style="font-size:12px;opacity:0.4;letter-spacing:1px;">/100</span>
         <span style="font-size:10px;font-weight:600;letter-spacing:2px;margin-left:4px;" id="sv-rec-level"></span>
       </div>
-      <div style="font-size:10px;opacity:0.5;letter-spacing:1px;margin-bottom:10px;" id="sv-rec-txt"></div>
-      <div class="sv-bar-row">
-        <div class="sv-bar-lbl" id="sv-deep-lbl">PROF.</div>
-        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-deep-bar" style="width:0%;background:var(--ta2)"></div></div>
-        <div class="sv-bar-val" id="sv-deep-tm">—</div>
-      </div>
-      <div class="sv-bar-row">
-        <div class="sv-bar-lbl">REM</div>
-        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-rem-bar" style="width:0%;background:var(--ta)"></div></div>
-        <div class="sv-bar-val" id="sv-rem-tm">—</div>
-      </div>
-      <div class="sv-bar-row">
-        <div class="sv-bar-lbl" id="sv-light-lbl">LIGER.</div>
-        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-light-bar" style="width:0%;background:rgba(255,255,255,0.25)"></div></div>
-        <div class="sv-bar-val" id="sv-light-tm">—</div>
-      </div>
+      <div style="font-size:10px;opacity:0.5;letter-spacing:1px;" id="sv-rec-txt"></div>
     </div>
 
     <!-- Heart rate & zones -->
@@ -1519,6 +1504,75 @@ body.t-naruto span.vval{
           <div class="sv-munit">/100</div>
           <div class="sv-mstat" id="sv-stress-stat"></div>
         </div>
+      </div>
+    </div>
+
+    <!-- Fitness -->
+    <div class="card hv-card">
+      <div class="clbl" id="sv-fit-lbl">// FITNESS</div>
+      <div class="sv-grid2" style="margin-top:10px;">
+        <div class="sv-mini">
+          <div class="sv-mlbl" id="sv-steps-lbl">PASOS</div>
+          <div class="sv-mval" id="sv-steps-val">—</div>
+          <div class="sv-munit" id="sv-steps-goal">/ 10,000</div>
+        </div>
+        <div class="sv-mini">
+          <div class="sv-mlbl" id="sv-actmin-lbl">MIN. ACTIVOS</div>
+          <div class="sv-mval" id="sv-actmin-val">—</div>
+          <div class="sv-munit">min</div>
+        </div>
+        <div class="sv-mini">
+          <div class="sv-mlbl" id="sv-actcal-lbl">CAL. ACTIVAS</div>
+          <div class="sv-mval" id="sv-actcal-val">—</div>
+          <div class="sv-munit">kcal</div>
+        </div>
+        <div class="sv-mini">
+          <div class="sv-mlbl" id="sv-totcal-lbl">CAL. TOTALES</div>
+          <div class="sv-mval" id="sv-totcal-val">—</div>
+          <div class="sv-munit">kcal</div>
+        </div>
+      </div>
+      <div class="sv-bar-row" style="margin-top:12px;">
+        <div class="sv-bar-lbl" id="sv-stepgoal-lbl">META</div>
+        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-step-bar" style="width:0%;background:var(--ta)"></div></div>
+        <div class="sv-bar-val" id="sv-step-pct">—</div>
+      </div>
+    </div>
+
+    <!-- Sleep -->
+    <div class="card hv-card">
+      <div class="clbl" id="sv-sleep-lbl">// SUEÑO</div>
+      <div class="sv-grid2" style="margin-top:10px;">
+        <div class="sv-mini">
+          <div class="sv-mlbl" id="sv-sltotal-lbl">TOTAL</div>
+          <div class="sv-mval" id="sv-sltotal-val">—</div>
+          <div class="sv-munit" id="sv-sltotal-unit">dormido</div>
+        </div>
+        <div class="sv-mini">
+          <div class="sv-mlbl" id="sv-slscore-lbl">CALIDAD</div>
+          <div class="sv-mval" id="sv-slscore-val">—</div>
+          <div class="sv-munit">/100</div>
+        </div>
+      </div>
+      <div class="sv-bar-row" style="margin-top:12px;">
+        <div class="sv-bar-lbl" id="sv-sl-deep-lbl">PROF.</div>
+        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-sl-deep-bar" style="width:0%;background:var(--ta2)"></div></div>
+        <div class="sv-bar-val" id="sv-sl-deep-tm">—</div>
+      </div>
+      <div class="sv-bar-row">
+        <div class="sv-bar-lbl">REM</div>
+        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-sl-rem-bar" style="width:0%;background:var(--ta)"></div></div>
+        <div class="sv-bar-val" id="sv-sl-rem-tm">—</div>
+      </div>
+      <div class="sv-bar-row">
+        <div class="sv-bar-lbl" id="sv-sl-light-lbl">LIGER.</div>
+        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-sl-light-bar" style="width:0%;background:rgba(255,255,255,0.25)"></div></div>
+        <div class="sv-bar-val" id="sv-sl-light-tm">—</div>
+      </div>
+      <div class="sv-bar-row">
+        <div class="sv-bar-lbl" id="sv-sl-wake-lbl">DESP.</div>
+        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-sl-wake-bar" style="width:0%;background:var(--tneg)"></div></div>
+        <div class="sv-bar-val" id="sv-sl-wake-tm">—</div>
       </div>
     </div>
   </section>
@@ -1787,7 +1841,9 @@ const T = {
     sv_hr_lbl: '// FREC. CARDÍACA',
     sv_body_lbl: '// CUERPO',
     sv_rest_lbl: 'REPOSO', sv_max_lbl: 'MÁXIMO', sv_max_unit: 'BPM HOY',
-    sv_deep_lbl: 'PROF.', sv_light_lbl: 'LIGER.',
+    sv_deep_lbl: 'PROF.', sv_light_lbl: 'LIGER.', sv_wake_lbl: 'DESP.',
+    sv_fit_lbl: '// FITNESS', sv_steps_lbl: 'PASOS', sv_actmin_lbl: 'MIN. ACTIVOS', sv_actcal_lbl: 'CAL. ACTIVAS', sv_totcal_lbl: 'CAL. TOTALES', sv_stepgoal_lbl: 'META',
+    sv_sleep_lbl: '// SUEÑO', sv_sltotal_lbl: 'TOTAL', sv_sltotal_unit: 'dormido', sv_slscore_lbl: 'CALIDAD',
     sv_hrv_unit: 'ms',
     bstat: { optimal:'ÓPTIMO', good:'BUENO', normal:'NORMAL', low:'BAJO', high:'ALTO', elevated:'ELEVADA', moderate:'MODERADO' },
     sv_temp_lbl: 'TEMP.', sv_stress_lbl: 'ESTRÉS',
@@ -1916,7 +1972,9 @@ const T = {
     sv_hr_lbl: '// HEART RATE',
     sv_body_lbl: '// BODY',
     sv_rest_lbl: 'RESTING', sv_max_lbl: 'MAX', sv_max_unit: 'BPM TODAY',
-    sv_deep_lbl: 'DEEP', sv_light_lbl: 'LIGHT',
+    sv_deep_lbl: 'DEEP', sv_light_lbl: 'LIGHT', sv_wake_lbl: 'AWAKE',
+    sv_fit_lbl: '// FITNESS', sv_steps_lbl: 'STEPS', sv_actmin_lbl: 'ACTIVE MIN', sv_actcal_lbl: 'ACTIVE CAL', sv_totcal_lbl: 'TOTAL CAL', sv_stepgoal_lbl: 'GOAL',
+    sv_sleep_lbl: '// SLEEP', sv_sltotal_lbl: 'TOTAL', sv_sltotal_unit: 'asleep', sv_slscore_lbl: 'QUALITY',
     sv_hrv_unit: 'ms',
     bstat: { optimal:'OPTIMAL', good:'GOOD', normal:'NORMAL', low:'LOW', high:'HIGH', elevated:'ELEVATED', moderate:'MODERATE' },
     sv_temp_lbl: 'TEMP.', sv_stress_lbl: 'STRESS',
@@ -2016,7 +2074,9 @@ function setLang(l) {
   setText('sv-hr-lbl', t.sv_hr_lbl);
   setText('sv-body-lbl', t.sv_body_lbl);
   setText('sv-rest-lbl', t.sv_rest_lbl); setText('sv-max-lbl', t.sv_max_lbl); setText('sv-max-unit', t.sv_max_unit);
-  setText('sv-deep-lbl', t.sv_deep_lbl); setText('sv-light-lbl', t.sv_light_lbl);
+  setText('sv-fit-lbl', t.sv_fit_lbl); setText('sv-steps-lbl', t.sv_steps_lbl); setText('sv-actmin-lbl', t.sv_actmin_lbl); setText('sv-actcal-lbl', t.sv_actcal_lbl); setText('sv-totcal-lbl', t.sv_totcal_lbl); setText('sv-stepgoal-lbl', t.sv_stepgoal_lbl);
+  setText('sv-sleep-lbl', t.sv_sleep_lbl); setText('sv-sltotal-lbl', t.sv_sltotal_lbl); setText('sv-sltotal-unit', t.sv_sltotal_unit); setText('sv-slscore-lbl', t.sv_slscore_lbl);
+  setText('sv-sl-deep-lbl', t.sv_deep_lbl); setText('sv-sl-light-lbl', t.sv_light_lbl); setText('sv-sl-wake-lbl', t.sv_wake_lbl);
   setText('sv-hrv-unit', t.sv_hrv_unit); setText('sv-temp-lbl', t.sv_temp_lbl); setText('sv-stress-lbl', t.sv_stress_lbl);
   setText('sv-hrz-base', t.hrz_base); setText('sv-hrz-fat', t.hrz_fat); setText('sv-hrz-cardio', t.hrz_cardio); setText('sv-hrz-peak', t.hrz_peak);
   // Profile view labels
@@ -2319,21 +2379,6 @@ function renderStats() {
   document.getElementById('sv-rec-level').textContent = isNaN(score) ? '' : recLevel(score);
   document.getElementById('sv-rec-txt').textContent   = gv('wrec');
 
-  // Sleep bars — mirror from main sleep section
-  const copyBar = (srcId, dstBarId, dstTmId) => {
-    const srcBar = document.getElementById(srcId);
-    const srcRow = srcBar?.closest('.slrw');
-    const tm = srcRow?.querySelector('.sltm')?.textContent || '—';
-    const w = srcBar?.style.width || '0%';
-    const dst = document.getElementById(dstBarId);
-    const dstTm = document.getElementById(dstTmId);
-    if (dst) dst.style.width = w;
-    if (dstTm) dstTm.textContent = tm;
-  };
-  copyBar('sl0', 'sv-deep-bar', 'sv-deep-tm');
-  copyBar('sl1', 'sv-rem-bar',  'sv-rem-tm');
-  copyBar('sl2', 'sv-light-bar','sv-light-tm');
-
   // HR values
   document.getElementById('sv-rest-val').textContent = gv('hr-rest') || gv('hrv') || '—';
   document.getElementById('sv-max-val').textContent  = gv('hr-max') || '—';
@@ -2361,6 +2406,35 @@ function renderStats() {
   setBodyStatus('sv-spo2-stat',   bodyStatus('spo2',   parseFloat(gv('spo2v'))));
   setBodyStatus('sv-temp-stat',   bodyStatus('temp',   parseFloat(gv('tempv'))));
   setBodyStatus('sv-stress-stat', bodyStatus('stress', parseFloat(gv('stressv'))));
+
+  // ── Fitness — mirror from Home ──
+  const num = (s) => parseInt((s || '').replace(/[^0-9]/g, '')) || 0;
+  document.getElementById('sv-steps-val').textContent  = gv('stepsv') || '—';
+  document.getElementById('sv-actcal-val').textContent = gv('cal-act') || '—';
+  const bmr = num(gv('cal-bmr')), act = num(gv('cal-act'));
+  document.getElementById('sv-totcal-val').textContent = (bmr + act) ? (bmr + act).toLocaleString('en-US') : '—';
+  // Active minutes ≈ minutes in fat-burn + cardio + peak zones
+  const actMin = num(gv('hrmin-fat')) + num(gv('hrmin-cardio')) + num(gv('hrmin-peak'));
+  document.getElementById('sv-actmin-val').textContent = actMin || '—';
+  const stepW = document.getElementById('stepsprog')?.style.width || '0%';
+  document.getElementById('sv-step-bar').style.width = stepW;
+  const stepPct = parseFloat(gv('stepspct'));
+  document.getElementById('sv-step-pct').textContent = isNaN(stepPct) ? '—' : Math.round(stepPct) + '%';
+
+  // ── Sleep — mirror stages + total/quality from Home ──
+  const copyBar = (srcId, dstBarId, dstTmId) => {
+    const srcBar = document.getElementById(srcId);
+    const tm = srcBar?.closest('.slrw')?.querySelector('.sltm')?.textContent || '—';
+    const dst = document.getElementById(dstBarId), dstTm = document.getElementById(dstTmId);
+    if (dst) dst.style.width = srcBar?.style.width || '0%';
+    if (dstTm) dstTm.textContent = tm;
+  };
+  copyBar('sl0', 'sv-sl-deep-bar',  'sv-sl-deep-tm');
+  copyBar('sl1', 'sv-sl-rem-bar',   'sv-sl-rem-tm');
+  copyBar('sl2', 'sv-sl-light-bar', 'sv-sl-light-tm');
+  copyBar('sl3', 'sv-sl-wake-bar',  'sv-sl-wake-tm');
+  document.getElementById('sv-sltotal-val').textContent = gv('sl-total-v') || '—';
+  document.getElementById('sv-slscore-val').textContent = (gv('sl-score-v') || '—').replace('/100', '');
 }
 // Map a body-metric value to a {key, cls} status using standard healthy ranges.
 function bodyStatus(metric, v) {
