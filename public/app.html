@@ -207,6 +207,65 @@ body.view-history #dash > #install-banner{visibility:visible;}
 .hv-tt strong{color:var(--ta);font-weight:700;}
 .hv-chart-wrap{position:relative;}
 
+/* ── STATS VIEW (overlay) ── */
+#sview{position:fixed;inset:0;bottom:64px;overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;-webkit-overflow-scrolling:touch;}
+body.view-stats #sview{display:block;}
+body.view-stats #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#sview){visibility:hidden;}
+
+/* ── PROFILE VIEW (overlay) ── */
+#pview{position:fixed;inset:0;bottom:64px;overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;-webkit-overflow-scrolling:touch;}
+body.view-profile #pview{display:block;}
+body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#pview){visibility:hidden;}
+
+/* Shared overlay header */
+.ov-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--sub);}
+.ov-title{font-size:14px;font-weight:700;letter-spacing:3px;color:var(--ta);text-transform:uppercase;}
+.ov-sub{font-size:9px;letter-spacing:2px;opacity:0.45;margin-top:3px;}
+
+/* Stats view metric grid */
+.sv-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.sv-mini{background:var(--rbg);border:1px solid var(--bdr);border-radius:4px;padding:12px 12px 10px;}
+.sv-mlbl{font-size:8px;letter-spacing:2px;opacity:0.4;text-transform:uppercase;margin-bottom:5px;}
+.sv-mval{font-size:22px;font-weight:700;color:var(--ta);line-height:1;}
+.sv-munit{font-size:8px;opacity:0.45;letter-spacing:1px;margin-top:3px;}
+.sv-mtrend{font-size:9px;opacity:0.5;margin-top:4px;}
+.sv-bar-row{display:flex;align-items:center;gap:8px;margin:5px 0;}
+.sv-bar-lbl{font-size:9px;letter-spacing:1.5px;opacity:0.5;width:52px;flex-shrink:0;}
+.sv-bar-trk{flex:1;background:var(--sub);border-radius:3px;height:6px;overflow:hidden;}
+.sv-bar-fil{height:100%;border-radius:3px;transition:width 0.6s ease;}
+.sv-bar-val{font-size:9px;letter-spacing:1px;opacity:0.6;width:34px;text-align:right;flex-shrink:0;}
+.sv-sleep-row{display:flex;align-items:center;gap:8px;margin:5px 0;}
+.sv-sleep-lbl{font-size:9px;letter-spacing:1.5px;opacity:0.5;width:44px;flex-shrink:0;}
+.sv-sleep-trk{flex:1;background:var(--sub);border-radius:3px;height:6px;overflow:hidden;}
+.sv-sleep-fil{height:100%;border-radius:3px;transition:width 0.6s ease;}
+.sv-sleep-tm{font-size:9px;letter-spacing:1px;opacity:0.6;width:36px;text-align:right;flex-shrink:0;}
+
+/* Profile view */
+.pv-user{display:flex;align-items:center;gap:14px;padding-bottom:14px;border-bottom:1px solid var(--sub);margin-bottom:14px;}
+.pv-avatar{width:46px;height:46px;border-radius:50%;background:var(--sub);border:2px solid var(--ta);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.pv-uname{font-size:16px;font-weight:700;letter-spacing:2px;color:var(--ta);}
+.pv-ustatus{font-size:9px;letter-spacing:1.5px;opacity:0.4;margin-top:3px;}
+.pv-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--sub);}
+.pv-row:last-child{border-bottom:none;}
+.pv-rlbl{font-size:10px;letter-spacing:1.5px;opacity:0.6;text-transform:uppercase;}
+.pv-connect-btn{width:100%;padding:12px;background:var(--ta);color:var(--bg);border:none;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;border-radius:3px;transition:opacity 0.2s;-webkit-tap-highlight-color:transparent;}
+.pv-connect-btn:active{opacity:0.7;}
+.pv-disconnect-btn{width:100%;padding:11px;background:transparent;color:var(--tneg);border:1px solid var(--tneg);cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;border-radius:3px;transition:opacity 0.2s;margin-top:8px;-webkit-tap-highlight-color:transparent;}
+.pv-disconnect-btn:active{opacity:0.7;}
+.pv-themes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px;}
+.pv-t-btn{padding:9px 4px;background:var(--sub);border:1px solid var(--bdr);color:var(--tx);font-family:inherit;font-size:8px;letter-spacing:1.5px;cursor:pointer;text-transform:uppercase;border-radius:3px;transition:all 0.15s;text-align:center;-webkit-tap-highlight-color:transparent;opacity:0.7;}
+.pv-t-btn.active{border-color:var(--ta);color:var(--ta);opacity:1;}
+.pv-lang{display:flex;gap:8px;margin-top:6px;}
+.pv-lang-btn{flex:1;padding:9px;background:var(--sub);border:1px solid var(--bdr);color:var(--tx);font-family:inherit;font-size:10px;letter-spacing:2px;cursor:pointer;text-transform:uppercase;border-radius:3px;transition:all 0.15s;-webkit-tap-highlight-color:transparent;opacity:0.6;}
+.pv-lang-btn.active{border-color:var(--ta);color:var(--ta);opacity:1;}
+.pv-select{background:var(--sub);border:1px solid var(--bdr);color:var(--tx);font-family:inherit;font-size:10px;letter-spacing:1px;padding:7px 9px;cursor:pointer;border-radius:3px;appearance:none;-webkit-appearance:none;}
+.pv-toggle{width:40px;height:22px;background:var(--sub);border:1px solid var(--bdr);border-radius:12px;cursor:pointer;position:relative;transition:background 0.2s,border-color 0.2s;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+.pv-toggle.on{background:var(--ta);border-color:var(--ta);}
+.pv-toggle::after{content:'';position:absolute;width:16px;height:16px;background:var(--tx);border-radius:50%;top:2px;left:2px;transition:transform 0.2s;}
+.pv-toggle.on::after{transform:translateX(18px);background:var(--bg);}
+.pv-section-lbl{font-size:8px;letter-spacing:2.5px;opacity:0.3;text-transform:uppercase;margin:14px 0 4px;}
+.pv-version{font-size:9px;opacity:0.22;letter-spacing:2px;text-align:center;margin-top:18px;}
+
 /* Sleep */
 .hypno{margin:8px 0 10px;}
 .hypno-track{position:relative;width:100%;height:48px;background:var(--rbg);border-radius:3px;overflow:hidden;display:flex;}
@@ -1361,6 +1420,181 @@ body.t-naruto span.vval{
     </div>
   </section>
 
+  <!-- ══════════════ STATS VIEW ══════════════ -->
+  <section id="sview" aria-hidden="true">
+    <div class="ov-hd">
+      <div>
+        <div class="ov-title" id="sv-title">STATS</div>
+        <div class="ov-sub" id="sv-sub">// MÉTRICAS DE HOY</div>
+      </div>
+    </div>
+
+    <!-- Recovery -->
+    <div class="card hv-card">
+      <div class="clbl" id="sv-rec-lbl">// RECOVERY SCORE</div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin:8px 0 4px;">
+        <span style="font-size:40px;font-weight:700;color:var(--ta);" id="sv-rec-val">—</span>
+        <span style="font-size:12px;opacity:0.4;letter-spacing:1px;">/100</span>
+        <span style="font-size:10px;font-weight:600;letter-spacing:2px;margin-left:4px;" id="sv-rec-level"></span>
+      </div>
+      <div style="font-size:10px;opacity:0.5;letter-spacing:1px;margin-bottom:10px;" id="sv-rec-txt"></div>
+      <div class="sv-bar-row">
+        <div class="sv-bar-lbl" id="sv-deep-lbl">PROF.</div>
+        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-deep-bar" style="width:0%;background:var(--ta2)"></div></div>
+        <div class="sv-bar-val" id="sv-deep-tm">—</div>
+      </div>
+      <div class="sv-bar-row">
+        <div class="sv-bar-lbl">REM</div>
+        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-rem-bar" style="width:0%;background:var(--ta)"></div></div>
+        <div class="sv-bar-val" id="sv-rem-tm">—</div>
+      </div>
+      <div class="sv-bar-row">
+        <div class="sv-bar-lbl" id="sv-light-lbl">LIGER.</div>
+        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-light-bar" style="width:0%;background:rgba(255,255,255,0.25)"></div></div>
+        <div class="sv-bar-val" id="sv-light-tm">—</div>
+      </div>
+    </div>
+
+    <!-- Heart rate & zones -->
+    <div class="card hv-card">
+      <div class="clbl" id="sv-hr-lbl">// FREC. CARDÍACA</div>
+      <div class="sv-grid2" style="margin-top:10px;">
+        <div class="sv-mini">
+          <div class="sv-mlbl" id="sv-rest-lbl">REPOSO</div>
+          <div class="sv-mval" id="sv-rest-val">—</div>
+          <div class="sv-munit">BPM</div>
+        </div>
+        <div class="sv-mini">
+          <div class="sv-mlbl" id="sv-max-lbl">MÁXIMO</div>
+          <div class="sv-mval" id="sv-max-val">—</div>
+          <div class="sv-munit" id="sv-max-unit">BPM HOY</div>
+        </div>
+      </div>
+      <div class="sv-bar-row">
+        <div class="sv-bar-lbl" id="sv-hrz-base">BASE</div>
+        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-hrbar-base" style="width:0%;background:rgba(255,255,255,0.25)"></div></div>
+        <div class="sv-bar-val" id="sv-hrmin-base">—</div>
+      </div>
+      <div class="sv-bar-row">
+        <div class="sv-bar-lbl" id="sv-hrz-fat">QUEMA</div>
+        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-hrbar-fat" style="width:0%;background:var(--ta);opacity:0.75"></div></div>
+        <div class="sv-bar-val" id="sv-hrmin-fat">—</div>
+      </div>
+      <div class="sv-bar-row">
+        <div class="sv-bar-lbl" id="sv-hrz-cardio">CARDIO</div>
+        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-hrbar-cardio" style="width:0%;background:#f59e0b"></div></div>
+        <div class="sv-bar-val" id="sv-hrmin-cardio">—</div>
+      </div>
+      <div class="sv-bar-row">
+        <div class="sv-bar-lbl" id="sv-hrz-peak">PICO</div>
+        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-hrbar-peak" style="width:0%;background:var(--tneg)"></div></div>
+        <div class="sv-bar-val" id="sv-hrmin-peak">—</div>
+      </div>
+    </div>
+
+    <!-- Body metrics -->
+    <div class="card hv-card">
+      <div class="clbl" id="sv-body-lbl">// CUERPO</div>
+      <div class="sv-grid2" style="margin-top:10px;">
+        <div class="sv-mini">
+          <div class="sv-mlbl">HRV</div>
+          <div class="sv-mval" id="sv-hrv-val">—</div>
+          <div class="sv-munit" id="sv-hrv-unit">ms</div>
+        </div>
+        <div class="sv-mini">
+          <div class="sv-mlbl">SpO₂</div>
+          <div class="sv-mval" id="sv-spo2-val">—</div>
+          <div class="sv-munit">%</div>
+        </div>
+        <div class="sv-mini">
+          <div class="sv-mlbl" id="sv-temp-lbl">TEMP.</div>
+          <div class="sv-mval" id="sv-temp-val">—</div>
+          <div class="sv-munit">°C</div>
+        </div>
+        <div class="sv-mini">
+          <div class="sv-mlbl" id="sv-stress-lbl">ESTRÉS</div>
+          <div class="sv-mval" id="sv-stress-val">—</div>
+          <div class="sv-munit">/100</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ PROFILE VIEW ══════════════ -->
+  <section id="pview" aria-hidden="true">
+    <div class="ov-hd">
+      <div>
+        <div class="ov-title" id="pv-title">PERFIL</div>
+        <div class="ov-sub" id="pv-sub">// CONFIGURACIÓN</div>
+      </div>
+    </div>
+
+    <!-- User card -->
+    <div class="card hv-card">
+      <div class="pv-user">
+        <div class="pv-avatar" id="pv-avatar">◉</div>
+        <div>
+          <div class="pv-uname" id="pv-uname">—</div>
+          <div class="pv-ustatus" id="pv-ustatus">DEMO MODE</div>
+        </div>
+      </div>
+      <button class="pv-connect-btn" id="pv-connect-btn" onclick="openModal()">CONECTAR FITBIT →</button>
+      <button class="pv-disconnect-btn" id="pv-disconnect-btn" onclick="disconnectFitbit()" style="display:none;">DESCONECTAR</button>
+    </div>
+
+    <!-- Appearance -->
+    <div class="card hv-card">
+      <div class="pv-section-lbl" id="pv-sec-appearance">APARIENCIA</div>
+      <div class="pv-row">
+        <div class="pv-rlbl" id="pv-theme-lbl">TEMA</div>
+      </div>
+      <div class="pv-themes">
+        <button class="pv-t-btn" id="pvt-mc" onclick="selectTheme('mc');navigate('profile')">⛏ MC</button>
+        <button class="pv-t-btn" id="pvt-halo" onclick="selectTheme('halo');navigate('profile')">◈ HALO</button>
+        <button class="pv-t-btn" id="pvt-naruto" onclick="selectTheme('naruto');navigate('profile')">🔥 NARUTO</button>
+        <button class="pv-t-btn" id="pvt-fut" onclick="selectTheme('fut');navigate('profile')">⬡ FUT</button>
+      </div>
+      <div class="pv-row" style="margin-top:8px;">
+        <div class="pv-rlbl" id="pv-lang-lbl">IDIOMA</div>
+      </div>
+      <div class="pv-lang">
+        <button class="pv-lang-btn" id="pvl-es" onclick="setLang('es');navigate('profile')">ES — ESPAÑOL</button>
+        <button class="pv-lang-btn" id="pvl-en" onclick="setLang('en');navigate('profile')">EN — ENGLISH</button>
+      </div>
+    </div>
+
+    <!-- Sync settings -->
+    <div class="card hv-card">
+      <div class="pv-section-lbl" id="pv-sec-sync">SINCRONIZACIÓN</div>
+      <div class="pv-row">
+        <div class="pv-rlbl" id="pv-interval-lbl">INTERVALO</div>
+        <select class="pv-select" id="pv-isel" onchange="chgI(this.value)">
+          <option value="15">15s</option>
+          <option value="30">30s</option>
+          <option value="60" selected>60s</option>
+          <option value="120">2min</option>
+        </select>
+      </div>
+      <div class="pv-row">
+        <div class="pv-rlbl" id="pv-notif-lbl">NOTIFICACIONES</div>
+        <button class="pv-toggle" id="pv-notif-toggle" onclick="toggleNotifications().then(()=>navigate('profile'))" aria-label="toggle notifications"></button>
+      </div>
+    </div>
+
+    <!-- App info -->
+    <div class="card hv-card">
+      <div class="pv-section-lbl" id="pv-sec-info">INFORMACIÓN</div>
+      <div class="pv-row">
+        <div class="pv-rlbl" id="pv-version-lbl">VERSIÓN</div>
+        <div style="font-size:10px;opacity:0.5;letter-spacing:1px;">1.0.0</div>
+      </div>
+      <div class="pv-row">
+        <div class="pv-rlbl">GITHUB</div>
+        <a href="https://github.com/iFrodo7/fitbit-dashboard" target="_blank" style="font-size:9px;color:var(--ta);opacity:0.7;letter-spacing:1px;text-decoration:none;">iFrodo7/fitbit-dashboard ↗</a>
+      </div>
+    </div>
+  </section>
+
   <div class="dstrip" id="dstrip"><div class="ddot"></div><span id="demo-txt">DEMO — CONECTA TU FITBIT AIR</span></div>
   <div class="lov" id="lov">
     <div class="ltxt" id="load-txt">SINCRONIZANDO...</div>
@@ -1505,6 +1739,29 @@ const T = {
     naruto_coach: '// 仙人モード ANÁLISIS SABIO',
     connected: '◆ FITBIT AIR CONECTADO', live: 'EN VIVO',
     sync_toast: (t) => `◆ SYNC ${t}`,
+    // Stats view
+    sv_title: 'STATS', sv_sub: '// MÉTRICAS DE HOY',
+    sv_rec_lbl: '// RECOVERY SCORE',
+    sv_hr_lbl: '// FREC. CARDÍACA',
+    sv_body_lbl: '// CUERPO',
+    sv_rest_lbl: 'REPOSO', sv_max_lbl: 'MÁXIMO', sv_max_unit: 'BPM HOY',
+    sv_deep_lbl: 'PROF.', sv_light_lbl: 'LIGER.',
+    sv_hrv_unit: 'ms — BUENO',
+    sv_temp_lbl: 'TEMP.', sv_stress_lbl: 'ESTRÉS',
+    // Profile view
+    pv_title: 'PERFIL', pv_sub: '// CONFIGURACIÓN',
+    pv_connect_btn: 'CONECTAR FITBIT →',
+    pv_disconnect_btn: 'DESCONECTAR',
+    pv_sec_appearance: 'APARIENCIA',
+    pv_theme_lbl: 'TEMA',
+    pv_lang_lbl: 'IDIOMA',
+    pv_sec_sync: 'SINCRONIZACIÓN',
+    pv_interval_lbl: 'INTERVALO',
+    pv_notif_lbl: 'NOTIFICACIONES',
+    pv_sec_info: 'INFORMACIÓN',
+    pv_version_lbl: 'VERSIÓN',
+    pv_status_demo: 'MODO DEMO',
+    pv_status_live: '◆ EN VIVO',
   },
   en: {
     sel_eye: '// select your biometric monitoring interface',
@@ -1600,6 +1857,29 @@ const T = {
     naruto_coach: '// 仙人モード SAGE ANALYSIS',
     connected: '◆ FITBIT AIR CONNECTED', live: 'LIVE',
     sync_toast: (t) => `◆ SYNC ${t}`,
+    // Stats view
+    sv_title: 'STATS', sv_sub: '// TODAY\'S METRICS',
+    sv_rec_lbl: '// RECOVERY SCORE',
+    sv_hr_lbl: '// HEART RATE',
+    sv_body_lbl: '// BODY',
+    sv_rest_lbl: 'RESTING', sv_max_lbl: 'MAX', sv_max_unit: 'BPM TODAY',
+    sv_deep_lbl: 'DEEP', sv_light_lbl: 'LIGHT',
+    sv_hrv_unit: 'ms — GOOD',
+    sv_temp_lbl: 'TEMP.', sv_stress_lbl: 'STRESS',
+    // Profile view
+    pv_title: 'PROFILE', pv_sub: '// SETTINGS',
+    pv_connect_btn: 'CONNECT FITBIT →',
+    pv_disconnect_btn: 'DISCONNECT',
+    pv_sec_appearance: 'APPEARANCE',
+    pv_theme_lbl: 'THEME',
+    pv_lang_lbl: 'LANGUAGE',
+    pv_sec_sync: 'SYNC',
+    pv_interval_lbl: 'INTERVAL',
+    pv_notif_lbl: 'NOTIFICATIONS',
+    pv_sec_info: 'INFO',
+    pv_version_lbl: 'VERSION',
+    pv_status_demo: 'DEMO MODE',
+    pv_status_live: '◆ LIVE',
   }
 };
 
@@ -1671,6 +1951,21 @@ function setLang(l) {
   setText('m-lbl', t.m_lbl); setText('m-btn', t.m_btn);
   setHTML('m-note', t.m_note);
   document.getElementById('m-cb').innerHTML = t.m_cb + '<span id="cburl">' + REDIR + '</span>';
+  // Stats view labels
+  setText('sv-title', t.sv_title); setText('sv-sub', t.sv_sub);
+  setText('sv-rec-lbl', t.sv_rec_lbl);
+  setText('sv-hr-lbl', t.sv_hr_lbl);
+  setText('sv-body-lbl', t.sv_body_lbl);
+  setText('sv-rest-lbl', t.sv_rest_lbl); setText('sv-max-lbl', t.sv_max_lbl); setText('sv-max-unit', t.sv_max_unit);
+  setText('sv-deep-lbl', t.sv_deep_lbl); setText('sv-light-lbl', t.sv_light_lbl);
+  setText('sv-hrv-unit', t.sv_hrv_unit); setText('sv-temp-lbl', t.sv_temp_lbl); setText('sv-stress-lbl', t.sv_stress_lbl);
+  setText('sv-hrz-base', t.hrz_base); setText('sv-hrz-fat', t.hrz_fat); setText('sv-hrz-cardio', t.hrz_cardio); setText('sv-hrz-peak', t.hrz_peak);
+  // Profile view labels
+  setText('pv-title', t.pv_title); setText('pv-sub', t.pv_sub);
+  setText('pv-connect-btn', t.pv_connect_btn); setText('pv-disconnect-btn', t.pv_disconnect_btn);
+  setText('pv-sec-appearance', t.pv_sec_appearance); setText('pv-theme-lbl', t.pv_theme_lbl); setText('pv-lang-lbl', t.pv_lang_lbl);
+  setText('pv-sec-sync', t.pv_sec_sync); setText('pv-interval-lbl', t.pv_interval_lbl); setText('pv-notif-lbl', t.pv_notif_lbl);
+  setText('pv-sec-info', t.pv_sec_info); setText('pv-version-lbl', t.pv_version_lbl);
   // Re-apply theme overrides if theme is active
   if (theme) applyThemeText(theme);
 }
@@ -1836,13 +2131,17 @@ function initSwipeNav() {
     }
     if (horizontal) {
       // Subtle visual feedback: nudge the active view
-      const el = (currentTab() === 'history') ? document.getElementById('hview') : document.querySelector('.db-main');
+      const ct = currentTab();
+      const el = ct === 'history' ? document.getElementById('hview')
+               : ct === 'stats'   ? document.getElementById('sview')
+               : ct === 'profile' ? document.getElementById('pview')
+               : document.querySelector('.db-main');
       if (el) el.style.transform = `translateX(${Math.max(-40, Math.min(40, dx * 0.18))}px)`;
     }
   }, { passive: true });
 
   const reset = () => {
-    document.querySelectorAll('.db-main, #hview').forEach(el => {
+    document.querySelectorAll('.db-main, #hview, #sview, #pview').forEach(el => {
       el.style.transition = 'transform 0.25s cubic-bezier(.4,0,.2,1)';
       el.style.transform = '';
       setTimeout(() => { el.style.transition = ''; }, 260);
@@ -1891,18 +2190,138 @@ function initSwipeNav() {
 function navigate(tab) {
   document.querySelectorAll('.bnav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   if (navigator.vibrate) navigator.vibrate(10);
+
+  // Close all overlays first
+  document.body.classList.remove('view-history','view-stats','view-profile');
+  ['hview','sview','pview'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.setAttribute('aria-hidden','true'); el.scrollTop = 0; }
+  });
+
   if (tab === 'history') {
     document.body.classList.add('view-history');
     document.getElementById('hview')?.setAttribute('aria-hidden','false');
-    document.getElementById('hview').scrollTop = 0;
-    renderHistory(); // triggers fetch + draw
+    renderHistory();
     return;
   }
-  document.body.classList.remove('view-history');
-  document.getElementById('hview')?.setAttribute('aria-hidden','true');
-  const sections = { home: 0, stats: document.querySelector('.mg')?.offsetTop, profile: document.body.scrollHeight };
-  const y = sections[tab] || 0;
-  window.scrollTo({ top: Math.max(0, y - 70), behavior: 'smooth' });
+  if (tab === 'stats') {
+    document.body.classList.add('view-stats');
+    document.getElementById('sview')?.setAttribute('aria-hidden','false');
+    renderStats();
+    return;
+  }
+  if (tab === 'profile') {
+    document.body.classList.add('view-profile');
+    document.getElementById('pview')?.setAttribute('aria-hidden','false');
+    renderProfile();
+    return;
+  }
+  // home — scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ══════ STATS VIEW ══════
+function renderStats() {
+  // Helper to grab text from a DOM element
+  const gv = (id) => (document.getElementById(id)?.textContent || '').trim();
+
+  // Recovery — pull from badge (.rs-num) and readiness text (#wrec)
+  const badge = document.getElementById('recovery-score-badge');
+  const rsNum = badge?.querySelector('.rs-num')?.textContent?.trim() || '—';
+  const rsLbl = badge?.querySelector('.rs-lbl')?.textContent?.trim() || '';
+  document.getElementById('sv-rec-val').textContent   = rsNum;
+  document.getElementById('sv-rec-level').textContent = rsLbl;
+  document.getElementById('sv-rec-txt').textContent   = gv('wrec');
+
+  // Sleep bars — mirror from main sleep section
+  const copyBar = (srcId, dstBarId, dstTmId) => {
+    const srcBar = document.getElementById(srcId);
+    const srcRow = srcBar?.closest('.slrw');
+    const tm = srcRow?.querySelector('.sltm')?.textContent || '—';
+    const w = srcBar?.style.width || '0%';
+    const dst = document.getElementById(dstBarId);
+    const dstTm = document.getElementById(dstTmId);
+    if (dst) dst.style.width = w;
+    if (dstTm) dstTm.textContent = tm;
+  };
+  copyBar('sl0', 'sv-deep-bar', 'sv-deep-tm');
+  copyBar('sl1', 'sv-rem-bar',  'sv-rem-tm');
+  copyBar('sl2', 'sv-light-bar','sv-light-tm');
+
+  // HR values
+  document.getElementById('sv-rest-val').textContent = gv('hr-rest') || gv('hrv') || '—';
+  document.getElementById('sv-max-val').textContent  = gv('hr-max') || '—';
+
+  // HR zone bars — copy width + text from main bars
+  const copyHRBar = (mainBarId, mainValId, svBarId, svValId) => {
+    const w = document.getElementById(mainBarId)?.style.width || '0%';
+    const v = gv(mainValId);
+    const b = document.getElementById(svBarId);
+    const vEl = document.getElementById(svValId);
+    if (b) b.style.width = w;
+    if (vEl) vEl.textContent = v || '—';
+  };
+  copyHRBar('hrbar-base',   'hrmin-base',   'sv-hrbar-base',   'sv-hrmin-base');
+  copyHRBar('hrbar-fat',    'hrmin-fat',    'sv-hrbar-fat',    'sv-hrmin-fat');
+  copyHRBar('hrbar-cardio', 'hrmin-cardio', 'sv-hrbar-cardio', 'sv-hrmin-cardio');
+  copyHRBar('hrbar-peak',   'hrmin-peak',   'sv-hrbar-peak',   'sv-hrmin-peak');
+
+  // Body metrics
+  document.getElementById('sv-hrv-val').textContent    = gv('hrvv') || '—';
+  document.getElementById('sv-spo2-val').textContent   = gv('spo2v') || '—';
+  document.getElementById('sv-temp-val').textContent   = gv('tempv') || '—';
+  document.getElementById('sv-stress-val').textContent = gv('stressv') || '—';
+}
+
+// ══════ PROFILE VIEW ══════
+function renderProfile() {
+  const t = T[lang];
+  // User info
+  const uname = document.getElementById('uname')?.textContent?.trim() || t.user_demo;
+  document.getElementById('pv-uname').textContent = uname;
+  const isConnected = !!localStorage.getItem('fb_tok');
+  document.getElementById('pv-ustatus').textContent = isConnected ? t.pv_status_live : t.pv_status_demo;
+  document.getElementById('pv-connect-btn').style.display    = isConnected ? 'none'  : 'block';
+  document.getElementById('pv-disconnect-btn').style.display = isConnected ? 'block' : 'none';
+
+  // Avatar emoji by theme
+  const avatars = { mc: '⛏', halo: '⚔', naruto: '🔥', fut: '◉' };
+  document.getElementById('pv-avatar').textContent = avatars[theme] || '◉';
+
+  // Theme buttons
+  ['mc','halo','naruto','fut'].forEach(id => {
+    document.getElementById('pvt-' + id)?.classList.toggle('active', theme === id);
+  });
+
+  // Language buttons
+  document.getElementById('pvl-es')?.classList.toggle('active', lang === 'es');
+  document.getElementById('pvl-en')?.classList.toggle('active', lang === 'en');
+
+  // Sync interval
+  const isel = document.getElementById('pv-isel');
+  if (isel) {
+    Array.from(isel.options).forEach(o => { o.selected = parseInt(o.value) === pSec; });
+  }
+
+  // Notifications toggle
+  const toggle = document.getElementById('pv-notif-toggle');
+  if (toggle) toggle.classList.toggle('on', notifEnabled());
+}
+
+// ══════ DISCONNECT FITBIT ══════
+function disconnectFitbit() {
+  const msg = lang === 'es'
+    ? '¿Desconectar Fitbit? Se borrarán los tokens de sesión.'
+    : 'Disconnect Fitbit? Session tokens will be cleared.';
+  if (!confirm(msg)) return;
+  localStorage.removeItem('fb_tok');
+  localStorage.removeItem('fb_rt');
+  localStorage.removeItem('fb_cid');
+  isReal = false;
+  clearInterval(ptmr);
+  showToast(lang === 'es' ? 'Fitbit desconectado' : 'Fitbit disconnected', 'info');
+  navigate('profile'); // re-render profile
+  setTimeout(() => window.location.reload(), 800);
 }
 
 // ══════ PWA: Register Service Worker + theme-color sync ══════
