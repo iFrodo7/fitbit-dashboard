@@ -2331,7 +2331,16 @@ function disconnectFitbit() {
 // ══════ PWA: Register Service Worker + theme-color sync ══════
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW registration failed:', err));
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => {
+        // When a new SW takes control (skipWaiting fired), reload to get fresh app.html
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
+        });
+        // Trigger update check every time the page loads
+        reg.update().catch(() => {});
+      })
+      .catch(err => console.warn('SW registration failed:', err));
   });
 }
 
