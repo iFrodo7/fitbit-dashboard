@@ -383,7 +383,8 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .toast.success{border-color:#00ff88;color:#00ff88;box-shadow:0 8px 24px rgba(0,0,0,0.5),0 0 18px rgba(0,255,136,0.35);}
 .toast.error{border-color:#ff4466;color:#ff4466;box-shadow:0 8px 24px rgba(0,0,0,0.5),0 0 18px rgba(255,68,102,0.35);}
 .toast.warning{border-color:#ffaa00;color:#ffaa00;box-shadow:0 8px 24px rgba(0,0,0,0.5),0 0 18px rgba(255,170,0,0.35);}
-@media(max-width:640px){.toast{bottom:calc(90px + env(safe-area-inset-bottom));max-width:calc(100vw - 32px);white-space:normal;text-align:center;}}
+.toast{bottom:calc(80px + env(safe-area-inset-bottom));}
+@media(max-width:640px){.toast{max-width:calc(100vw - 32px);white-space:normal;text-align:center;}}
 .dstrip{position:fixed;bottom:16px;right:16px;background:rgba(255,160,0,0.06);border:1px solid #886600;padding:8px 14px;display:flex;align-items:center;gap:8px;z-index:100;}
 .ddot{width:7px;height:7px;border-radius:50%;background:#ffaa00;animation:blink 1.5s infinite;}
 .dstrip span{font-size:12px;letter-spacing:2px;color:#886600;}
@@ -499,6 +500,9 @@ body.is-syncing .pulsable::after{content:"";position:absolute;inset:0;background
   .bot{grid-template-columns:1fr;}
   .igrd{grid-template-columns:repeat(2,1fr);}
 }
+/* Bottom nav is always visible — give content room above it */
+.db-main{padding-bottom:calc(72px + env(safe-area-inset-bottom));}
+.dstrip{bottom:calc(72px + env(safe-area-inset-bottom));}
 @media(max-width:640px){
   .db-hdr{padding:10px 14px;flex-wrap:wrap;gap:8px;padding-top:max(10px,env(safe-area-inset-top));}
   .db-main{padding:10px 12px;padding-bottom:calc(72px + env(safe-area-inset-bottom));}
@@ -509,7 +513,7 @@ body.is-syncing .pulsable::after{content:"";position:absolute;inset:0;background
   .rw{flex-direction:column;align-items:center;}
   .wsrow{width:100%;}
   .scard-inner{grid-template-columns:1fr;}
-  .dstrip{bottom:calc(72px + env(safe-area-inset-bottom));right:12px;left:12px;justify-content:center;}
+  .dstrip{right:12px;left:12px;justify-content:center;}
 }
 
 /* ═══════════════════════════════════════
@@ -597,30 +601,28 @@ body.is-offline .dstrip{display:none;}
 /* ═══════════════════════════════════════
    BOTTOM NAV (mobile)
 ═══════════════════════════════════════ */
-.bnav{display:none;}
-@media(max-width:640px){
-  .bnav{
-    display:flex;position:fixed;bottom:0;left:0;right:0;z-index:200;
-    background:rgba(2,8,16,0.95);backdrop-filter:blur(18px);
-    border-top:1px solid var(--bdr,rgba(0,245,255,0.15));
-    padding:6px 0 calc(6px + env(safe-area-inset-bottom));
-    justify-content:space-around;align-items:center;
-  }
-  .bnav-btn{
-    flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
-    padding:6px 4px;background:transparent;border:none;cursor:pointer;
-    color:var(--txt);opacity:0.5;transition:all 0.2s;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .bnav-btn.active{opacity:1;color:var(--ta);}
-  .bnav-btn:active{transform:scale(0.92);}
-  .bnav-ic{font-size:20px;line-height:1;}
-  .bnav-lbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
-  .t-mc .bnav{background:#1e1600;border-top:3px solid #6a5020;}
-  .t-mc .bnav-btn.active{color:#6aff3a;}
-  .t-halo .bnav{border-top:1px solid rgba(74,184,255,0.25);}
-  .t-naruto .bnav{border-top:2px solid rgba(255,69,0,0.3);background:rgba(12,4,0,0.95);}
+.bnav{
+  display:flex;position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:rgba(2,8,16,0.95);backdrop-filter:blur(18px);
+  border-top:1px solid var(--bdr,rgba(0,245,255,0.15));
+  padding:6px 0 calc(6px + env(safe-area-inset-bottom));
+  justify-content:space-around;align-items:center;
 }
+.bnav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:8px 4px;background:transparent;border:none;cursor:pointer;
+  color:var(--txt);opacity:0.5;transition:all 0.2s;
+  -webkit-tap-highlight-color:transparent;
+  max-width:160px;
+}
+.bnav-btn.active{opacity:1;color:var(--ta);}
+.bnav-btn:active{transform:scale(0.92);}
+.bnav-ic{font-size:20px;line-height:1;}
+.bnav-lbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
+.t-mc .bnav{background:#1e1600;border-top:3px solid #6a5020;}
+.t-mc .bnav-btn.active{color:#6aff3a;}
+.t-halo .bnav{border-top:1px solid rgba(74,184,255,0.25);}
+.t-naruto .bnav{border-top:2px solid rgba(255,69,0,0.3);background:rgba(12,4,0,0.95);}
 
 /* ═══════════════════════════════════════
    THEME: FUTURISTIC
