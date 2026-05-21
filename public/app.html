@@ -322,6 +322,21 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .iitm:hover::before{transform:scaleX(1);}
 .ityp{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--ta2);margin-bottom:6px;font-weight:700;}
 .itxt{font-size:13px;line-height:1.6;opacity:0.7;}
+/* AIRA chat */
+.cchat{margin-top:14px;border-top:1px solid var(--sub);padding-top:12px;}
+.cchat-thread{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;margin-bottom:10px;overscroll-behavior:contain;}
+.cchat-thread:empty{display:none;}
+.cmsg{font-size:13px;line-height:1.55;padding:9px 12px;border-radius:10px;max-width:88%;white-space:pre-wrap;word-break:break-word;}
+.cmsg-user{align-self:flex-end;background:var(--ta);color:var(--bg);border-bottom-right-radius:3px;font-weight:600;}
+.cmsg-aira{align-self:flex-start;background:rgba(255,255,255,0.05);border:1px solid var(--sub);color:var(--tx);border-bottom-left-radius:3px;}
+.cmsg-aira.typing{opacity:0.55;letter-spacing:2px;}
+.cchat-row{display:flex;gap:8px;align-items:center;}
+.cchat-input{flex:1;background:rgba(255,255,255,0.03);border:1px solid var(--bdr);color:var(--tx);font-family:inherit;font-size:13px;padding:11px 13px;border-radius:8px;outline:none;}
+.cchat-input:focus{border-color:var(--ta2);}
+.cchat-send{flex-shrink:0;width:42px;height:42px;border:none;border-radius:8px;background:var(--ta2);color:var(--bg);font-size:15px;cursor:pointer;transition:opacity 0.15s;}
+.cchat-send:hover{opacity:0.85;}
+.cchat-send:disabled{opacity:0.4;cursor:default;}
+.cchat-hint{font-size:10px;opacity:0.35;letter-spacing:0.5px;margin-top:8px;line-height:1.5;}
 
 /* ═══════════════════════════════════════
    FASE 4: THEME-SPECIFIC VISUAL DIFFERENTIATION
@@ -1352,6 +1367,15 @@ body.t-naruto span.vval{
         <div class="iitm"><div class="ityp" id="i2t">◆ SUEÑO</div><div class="itxt" id="i2x">Tu sueño profundo aumentó 12% esta semana. Consistencia de horario: ±20min de tu ventana óptima.</div></div>
         <div class="iitm"><div class="ityp" id="i3t">◆ ACTIVIDAD</div><div class="itxt" id="i3x">4 días consecutivos cumpliendo tu meta. Si terminas hoy, será tu racha más larga del mes.</div></div>
       </div>
+      <!-- AIRA chat — ask the coach about your data -->
+      <div class="cchat">
+        <div class="cchat-thread" id="cchat-thread"></div>
+        <div class="cchat-row">
+          <input id="cchat-input" class="cchat-input" type="text" maxlength="600" placeholder="Pregúntale a AIRA sobre tus datos…" onkeydown="if(event.key==='Enter')askCoach()" aria-label="Pregunta a AIRA"/>
+          <button id="cchat-send" class="cchat-send" onclick="askCoach()" aria-label="Enviar">➤</button>
+        </div>
+        <div class="cchat-hint" id="cchat-hint">Ej: ¿Cómo mejoro mi sueño? · ¿Qué entreno hoy? · ¿Qué ceno?</div>
+      </div>
     </div>
   </main>
 
@@ -1807,6 +1831,8 @@ const T = {
     cal_basal_lbl: 'BASAL', cal_active_lbl: 'ACTIVAS',
     cbar_sed_lbl: 'SEDET.', cbar_lig_lbl: 'LIGERO', cbar_mod_lbl: 'MODER.', cbar_int_lbl: 'INTENSO',
     lbl_coach: 'AIRA',
+    cchat_ph: 'Pregúntale a AIRA sobre tus datos…',
+    cchat_hint: 'Ej: ¿Cómo mejoro mi sueño? · ¿Qué entreno hoy? · ¿Qué ceno?',
     i1t: '◆ RECUPERACIÓN', i2t: '◆ SUEÑO', i3t: '◆ ACTIVIDAD',
     i1x: 'Tu HRV subió 6ms desde ayer. Señales sólidas de recuperación. Día ideal para entrenamiento moderado-alto.',
     i2x: 'Tu sueño profundo aumentó 12% esta semana. Consistencia de horario: ±20min de tu ventana óptima.',
@@ -1939,6 +1965,8 @@ const T = {
     cal_basal_lbl: 'BASAL', cal_active_lbl: 'ACTIVE',
     cbar_sed_lbl: 'SEDENT.', cbar_lig_lbl: 'LIGHT', cbar_mod_lbl: 'MODERATE', cbar_int_lbl: 'INTENSE',
     lbl_coach: 'AIRA',
+    cchat_ph: 'Ask AIRA about your data…',
+    cchat_hint: 'e.g. How do I improve my sleep? · What should I train today? · What should I eat?',
     i1t: '◆ RECOVERY', i2t: '◆ SLEEP', i3t: '◆ ACTIVITY',
     i1x: 'Your HRV rose 6ms since yesterday. Strong recovery signals. Ideal day for moderate-high intensity training.',
     i2x: 'Your deep sleep increased 12% this week. Schedule consistency improved: ±20min from your optimal window.',
@@ -2058,6 +2086,8 @@ function setLang(l) {
   // Re-render piezas dependientes del idioma que se calculan en runtime
   if (window._lastRec != null) setText('wrec', recTextFor(window._lastRec));
   setText('lbl-coach', t.lbl_coach);
+  { const ci = document.getElementById('cchat-input'); if (ci) ci.placeholder = t.cchat_ph; }
+  setText('cchat-hint', t.cchat_hint);
   setText('i1t', t.i1t); setText('i2t', t.i2t); setText('i3t', t.i3t);
   setText('i1x', t.i1x); setText('i2x', t.i2x); setText('i3x', t.i3x);
   // modal
@@ -2452,6 +2482,58 @@ function setBodyStatus(id, st) {
   if (!st) { el.textContent = ''; el.className = 'sv-mstat'; return; }
   el.textContent = (T[lang].bstat && T[lang].bstat[st.key]) || '';
   el.className = 'sv-mstat ' + st.cls;
+}
+
+// ══════ AIRA CHAT (coach Q&A) ══════
+// Sends the question + current metrics to /api/coach (backend proxy). The key
+// lives only on the server; without it the backend replies with a local rule
+// based answer, so the chat works at $0.
+function collectCoachMetrics() {
+  const gv = (id) => (document.getElementById(id)?.textContent || '').trim();
+  return {
+    recovery: window._lastRec,
+    rhr: gv('hr-rest') || gv('hrv'),
+    hrv: gv('hrvv'),
+    spo2: gv('spo2v'),
+    breathing: gv('resp-val'),
+    sleep: gv('sl-total-v'),
+    steps: gv('stepsv'),
+    strain: gv('strain-val'),
+  };
+}
+function addCoachMsg(who, text) {
+  const thread = document.getElementById('cchat-thread'); if (!thread) return null;
+  const el = document.createElement('div');
+  el.className = 'cmsg cmsg-' + who;
+  el.textContent = text;
+  thread.appendChild(el);
+  thread.scrollTop = thread.scrollHeight;
+  return el;
+}
+async function askCoach() {
+  const inp = document.getElementById('cchat-input');
+  const btn = document.getElementById('cchat-send');
+  const q = (inp?.value || '').trim();
+  if (!q) return;
+  inp.value = '';
+  if (btn) btn.disabled = true;
+  addCoachMsg('user', q);
+  const bubble = addCoachMsg('aira', '…');
+  if (bubble) bubble.classList.add('typing');
+  try {
+    const r = await fetch('/api/coach', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ q, lang, metrics: collectCoachMetrics() }),
+    });
+    const d = await r.json();
+    if (bubble) { bubble.classList.remove('typing'); bubble.textContent = d.answer || (lang === 'es' ? 'No pude responder ahora.' : "Couldn't answer right now."); }
+  } catch (e) {
+    if (bubble) { bubble.classList.remove('typing'); bubble.textContent = lang === 'es' ? 'Error de conexión. Intenta de nuevo.' : 'Connection error. Try again.'; }
+  } finally {
+    if (btn) btn.disabled = false;
+    inp?.focus();
+  }
 }
 
 // ══════ PROFILE VIEW ══════
