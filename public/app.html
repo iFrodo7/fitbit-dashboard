@@ -662,7 +662,7 @@ body.is-offline .dstrip{display:none;}
 .bnav-btn{
   flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
   padding:8px 4px;background:transparent;border:none;cursor:pointer;
-  color:var(--txt);opacity:0.5;transition:all 0.2s;
+  color:var(--txt);opacity:0.5;transition:color 0.2s,opacity 0.2s,transform 0.08s;
   -webkit-tap-highlight-color:transparent;
   touch-action:manipulation;
   max-width:160px;
@@ -2418,6 +2418,8 @@ function initSwipeNav() {
 // ══════ BOTTOM NAV ══════
 function navigate(tab) {
   document.querySelectorAll('.bnav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  // Already in this view? Skip the re-render (prevents double-fire jank / stuck nav).
+  if (tab !== 'home' && document.body.classList.contains('view-' + tab)) return;
   if (navigator.vibrate) navigator.vibrate(10);
 
   // Close all overlays first
@@ -3821,20 +3823,6 @@ initCapacitor();
 // Fix: listen on touchend directly — fires before iOS overlay routing —
 // and call navigate() immediately. preventDefault() suppresses the
 // synthesized click so navigate() isn't called twice.
-document.querySelectorAll('.bnav-btn').forEach(btn => {
-  let _tsx = 0, _tsy = 0;
-  btn.addEventListener('touchstart', e => {
-    _tsx = e.touches[0].clientX;
-    _tsy = e.touches[0].clientY;
-  }, { passive: true });
-  btn.addEventListener('touchend', e => {
-    const t = e.changedTouches[0];
-    if (Math.abs(t.clientX - _tsx) < 15 && Math.abs(t.clientY - _tsy) < 15) {
-      e.preventDefault(); // cancel synthesized click (avoids double navigate)
-      navigate(btn.dataset.tab);
-    }
-  }, { passive: false });
-});
 </script>
 </body>
 </html>
