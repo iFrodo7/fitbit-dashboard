@@ -185,6 +185,10 @@ body.view-history #dash > #install-banner{visibility:visible;}
 .hv-card{margin-bottom:14px;}
 .hv-card .clbl{display:flex;justify-content:space-between;align-items:baseline;}
 .hv-stat{font-size:9px;letter-spacing:2px;opacity:0.5;}
+.hv-trend{font-size:11px;font-weight:700;opacity:0.95;margin-left:2px;}
+.hv-trend.trend-up{color:var(--tpos,#22c55e);}
+.hv-trend.trend-down{color:var(--tneg,#ef4444);}
+.hv-trend.trend-flat{color:var(--sub,#888);}
 .hv-stat strong{color:var(--ta);font-weight:700;}
 .hv-chart{width:100%;display:block;margin-top:8px;}
 .hv-chart .grid{stroke:var(--sub);stroke-width:1;}
@@ -228,6 +232,10 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .sv-mlbl{font-size:8px;letter-spacing:2px;opacity:0.4;text-transform:uppercase;margin-bottom:5px;}
 .sv-mval{font-size:22px;font-weight:700;color:var(--ta);line-height:1;}
 .sv-munit{font-size:8px;opacity:0.45;letter-spacing:1px;margin-top:3px;}
+.sv-mstat{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:6px;}
+.sv-mstat.good{color:var(--tpos,#22c55e);}
+.sv-mstat.warn{color:#f59e0b;}
+.sv-mstat.bad{color:var(--tneg,#ef4444);}
 .sv-mtrend{font-size:9px;opacity:0.5;margin-top:4px;}
 .sv-bar-row{display:flex;align-items:center;gap:8px;margin:5px 0;}
 .sv-bar-lbl{font-size:9px;letter-spacing:1.5px;opacity:0.5;width:52px;flex-shrink:0;}
@@ -259,6 +267,8 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .pv-lang-btn{flex:1;padding:9px;background:var(--sub);border:1px solid var(--bdr);color:var(--tx);font-family:inherit;font-size:10px;letter-spacing:2px;cursor:pointer;text-transform:uppercase;border-radius:3px;transition:all 0.15s;-webkit-tap-highlight-color:transparent;opacity:0.6;}
 .pv-lang-btn.active{border-color:var(--ta);color:var(--ta);opacity:1;}
 .pv-select{background:var(--sub);border:1px solid var(--bdr);color:var(--tx);font-family:inherit;font-size:10px;letter-spacing:1px;padding:7px 9px;cursor:pointer;border-radius:3px;appearance:none;-webkit-appearance:none;}
+.pv-export-btn{background:var(--sub);border:1px solid var(--bdr);color:var(--ta);font-family:inherit;font-size:10px;font-weight:700;letter-spacing:2px;padding:7px 12px;cursor:pointer;border-radius:3px;transition:opacity 0.2s;-webkit-tap-highlight-color:transparent;}
+.pv-export-btn:hover{opacity:0.8;}
 .pv-toggle{width:40px;height:22px;background:var(--sub);border:1px solid var(--bdr);border-radius:12px;cursor:pointer;position:relative;transition:background 0.2s,border-color 0.2s;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
 .pv-toggle.on{background:var(--ta);border-color:var(--ta);}
 .pv-toggle::after{content:'';position:absolute;width:16px;height:16px;background:var(--tx);border-radius:50%;top:2px;left:2px;transition:transform 0.2s;}
@@ -836,13 +846,6 @@ body.t-naruto span.vval{
 .wsfil{height:100%;background:var(--ta);transition:width 1.4s cubic-bezier(.4,0,.2,1);}
 .wsfil.sl{background:var(--ta2);}
 .wrec{font-size:9px;letter-spacing:2px;text-transform:uppercase;opacity:0.55;text-align:center;margin-top:10px;line-height:1.5;color:var(--tpos);}
-/* Recovery Score Badge */
-.rs-badge{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:14px;padding:10px 14px;border:1px solid var(--bdr);border-radius:8px;background:var(--sub);transition:border-color 0.4s;}
-.rs-num{font-size:32px;font-weight:800;line-height:1;letter-spacing:1px;}
-.rs-lbl{font-size:9px;letter-spacing:3px;font-weight:700;text-transform:uppercase;}
-.rs-bd{display:flex;gap:4px;width:100%;margin-top:4px;}
-.rs-bar{flex:1;height:3px;background:var(--rbg);overflow:hidden;border-radius:2px;}
-.rs-bar span{display:block;height:100%;transition:width 1s cubic-bezier(.4,0,.2,1);}
 
 /* ── Calorías expandible ── */
 .vc.exp{cursor:pointer;-webkit-tap-highlight-color:transparent;overflow:hidden;clip-path:none!important;position:relative;}
@@ -936,7 +939,7 @@ body.t-naruto span.vval{
   <div class="toast" id="toast"></div>
 
   <!-- Futuristic ticker -->
-  <div id="futtick"><div class="fti">◆ FITBIT AIR ONLINE &nbsp;&nbsp;&nbsp; ◆ HR: <span id="tickhr">68</span> BPM &nbsp;&nbsp;&nbsp; ◆ SpO2: 98% &nbsp;&nbsp;&nbsp; ◆ TEMP: 36.4°C &nbsp;&nbsp;&nbsp; ◆ BATERÍA: 87% &nbsp;&nbsp;&nbsp; ◆ GOOGLE HEALTH PREMIUM &nbsp;&nbsp;&nbsp;</div></div>
+  <div id="futtick"><div class="fti">◆ FITBIT AIR ONLINE &nbsp;&nbsp;&nbsp; ◆ HR: <span id="tickhr">68</span> BPM &nbsp;&nbsp;&nbsp; ◆ SpO2: <span id="tickspo2">98</span>% &nbsp;&nbsp;&nbsp; ◆ TEMP: <span id="ticktemp">36.4</span>°C &nbsp;&nbsp;&nbsp;</div></div>
 
   <!-- Header -->
   <header class="db-hdr">
@@ -1173,8 +1176,6 @@ body.t-naruto span.vval{
           </div>
         </div>
         <div class="wrec" id="wrec">Listo para entrenar al máximo</div>
-        <!-- Recovery Score Badge (ported from scores.ts) -->
-        <div class="rs-badge" id="recovery-score-badge" onclick="showOnb('recovery')" style="cursor:pointer" title="¿Qué es esto?"></div>
       </div>
 
       <div class="vg">
@@ -1487,21 +1488,25 @@ body.t-naruto span.vval{
           <div class="sv-mlbl">HRV</div>
           <div class="sv-mval" id="sv-hrv-val">—</div>
           <div class="sv-munit" id="sv-hrv-unit">ms</div>
+          <div class="sv-mstat" id="sv-hrv-stat"></div>
         </div>
         <div class="sv-mini">
           <div class="sv-mlbl">SpO₂</div>
           <div class="sv-mval" id="sv-spo2-val">—</div>
           <div class="sv-munit">%</div>
+          <div class="sv-mstat" id="sv-spo2-stat"></div>
         </div>
         <div class="sv-mini">
           <div class="sv-mlbl" id="sv-temp-lbl">TEMP.</div>
           <div class="sv-mval" id="sv-temp-val">—</div>
           <div class="sv-munit">°C</div>
+          <div class="sv-mstat" id="sv-temp-stat"></div>
         </div>
         <div class="sv-mini">
           <div class="sv-mlbl" id="sv-stress-lbl">ESTRÉS</div>
           <div class="sv-mval" id="sv-stress-val">—</div>
           <div class="sv-munit">/100</div>
+          <div class="sv-mstat" id="sv-stress-stat"></div>
         </div>
       </div>
     </div>
@@ -1566,6 +1571,10 @@ body.t-naruto span.vval{
         <div class="pv-rlbl" id="pv-notif-lbl">NOTIFICACIONES</div>
         <button class="pv-toggle" id="pv-notif-toggle" onclick="toggleNotifications().then(()=>navigate('profile'))" aria-label="toggle notifications"></button>
       </div>
+      <div class="pv-row">
+        <div class="pv-rlbl" id="pv-lastsync-lbl">ÚLTIMA SYNC</div>
+        <div id="pv-lastsync-val" style="font-size:10px;opacity:0.5;letter-spacing:1px;">—</div>
+      </div>
     </div>
 
     <!-- App info -->
@@ -1578,6 +1587,10 @@ body.t-naruto span.vval{
       <div class="pv-row">
         <div class="pv-rlbl">GITHUB</div>
         <a href="https://github.com/iFrodo7/fitbit-dashboard" target="_blank" style="font-size:9px;color:var(--ta);opacity:0.7;letter-spacing:1px;text-decoration:none;">iFrodo7/fitbit-dashboard ↗</a>
+      </div>
+      <div class="pv-row">
+        <div class="pv-rlbl" id="pv-export-lbl">EXPORTAR DATOS</div>
+        <button class="pv-export-btn" id="pv-export-btn" onclick="exportData()">JSON ↓</button>
       </div>
     </div>
   </section>
@@ -1660,7 +1673,12 @@ const T = {
     g_eye: '// ANÁLISIS BIOMÉTRICO ACTIVO',
     g_pfx: 'BUEN DÍA, ',
     rl: '// ÍNDICE DE PREPARACIÓN',
-    optimal: 'ÓPTIMO',
+    rstat: {
+      fut:    { peak:'ÓPTIMO', good:'BUENO', moderate:'MODERADO', low:'BAJO' },
+      mc:     { peak:'VIDA COMPLETA', good:'BUENA SALUD', moderate:'HP MEDIO', low:'HP BAJO' },
+      halo:   { peak:'LISTO PARA COMBATE', good:'ESCUDOS NOMINALES', moderate:'ESCUDOS BAJOS', low:'ESCUDO CRÍTICO' },
+      naruto: { peak:'最大 · CHAKRA COMPLETO', good:'CHAKRA ESTABLE', moderate:'CHAKRA MEDIO', low:'CHAKRA BAJO' },
+    },
     lbl_hr: '// FREC. CARDÍACA',
     u_hr: 'BPM — REPOSO',
     lbl_spo2: '// SATURACIÓN O₂',
@@ -1683,6 +1701,7 @@ const T = {
     hv_rec_lbl:'// RECOVERY SCORE', hv_rhr_lbl:'// FRECUENCIA EN REPOSO', hv_sleep_lbl:'// SUEÑO POR NOCHE',
     hv_empty:'CONECTA FITBIT PARA VER TUS TENDENCIAS', hv_no_data:'SIN DATOS EN ESTE RANGO',
     hv_avg:'PROMEDIO', hv_min:'MÍN', hv_max:'MÁX', hv_hrs:'h', hv_bpm:'bpm',
+    hv_trend_better:'Mejorando', hv_trend_worse:'Empeorando', hv_trend_flat:'Estable',
     onb: {
       recovery: { ttl:'Recovery Score', bd:'<p>Indica qué tan <strong>recuperado</strong> está tu cuerpo hoy, en una escala de <strong>0 a 100</strong>.</p><p>Combina cuatro factores: duración del sueño, eficiencia, % de sueño profundo+REM, y tu frecuencia cardíaca en reposo.</p><p><strong>67+</strong> en forma · <strong>50-66</strong> buena · <strong>34-49</strong> moderada · <strong>0-33</strong> descansa.</p>' },
       strain:   { ttl:'Esfuerzo (Strain)', bd:'<p>Mide la carga cardiovascular acumulada en el día, escala <strong>0 a 21</strong>.</p><p>Pondera los minutos en zonas de frecuencia cardíaca: <code>Fat Burn ×0.6</code>, <code>Cardio ×2.0</code>, <code>Peak ×4.5</code>.</p><p>Un día de descanso debería estar en 0-3, un entrenamiento intenso 14+.</p>' },
@@ -1732,13 +1751,13 @@ const T = {
     logo_s_naruto: '木ノ葉隠れの里 · KONOHA',
     // Theme overrides
     mc_eye: '> ESTADÍSTICAS DE JUGADOR',
-    mc_pfx: 'JUGADOR: ', mc_rl: '> BARRA DE VIDA', mc_status: 'VIDA COMPLETA',
+    mc_pfx: 'JUGADOR: ', mc_rl: '> BARRA DE VIDA',
     mc_coach: '> CONSEJOS DEL JUEGO',
     halo_eye: '// VISR OS — BIOMONITOR SPARTAN — CLASIFICADO UNSC',
-    halo_pfx: 'SPARTAN ', halo_rl: '// PREPARACIÓN DE COMBATE', halo_status: 'LISTO PARA COMBATE',
+    halo_pfx: 'SPARTAN ', halo_rl: '// PREPARACIÓN DE COMBATE',
     halo_coach: '// ANÁLISIS DE CORTANA',
     naruto_eye: '木ノ葉の里 — SISTEMA SHINOBI KONOHA',
-    naruto_pfx: '忍者: ', naruto_rl: '// チャクラ PREPARACIÓN', naruto_status: '最大 · CHAKRA COMPLETO',
+    naruto_pfx: '忍者: ', naruto_rl: '// チャクラ PREPARACIÓN',
     naruto_coach: '// 仙人モード ANÁLISIS SABIO',
     connected: '◆ FITBIT AIR CONECTADO', live: 'EN VIVO',
     sync_toast: (t) => `◆ SYNC ${t}`,
@@ -1749,7 +1768,8 @@ const T = {
     sv_body_lbl: '// CUERPO',
     sv_rest_lbl: 'REPOSO', sv_max_lbl: 'MÁXIMO', sv_max_unit: 'BPM HOY',
     sv_deep_lbl: 'PROF.', sv_light_lbl: 'LIGER.',
-    sv_hrv_unit: 'ms — BUENO',
+    sv_hrv_unit: 'ms',
+    bstat: { optimal:'ÓPTIMO', good:'BUENO', normal:'NORMAL', low:'BAJO', high:'ALTO', elevated:'ELEVADA', moderate:'MODERADO' },
     sv_temp_lbl: 'TEMP.', sv_stress_lbl: 'ESTRÉS',
     // Profile view
     pv_title: 'PERFIL', pv_sub: '// CONFIGURACIÓN',
@@ -1761,8 +1781,12 @@ const T = {
     pv_sec_sync: 'SINCRONIZACIÓN',
     pv_interval_lbl: 'INTERVALO',
     pv_notif_lbl: 'NOTIFICACIONES',
+    pv_lastsync_lbl: 'ÚLTIMA SYNC',
     pv_sec_info: 'INFORMACIÓN',
     pv_version_lbl: 'VERSIÓN',
+    pv_export_lbl: 'EXPORTAR DATOS',
+    pv_export_ok: 'Datos exportados',
+    pv_export_empty: 'No hay historial para exportar',
     pv_status_demo: 'MODO DEMO',
     pv_status_live: '◆ EN VIVO',
   },
@@ -1779,7 +1803,12 @@ const T = {
     g_eye: '// BIOMETRIC ANALYSIS ACTIVE',
     g_pfx: 'GOOD DAY, ',
     rl: '// READINESS INDEX',
-    optimal: 'OPTIMAL',
+    rstat: {
+      fut:    { peak:'OPTIMAL', good:'GOOD', moderate:'MODERATE', low:'LOW' },
+      mc:     { peak:'FULL HP', good:'HEALTHY', moderate:'HALF HP', low:'LOW HP' },
+      halo:   { peak:'COMBAT READY', good:'SHIELDS NOMINAL', moderate:'SHIELDS LOW', low:'SHIELD CRITICAL' },
+      naruto: { peak:'最大 · CHAKRA FULL', good:'CHAKRA STABLE', moderate:'CHAKRA MID', low:'CHAKRA LOW' },
+    },
     lbl_hr: '// HEART RATE',
     u_hr: 'BPM — RESTING',
     lbl_spo2: '// O₂ SATURATION',
@@ -1802,6 +1831,7 @@ const T = {
     hv_rec_lbl:'// RECOVERY SCORE', hv_rhr_lbl:'// RESTING HEART RATE', hv_sleep_lbl:'// SLEEP PER NIGHT',
     hv_empty:'CONNECT FITBIT TO SEE TRENDS', hv_no_data:'NO DATA IN THIS RANGE',
     hv_avg:'AVG', hv_min:'MIN', hv_max:'MAX', hv_hrs:'h', hv_bpm:'bpm',
+    hv_trend_better:'Improving', hv_trend_worse:'Declining', hv_trend_flat:'Stable',
     onb: {
       recovery: { ttl:'Recovery Score', bd:'<p>Shows how <strong>recovered</strong> your body is today, on a <strong>0 to 100</strong> scale.</p><p>It blends four factors: sleep duration, efficiency, % of deep+REM, and resting heart rate.</p><p><strong>67+</strong> peak · <strong>50-66</strong> good · <strong>34-49</strong> moderate · <strong>0-33</strong> rest.</p>' },
       strain:   { ttl:'Strain', bd:'<p>Measures cardio load accumulated today, scale <strong>0 to 21</strong>.</p><p>Weights minutes in heart-rate zones: <code>Fat Burn ×0.6</code>, <code>Cardio ×2.0</code>, <code>Peak ×4.5</code>.</p><p>A rest day should sit at 0-3, an intense workout 14+.</p>' },
@@ -1850,13 +1880,13 @@ const T = {
     logo_s_halo: 'UNSC MJOLNIR BIOMONITOR',
     logo_s_naruto: '木ノ葉隠れの里 · KONOHA',
     mc_eye: '> PLAYER STATS LOADED',
-    mc_pfx: 'PLAYER: ', mc_rl: '> HEALTH BAR', mc_status: 'FULL HP',
+    mc_pfx: 'PLAYER: ', mc_rl: '> HEALTH BAR',
     mc_coach: '> GAME TIPS',
     halo_eye: '// VISR OS — SPARTAN BIOMONITOR — UNSC CLASSIFIED',
-    halo_pfx: 'SPARTAN ', halo_rl: '// COMBAT READINESS', halo_status: 'COMBAT READY',
+    halo_pfx: 'SPARTAN ', halo_rl: '// COMBAT READINESS',
     halo_coach: '// CORTANA ANALYSIS',
     naruto_eye: '木ノ葉の里 — KONOHA SHINOBI SYSTEM',
-    naruto_pfx: '忍者: ', naruto_rl: '// チャクラ READINESS', naruto_status: '最大 · CHAKRA FULL',
+    naruto_pfx: '忍者: ', naruto_rl: '// チャクラ READINESS',
     naruto_coach: '// 仙人モード SAGE ANALYSIS',
     connected: '◆ FITBIT AIR CONNECTED', live: 'LIVE',
     sync_toast: (t) => `◆ SYNC ${t}`,
@@ -1867,7 +1897,8 @@ const T = {
     sv_body_lbl: '// BODY',
     sv_rest_lbl: 'RESTING', sv_max_lbl: 'MAX', sv_max_unit: 'BPM TODAY',
     sv_deep_lbl: 'DEEP', sv_light_lbl: 'LIGHT',
-    sv_hrv_unit: 'ms — GOOD',
+    sv_hrv_unit: 'ms',
+    bstat: { optimal:'OPTIMAL', good:'GOOD', normal:'NORMAL', low:'LOW', high:'HIGH', elevated:'ELEVATED', moderate:'MODERATE' },
     sv_temp_lbl: 'TEMP.', sv_stress_lbl: 'STRESS',
     // Profile view
     pv_title: 'PROFILE', pv_sub: '// SETTINGS',
@@ -1879,8 +1910,12 @@ const T = {
     pv_sec_sync: 'SYNC',
     pv_interval_lbl: 'INTERVAL',
     pv_notif_lbl: 'NOTIFICATIONS',
+    pv_lastsync_lbl: 'LAST SYNC',
     pv_sec_info: 'INFO',
     pv_version_lbl: 'VERSION',
+    pv_export_lbl: 'EXPORT DATA',
+    pv_export_ok: 'Data exported',
+    pv_export_empty: 'No history to export',
     pv_status_demo: 'DEMO MODE',
     pv_status_live: '◆ LIVE',
   }
@@ -1911,7 +1946,7 @@ function setLang(l) {
   setText('g-eye', t.g_eye);
   setText('g-pfx', t.g_pfx);
   setText('rl', t.rl);
-  setText('rstatus', t.optimal);
+  updateStatusLabel();
   setText('lbl-hr', t.lbl_hr); setText('u-hr', t.u_hr);
   setText('lbl-spo2', t.lbl_spo2); setText('lbl-temp', t.lbl_temp);
   setText('u-hrv', t.u_hrv); setText('u-temp', t.u_temp);
@@ -1944,7 +1979,6 @@ function setLang(l) {
   if (!isReal) { setText('stepspct', t.pct_lbl); setText('uname', t.user_demo); }
   // Re-render piezas dependientes del idioma que se calculan en runtime
   if (window._lastRec != null) setText('wrec', recTextFor(window._lastRec));
-  if (typeof renderRecoveryScore === 'function') renderRecoveryScore(); // re-pinta el label del badge en el idioma actual
   setText('lbl-coach', t.lbl_coach);
   setText('i1t', t.i1t); setText('i2t', t.i2t); setText('i3t', t.i3t);
   setText('i1x', t.i1x); setText('i2x', t.i2x); setText('i3x', t.i3x);
@@ -1968,7 +2002,9 @@ function setLang(l) {
   setText('pv-connect-btn', t.pv_connect_btn); setText('pv-disconnect-btn', t.pv_disconnect_btn);
   setText('pv-sec-appearance', t.pv_sec_appearance); setText('pv-theme-lbl', t.pv_theme_lbl); setText('pv-lang-lbl', t.pv_lang_lbl);
   setText('pv-sec-sync', t.pv_sec_sync); setText('pv-interval-lbl', t.pv_interval_lbl); setText('pv-notif-lbl', t.pv_notif_lbl);
+  setText('pv-lastsync-lbl', t.pv_lastsync_lbl);
   setText('pv-sec-info', t.pv_sec_info); setText('pv-version-lbl', t.pv_version_lbl);
+  setText('pv-export-lbl', t.pv_export_lbl);
   // Re-apply theme overrides if theme is active
   if (theme) applyThemeText(theme);
 }
@@ -2011,6 +2047,7 @@ function goBack() {
 
 function applyTheme(t) {
   document.getElementById('futtick').style.display = t === 'fut' ? 'block' : 'none';
+  if (t === 'fut') syncTicker();
   // Naruto chakra rings
   document.querySelectorAll('.nring').forEach(e => e.remove());
   if (t === 'naruto') {
@@ -2039,12 +2076,35 @@ function applyTheme(t) {
 function applyThemeText(t) {
   const ls = T[lang];
   const map = {
-    mc:     { 'g-eye': ls.mc_eye, 'g-pfx': ls.mc_pfx, rl: ls.mc_rl, rstatus: ls.mc_status, 'lbl-coach': ls.mc_coach, i1t: ls.i1t.replace('RECUPERACIÓN','RECOVERY').replace('RECOVERY','[!] RECOVERY'), i2t: '[!] ' + (lang==='es'?'SUEÑO':'SLEEP'), i3t: '[!] ' + (lang==='es'?'ACTIVIDAD':'ACTIVITY'), i1x: lang==='es'?'HRV +6ms. Recuperación completa. Listo para grind. Dificultad: Alta recomendada.':'HRV +6ms. Recovery full. Ready to grind. Difficulty: Hard recommended.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Buff: Bien descansado activo.':'Deep sleep +12% this week. Buff: Well Rested active.', i3x: lang==='es'?'Racha de 4 días. Logro: Marathon Runner si terminas hoy.':'4-day streak. Achievement: Marathon Runner incoming if today complete.' },
-    halo:   { 'g-eye': ls.halo_eye, 'g-pfx': ls.halo_pfx, rl: ls.halo_rl, rstatus: ls.halo_status, 'lbl-coach': ls.halo_coach, i1t: '◈ ' + (lang==='es'?'ESCUDOS':'SHIELDS'), i2t: '◈ ' + (lang==='es'?'CICLO DE DESCANSO':'REST CYCLE'), i3t: '◈ ' + (lang==='es'?'REGISTRO DE MISIÓN':'MISSION LOG'), i1x: lang==='es'?'Recarga de escudo nominal. HRV +6ms. Combate de alta intensidad recomendado. Aumentaciones al 98%.':'Shield recharge nominal. HRV +6ms. High-intensity engagement recommended. Augmentations at 98%.', i2x: lang==='es'?'Protocolo de sueño profundo +12%. Recuperación neural óptima. Aumentaciones Spartan-IV al máximo.':'Deep sleep protocol +12%. Neural recovery optimal. Spartan-IV augmentations at peak.', i3x: lang==='es'?'Racha de misión de 4 días activa. Objetivo de pasos 78%. Aumentar radio de patrulla.':'4-day mission streak active. Step objective 78%. Increase patrol radius to complete.' },
-    naruto: { 'g-eye': ls.naruto_eye, 'g-pfx': ls.naruto_pfx, rl: ls.naruto_rl, rstatus: ls.naruto_status, 'lbl-coach': ls.naruto_coach, i1t: '🔥 ' + (lang==='es'?'RECUPERACIÓN DE CHAKRA':'CHAKRA RECOVERY'), i2t: '🌙 ' + (lang==='es'?'JUTSU DE DESCANSO':'REST JUTSU'), i3t: '⚡ ' + (lang==='es'?'ARCO DE ENTRENAMIENTO':'TRAINING ARC'), i1x: lang==='es'?'Flujo de chakra +6ms. Bobinas a plena capacidad. Lista para misión S. Modo Sabio disponible.':'Chakra flow +6ms. Coils at full capacity. Ready for S-rank mission. Sage Mode available.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Reservas de chakra restauradas. Descanso nivel Bijuu.':'Deep sleep +12% this week. Chakra pools restored. Bijuu-level rest achieved. Dattebayo!', i3x: lang==='es'?'Racha de entrenamiento de 4 días. Completar hoy desbloquea: "El Camino del Ninja". ¡Dattebayo!':'4-day training arc streak. Complete today: "Ninja Way" achievement unlocked. Believe it!' },
+    mc:     { 'g-eye': ls.mc_eye, 'g-pfx': ls.mc_pfx, rl: ls.mc_rl, 'lbl-coach': ls.mc_coach, i1t: ls.i1t.replace('RECUPERACIÓN','RECOVERY').replace('RECOVERY','[!] RECOVERY'), i2t: '[!] ' + (lang==='es'?'SUEÑO':'SLEEP'), i3t: '[!] ' + (lang==='es'?'ACTIVIDAD':'ACTIVITY'), i1x: lang==='es'?'HRV +6ms. Recuperación completa. Listo para grind. Dificultad: Alta recomendada.':'HRV +6ms. Recovery full. Ready to grind. Difficulty: Hard recommended.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Buff: Bien descansado activo.':'Deep sleep +12% this week. Buff: Well Rested active.', i3x: lang==='es'?'Racha de 4 días. Logro: Marathon Runner si terminas hoy.':'4-day streak. Achievement: Marathon Runner incoming if today complete.' },
+    halo:   { 'g-eye': ls.halo_eye, 'g-pfx': ls.halo_pfx, rl: ls.halo_rl, 'lbl-coach': ls.halo_coach, i1t: '◈ ' + (lang==='es'?'ESCUDOS':'SHIELDS'), i2t: '◈ ' + (lang==='es'?'CICLO DE DESCANSO':'REST CYCLE'), i3t: '◈ ' + (lang==='es'?'REGISTRO DE MISIÓN':'MISSION LOG'), i1x: lang==='es'?'Recarga de escudo nominal. HRV +6ms. Combate de alta intensidad recomendado. Aumentaciones al 98%.':'Shield recharge nominal. HRV +6ms. High-intensity engagement recommended. Augmentations at 98%.', i2x: lang==='es'?'Protocolo de sueño profundo +12%. Recuperación neural óptima. Aumentaciones Spartan-IV al máximo.':'Deep sleep protocol +12%. Neural recovery optimal. Spartan-IV augmentations at peak.', i3x: lang==='es'?'Racha de misión de 4 días activa. Objetivo de pasos 78%. Aumentar radio de patrulla.':'4-day mission streak active. Step objective 78%. Increase patrol radius to complete.' },
+    naruto: { 'g-eye': ls.naruto_eye, 'g-pfx': ls.naruto_pfx, rl: ls.naruto_rl, 'lbl-coach': ls.naruto_coach, i1t: '🔥 ' + (lang==='es'?'RECUPERACIÓN DE CHAKRA':'CHAKRA RECOVERY'), i2t: '🌙 ' + (lang==='es'?'JUTSU DE DESCANSO':'REST JUTSU'), i3t: '⚡ ' + (lang==='es'?'ARCO DE ENTRENAMIENTO':'TRAINING ARC'), i1x: lang==='es'?'Flujo de chakra +6ms. Bobinas a plena capacidad. Lista para misión S. Modo Sabio disponible.':'Chakra flow +6ms. Coils at full capacity. Ready for S-rank mission. Sage Mode available.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Reservas de chakra restauradas. Descanso nivel Bijuu.':'Deep sleep +12% this week. Chakra pools restored. Bijuu-level rest achieved. Dattebayo!', i3x: lang==='es'?'Racha de entrenamiento de 4 días. Completar hoy desbloquea: "El Camino del Ninja". ¡Dattebayo!':'4-day training arc streak. Complete today: "Ninja Way" achievement unlocked. Believe it!' },
     fut:    {}
   };
   if (map[t]) Object.entries(map[t]).forEach(([id,v]) => setText(id, v));
+  updateStatusLabel();
+}
+
+// Readiness status label — themed flavor that reflects the real recovery score.
+// Single source: window._lastRec (the readiness ring). Falls back to fut labels.
+function updateStatusLabel() {
+  const el = document.getElementById('rstatus'); if (!el) return;
+  const score = window._lastRec;
+  if (score == null) return; // keep markup default until first score is computed
+  const level = score >= 67 ? 'peak' : score >= 50 ? 'good' : score >= 34 ? 'moderate' : 'low';
+  const map = (T[lang].rstat && (T[lang].rstat[theme] || T[lang].rstat.fut));
+  if (map) el.textContent = map[level];
+  el.style.color = score >= 67 ? 'var(--tpos)' : score >= 34 ? '#f59e0b' : 'var(--tneg)';
+}
+
+// Mirror live HR / SpO2 / temp from the cards into the fut-theme ticker.
+function syncTicker() {
+  const tick = document.getElementById('futtick');
+  if (!tick || tick.style.display === 'none') return;
+  const copy = (srcId, dstId) => { const s = document.getElementById(srcId), d = document.getElementById(dstId); if (s && d) d.textContent = s.textContent; };
+  copy('hrlive', 'tickhr');
+  copy('spo2v', 'tickspo2');
+  copy('tempv', 'ticktemp');
 }
 
 // Apply lang on load
@@ -2230,12 +2290,10 @@ function renderStats() {
   // Helper to grab text from a DOM element
   const gv = (id) => (document.getElementById(id)?.textContent || '').trim();
 
-  // Recovery — pull from badge (.rs-num) and readiness text (#wrec)
-  const badge = document.getElementById('recovery-score-badge');
-  const rsNum = badge?.querySelector('.rs-num')?.textContent?.trim() || '—';
-  const rsLbl = badge?.querySelector('.rs-lbl')?.textContent?.trim() || '';
-  document.getElementById('sv-rec-val').textContent   = rsNum;
-  document.getElementById('sv-rec-level').textContent = rsLbl;
+  // Recovery — single source = readiness ring (#rscore / window._lastRec) + text (#wrec)
+  const score = window._lastRec != null ? window._lastRec : parseFloat(gv('rscore'));
+  document.getElementById('sv-rec-val').textContent   = isNaN(score) ? '—' : score;
+  document.getElementById('sv-rec-level').textContent = isNaN(score) ? '' : recLevel(score);
   document.getElementById('sv-rec-txt').textContent   = gv('wrec');
 
   // Sleep bars — mirror from main sleep section
@@ -2276,6 +2334,27 @@ function renderStats() {
   document.getElementById('sv-spo2-val').textContent   = gv('spo2v') || '—';
   document.getElementById('sv-temp-val').textContent   = gv('tempv') || '—';
   document.getElementById('sv-stress-val').textContent = gv('stressv') || '—';
+  setBodyStatus('sv-hrv-stat',    bodyStatus('hrv',    parseFloat(gv('hrvv'))));
+  setBodyStatus('sv-spo2-stat',   bodyStatus('spo2',   parseFloat(gv('spo2v'))));
+  setBodyStatus('sv-temp-stat',   bodyStatus('temp',   parseFloat(gv('tempv'))));
+  setBodyStatus('sv-stress-stat', bodyStatus('stress', parseFloat(gv('stressv'))));
+}
+// Map a body-metric value to a {key, cls} status using standard healthy ranges.
+function bodyStatus(metric, v) {
+  if (v == null || isNaN(v)) return null;
+  switch (metric) {
+    case 'hrv':    return v >= 60 ? {key:'optimal',cls:'good'} : v >= 40 ? {key:'good',cls:'good'} : {key:'low',cls:'warn'};
+    case 'spo2':   return v >= 95 ? {key:'normal',cls:'good'}  : v >= 90 ? {key:'low',cls:'warn'}  : {key:'low',cls:'bad'};
+    case 'temp':   return v >= 35 && v <= 37.5 ? {key:'normal',cls:'good'} : v > 37.5 ? {key:'elevated',cls:'warn'} : {key:'low',cls:'warn'};
+    case 'stress': return v <= 33 ? {key:'low',cls:'good'} : v <= 66 ? {key:'moderate',cls:'warn'} : {key:'high',cls:'bad'};
+  }
+  return null;
+}
+function setBodyStatus(id, st) {
+  const el = document.getElementById(id); if (!el) return;
+  if (!st) { el.textContent = ''; el.className = 'sv-mstat'; return; }
+  el.textContent = (T[lang].bstat && T[lang].bstat[st.key]) || '';
+  el.className = 'sv-mstat ' + st.cls;
 }
 
 // ══════ PROFILE VIEW ══════
@@ -2311,6 +2390,29 @@ function renderProfile() {
   // Notifications toggle
   const toggle = document.getElementById('pv-notif-toggle');
   if (toggle) toggle.classList.toggle('on', notifEnabled());
+
+  // Last sync time
+  const ls = document.getElementById('pv-lastsync-val');
+  if (ls) {
+    const ts = window._notifState && window._notifState.lastSync;
+    ls.textContent = (isReal && ts) ? new Date(ts).toLocaleTimeString(lang === 'es' ? 'es-ES' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : '—';
+  }
+}
+
+// Export all cached history (IndexedDB) as a downloadable JSON file.
+async function exportData() {
+  const t = T[lang];
+  let rows = [];
+  try { rows = await _hGetAll(); } catch (e) {}
+  if (!rows || !rows.length) { showToast(t.pv_export_empty, 'info'); return; }
+  const payload = { app: 'fitbit-air-dashboard', exported: new Date().toISOString(), days: rows.length, history: rows };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `fitbit-air-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast(t.pv_export_ok, 'info');
 }
 
 // ══════ DISCONNECT FITBIT ══════
@@ -2407,7 +2509,6 @@ function initDash() {
   updateClock(); setInterval(updateClock, 1000);
   buildWeeks(); buildHRC(hrHist);
   setTimeout(animVals, 300);
-  setTimeout(renderRecoveryScore, 500);
   // Welcome onboarding hint (first visit)
   if (!localStorage.getItem('fb_welcomed')) {
     setTimeout(() => {
@@ -2454,7 +2555,7 @@ function initDash() {
         const e = document.getElementById(id);
         if (e && n !== c) { e.textContent = n; pulseValue(e); }
       });
-      if (document.getElementById('tickhr')) document.getElementById('tickhr').textContent = n;
+      syncTicker();
       hrHist.push(n); if (hrHist.length>48) hrHist.shift(); buildHRC(hrHist);
     }, 4000);
     setInterval(() => {
@@ -2644,10 +2745,9 @@ function updateScores({ rec, strain, sleepPct }) {
   if (spb) setTimeout(()=>{ spb.style.width=sleepPct+'%'; },100);
   animN('sleep-pct-val', 0, sleepPct, 1000);
   // Recomendación y color del status
-  window._lastRec = rec; // para re-traducir en setLang
+  window._lastRec = rec; // single recovery source (read by Stats + status label)
   setText('wrec', recTextFor(rec));
-  const statusEl=document.getElementById('rstatus');
-  if (statusEl) statusEl.style.color = rec>=67?'var(--tpos)':rec>=34?'#f59e0b':'var(--tneg)';
+  updateStatusLabel();
 }
 function recTextFor(rec) {
   return rec>=67 ? (lang==='es'?'Listo para entrenar al máximo':'Ready for peak training') :
@@ -2739,49 +2839,14 @@ function startCd() {
 }
 function chgI(v) { pSec=parseInt(v); startCd(); clearInterval(ptmr); if(isReal)ptmr=setInterval(pollFast,pSec*1000); }
 function animSBar() { const f=document.getElementById('sbfi'); f.style.transition='none'; f.style.width='0%'; requestAnimationFrame(()=>{ f.style.transition=`width ${pSec*1000}ms linear`; f.style.width='100%'; setTimeout(()=>{ f.style.transition='width 0.3s'; f.style.width='0%'; },pSec*1000); }); }
-// ══════ RECOVERY SCORE (ported from lib/analytics/scores.ts) ══════
-function calcRecoveryScore({ minutesAsleep = 432, timeInBed = 480, deep = 80, rem = 95, rhr = 65 } = {}) {
-  // Sleep duration (0-30 pts): ideal 8h=480min
-  const sleepDuration = Math.round(Math.min(minutesAsleep / 480, 1) * 30);
-  // Sleep efficiency (0-25 pts)
-  const eff = timeInBed > 0 ? minutesAsleep / timeInBed : 0;
-  const sleepEfficiency = Math.round(Math.min(Math.max((eff - 0.7) / 0.25, 0), 1) * 25);
-  // Sleep quality (0-20 pts): deep+REM should be ~45% of sleep
-  const qRatio = minutesAsleep > 0 ? (deep + rem) / minutesAsleep : 0;
-  const sleepQuality = Math.round(Math.min(qRatio / 0.45, 1) * 20);
-  // RHR (0-25 pts): healthy range 40-80
-  const restingHR = Math.round(Math.max(0, Math.min((80 - rhr) / 40, 1)) * 25);
-
-  const score = Math.min(100, sleepDuration + sleepEfficiency + sleepQuality + restingHR);
+// Short readiness label for a recovery score (same buckets as recTextFor).
+// Single recovery source = the readiness ring (window._lastRec via calcScores).
+function recLevel(score) {
+  if (score == null) return '';
   const level = score >= 67 ? 'peak' : score >= 50 ? 'good' : score >= 34 ? 'moderate' : 'low';
-  const labels = { peak: 'EN FORMA', good: 'BUENA', moderate: 'MODERADA', low: 'DESCANSA' };
-  const labelsEn = { peak: 'PEAK', good: 'GOOD', moderate: 'MODERATE', low: 'REST' };
-  const colors = { peak: '#22c55e', good: '#84cc16', moderate: '#f59e0b', low: '#ef4444' };
-
-  return {
-    score, level,
-    label: lang === 'es' ? labels[level] : labelsEn[level],
-    color: colors[level],
-    breakdown: { sleepDuration, sleepEfficiency, sleepQuality, restingHR }
-  };
-}
-
-function renderRecoveryScore(data) {
-  const el = document.getElementById('recovery-score-badge');
-  if (!el) return;
-  if (data) window._rsData = { ...(window._rsData || {}), ...data };
-  const r = calcRecoveryScore(window._rsData || undefined);
-  el.innerHTML = `
-    <div class="rs-num" style="color:${r.color}">${r.score}</div>
-    <div class="rs-lbl" style="color:${r.color}">${r.label}</div>
-    <div class="rs-bd">
-      <div class="rs-bar"><span style="width:${(r.breakdown.sleepDuration/30)*100}%;background:${r.color}"></span></div>
-      <div class="rs-bar"><span style="width:${(r.breakdown.sleepEfficiency/25)*100}%;background:${r.color}"></span></div>
-      <div class="rs-bar"><span style="width:${(r.breakdown.sleepQuality/20)*100}%;background:${r.color}"></span></div>
-      <div class="rs-bar"><span style="width:${(r.breakdown.restingHR/25)*100}%;background:${r.color}"></span></div>
-    </div>
-  `;
-  el.style.borderColor = r.color;
+  const labels = { es: { peak:'EN FORMA', good:'BUENA', moderate:'MODERADA', low:'DESCANSA' },
+                   en: { peak:'PEAK', good:'GOOD', moderate:'MODERATE', low:'REST' } };
+  return (labels[lang] || labels.en)[level];
 }
 
 function pulseValue(el) {
@@ -2820,6 +2885,7 @@ async function pollFast() {
       if (String(ns)!==document.getElementById('stepsv').textContent.replace(/\D/g,'')) { document.getElementById('stepsv').textContent=ns.toLocaleString('en-US'); const pct=Math.min((ns/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); flash('stepsv'); }
       const nc=s.activityCalories||0; if(String(nc)!==document.getElementById('calv').textContent){document.getElementById('calv').textContent=nc;flash('calv');}
     }
+    syncTicker();
     animSBar(); showToast(T[lang].sync_toast(new Date().toLocaleTimeString(lang==='es'?'es':'en',{hour:'2-digit',minute:'2-digit',second:'2-digit'})));
   } catch(e) { console.warn(e); } finally { ring.classList.remove('on'); document.body.classList.remove('is-syncing'); }
 }
@@ -2831,12 +2897,6 @@ async function pollSlow() {
     if (d?.summary?.stages) updSl(d.summary.stages);
     const main = d?.sleep?.find(s=>s.isMainSleep) ?? d?.sleep?.[0];
     renderHypnogram(main);
-    renderRecoveryScore({
-      minutesAsleep: d?.summary?.totalMinutesAsleep || 0,
-      timeInBed:     d?.summary?.totalTimeInBed     || 0,
-      deep:          d?.summary?.stages?.deep       || 0,
-      rem:           d?.summary?.stages?.rem        || 0,
-    });
   } catch(e) {}
 }
 function stopPoll() { clearInterval(ptmr);clearInterval(cdtmr);isReal=false;token='';localStorage.removeItem('fb_tok'); }
@@ -2861,19 +2921,13 @@ async function loadReal() {
       rhr:      rhr_real,
       zones:    hr?.['activities-heart']?.[0]?.value?.heartRateZones || [],
     }));
-    renderRecoveryScore({
-      minutesAsleep: sl?.summary?.totalMinutesAsleep || 0,
-      timeInBed:     sl?.summary?.totalTimeInBed     || 0,
-      deep:          sl?.summary?.stages?.deep       || 0,
-      rem:           sl?.summary?.stages?.rem        || 0,
-      rhr:           rhr_real,
-    });
     notifCheckRHR(rhr_real); notifMarkSync();
     // Stress score con datos reales (HRV proxy desde FC nocturna si disponible)
     setStressBars({ hrv: 68, rhr: rhr_real, br: 14 });
     // HR zones con datos reales
     const zones_real = hr?.['activities-heart']?.[0]?.value?.heartRateZones || [];
     setHRZones({ zones: zones_real, restHR: rhr_real, maxHR: maxHR_real || 140 });
+    syncTicker();
     isReal=true; setText('stxt',T[lang].live); const dot=document.getElementById('sdot'); dot.style.background='#00ff88'; dot.style.boxShadow='0 0 8px #00ff88'; document.getElementById('dstrip').style.display='none'; closeModal(); startPoll(); showToast(T[lang].connected);
   } catch(e) { if(String(e).includes('401')){if(await refreshTok())await loadReal();else{localStorage.removeItem('fb_tok');token='';}} } finally { hideLoad(); }
 }
@@ -3177,7 +3231,7 @@ async function _hFetchRange(range) {
       const minutesAsleep = sl?.minutesAsleep ?? prev.minutesAsleep;
       const timeInBed     = sl?.timeInBed     ?? prev.timeInBed;
       const eff           = sl?.efficiency    ?? prev.eff;
-      // Recovery 0-100 (same formula as calcRecoveryScore)
+      // Recovery 0-100 (sleep duration + efficiency + quality + RHR contributions)
       let recovery = prev.recovery;
       if (minutesAsleep != null && rhr != null) {
         const sd = Math.round(Math.min((minutesAsleep||0)/480,1)*30);
@@ -3290,6 +3344,19 @@ function _hStat(rows, key, fmt) {
   const t = T[lang];
   return `<strong>${fmt(avg)}</strong> ${t.hv_avg} · ${fmt(min)} ${t.hv_min} · ${fmt(max)} ${t.hv_max}`;
 }
+// Trend over the range: 2nd-half avg vs 1st-half avg, with a 2% deadband.
+// lowerBetter inverts the good/bad coloring (e.g. resting HR going down is good).
+function _hTrend(rows, key, lowerBetter) {
+  const vals = rows.map(r => r[key]).filter(v => v != null);
+  if (vals.length < 4) return '';
+  const half = Math.floor(vals.length / 2);
+  const avg = a => a.reduce((x,y)=>x+y,0) / a.length;
+  const a1 = avg(vals.slice(0, half)), a2 = avg(vals.slice(half));
+  const d = a2 - a1, t = T[lang];
+  if (Math.abs(d) <= Math.abs(a1) * 0.02) return ` <span class="hv-trend trend-flat" title="${t.hv_trend_flat}">→</span>`;
+  const up = d > 0, good = lowerBetter ? !up : up;
+  return ` <span class="hv-trend ${good ? 'trend-up' : 'trend-down'}" title="${good ? t.hv_trend_better : t.hv_trend_worse}">${up ? '↑' : '↓'}</span>`;
+}
 
 async function renderHistory() {
   if (window._histRange == null) window._histRange = 7;
@@ -3324,9 +3391,9 @@ async function renderHistory() {
   const recStat = _hStat(rows, 'recovery', v => Math.round(v));
   const rhrStat = _hStat(rows, 'rhr', v => Math.round(v) + ' ' + t.hv_bpm);
   const slpStat = _hStat(rows, 'minutesAsleep', v => (v/60).toFixed(1) + t.hv_hrs);
-  document.getElementById('hv-rec-stat').innerHTML = recStat || '';
-  document.getElementById('hv-rhr-stat').innerHTML = rhrStat || '';
-  document.getElementById('hv-sleep-stat').innerHTML = slpStat || '';
+  document.getElementById('hv-rec-stat').innerHTML   = recStat ? recStat + _hTrend(rows, 'recovery', false) : '';
+  document.getElementById('hv-rhr-stat').innerHTML   = rhrStat ? rhrStat + _hTrend(rows, 'rhr', true) : '';
+  document.getElementById('hv-sleep-stat').innerHTML = slpStat ? slpStat + _hTrend(rows, 'minutesAsleep', false) : '';
   // Draw
   _hRenderLineSVG(recSvg, _hLine(rows, 'recovery', { fixedMin:0, fixedMax:100 }), 'rec');
   _hRenderLineSVG(rhrSvg, _hLine(rows, 'rhr'), 'rhr');
