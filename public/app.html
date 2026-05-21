@@ -3374,6 +3374,27 @@ function setHistoryRange(n) {
 // ══════════════════════════════════════════════════════════════════════
 if (theme) selectTheme(theme);
 initCapacitor();
+
+// ── Nav touch fix for iOS ─────────────────────────────────────────────
+// iOS can route touch events to the scroll container of an open overlay
+// (overflow-y:auto) instead of dispatching a click to the nav button.
+// Fix: listen on touchend directly — fires before iOS overlay routing —
+// and call navigate() immediately. preventDefault() suppresses the
+// synthesized click so navigate() isn't called twice.
+document.querySelectorAll('.bnav-btn').forEach(btn => {
+  let _tsx = 0, _tsy = 0;
+  btn.addEventListener('touchstart', e => {
+    _tsx = e.touches[0].clientX;
+    _tsy = e.touches[0].clientY;
+  }, { passive: true });
+  btn.addEventListener('touchend', e => {
+    const t = e.changedTouches[0];
+    if (Math.abs(t.clientX - _tsx) < 15 && Math.abs(t.clientY - _tsy) < 15) {
+      e.preventDefault(); // cancel synthesized click (avoids double navigate)
+      navigate(btn.dataset.tab);
+    }
+  }, { passive: false });
+});
 </script>
 </body>
 </html>
