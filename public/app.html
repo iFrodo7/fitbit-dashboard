@@ -874,7 +874,7 @@ body.t-naruto span.vval{
   <div class="toast" id="toast"></div>
 
   <!-- Futuristic ticker -->
-  <div id="futtick"><div class="fti">◆ FITBIT AIR ONLINE &nbsp;&nbsp;&nbsp; ◆ HR: <span id="tickhr">68</span> BPM &nbsp;&nbsp;&nbsp; ◆ SpO2: 98% &nbsp;&nbsp;&nbsp; ◆ TEMP: 36.4°C &nbsp;&nbsp;&nbsp; ◆ BATERÍA: 87% &nbsp;&nbsp;&nbsp; ◆ GOOGLE HEALTH PREMIUM &nbsp;&nbsp;&nbsp;</div></div>
+  <div id="futtick"><div class="fti">◆ FITBIT AIR ONLINE &nbsp;&nbsp;&nbsp; ◆ HR: <span id="tickhr">68</span> BPM &nbsp;&nbsp;&nbsp; ◆ SpO2: 98% &nbsp;&nbsp;&nbsp; ◆ TEMP: 36.4°C &nbsp;&nbsp;&nbsp; ◆ BATERÍA: 87% &nbsp;&nbsp;&nbsp; ◆ FITBIT AIR PREMIUM &nbsp;&nbsp;&nbsp;</div></div>
 
   <!-- Header -->
   <header class="db-hdr">
@@ -1270,7 +1270,7 @@ body.t-naruto span.vval{
       </div>
       <div class="card">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-        <span class="clbl" id="lbl-coach" style="margin-bottom:0;">// GOOGLE HEALTH COACH</span>
+        <span class="clbl" id="lbl-coach" style="margin-bottom:0;">// FITBIT AIR COACH</span>
         <div id="aibdg" style="font-size:11px;font-weight:700;letter-spacing:2px;padding:3px 8px;background:rgba(123,47,255,0.1);border:1px solid var(--ta2);color:var(--ta2);">GEMINI AI</div>
       </div>
       <div class="igrd">
@@ -1476,7 +1476,7 @@ const T = {
     // Detalle calorías
     cal_basal_lbl: 'BASAL', cal_active_lbl: 'ACTIVAS',
     cbar_sed_lbl: 'SEDET.', cbar_lig_lbl: 'LIGERO', cbar_mod_lbl: 'MODER.', cbar_int_lbl: 'INTENSO',
-    lbl_coach: '// GOOGLE HEALTH COACH',
+    lbl_coach: '// FITBIT AIR COACH',
     i1t: '◆ RECUPERACIÓN', i2t: '◆ SUEÑO', i3t: '◆ ACTIVIDAD',
     i1x: 'Tu HRV subió 6ms desde ayer. Señales sólidas de recuperación. Día ideal para entrenamiento moderado-alto.',
     i2x: 'Tu sueño profundo aumentó 12% esta semana. Consistencia de horario: ±20min de tu ventana óptima.',
@@ -1572,7 +1572,7 @@ const T = {
     // Calories detail
     cal_basal_lbl: 'BASAL', cal_active_lbl: 'ACTIVE',
     cbar_sed_lbl: 'SEDENT.', cbar_lig_lbl: 'LIGHT', cbar_mod_lbl: 'MODERATE', cbar_int_lbl: 'INTENSE',
-    lbl_coach: '// GOOGLE HEALTH COACH',
+    lbl_coach: '// FITBIT AIR COACH',
     i1t: '◆ RECOVERY', i2t: '◆ SLEEP', i3t: '◆ ACTIVITY',
     i1x: 'Your HRV rose 6ms since yesterday. Strong recovery signals. Ideal day for moderate-high intensity training.',
     i2x: 'Your deep sleep increased 12% this week. Schedule consistency improved: ±20min from your optimal window.',
@@ -2004,6 +2004,36 @@ function initDash() {
   if (p.get('code')) handleOAuth(p.get('code'));
   else if (token) loadReal();
   if (!token) {
+    // ── Demo hypnogram ──────────────────────────────────────────────────
+    // Datos representativos (coherentes con las barras demo: deep 104min,
+    // rem 82min, light 214min, wake 22min = 7h 22m total).
+    // Se reemplaza automáticamente cuando el usuario conecta su Fitbit.
+    // Ciclos de sueño realistas: ~4 ciclos de ~90min c/u.
+    setTimeout(() => renderHypnogram({
+      startTime: '2026-01-01T23:18:00.000',
+      endTime:   '2026-01-02T06:40:00.000',
+      levels: { data: [
+        { level: 'light', seconds: 1200 },  // 20min  23:18 → 23:38  — transición
+        { level: 'deep',  seconds: 2700 },  // 45min  23:38 → 00:23  — ciclo 1 profundo
+        { level: 'light', seconds:  900 },  // 15min  00:23 → 00:38
+        { level: 'deep',  seconds: 1800 },  // 30min  00:38 → 01:08  — ciclo 2 profundo
+        { level: 'light', seconds: 1800 },  // 30min  01:08 → 01:38
+        { level: 'rem',   seconds: 1800 },  // 30min  01:38 → 02:08  — primer REM
+        { level: 'light', seconds: 1200 },  // 20min  02:08 → 02:28
+        { level: 'wake',  seconds:  300 },  //  5min  02:28 → 02:33  — despertar breve
+        { level: 'light', seconds:  900 },  // 15min  02:33 → 02:48
+        { level: 'deep',  seconds: 1440 },  // 24min  02:48 → 03:12  — ciclo 3 profundo
+        { level: 'rem',   seconds: 1620 },  // 27min  03:12 → 03:39  — REM largo
+        { level: 'light', seconds: 1800 },  // 30min  03:39 → 04:09
+        { level: 'wake',  seconds:  420 },  //  7min  04:09 → 04:16  — despertar breve
+        { level: 'light', seconds: 1200 },  // 20min  04:16 → 04:36
+        { level: 'rem',   seconds: 1500 },  // 25min  04:36 → 05:01  — ciclo 4 REM
+        { level: 'light', seconds: 2400 },  // 40min  05:01 → 05:41
+        { level: 'wake',  seconds:  600 },  // 10min  05:41 → 05:51  — despertar breve
+        { level: 'light', seconds: 2940 },  // 49min  05:51 → 06:40  — sueño ligero final
+      ]}
+    }), 400);
+    // ────────────────────────────────────────────────────────────────────
     setInterval(() => {
       if (isReal) return;
       const c = parseInt(document.getElementById('hrlive').textContent);
