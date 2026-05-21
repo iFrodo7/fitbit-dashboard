@@ -1,36 +1,47 @@
 # Fitbit Air Dashboard
 
-Panel biométrico personal con **4 temas visuales** (Minecraft, Halo, Naruto, Futuristic) y datos reales de Fitbit. PWA instalable en el móvil y accesible vía web. Pensado para competir visual y funcionalmente con Whoop / Oura / Apple Fitness.
+Panel biométrico personal con **4 temas visuales** (Minecraft, Halo, Naruto, Futuristic), datos reales de Fitbit y un **coach de IA conversacional (AIRA)**. PWA instalable en el móvil y accesible vía web. Pensado para competir visual y funcionalmente con Whoop / Oura / Apple Fitness.
 
 ![themes](public/icons/icon-192.png)
 
+## 📲 Probar / Instalar en el teléfono
+
+**Producción:** **https://fitbit-dashboard-zeta.vercel.app**
+
+Es una PWA — se instala sin tienda de apps:
+
+- **iPhone (Safari):** abre el link → **Compartir** → **Añadir a pantalla de inicio**
+- **Android (Chrome):** abre el link → menú **⋮** → **Instalar app** / **Añadir a pantalla de inicio**
+
+Arranca en modo **demo** (sin login). Para datos reales, toca **Conectar** (ver "Conectar tu Fitbit" abajo).
+
 ## ✨ Features
 
-- **Recovery Score** (0–100) estilo Whoop: duración + eficiencia + calidad de sueño + FC en reposo
-- **Hipnograma** de etapas de sueño estilo Oura (deep / REM / light / awake)
-- **Historial** 7d / 30d / 90d con gráficos SVG (Recovery, FC reposo, sueño por noche) + caché en IndexedDB
-- **4 temas** con identidad visual fuerte, cambiables en caliente
-- **Bilingüe** ES / EN
-- **PWA**: instalable, offline-capable, pull-to-refresh, install prompt
-- **Notificaciones**: opt-in, locales (RHR fuera de tu baseline, recordatorios) + server push (Web Push/VAPID)
-- **Touch gestures**: swipe entre tabs, long-press en métricas para ver su explicación
-- **Onboarding**: tour de primera vez + tooltips por métrica
+- **Coach AIRA conversacional** — pregúntale sobre tus datos (sueño, entreno, rutinas, nutrición). Gratis; usa Gemini si hay key, si no responde con un motor local
+- **Recovery Score** (0–100) estilo Whoop · **Hipnograma** de sueño estilo Oura
+- **Stats** con apartados dedicados de **Fitness** (pasos, min. activos, calorías) y **Sueño** (etapas + calidad), badges de estado (HRV/SpO₂/Temp/Estrés)
+- **Historial** 7d / 30d / 90d con SVG + flechas de tendencia + caché IndexedDB
+- **Datos reales de Fitbit/Google**: FC, RHR, sueño, pasos, zonas + SpO₂, HRV (RMSSD) y ritmo respiratorio
+- **AIRA Pro** ($5/mes): coach ilimitado + planes, tema nuevo cada mes, reporte semanal IA (menú comparativo Free/Pro en Perfil)
+- **Emparejamiento un-toque** (PKCE, app compartida) — sin que el usuario cree cuenta de desarrollador
+- **4 temas** con identidad visual fuerte · **Bilingüe** ES/EN
+- **PWA** instalable, offline, pull-to-refresh, **safe-area para Dynamic Island**, touch optimizado
+- **Notificaciones** locales + server push (Web Push/VAPID)
 - **App nativa** iOS/Android vía Capacitor (scaffolding listo)
 
 ## 🏗️ Arquitectura
 
-El frontend vivo es **`public/app.html`** — una SPA en JS vanilla (~2400 líneas) con OAuth client-side, IndexedDB y gráficos SVG. Next.js sirve esa SPA y aporta las **API routes** (`app/api/*`) que son la base del backend (server push, futuro histórico en nube).
+Frontend vivo: **`public/app.html`** — SPA en JS vanilla con OAuth client-side, IndexedDB y charts SVG. Next.js sirve la SPA y aporta las **API routes** (`app/api/*`). El coach es la primera pieza que consume el backend (`/api/coach`).
 
 ```
-public/app.html          ← el único frontend (SPA, OAuth, IndexedDB, charts SVG)
+public/app.html          ← el único frontend (SPA, OAuth, IndexedDB, charts, chat AIRA)
 public/{sw.js,manifest}  ← PWA
-app/api/*                ← API routes Next (push, fitbit proxy, auth, prefs)
-lib/{push,fitbit,supabase}.ts
-supabase/migrations/     ← schema SQL (Supabase)
-capacitor.config.ts      ← app nativa
+app/api/coach            ← proxy del coach IA (Gemini, key solo en server) + fallback local
+app/api/*                ← push, fitbit proxy, auth, prefs
+lib/{push,fitbit,supabase}.ts · supabase/migrations/ · capacitor.config.ts
 ```
 
-> Ver **`CLAUDE.md`** para la referencia técnica completa y **`HANDOFF.md`** para el estado actual y próximos pasos.
+> Ver **`CLAUDE.md`** (referencia técnica) y **`HANDOFF.md`** (estado actual + próximos pasos).
 
 ## 🚀 Quickstart
 
@@ -41,11 +52,24 @@ npm install
 npm run dev            # http://localhost:3000  (redirige a /app.html)
 ```
 
-La app arranca en modo **demo** (sin login). Para datos reales: botón **Conectar** → ingresa tu Client ID de una app "Personal" de [dev.fitbit.com](https://dev.fitbit.com/apps/new) (OAuth client-side, sin secret).
+## 🔌 Conectar tu Fitbit
+
+- **Un-toque (recomendado):** registra UNA app Fitbit tipo **"Client"** con PKCE, pega su Client ID en `SHARED_CLIENT_ID` (en `app.html`) → los usuarios solo tocan "Conectar" (sin cuenta de dev). Pide acceso **Intraday** para HR en vivo.
+- **Manual (fallback):** "Opciones avanzadas" → el usuario pega el Client ID de su propia app "Personal".
+
+## ⚙️ Variables de entorno (todas opcionales; sin ellas todo cae a fallback/demo)
+
+| Variable | Para qué | Dónde sacarla |
+|---|---|---|
+| `GEMINI_API_KEY` | Activa el coach IA real (si falta → fallback local) | aistudio.google.com (gratis, sin tarjeta) |
+| `GEMINI_MODEL` | Modelo (default `gemini-2.0-flash`) | — |
+| Supabase / VAPID | Server push, prefs en nube | ver `PUSH.md` |
+
+En código: `SHARED_CLIENT_ID` (pairing un-toque) y `DEV_FITBIT_IDS` (Pro gratis para devs) en `public/app.html`.
 
 ## 📦 Stack
 
-Next.js 15 · TypeScript · Tailwind · Supabase · Fitbit OAuth 2.0 · Capacitor · Web Push
+Next.js 15 · TypeScript · Tailwind · Supabase · Fitbit OAuth 2.0 (PKCE) · Gemini API · Capacitor · Web Push
 
 ## 📚 Docs
 
@@ -53,7 +77,7 @@ Next.js 15 · TypeScript · Tailwind · Supabase · Fitbit OAuth 2.0 · Capacito
 |---|---|
 | `CLAUDE.md` | Referencia técnica (sistemas de app.html, endpoints, convenciones) |
 | `HANDOFF.md` | Estado actual, qué falta, cómo continuar |
-| `PUSH.md` | Server push — ✅ ya desplegado; guía VAPID/deploy/cron para rotar o reproducir |
+| `PUSH.md` | Server push (✅ desplegado) — VAPID/deploy/cron |
 | `CAPACITOR.md` | Build nativo iOS/Android |
 
 ## 🧪 Scripts
@@ -68,7 +92,7 @@ npm run db:push     # aplicar migraciones Supabase
 
 ## 📍 Estado
 
-Sprints 2–4 completos a nivel de código. Server push (#4) **desplegado y activo en producción** (https://fitbit-dashboard-zeta.vercel.app, ver `PUSH.md`). Pendiente solo de infra: build nativo Capacitor (#8, ver `CAPACITOR.md`).
+Todo el código en `main` y desplegado. Coach IA conversacional, datos reales (SpO₂/HRV/ritmo respiratorio), Stats con Fitness/Sueño, emparejamiento un-toque y suscripción AIRA Pro (Fase 1) están **vivos**. Pendiente de **activación/infra** (no de código): pegar key gratis de Gemini, registrar la app Client de Fitbit, conectar Stripe para cobros reales, y el build nativo (`CAPACITOR.md`). Ver `HANDOFF.md`.
 
 ---
 

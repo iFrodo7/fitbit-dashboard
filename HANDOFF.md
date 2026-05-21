@@ -1,254 +1,72 @@
 # 🤝 Handoff — Fitbit Air Dashboard
 
-> **Para el próximo desarrollador y su Claude.** Lee esto **primero**, luego `CLAUDE.md` (visión técnica) y luego los issues abiertos en GitHub.
+> **Para el próximo desarrollador y su Claude.** Lee esto **primero**, luego `CLAUDE.md` (referencia técnica). Última actualización: **2026-05-21**.
 
 ---
 
-## 📦 Estado actual (2026-05-19)
+## 📍 Estado actual
 
-**Rama principal:** `main`
-**Ramas activas (stacked, mergear en orden):**
-1. `feature/pwa-mobile-ready`  — PR [#10](https://github.com/iFrodo7/fitbit-dashboard/pull/10) → `main`
-2. `feature/history-trends`    — PR [#11](https://github.com/iFrodo7/fitbit-dashboard/pull/11) → `feature/pwa-mobile-ready`
-3. `feature/sprint-3-ux`       — PR [#13](https://github.com/iFrodo7/fitbit-dashboard/pull/13) → `feature/history-trends`
-4. `feature/push-notifications`— PR [#14](https://github.com/iFrodo7/fitbit-dashboard/pull/14) → `feature/sprint-3-ux`
-5. `feature/touch-gestures`    — PR [#15](https://github.com/iFrodo7/fitbit-dashboard/pull/15) → `feature/push-notifications` *(incluye fix bug #12, fix coma en pasos, y fix i18n completo)*
-6. `feature/capacitor-native`  — PR [#16](https://github.com/iFrodo7/fitbit-dashboard/pull/16) → `feature/touch-gestures`
+- **Todo el código está en `main` y desplegado.** 0 PRs abiertos, una sola rama (`main`).
+- **Producción (PWA):** **https://fitbit-dashboard-zeta.vercel.app** → redirige a `/app.html`.
+  - Instalar en móvil: iPhone Safari → Compartir → *Añadir a pantalla de inicio*; Android Chrome → ⋮ → *Instalar app*.
+- Cada merge a `main` auto-despliega a Vercel (producción).
+- **Bug #12 RESUELTO** — ya se puede usar `let`/`const` top-level (declarados antes del bloque `// BOOT` final). Mantén invocaciones de arranque en BOOT.
 
-**Estrategia de merge recomendada:**
-1. Review + squash merge **#10** → `main`
-2. Cuando #10 se merge, GitHub recalcula la base de #11 automáticamente
-3. Review + squash merge **#11** → `main`
-4. Igual con **#13** → `main`
-5. Igual con **#14** → `main`
-6. Igual con **#15** → `main`
-7. Igual con **#16** → `main`
-8. Todo el código de los sprints está en `main`. **#4 (server push) ya está DESPLEGADO y activo en producción** (2026-05-20). Lo único pendiente es **#8** (build nativo en Xcode/Android Studio). Cero trabajo de código pendiente en este entorno.
+## ✅ Qué está construido (sesión 2026-05-21, PRs #21–#30)
 
----
+| Área | Qué |
+|---|---|
+| **Coach AIRA conversacional** | Chat en la tarjeta del coach → `app/api/coach`. Responde sobre tus datos. Gemini si hay key, si no fallback local. **Primera vez que `app.html` consume el backend.** |
+| **AIRA Pro (suscripción, Fase 1)** | Menú comparativo Free/Pro en Perfil + paywall del coach (3/día free, ilimitado Pro) + allowlist devs. Sin pagos aún (botón = flag de prueba). |
+| **Datos reales Fitbit/Google** | `loadHealthMetrics()` trae SpO₂, HRV (RMSSD), ritmo respiratorio. Scopes `respiratory_rate`+`cardio_fitness` añadidos. |
+| **Stats** | Apartados **Fitness** y **Sueño** dedicados; badges de estado (HRV/SpO₂/Temp/Estrés); recovery con fuente única (anillo). |
+| **History** | Flechas de tendencia por métrica (↑/↓/→). |
+| **Profile** | Última sync + exportar datos (JSON). |
+| **Emparejamiento un-toque** | OAuth PKCE con app compartida (sin cuenta de dev) + fallback manual. |
+| **Mobile** | Safe-area para Dynamic Island (`--sat`) + touch optimizado (`touch-action`, long-press). |
+| **Branding** | Coach = **AIRA** + logo SVG theme-aware. |
 
-## ✅ Progreso de los sprints (estado al 2026-05-19)
+## 🔑 Activación pendiente (infra/decisión, NO código)
 
-### Sprint 2 — Funcionalidad Real (milestone #1)
-| # | Item | Estado | PR |
-|---|---|---|---|
-| #1 | Recovery Score con datos reales de Fitbit | ✅ done | #10 |
-| #2 | Sleep Stages Timeline — hipnograma | ✅ done | #10 |
-| #3 | Historial 7d/30d/90d con SVG charts | ✅ done | #11 |
+Todo lo de abajo está **codeado y dormido** — solo falta conectar la pieza externa:
 
-**Sprint 2 está completo** una vez que #10 y #11 se mergeen.
+1. **Coach IA real** → saca key gratis en [aistudio.google.com](https://aistudio.google.com) (sin tarjeta) → pégala como `GEMINI_API_KEY` en Vercel. (Sin key, el coach ya funciona con fallback local.)
+2. **Emparejamiento un-toque** → registra UNA app Fitbit tipo **"Client"** + PKCE, redirect a la URL de Vercel, pega el Client ID en `const SHARED_CLIENT_ID` (`public/app.html`, hoy `''` → cae a flujo manual). Pide acceso **Intraday** para HR en vivo de todos.
+3. **Cobros reales (Stripe)** → crea cuenta Stripe; ver "Fase 2" abajo.
+4. **Pro gratis devs** → pega los 2 Fitbit user-ids en `const DEV_FITBIT_IDS` (`public/app.html`).
 
-### Sprint 3 — Premium UX (milestone #2)
-| # | Item | Estado | PR |
-|---|---|---|---|
-| #4 | Push Notifications | ✅ done — **desplegado en Vercel**, server push live (app cerrada OK) | #14, #17 |
-| #5 | Skeleton loaders premium | ✅ done | #13 |
-| #6 | Onboarding flow + tooltips | ✅ done | #13 |
+## 🔭 Próximos pasos sugeridos
 
-**Sprint 3 completo.** #4 está **desplegado y activo en producción** (2026-05-20):
-VAPID + secretos + Supabase configurados en Vercel, migraciones `001`/`002` aplicadas
-(tabla `push_subscriptions` con RLS), cron diario `0 8 * * *` registrado, y push con
-**app cerrada verificado en iPhone (iOS 18.7, APNs)**. Prod: **https://fitbit-dashboard-zeta.vercel.app**.
-Detalle en **`PUSH.md`**.
+- **Suscripción Fase 2:** Stripe Checkout → webhook → flag `pro` en Supabase; mover el conteo del coach a **server-side** en `/api/coach` (hoy es localStorage, evadible).
+- **Valor Pro real:** construir el **primer tema premium** (drop mensual) y el **reporte semanal IA** (usa el push existente).
+- **Datos reales — pendientes con device:** **temp de piel** (Fitbit la da RELATIVA Δ°C, no absoluta → requiere rediseñar la tarjeta) y **VO₂max** (viene como rango, sin tarjeta).
+- **Build nativo (#8):** Xcode/Android Studio, ver `CAPACITOR.md`.
+- **Importante:** Diego prueba la Fitbit real **a partir del 26 de mayo** — validar ahí los datos reales.
 
-### Sprint 4 — Diferenciación (milestone #3)
-| # | Item | Estado | PR |
-|---|---|---|---|
-| #7 | Touch gestures — swipe + long-press | ✅ done | #15 |
-| #8 | Capacitor — app nativa | 🟡 JS scaffolding done, native build pending | #16 |
-| #9 | Limpieza arquitectura (ex-"migración Next.js") | ✅ done | merge directo |
-
-**#8:** todo el lado JS está listo (config, deps, entry, scripts, OAuth deeplink). Falta `npx cap add ios/android` + build en Xcode/Android Studio + registrar el scheme `fitbitair`. Guía completa en **`CAPACITOR.md`**.
-
-**#9:** replanteado (con OK del owner) de "migrar app.html → React" a **eliminar código muerto**. Borrado el dashboard React paralelo (`app/dashboard`, `app/demo`, `components/`, `lib/hooks`, `lib/i18n`, `lib/themes`, `lib/supabase/client.ts`, `lib/analytics/scores.ts`). Conservadas las API routes (`app/api/*`) + deps como base de backend futuro. **Ya no hay arquitectura dual.** `npm run typecheck` pasa.
-
-### Bugs
-- **#12 [P2]** Top-level `let`/`const` TDZ abort — ✅ **RESUELTO** en #15. Causa raíz: `if (theme) selectTheme(theme)` corría antes de que `const THEME_COLORS` estuviera declarado. Fix: auto-init movida a un bloque BOOT al final del script. Ya **puedes volver a usar `let`/`const` top-level** siempre que estén declarados antes del bloque BOOT.
-
----
-
-## 🗂️ Estructura GitHub
-
-- **Labels** (17): `sprint:2/3/4`, `area:pwa/analytics/sleep/history/ui-ux/fitbit-api/nextjs-migration`, `type:feature/bug/chore/docs`, `priority:p1/p2/p3`
-- **Milestones**: Sprint 2 (15-jun-2026), Sprint 3 (15-jul-2026), Sprint 4 (31-ago-2026)
-- **Convención de commits**: `feat(sprint-N): título corto`, `fix: ...`, `chore: ...`, `docs: ...`
-- **Convención de ramas**: `feature/<slug>`, `fix/<slug>`. Una rama por issue salvo paquetes pequeños.
-- **Merge strategy**: squash merge a `main` (el usuario lo prefiere para historial limpio)
-
----
-
-## 🛠️ Setup para nueva sesión
+## 🛠️ Setup
 
 ```bash
-git clone https://github.com/iFrodo7/fitbit-dashboard.git
-cd fitbit-dashboard
-source ~/.nvm/nvm.sh
-nvm use                 # Node 20+
+git clone https://github.com/iFrodo7/fitbit-dashboard.git && cd fitbit-dashboard
+source ~/.nvm/nvm.sh && nvm use   # Node 20+
 npm install
-npm run dev             # http://localhost:3000
+npm run dev                       # http://localhost:3000
+npm run typecheck                 # tsc --noEmit (correr antes de PR)
 ```
 
-Si quieres ver el último estado funcional sin esperar a que los PRs mergeen:
-```bash
-git checkout feature/sprint-3-ux   # incluye todo lo de #10 + #11 + #13
-```
+## 🧠 Contexto crítico
 
----
+- **`public/app.html`** es el único frontend (~3500 líneas, SPA vanilla). Casi todo el trabajo ocurre acá.
+- **4 temas** (`mc`/`halo`/`naruto`/`fut`): usa SIEMPRE CSS vars (`--ta`, `--ta2`, `--tpos`, `--tneg`, `--sub`, `--bg`, `--bdr`, `--tx`, `--sat`) — nunca colores hard-coded.
+- **i18n ES/EN obligatorio**: si añades string en `T.es`, añádelo en `T.en`. Aplica con `setText`/`setHTML` en `applyText()`.
+- **Coach key NUNCA en el cliente** — vive solo en `app/api/coach` (server). Es el patrón a seguir para cualquier integración con costo.
+- **Recovery = una sola fuente**: el anillo (`window._lastRec` vía `calcScores`). Stats lo refleja. No reintroducir cálculos paralelos.
+- **Pro:** `isPro()`, `coachQuotaLeft()/coachConsume()`, `renderProUI()`, `proAction()` en `app.html`.
 
-## 🧠 Contexto crítico que tu Claude debe saber
+## 🔁 Convenciones
 
-### Arquitectura (ya NO es dual — limpiada en #9)
-- **`public/app.html`** ← El único frontend (~2400 líneas, SPA pura, OAuth client-side, IndexedDB cache). **Todo el desarrollo ocurre acá.**
-- **`app/api/*`** ← API routes Next.js (server-side OAuth + proxy Fitbit + preferencias). Existen pero `app.html` no las consume todavía; son la base para el backend futuro (server push #4, histórico en nube).
-- `app/page.tsx` solo redirige `/` → `/app.html`.
-
-### Sistema de temas (4 mundos)
-| ID | Nombre | Font | Acento |
-|---|---|---|---|
-| `mc` | Minecraft | VT323 | Verde `#6aff3a` |
-| `halo` | Halo VISR | Oxanium | Azul `#4ab8ff` |
-| `naruto` | Naruto | Permanent Marker | Naranja `#ff4500` |
-| `fut` | Futuristic | Rajdhani | Cyan `#00f5ff` |
-
-**Regla:** cualquier feature nuevo debe usar `var(--ta)`, `var(--ta2)`, `var(--tneg)`, `var(--sub)`, `var(--bg)`, `var(--bdr)`, `var(--tx)` — **nunca hard-codear colores**. Los temas mapean estas vars en `applyTheme()`.
-
-### Datos demo vs reales
-- Por defecto la app muestra datos demo (RHR=68, sueño 7h12m). Si no hay token, todo es demo.
-- OAuth real funciona client-side sin secret (Fitbit "Personal" app).
-- Tokens guardados en `localStorage` con keys `fb_tok` y `fb_rt`.
-
-### Polling
-- `pollFast()` — cardio + actividad cada 15-120s (configurable con `chgI`)
-- `pollSlow()` — sueño detallado + recovery cada 5min
-- `body.is-syncing` se activa durante poll (úsalo para shimmer / pulsos)
-
-### Cache de historial
-- IndexedDB DB: `fb_history`, store: `daily`, keyed por `date` (YYYY-MM-DD)
-- Cada record contiene: `rhr, deep, rem, light, wake, minutesAsleep, timeInBed, eff, recovery, _complete`
-- `_complete: true` significa que ese día ya no se re-fetcheará (sólo "hoy" se refresca)
-
----
-
-## 🐛 Bugs conocidos — **leer antes de tocar `public/app.html`**
-
-### ✅ #12 — Top-level `let`/`const` TDZ abort — **RESUELTO** (PR #15)
-
-**Era:** un `Cannot access 'X' before initialization` que abortaba el script a mitad de ejecución, dejando todo el state top-level posterior sin inicializar. Solo se manifestaba con un tema guardado en localStorage.
-
-**Causa raíz (no era hoisting):** `if (theme) selectTheme(theme)` se ejecutaba a ~línea 1714. `selectTheme` → `updateThemeColor` → lee `const THEME_COLORS`, declarado ~200 líneas más abajo (~1922). Acceder a un `const` antes de su línea de declaración = TDZ throw. Ese throw abortaba todo lo que venía después (por eso `_rsData`, `_histRange`, `_tourIdx` quedaban muertos).
-
-**Fix:** la auto-init de tema se movió a un bloque `// BOOT` al **final del script**, después de todas las definiciones. Ahora el script corre completo.
-
-**Implicación para ti:** ya **puedes usar `let`/`const` top-level normalmente**, siempre que la declaración esté antes del bloque BOOT (que es lo último). Los `window._foo` existentes (`_rsData`, `_histRange`, `_histDB`, `_histFetching`, `_tourIdx`, `_notifState`, `_swipeNavInit`) funcionan bien y no es urgente migrarlos, pero ya no son obligatorios.
-
-**Lección general:** nunca invoques una función al top-level que dependa de `const`/`let` declarados más abajo. Mantén toda invocación de arranque en el bloque BOOT final.
-
-### 🟡 Otros bugs vivos
-2. **Service Worker no se activa al primer load** — necesita reload manual una vez. Workaround: pasa por `/app.html` dos veces, ya queda.
-3. **Theme color en iOS Safari** funciona en standalone mode (PWA instalada), no en tab.
-4. **Capacitor no está instalado** — requerido para App Store/Play Store (#8).
-5. **Service Worker puede cachear el HTML en dev** — si haces cambios CSS/JS y no se ven, abre DevTools → Application → Clear storage. En producción no es problema.
-6. **Install prompt** solo aparece en Chrome desktop/Android. iOS Safari requiere instrucciones manuales ("Compartir → Añadir a pantalla de inicio").
-
----
-
-## 🎁 Features añadidos en esta sesión — qué considerar al continuar
-
-### Recovery Score (vivo en pantalla principal)
-- `renderRecoveryScore(data)` acepta `{ minutesAsleep, timeInBed, deep, rem, rhr }`
-- Merge incremental via `window._rsData`
-- Llamado desde `loadReal()` y `pollSlow()`
-- Si añades nuevos polls que traen RHR o sleep, **acuérdate de llamar `renderRecoveryScore` con los nuevos datos**
-
-### Hipnograma (en card "Análisis de Sueño")
-- `renderHypnogram(main)` espera `main.levels.data[]` con `{ level, seconds }`
-- Soporta niveles modernos (`deep/rem/light/wake`) y clásicos (`asleep/restless/awake`)
-- Se llama desde `loadReal()` y `pollSlow()`
-
-### Historial (`#hview` overlay, accesible desde bottom-nav)
-- `renderHistory()` es el entry point
-- IndexedDB cache en `fb_history.daily`
-- Charts SVG vanilla, theme-aware vía CSS vars
-- Range switcher: `setHistoryRange(7|30|90)`
-- **Atención al rate limit de Fitbit (150 req/h)**: el cache evita re-pedir días marcados `_complete`
-
-### Skeletons (auto en `.lov` overlay)
-- 5-card grid con shimmer durante OAuth handshake
-- Clases reutilizables: `.lskel-card`, `.v-skel` (inline value), `body.is-syncing` (sutil pulse)
-
-### Onboarding tooltips (`?` badges)
-- Sistema centralizado: `showOnb('recovery'|'strain'|'sleep'|'hrv'|'rhr'|'steps')`
-- Contenido en `T[lang].onb[key]` — para añadir métrica nueva, añade ambos idiomas
-- Tour automático en primer login: `T[lang].tour[]` (4 pasos editable)
-- `localStorage.fb_seen_tour` controla el auto-show
-
-### Notificaciones (campana en header)
-- `toggleNotifications()` maneja el opt-in de permiso; preferencia en `localStorage.fb_notif`
-- `showLocalNotification(title, body, tag, url)` enruta vía `navigator.serviceWorker.controller.postMessage({type:'SHOW_NOTIFICATION'})`, fallback a `new Notification()`
-- Triggers en `loadReal()`: `notifCheckRHR(rhr)` (alerta si RHR ≥ base+12, cooldown 2h) y `notifMarkSync()`
-- Estado en `window._notifState`
-- `sw.js` tiene listeners `push` / `message` / `notificationclick` (cache v2)
-- **Para añadir un nuevo tipo de alerta:** crea una función `notifCheckXxx()` y llámala desde el poll relevante. Respeta cooldowns para no spamear.
-- **Server push (app cerrada):** ✅ **desplegado y activo en producción** (cliente `subscribeWebPush()` + backend `app/api/push/*` + `lib/push.ts`, VAPID + cron en Vercel). Verificado con app cerrada en iPhone. Ver **`PUSH.md`** (incluye guía para rotar llaves/reproducir).
-
----
-
-## 🎯 Recomendación para tu próxima sesión
-
-> **Nota:** todo el código de Sprints 2/3/4 ya está en `main` (PRs #10–#17 mergeados,
-> ramas borradas). #4 (server push) ya está **desplegado**. Lo único que queda es
-> **una tarea de infra/deploy: #8 (build nativo)**, no de código.
-
-### Si tienes 30 min
-- Probar el flujo completo en mobile real (swipe, long-press, idioma, historial, campana)
-
-### ✅ Server push (#4) — YA DESPLEGADO (2026-05-20)
-Hecho y verificado en producción (https://fitbit-dashboard-zeta.vercel.app):
-VAPID + secretos + Supabase en Vercel, migraciones aplicadas, cron `0 8 * * *` registrado,
-push con app cerrada confirmado en iPhone. Para rotar llaves o reproducir en otro entorno,
-ver **`PUSH.md`**.
-
-### Si tienes una tarde — build nativo (#8)
-En una Mac con Xcode/Android Studio, seguir **`CAPACITOR.md`**:
-`npx cap add ios/android` → registrar scheme `fitbitair` → build → TestFlight / Play Internal.
-
----
-
-## 💡 Tips para tu Claude
-
-Al empezar tu sesión, pega esto **exactamente**:
-
-```
-Lee HANDOFF.md y CLAUDE.md primero. Estoy continuando el desarrollo
-de Fitbit Air Dashboard.
-
-Estado: todo el código de Sprints 2/3/4 está mergeado en main. Bug #12 resuelto.
-Server push (#4) YA está desplegado y activo en producción
-(https://fitbit-dashboard-zeta.vercel.app). Queda UNA sola tarea de infra:
-build nativo Capacitor (#8, ver CAPACITOR.md) — requiere Xcode/Android Studio.
-No hay PRs abiertos.
-
-Quiero trabajar en: [DESCRIBE TU OBJETIVO]
-```
-
-### Comandos útiles
-- `npm run dev` — Servidor en :3000
-- `node scripts/generate-icons.js` — Regenerar iconos PWA
-- Para verificar PWA: usa Lighthouse en Chrome DevTools
-- `gh pr list` — Ver PRs abiertos (requiere `gh auth login`)
-- `gh issue list --milestone "Sprint 3 — Premium UX"` — Filtrar por milestone
-
-### Cosas que NO debes hacer
-- ❌ Invocar funciones de arranque al top-level que dependan de `const`/`let` declarados más abajo (causó el bug #12). Pon toda la init en el bloque `// BOOT` al final del script.
-- ❌ Hard-codear colores. Usa CSS vars (`var(--ta)`, etc.).
-- ❌ Romper paridad ES/EN. Si añades un string nuevo en `T.es`, añádelo también en `T.en`.
-- ❌ Olvidar `applyThemeText` cuando añades labels nuevos por tema.
-- ❌ Mergear sin antes pasar por la **lista de test plan** del PR.
-
----
+- Ramas `feature/<slug>` o `fix/<slug>` desde `main`; **squash merge** a `main` (`gh pr merge N --squash --delete-branch`).
+- Verificar en preview + `npm run typecheck` + consola sin errores antes de mergear.
+- Commits: `feat(...)`, `fix(...)`, `chore(...)`, `docs(...)`.
 
 ## 📞 Contacto
-- Repo: https://github.com/iFrodo7/fitbit-dashboard
-- Owner: Diego Castillo (`@iFrodo7`)
-- Stack: Next.js 15 + TypeScript + Tailwind + Supabase + Fitbit OAuth
-- Última actualización del handoff: **2026-05-20** (server push #4 desplegado y verificado en prod)
+Repo: https://github.com/iFrodo7/fitbit-dashboard · Owner: Diego Castillo (`@iFrodo7`) · Colaborador: `@Jorge-Contreras06`
