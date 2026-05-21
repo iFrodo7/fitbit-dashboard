@@ -172,7 +172,7 @@ body{width:100%;min-height:100vh;}
 .scard-inner{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;}
 
 /* ── HISTORY VIEW (overlay) ── */
-#hview{position:fixed;inset:0;bottom:64px;overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;-webkit-overflow-scrolling:touch;}
+#hview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;}
 body.view-history #hview{display:block;}
 body.view-history #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#hview){visibility:hidden;}
 body.view-history #dash > #install-banner{visibility:visible;}
@@ -208,12 +208,12 @@ body.view-history #dash > #install-banner{visibility:visible;}
 .hv-chart-wrap{position:relative;}
 
 /* ── STATS VIEW (overlay) ── */
-#sview{position:fixed;inset:0;bottom:64px;overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;-webkit-overflow-scrolling:touch;}
+#sview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;}
 body.view-stats #sview{display:block;}
 body.view-stats #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#sview){visibility:hidden;}
 
 /* ── PROFILE VIEW (overlay) ── */
-#pview{position:fixed;inset:0;bottom:64px;overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;-webkit-overflow-scrolling:touch;}
+#pview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;}
 body.view-profile #pview{display:block;}
 body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#pview){visibility:hidden;}
 
