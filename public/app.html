@@ -1351,22 +1351,6 @@ body.t-naruto span.vval{
     <span id="offline-txt">SIN CONEXIÓN</span>
   </div>
 
-  <!-- Bottom Navigation (mobile only) -->
-  <nav class="bnav" id="bnav">
-    <button class="bnav-btn active" data-tab="home" onclick="navigate('home')">
-      <span class="bnav-ic">⌂</span><span class="bnav-lbl" id="bnav-home">Inicio</span>
-    </button>
-    <button class="bnav-btn" data-tab="stats" onclick="navigate('stats')">
-      <span class="bnav-ic">◴</span><span class="bnav-lbl" id="bnav-stats">Stats</span>
-    </button>
-    <button class="bnav-btn" data-tab="history" onclick="navigate('history')">
-      <span class="bnav-ic">▤</span><span class="bnav-lbl" id="bnav-history">Historial</span>
-    </button>
-    <button class="bnav-btn" data-tab="profile" onclick="navigate('profile')">
-      <span class="bnav-ic">◉</span><span class="bnav-lbl" id="bnav-profile">Perfil</span>
-    </button>
-  </nav>
-
   <!-- ══════════════ ONBOARDING ══════════════ -->
   <div class="onb-ov" id="onb-ov" onclick="if(event.target.id==='onb-ov')closeOnb()">
     <div class="onb-card">
@@ -1634,6 +1618,22 @@ body.t-naruto span.vval{
     </div>
   </div>
 </div>
+
+<!-- Bottom Navigation — outside #dash so position:fixed is always relative to viewport -->
+<nav class="bnav" id="bnav" style="display:none">
+  <button class="bnav-btn active" data-tab="home" onclick="navigate('home')">
+    <span class="bnav-ic">⌂</span><span class="bnav-lbl" id="bnav-home">Inicio</span>
+  </button>
+  <button class="bnav-btn" data-tab="stats" onclick="navigate('stats')">
+    <span class="bnav-ic">◴</span><span class="bnav-lbl" id="bnav-stats">Stats</span>
+  </button>
+  <button class="bnav-btn" data-tab="history" onclick="navigate('history')">
+    <span class="bnav-ic">▤</span><span class="bnav-lbl" id="bnav-history">Historial</span>
+  </button>
+  <button class="bnav-btn" data-tab="profile" onclick="navigate('profile')">
+    <span class="bnav-ic">◉</span><span class="bnav-lbl" id="bnav-profile">Perfil</span>
+  </button>
+</nav>
 
 <script>
 // ══════ STATE ══════
@@ -1989,6 +1989,7 @@ function selectTheme(t) {
   document.body.className = 't-' + t;
   document.getElementById('sel').style.display = 'none';
   document.getElementById('dash').style.display = 'block';
+  document.getElementById('bnav').style.display = 'flex';
   applyTheme(t);
   setLang(lang); // apply current language
   if (typeof updateThemeColor === 'function') updateThemeColor(t);
@@ -2000,6 +2001,7 @@ function selectTheme(t) {
 
 function goBack() {
   document.getElementById('dash').style.display = 'none';
+  document.getElementById('bnav').style.display = 'none';
   document.getElementById('sel').style.display = 'flex';
   document.body.className = '';
   clearInterval(ptmr); clearInterval(cdtmr);
