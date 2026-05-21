@@ -2412,6 +2412,30 @@ function initDash() {
   if (p.get('code')) handleOAuth(p.get('code'));
   else if (token) loadReal();
   if (!token) {
+    setTimeout(() => renderHypnogram({
+      startTime: '2026-01-01T23:18:00.000',
+      endTime:   '2026-01-02T06:40:00.000',
+      levels: { data: [
+        { level: 'light', seconds: 1200 },
+        { level: 'deep',  seconds: 2700 },
+        { level: 'light', seconds:  900 },
+        { level: 'deep',  seconds: 1800 },
+        { level: 'light', seconds: 1800 },
+        { level: 'rem',   seconds: 1800 },
+        { level: 'light', seconds: 1200 },
+        { level: 'wake',  seconds:  300 },
+        { level: 'light', seconds:  900 },
+        { level: 'deep',  seconds: 1440 },
+        { level: 'rem',   seconds: 1620 },
+        { level: 'light', seconds: 1800 },
+        { level: 'wake',  seconds:  420 },
+        { level: 'light', seconds: 1200 },
+        { level: 'rem',   seconds: 1500 },
+        { level: 'light', seconds: 2400 },
+        { level: 'wake',  seconds:  600 },
+        { level: 'light', seconds: 2940 },
+      ]}
+    }), 400);
     setInterval(() => {
       if (isReal) return;
       const c = parseInt(document.getElementById('hrlive').textContent);
