@@ -261,6 +261,22 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .pv-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--sub);}
 .pv-row:last-child{border-bottom:none;}
 .pv-rlbl{font-size:10px;letter-spacing:1.5px;opacity:0.6;text-transform:uppercase;}
+.pro-card{border-color:var(--ta2);}
+.pro-hd{display:flex;justify-content:space-between;align-items:center;}
+.pro-title{font-size:15px;font-weight:800;letter-spacing:3px;color:var(--ta2);}
+.pro-plan{font-size:9px;font-weight:700;letter-spacing:2px;padding:3px 9px;border-radius:4px;border:1px solid var(--bdr);opacity:0.7;}
+.pro-plan.on{background:var(--ta2);color:var(--bg);border-color:var(--ta2);opacity:1;}
+.pro-sub{font-size:10px;opacity:0.45;letter-spacing:1px;margin:4px 0 12px;}
+.pro-tbl{display:flex;flex-direction:column;gap:1px;background:var(--sub);border:1px solid var(--bdr);border-radius:6px;overflow:hidden;margin-bottom:13px;}
+.pro-row{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:6px;padding:9px 11px;background:var(--bg);align-items:center;}
+.pro-row.head{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;opacity:0.5;}
+.pro-f{font-size:11px;}
+.pro-free{font-size:10px;opacity:0.6;text-align:center;}
+.pro-pro{font-size:10px;text-align:center;color:var(--ta2);font-weight:600;}
+.pro-btn{width:100%;padding:13px;background:var(--ta2);color:var(--bg);border:none;border-radius:6px;font-family:inherit;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:12px;cursor:pointer;transition:opacity 0.2s;-webkit-tap-highlight-color:transparent;}
+.pro-btn:active{opacity:0.7;}
+.pro-btn.owned{background:transparent;color:var(--ta2);border:1px solid var(--ta2);}
+.pro-note{font-size:9px;opacity:0.4;text-align:center;margin-top:8px;line-height:1.5;}
 .pv-connect-btn{width:100%;padding:12px;background:var(--ta);color:var(--bg);border:none;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;border-radius:3px;transition:opacity 0.2s;-webkit-tap-highlight-color:transparent;}
 .pv-connect-btn:active{opacity:0.7;}
 .pv-disconnect-btn{width:100%;padding:11px;background:transparent;color:var(--tneg);border:1px solid var(--tneg);cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;border-radius:3px;transition:opacity 0.2s;margin-top:8px;-webkit-tap-highlight-color:transparent;}
@@ -1623,6 +1639,18 @@ body.t-naruto span.vval{
       <button class="pv-disconnect-btn" id="pv-disconnect-btn" onclick="disconnectFitbit()" style="display:none;">DESCONECTAR</button>
     </div>
 
+    <!-- AIRA Pro — plan comparison -->
+    <div class="card hv-card pro-card">
+      <div class="pro-hd">
+        <div class="pro-title" id="pro-title">AIRA PRO</div>
+        <div class="pro-plan" id="pro-plan">GRATIS</div>
+      </div>
+      <div class="pro-sub" id="pro-sub">$5/mes · cancela cuando quieras</div>
+      <div class="pro-tbl" id="pro-tbl"></div>
+      <button class="pro-btn" id="pro-btn" onclick="proAction()">HAZTE PRO · $5/MES</button>
+      <div class="pro-note" id="pro-note"></div>
+    </div>
+
     <!-- Appearance -->
     <div class="card hv-card">
       <div class="pv-section-lbl" id="pv-sec-appearance">APARIENCIA</div>
@@ -1833,6 +1861,17 @@ const T = {
     lbl_coach: 'AIRA',
     cchat_ph: 'Pregúntale a AIRA sobre tus datos…',
     cchat_hint: 'Ej: ¿Cómo mejoro mi sueño? · ¿Qué entreno hoy? · ¿Qué ceno?',
+    coach_limit: 'Llegaste a tu límite gratis de hoy (3 preguntas). Hazte AIRA Pro para preguntar sin límite. ✦',
+    pro_title: 'AIRA PRO', pro_sub: '$5/mes · cancela cuando quieras', pro_free_lbl: 'GRATIS',
+    pro_cta: 'HAZTE PRO · $5/MES', pro_manage: 'GESTIONAR PLAN',
+    pro_note_off: 'Pago real próximamente (Stripe). Por ahora es modo prueba.',
+    pro_note_on: 'Plan PRO activo (modo prueba).',
+    pro_features: [
+      { f:'Coach AIRA', free:'3/día', pro:'Ilimitado + planes' },
+      { f:'Temas', free:'4 mundos', pro:'Exclusivos + 1/mes' },
+      { f:'Reporte semanal IA', free:'—', pro:'✓' },
+      { f:'Métricas y vistas', free:'Todas', pro:'Todas' },
+    ],
     i1t: '◆ RECUPERACIÓN', i2t: '◆ SUEÑO', i3t: '◆ ACTIVIDAD',
     i1x: 'Tu HRV subió 6ms desde ayer. Señales sólidas de recuperación. Día ideal para entrenamiento moderado-alto.',
     i2x: 'Tu sueño profundo aumentó 12% esta semana. Consistencia de horario: ±20min de tu ventana óptima.',
@@ -1967,6 +2006,17 @@ const T = {
     lbl_coach: 'AIRA',
     cchat_ph: 'Ask AIRA about your data…',
     cchat_hint: 'e.g. How do I improve my sleep? · What should I train today? · What should I eat?',
+    coach_limit: "You've reached today's free limit (3 questions). Go AIRA Pro to ask without limits. ✦",
+    pro_title: 'AIRA PRO', pro_sub: '$5/mo · cancel anytime', pro_free_lbl: 'FREE',
+    pro_cta: 'GO PRO · $5/MO', pro_manage: 'MANAGE PLAN',
+    pro_note_off: 'Real billing coming soon (Stripe). For now it\'s test mode.',
+    pro_note_on: 'PRO plan active (test mode).',
+    pro_features: [
+      { f:'AIRA coach', free:'3/day', pro:'Unlimited + plans' },
+      { f:'Themes', free:'4 worlds', pro:'Exclusive + 1/mo' },
+      { f:'Weekly AI report', free:'—', pro:'✓' },
+      { f:'Metrics & views', free:'All', pro:'All' },
+    ],
     i1t: '◆ RECOVERY', i2t: '◆ SLEEP', i3t: '◆ ACTIVITY',
     i1x: 'Your HRV rose 6ms since yesterday. Strong recovery signals. Ideal day for moderate-high intensity training.',
     i2x: 'Your deep sleep increased 12% this week. Schedule consistency improved: ±20min from your optimal window.',
@@ -2117,6 +2167,7 @@ function setLang(l) {
   setText('pv-lastsync-lbl', t.pv_lastsync_lbl);
   setText('pv-sec-info', t.pv_sec_info); setText('pv-version-lbl', t.pv_version_lbl);
   setText('pv-export-lbl', t.pv_export_lbl);
+  if (typeof renderProUI === 'function') renderProUI();
   // Re-apply theme overrides if theme is active
   if (theme) applyThemeText(theme);
 }
@@ -2516,8 +2567,10 @@ async function askCoach() {
   const q = (inp?.value || '').trim();
   if (!q) return;
   inp.value = '';
-  if (btn) btn.disabled = true;
   addCoachMsg('user', q);
+  // Free tier: limited questions per day. Pro/dev: unlimited.
+  if (!isPro() && coachQuotaLeft() <= 0) { addCoachMsg('aira', T[lang].coach_limit); return; }
+  if (btn) btn.disabled = true;
   const bubble = addCoachMsg('aira', '…');
   if (bubble) bubble.classList.add('typing');
   try {
@@ -2528,12 +2581,64 @@ async function askCoach() {
     });
     const d = await r.json();
     if (bubble) { bubble.classList.remove('typing'); bubble.textContent = d.answer || (lang === 'es' ? 'No pude responder ahora.' : "Couldn't answer right now."); }
+    if (!isPro()) coachConsume();
   } catch (e) {
     if (bubble) { bubble.classList.remove('typing'); bubble.textContent = lang === 'es' ? 'Error de conexión. Intenta de nuevo.' : 'Connection error. Try again.'; }
   } finally {
     if (btn) btn.disabled = false;
     inp?.focus();
   }
+}
+
+// ══════ AIRA PRO (subscription) ══════
+const COACH_FREE_DAILY = 3;
+// Paste the 2 developers' Fitbit user-ids here → Pro free forever (no payment).
+const DEV_FITBIT_IDS = [];
+function isPro() {
+  if (localStorage.getItem('fb_pro') === '1') return true;
+  const uid = localStorage.getItem('fb_uid');
+  return !!(uid && DEV_FITBIT_IDS.includes(uid));
+}
+// Free coach quota tracked per day in localStorage. NOTE: client-side only for
+// Phase 1; real enforcement moves into /api/coach (per user) once accounts land.
+function coachQuotaLeft() {
+  if (isPro()) return Infinity;
+  const today = new Date().toISOString().slice(0, 10);
+  let q = {}; try { q = JSON.parse(localStorage.getItem('fb_coach_q') || '{}'); } catch (e) {}
+  if (q.date !== today) return COACH_FREE_DAILY;
+  return Math.max(0, COACH_FREE_DAILY - (q.n || 0));
+}
+function coachConsume() {
+  const today = new Date().toISOString().slice(0, 10);
+  let q = {}; try { q = JSON.parse(localStorage.getItem('fb_coach_q') || '{}'); } catch (e) {}
+  if (q.date !== today) q = { date: today, n: 0 };
+  q.n = (q.n || 0) + 1;
+  localStorage.setItem('fb_coach_q', JSON.stringify(q));
+}
+// Phase 1: test toggle. Phase 2 replaces this with Stripe Checkout + webhook → Supabase.
+function proAction() {
+  if (isPro()) {
+    const msg = lang === 'es' ? '¿Cancelar AIRA Pro? (modo prueba)' : 'Cancel AIRA Pro? (test mode)';
+    if (confirm(msg)) { localStorage.removeItem('fb_pro'); renderProfile(); showToast(lang === 'es' ? 'Plan cancelado' : 'Plan cancelled', 'info'); }
+  } else {
+    localStorage.setItem('fb_pro', '1'); renderProfile();
+    showToast(lang === 'es' ? 'AIRA Pro activado (prueba)' : 'AIRA Pro activated (test)', 'success');
+  }
+}
+function renderProUI() {
+  const t = T[lang], pro = isPro();
+  setText('pro-title', t.pro_title); setText('pro-sub', t.pro_sub);
+  const plan = document.getElementById('pro-plan');
+  if (plan) { plan.textContent = pro ? 'PRO' : t.pro_free_lbl; plan.classList.toggle('on', pro); }
+  const tbl = document.getElementById('pro-tbl');
+  if (tbl) {
+    let h = `<div class="pro-row head"><div></div><div class="pro-free">${t.pro_free_lbl}</div><div class="pro-pro">PRO</div></div>`;
+    (t.pro_features || []).forEach(r => { h += `<div class="pro-row"><div class="pro-f">${r.f}</div><div class="pro-free">${r.free}</div><div class="pro-pro">${r.pro}</div></div>`; });
+    tbl.innerHTML = h;
+  }
+  const btn = document.getElementById('pro-btn');
+  if (btn) { btn.textContent = pro ? t.pro_manage : t.pro_cta; btn.classList.toggle('owned', pro); }
+  setText('pro-note', pro ? t.pro_note_on : t.pro_note_off);
 }
 
 // ══════ PROFILE VIEW ══════
@@ -2546,6 +2651,9 @@ function renderProfile() {
   document.getElementById('pv-ustatus').textContent = isConnected ? t.pv_status_live : t.pv_status_demo;
   document.getElementById('pv-connect-btn').style.display    = isConnected ? 'none'  : 'block';
   document.getElementById('pv-disconnect-btn').style.display = isConnected ? 'block' : 'none';
+
+  // AIRA Pro plan menu
+  renderProUI();
 
   // Avatar emoji by theme
   const avatars = { mc: '⛏', halo: '⚔', naruto: '🔥', fut: '◉' };
