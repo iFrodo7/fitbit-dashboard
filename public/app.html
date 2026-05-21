@@ -2428,6 +2428,8 @@ function navigate(tab) {
     const el = document.getElementById(id);
     if (el) { el.setAttribute('aria-hidden','true'); el.scrollTop = 0; }
   });
+  // Clear any leftover swipe-gesture transform so a view never gets "stuck" off-position
+  document.querySelectorAll('.db-main, #hview, #sview, #pview').forEach(el => { el.style.transform = ''; el.style.transition = ''; });
 
   if (tab === 'history') {
     document.body.classList.add('view-history');
