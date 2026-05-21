@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'fitbit-air-v4';
+const CACHE_VERSION = 'fitbit-air-v5';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -107,7 +107,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Same-origin → Cache first, network fallback
+  // Same-origin HTML (app.html) → Network first so updates are always picked up immediately
+  if (url.origin === self.location.origin && url.pathname.endsWith('.html')) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request).then((cached) => cached || caches.match('/app.html')))
+    );
+    return;
+  }
+
+  // Same-origin other assets (icons, manifest, etc.) → Cache first, network fallback
   if (url.origin === self.location.origin) {
     event.respondWith(
       caches.match(request).then((cached) => cached || fetch(request).then((response) => {
