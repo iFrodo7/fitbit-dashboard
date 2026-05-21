@@ -417,6 +417,9 @@ body.is-syncing .pulsable::after{content:"";position:absolute;inset:0;background
 .mbtn{width:100%;padding:13px;background:var(--ta);color:var(--bg);border:none;cursor:pointer;font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;transition:opacity 0.15s;}
 .mbtn:hover{opacity:0.85;}
 .mnote{font-size:11px;color:#2e2e2e;text-align:center;margin-top:10px;line-height:1.7;}
+.m-adv-toggle{display:block;width:100%;margin-top:16px;background:none;border:none;color:var(--ta);opacity:0.55;cursor:pointer;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;text-decoration:underline;transition:opacity 0.15s;}
+.m-adv-toggle:hover{opacity:0.9;}
+#m-advanced{margin-top:18px;}
 
 .vflash{animation:vf 0.5s ease;}
 @keyframes vf{0%{opacity:1;transform:scale(1);}50%{opacity:0.6;transform:scale(1.1);}100%{opacity:1;transform:scale(1);}}
@@ -1384,16 +1387,25 @@ body.t-naruto span.vval{
         </div>
       </div>
       <div class="mbd">
-        <div class="srw">
-          <div class="sc"><div class="sn">1.</div><div class="st" id="m-s1">Ve a <a href="https://dev.fitbit.com/apps/new" target="_blank">dev.fitbit.com</a> y crea una app <strong style="color:#aaa;">gratis</strong></div></div>
-          <div class="sc"><div class="sn">2.</div><div class="st" id="m-s2">Tipo: <strong style="color:#aaa;">Personal</strong><br>Callback: esta página</div></div>
-          <div class="sc"><div class="sn">3.</div><div class="st" id="m-s3">Copia tu <strong style="color:#aaa;">Client ID</strong> y pégalo abajo</div></div>
+        <!-- One-tap pairing via shared Fitbit app (no developer account) -->
+        <div id="m-simple">
+          <button class="mbtn" id="m-simple-btn" onclick="startOAuthSimple()">CONECTAR CON FITBIT →</button>
+          <div class="mnote" id="m-simple-note">Inicia sesión con tu cuenta Fitbit y aprueba el acceso. No necesitas cuenta de desarrollador.</div>
+          <button class="m-adv-toggle" id="m-adv-toggle" onclick="toggleAdvanced()">Opciones avanzadas</button>
         </div>
-        <label class="mlbl" id="m-lbl">TU CLIENT ID</label>
-        <input type="text" class="minp" id="cid" placeholder="Ej: 23ABCD"/>
-        <div class="mcbu" id="m-cb">URL de callback: <span id="cburl"></span></div>
-        <button class="mbtn" id="m-btn" onclick="startOAuth()">AUTORIZAR CON FITBIT →</button>
-        <div class="mnote" id="m-note">Se abrirá Fitbit para autorizar con tu cuenta Google.<br>Tus datos nunca salen de tu dispositivo.</div>
+        <!-- Advanced: manual per-user Client ID ("Personal" app) -->
+        <div id="m-advanced">
+          <div class="srw">
+            <div class="sc"><div class="sn">1.</div><div class="st" id="m-s1">Ve a <a href="https://dev.fitbit.com/apps/new" target="_blank">dev.fitbit.com</a> y crea una app <strong style="color:#aaa;">gratis</strong></div></div>
+            <div class="sc"><div class="sn">2.</div><div class="st" id="m-s2">Tipo: <strong style="color:#aaa;">Personal</strong><br>Callback: esta página</div></div>
+            <div class="sc"><div class="sn">3.</div><div class="st" id="m-s3">Copia tu <strong style="color:#aaa;">Client ID</strong> y pégalo abajo</div></div>
+          </div>
+          <label class="mlbl" id="m-lbl">TU CLIENT ID</label>
+          <input type="text" class="minp" id="cid" placeholder="Ej: 23ABCD"/>
+          <div class="mcbu" id="m-cb">URL de callback: <span id="cburl"></span></div>
+          <button class="mbtn" id="m-btn" onclick="startOAuth()">AUTORIZAR CON FITBIT →</button>
+          <div class="mnote" id="m-note">Se abrirá Fitbit para autorizar con tu cuenta Google.<br>Tus datos nunca salen de tu dispositivo.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -1482,6 +1494,9 @@ const T = {
     i2x: 'Tu sueño profundo aumentó 12% esta semana. Consistencia de horario: ±20min de tu ventana óptima.',
     i3x: '4 días consecutivos cumpliendo tu meta. Si terminas hoy, será tu racha más larga del mes.',
     modal_title: 'CONECTAR FITBIT', modal_sub: 'Autorización OAuth · Solo una vez',
+    m_simple_btn: 'CONECTAR CON FITBIT →',
+    m_simple_note: 'Inicia sesión con tu cuenta Fitbit y aprueba el acceso. No necesitas cuenta de desarrollador.',
+    m_adv: 'Opciones avanzadas',
     m_s1: 'Ve a dev.fitbit.com y crea una app <strong style="color:#aaa;">gratis</strong>',
     m_s2: 'Tipo: <strong style="color:#aaa;">Personal</strong><br>Callback: esta página',
     m_s3: 'Copia tu <strong style="color:#aaa;">Client ID</strong> y pégalo abajo',
@@ -1578,6 +1593,9 @@ const T = {
     i2x: 'Your deep sleep increased 12% this week. Schedule consistency improved: ±20min from your optimal window.',
     i3x: '4 consecutive days hitting your step goal. Complete today and it\'ll be your longest streak this month.',
     modal_title: 'CONNECT FITBIT', modal_sub: 'OAuth Authorization · One time only',
+    m_simple_btn: 'CONNECT WITH FITBIT →',
+    m_simple_note: 'Sign in with your Fitbit account and approve access. No developer account needed.',
+    m_adv: 'Advanced options',
     m_s1: 'Go to dev.fitbit.com and create a <strong style="color:#aaa;">free</strong> app',
     m_s2: 'Type: <strong style="color:#aaa;">Personal</strong><br>Callback: this page',
     m_s3: 'Copy your <strong style="color:#aaa;">Client ID</strong> and paste it below',
@@ -1670,6 +1688,8 @@ function setLang(l) {
   setHTML('m-s1', t.m_s1); setHTML('m-s2', t.m_s2); setHTML('m-s3', t.m_s3);
   setText('m-lbl', t.m_lbl); setText('m-btn', t.m_btn);
   setHTML('m-note', t.m_note);
+  setText('m-simple-btn', t.m_simple_btn); setText('m-simple-note', t.m_simple_note);
+  setText('m-adv-toggle', t.m_adv);
   document.getElementById('m-cb').innerHTML = t.m_cb + '<span id="cburl">' + REDIR + '</span>';
   // Re-apply theme overrides if theme is active
   if (theme) applyThemeText(theme);
@@ -2218,8 +2238,24 @@ function animN(id,from,to,dur,comma) {
 }
 function flash(id) { const e=document.getElementById(id); if(!e)return; e.classList.remove('vflash'); void e.offsetWidth; e.classList.add('vflash'); setTimeout(()=>e.classList.remove('vflash'),500); }
 
-function openModal() { document.getElementById('modal').classList.add('on'); }
+function openModal() { initConnectModal(); document.getElementById('modal').classList.add('on'); }
 function closeModal() { document.getElementById('modal').classList.remove('on'); }
+// Show one-tap pairing when a shared Client app is configured; otherwise fall back
+// to the manual flow as the only option.
+function initConnectModal() {
+  const hasShared = !!SHARED_CLIENT_ID;
+  const simple = document.getElementById('m-simple');
+  const adv = document.getElementById('m-advanced');
+  if (simple) simple.style.display = hasShared ? '' : 'none';
+  if (adv) adv.style.display = hasShared ? 'none' : '';
+}
+function toggleAdvanced() {
+  const adv = document.getElementById('m-advanced'); if (!adv) return;
+  adv.style.display = (adv.style.display === 'none') ? '' : 'none';
+}
+function openAdvanced() {
+  const adv = document.getElementById('m-advanced'); if (adv) adv.style.display = '';
+}
 document.addEventListener('click', e => { if (e.target.id==='modal') closeModal(); });
 
 // Capacitor native detection + OAuth redirect URI selection.
@@ -2229,12 +2265,46 @@ function isNativeApp() { return !!(window.Capacitor && window.Capacitor.isNative
 const NATIVE_REDIR = 'fitbitair://callback';
 function getRedirectUri() { return isNativeApp() ? NATIVE_REDIR : REDIR; }
 
+// One-tap pairing: register ONE Fitbit app of type "Client" (not "Personal") at
+// dev.fitbit.com, enable PKCE, set its redirect URL to this app's deployed URL,
+// then paste its Client ID here. Empty → users fall back to the manual flow.
+const SHARED_CLIENT_ID = '';
+const OAUTH_SCOPE = 'activity heartrate sleep profile weight oxygen_saturation temperature';
+
+// PKCE (RFC 7636) lets a public client authorize with no secret in client-side JS.
+function b64url(bytes) {
+  let s = ''; for (const b of bytes) s += String.fromCharCode(b);
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function genCodeVerifier() { const a = new Uint8Array(64); crypto.getRandomValues(a); return b64url(a); }
+async function genCodeChallenge(verifier) {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+  return b64url(new Uint8Array(digest));
+}
+
+// One-tap pairing via the shared Client app + PKCE — no Client ID needed from the user.
+async function startOAuthSimple() {
+  if (!SHARED_CLIENT_ID) { openAdvanced(); return; }
+  const verifier = genCodeVerifier();
+  localStorage.setItem('fb_pkce_v', verifier);
+  localStorage.setItem('fb_cid', SHARED_CLIENT_ID);
+  localStorage.setItem('fb_pub', '1');
+  const challenge = await genCodeChallenge(verifier);
+  const url = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=${SHARED_CLIENT_ID}` +
+    `&redirect_uri=${encodeURIComponent(getRedirectUri())}&scope=${encodeURIComponent(OAUTH_SCOPE)}` +
+    `&code_challenge=${challenge}&code_challenge_method=S256&expires_in=604800`;
+  if (isNativeApp() && window.Capacitor?.Plugins?.Browser) window.Capacitor.Plugins.Browser.open({ url });
+  else location.href = url;
+}
+
+// Manual per-user flow (advanced): user supplies their own "Personal" app Client ID.
 function startOAuth() {
   const id = document.getElementById('cid').value.trim();
   if (!id) { alert('Client ID'); return; }
   localStorage.setItem('fb_cid', id);
-  const sc = 'activity heartrate sleep profile weight oxygen_saturation temperature';
-  const url = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=${id}&redirect_uri=${encodeURIComponent(getRedirectUri())}&scope=${encodeURIComponent(sc)}&expires_in=604800`;
+  localStorage.removeItem('fb_pkce_v');
+  localStorage.removeItem('fb_pub');
+  const url = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=${id}&redirect_uri=${encodeURIComponent(getRedirectUri())}&scope=${encodeURIComponent(OAUTH_SCOPE)}&expires_in=604800`;
   if (isNativeApp() && window.Capacitor?.Plugins?.Browser) {
     // Open the system browser; the deeplink listener (initCapacitor) catches the callback
     window.Capacitor.Plugins.Browser.open({ url });
@@ -2244,10 +2314,15 @@ function startOAuth() {
 }
 async function handleOAuth(code) {
   const cid = localStorage.getItem('fb_cid'); if (!cid) return; showLoad();
+  const verifier = localStorage.getItem('fb_pkce_v');
   try {
-    const r = await fetch('https://api.fitbit.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','Authorization':'Basic '+btoa(cid+':')},body:new URLSearchParams({code,grant_type:'authorization_code',redirect_uri:getRedirectUri(),client_id:cid})});
+    const headers = { 'Content-Type':'application/x-www-form-urlencoded' };
+    const body = { code, grant_type:'authorization_code', redirect_uri:getRedirectUri(), client_id:cid };
+    if (verifier) body.code_verifier = verifier;             // PKCE public client — no auth header
+    else headers['Authorization'] = 'Basic '+btoa(cid+':');  // manual "Personal" app
+    const r = await fetch('https://api.fitbit.com/oauth2/token',{method:'POST',headers,body:new URLSearchParams(body)});
     const d = await r.json();
-    if (d.access_token) { localStorage.setItem('fb_tok',d.access_token); if(d.refresh_token)localStorage.setItem('fb_rt',d.refresh_token); token=d.access_token; if(!isNativeApp())history.replaceState({},'',location.pathname); await loadReal(); }
+    if (d.access_token) { localStorage.setItem('fb_tok',d.access_token); if(d.refresh_token)localStorage.setItem('fb_rt',d.refresh_token); localStorage.removeItem('fb_pkce_v'); token=d.access_token; if(!isNativeApp())history.replaceState({},'',location.pathname); await loadReal(); }
   } catch(e) { hideLoad(); }
 }
 
@@ -2269,7 +2344,16 @@ function initCapacitor() {
 }
 async function refreshTok() {
   const rt=localStorage.getItem('fb_rt'),cid=localStorage.getItem('fb_cid'); if(!rt||!cid)return false;
-  try { const r=await fetch('https://api.fitbit.com/oauth2/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','Authorization':'Basic '+btoa(cid+':')},body:new URLSearchParams({grant_type:'refresh_token',refresh_token:rt})}); const d=await r.json(); if(d.access_token){localStorage.setItem('fb_tok',d.access_token);if(d.refresh_token)localStorage.setItem('fb_rt',d.refresh_token);token=d.access_token;return true;} } catch(e) {} return false;
+  const pub = localStorage.getItem('fb_pub')==='1';
+  try {
+    const headers = { 'Content-Type':'application/x-www-form-urlencoded' };
+    const body = { grant_type:'refresh_token', refresh_token:rt };
+    if (pub) body.client_id = cid;                            // PKCE public client
+    else headers['Authorization'] = 'Basic '+btoa(cid+':');   // manual "Personal" app
+    const r=await fetch('https://api.fitbit.com/oauth2/token',{method:'POST',headers,body:new URLSearchParams(body)});
+    const d=await r.json();
+    if(d.access_token){localStorage.setItem('fb_tok',d.access_token);if(d.refresh_token)localStorage.setItem('fb_rt',d.refresh_token);token=d.access_token;return true;}
+  } catch(e) {} return false;
 }
 function startCd() {
   clearInterval(cdtmr); cd = pSec;
