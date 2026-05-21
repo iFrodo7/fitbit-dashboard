@@ -125,6 +125,8 @@ body{width:100%;min-height:100vh;}
 .card{padding:12px 14px;border:var(--cbdr);background:var(--cbg);position:relative;overflow:hidden;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}
 .card:hover{border-color:var(--ta);box-shadow:0 0 12px rgba(0,0,0,0.3);}
 .clbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;opacity:0.4;margin-bottom:8px;display:block;}
+.coach-logo{width:17px;height:17px;color:var(--ta2);flex-shrink:0;display:inline-block;}
+#lbl-coach{opacity:0.95;font-weight:700;letter-spacing:4px;color:var(--ta2);}
 .vc{padding:10px 12px;border:var(--cbdr);background:var(--cbg);position:relative;overflow:hidden;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}
 .vc:hover{border-color:var(--ta);box-shadow:0 0 12px rgba(0,0,0,0.3);transform:translateY(-2px);}
 
@@ -1335,8 +1337,9 @@ body.t-naruto span.vval{
         <div class="acit"><div class="acio">🚴</div><div><div class="acnm" id="ac3n">CICLISMO</div><div class="acmt" id="ac3m">AYER 17:30 · 18KM</div></div><div class="acvl">420 kcal</div></div>
       </div>
       <div class="card">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-        <span class="clbl" id="lbl-coach" style="margin-bottom:0;">// GOOGLE HEALTH COACH</span>
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:4px;">
+        <svg class="coach-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 L12 5 L19 19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.4 14 H15.6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="4.4" r="1.8" fill="currentColor"/></svg>
+        <span class="clbl" id="lbl-coach" style="margin-bottom:0;">AIRA</span>
         <div id="aibdg" style="font-size:11px;font-weight:700;letter-spacing:2px;padding:3px 8px;background:rgba(123,47,255,0.1);border:1px solid var(--ta2);color:var(--ta2);">GEMINI AI</div>
       </div>
       <div class="igrd">
@@ -1744,7 +1747,7 @@ const T = {
     // Detalle calorías
     cal_basal_lbl: 'BASAL', cal_active_lbl: 'ACTIVAS',
     cbar_sed_lbl: 'SEDET.', cbar_lig_lbl: 'LIGERO', cbar_mod_lbl: 'MODER.', cbar_int_lbl: 'INTENSO',
-    lbl_coach: '// GOOGLE HEALTH COACH',
+    lbl_coach: 'AIRA',
     i1t: '◆ RECUPERACIÓN', i2t: '◆ SUEÑO', i3t: '◆ ACTIVIDAD',
     i1x: 'Tu HRV subió 6ms desde ayer. Señales sólidas de recuperación. Día ideal para entrenamiento moderado-alto.',
     i2x: 'Tu sueño profundo aumentó 12% esta semana. Consistencia de horario: ±20min de tu ventana óptima.',
@@ -1767,13 +1770,10 @@ const T = {
     // Theme overrides
     mc_eye: '> ESTADÍSTICAS DE JUGADOR',
     mc_pfx: 'JUGADOR: ', mc_rl: '> BARRA DE VIDA',
-    mc_coach: '> CONSEJOS DEL JUEGO',
     halo_eye: '// VISR OS — BIOMONITOR SPARTAN — CLASIFICADO UNSC',
     halo_pfx: 'SPARTAN ', halo_rl: '// PREPARACIÓN DE COMBATE',
-    halo_coach: '// ANÁLISIS DE CORTANA',
     naruto_eye: '木ノ葉の里 — SISTEMA SHINOBI KONOHA',
     naruto_pfx: '忍者: ', naruto_rl: '// チャクラ PREPARACIÓN',
-    naruto_coach: '// 仙人モード ANÁLISIS SABIO',
     connected: '◆ FITBIT AIR CONECTADO', live: 'EN VIVO',
     sync_toast: (t) => `◆ SYNC ${t}`,
     // Stats view
@@ -1877,7 +1877,7 @@ const T = {
     // Calories detail
     cal_basal_lbl: 'BASAL', cal_active_lbl: 'ACTIVE',
     cbar_sed_lbl: 'SEDENT.', cbar_lig_lbl: 'LIGHT', cbar_mod_lbl: 'MODERATE', cbar_int_lbl: 'INTENSE',
-    lbl_coach: '// GOOGLE HEALTH COACH',
+    lbl_coach: 'AIRA',
     i1t: '◆ RECOVERY', i2t: '◆ SLEEP', i3t: '◆ ACTIVITY',
     i1x: 'Your HRV rose 6ms since yesterday. Strong recovery signals. Ideal day for moderate-high intensity training.',
     i2x: 'Your deep sleep increased 12% this week. Schedule consistency improved: ±20min from your optimal window.',
@@ -1899,13 +1899,10 @@ const T = {
     logo_s_naruto: '木ノ葉隠れの里 · KONOHA',
     mc_eye: '> PLAYER STATS LOADED',
     mc_pfx: 'PLAYER: ', mc_rl: '> HEALTH BAR',
-    mc_coach: '> GAME TIPS',
     halo_eye: '// VISR OS — SPARTAN BIOMONITOR — UNSC CLASSIFIED',
     halo_pfx: 'SPARTAN ', halo_rl: '// COMBAT READINESS',
-    halo_coach: '// CORTANA ANALYSIS',
     naruto_eye: '木ノ葉の里 — KONOHA SHINOBI SYSTEM',
     naruto_pfx: '忍者: ', naruto_rl: '// チャクラ READINESS',
-    naruto_coach: '// 仙人モード SAGE ANALYSIS',
     connected: '◆ FITBIT AIR CONNECTED', live: 'LIVE',
     sync_toast: (t) => `◆ SYNC ${t}`,
     // Stats view
@@ -2096,9 +2093,9 @@ function applyTheme(t) {
 function applyThemeText(t) {
   const ls = T[lang];
   const map = {
-    mc:     { 'g-eye': ls.mc_eye, 'g-pfx': ls.mc_pfx, rl: ls.mc_rl, 'lbl-coach': ls.mc_coach, i1t: ls.i1t.replace('RECUPERACIÓN','RECOVERY').replace('RECOVERY','[!] RECOVERY'), i2t: '[!] ' + (lang==='es'?'SUEÑO':'SLEEP'), i3t: '[!] ' + (lang==='es'?'ACTIVIDAD':'ACTIVITY'), i1x: lang==='es'?'HRV +6ms. Recuperación completa. Listo para grind. Dificultad: Alta recomendada.':'HRV +6ms. Recovery full. Ready to grind. Difficulty: Hard recommended.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Buff: Bien descansado activo.':'Deep sleep +12% this week. Buff: Well Rested active.', i3x: lang==='es'?'Racha de 4 días. Logro: Marathon Runner si terminas hoy.':'4-day streak. Achievement: Marathon Runner incoming if today complete.' },
-    halo:   { 'g-eye': ls.halo_eye, 'g-pfx': ls.halo_pfx, rl: ls.halo_rl, 'lbl-coach': ls.halo_coach, i1t: '◈ ' + (lang==='es'?'ESCUDOS':'SHIELDS'), i2t: '◈ ' + (lang==='es'?'CICLO DE DESCANSO':'REST CYCLE'), i3t: '◈ ' + (lang==='es'?'REGISTRO DE MISIÓN':'MISSION LOG'), i1x: lang==='es'?'Recarga de escudo nominal. HRV +6ms. Combate de alta intensidad recomendado. Aumentaciones al 98%.':'Shield recharge nominal. HRV +6ms. High-intensity engagement recommended. Augmentations at 98%.', i2x: lang==='es'?'Protocolo de sueño profundo +12%. Recuperación neural óptima. Aumentaciones Spartan-IV al máximo.':'Deep sleep protocol +12%. Neural recovery optimal. Spartan-IV augmentations at peak.', i3x: lang==='es'?'Racha de misión de 4 días activa. Objetivo de pasos 78%. Aumentar radio de patrulla.':'4-day mission streak active. Step objective 78%. Increase patrol radius to complete.' },
-    naruto: { 'g-eye': ls.naruto_eye, 'g-pfx': ls.naruto_pfx, rl: ls.naruto_rl, 'lbl-coach': ls.naruto_coach, i1t: '🔥 ' + (lang==='es'?'RECUPERACIÓN DE CHAKRA':'CHAKRA RECOVERY'), i2t: '🌙 ' + (lang==='es'?'JUTSU DE DESCANSO':'REST JUTSU'), i3t: '⚡ ' + (lang==='es'?'ARCO DE ENTRENAMIENTO':'TRAINING ARC'), i1x: lang==='es'?'Flujo de chakra +6ms. Bobinas a plena capacidad. Lista para misión S. Modo Sabio disponible.':'Chakra flow +6ms. Coils at full capacity. Ready for S-rank mission. Sage Mode available.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Reservas de chakra restauradas. Descanso nivel Bijuu.':'Deep sleep +12% this week. Chakra pools restored. Bijuu-level rest achieved. Dattebayo!', i3x: lang==='es'?'Racha de entrenamiento de 4 días. Completar hoy desbloquea: "El Camino del Ninja". ¡Dattebayo!':'4-day training arc streak. Complete today: "Ninja Way" achievement unlocked. Believe it!' },
+    mc:     { 'g-eye': ls.mc_eye, 'g-pfx': ls.mc_pfx, rl: ls.mc_rl, i1t: ls.i1t.replace('RECUPERACIÓN','RECOVERY').replace('RECOVERY','[!] RECOVERY'), i2t: '[!] ' + (lang==='es'?'SUEÑO':'SLEEP'), i3t: '[!] ' + (lang==='es'?'ACTIVIDAD':'ACTIVITY'), i1x: lang==='es'?'HRV +6ms. Recuperación completa. Listo para grind. Dificultad: Alta recomendada.':'HRV +6ms. Recovery full. Ready to grind. Difficulty: Hard recommended.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Buff: Bien descansado activo.':'Deep sleep +12% this week. Buff: Well Rested active.', i3x: lang==='es'?'Racha de 4 días. Logro: Marathon Runner si terminas hoy.':'4-day streak. Achievement: Marathon Runner incoming if today complete.' },
+    halo:   { 'g-eye': ls.halo_eye, 'g-pfx': ls.halo_pfx, rl: ls.halo_rl, i1t: '◈ ' + (lang==='es'?'ESCUDOS':'SHIELDS'), i2t: '◈ ' + (lang==='es'?'CICLO DE DESCANSO':'REST CYCLE'), i3t: '◈ ' + (lang==='es'?'REGISTRO DE MISIÓN':'MISSION LOG'), i1x: lang==='es'?'Recarga de escudo nominal. HRV +6ms. Combate de alta intensidad recomendado. Aumentaciones al 98%.':'Shield recharge nominal. HRV +6ms. High-intensity engagement recommended. Augmentations at 98%.', i2x: lang==='es'?'Protocolo de sueño profundo +12%. Recuperación neural óptima. Aumentaciones Spartan-IV al máximo.':'Deep sleep protocol +12%. Neural recovery optimal. Spartan-IV augmentations at peak.', i3x: lang==='es'?'Racha de misión de 4 días activa. Objetivo de pasos 78%. Aumentar radio de patrulla.':'4-day mission streak active. Step objective 78%. Increase patrol radius to complete.' },
+    naruto: { 'g-eye': ls.naruto_eye, 'g-pfx': ls.naruto_pfx, rl: ls.naruto_rl, i1t: '🔥 ' + (lang==='es'?'RECUPERACIÓN DE CHAKRA':'CHAKRA RECOVERY'), i2t: '🌙 ' + (lang==='es'?'JUTSU DE DESCANSO':'REST JUTSU'), i3t: '⚡ ' + (lang==='es'?'ARCO DE ENTRENAMIENTO':'TRAINING ARC'), i1x: lang==='es'?'Flujo de chakra +6ms. Bobinas a plena capacidad. Lista para misión S. Modo Sabio disponible.':'Chakra flow +6ms. Coils at full capacity. Ready for S-rank mission. Sage Mode available.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Reservas de chakra restauradas. Descanso nivel Bijuu.':'Deep sleep +12% this week. Chakra pools restored. Bijuu-level rest achieved. Dattebayo!', i3x: lang==='es'?'Racha de entrenamiento de 4 días. Completar hoy desbloquea: "El Camino del Ninja". ¡Dattebayo!':'4-day training arc streak. Complete today: "Ninja Way" achievement unlocked. Believe it!' },
     fut:    {}
   };
   if (map[t]) Object.entries(map[t]).forEach(([id,v]) => setText(id, v));
@@ -2458,6 +2455,9 @@ if ('serviceWorker' in navigator) {
       .then(reg => {
         // When a new SW takes control (skipWaiting fired), reload to get fresh app.html
         navigator.serviceWorker.addEventListener('controllerchange', () => {
+          // Skip during the OAuth callback — the auth code is single-use and a
+          // reload mid-exchange would consume/invalidate it (breaks pairing).
+          if (new URLSearchParams(location.search).get('code')) return;
           window.location.reload();
         });
         // Trigger update check every time the page loads
