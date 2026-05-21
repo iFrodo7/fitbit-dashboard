@@ -185,6 +185,10 @@ body.view-history #dash > #install-banner{visibility:visible;}
 .hv-card{margin-bottom:14px;}
 .hv-card .clbl{display:flex;justify-content:space-between;align-items:baseline;}
 .hv-stat{font-size:9px;letter-spacing:2px;opacity:0.5;}
+.hv-trend{font-size:11px;font-weight:700;opacity:0.95;margin-left:2px;}
+.hv-trend.trend-up{color:var(--tpos,#22c55e);}
+.hv-trend.trend-down{color:var(--tneg,#ef4444);}
+.hv-trend.trend-flat{color:var(--sub,#888);}
 .hv-stat strong{color:var(--ta);font-weight:700;}
 .hv-chart{width:100%;display:block;margin-top:8px;}
 .hv-chart .grid{stroke:var(--sub);stroke-width:1;}
@@ -228,6 +232,10 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .sv-mlbl{font-size:8px;letter-spacing:2px;opacity:0.4;text-transform:uppercase;margin-bottom:5px;}
 .sv-mval{font-size:22px;font-weight:700;color:var(--ta);line-height:1;}
 .sv-munit{font-size:8px;opacity:0.45;letter-spacing:1px;margin-top:3px;}
+.sv-mstat{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:6px;}
+.sv-mstat.good{color:var(--tpos,#22c55e);}
+.sv-mstat.warn{color:#f59e0b;}
+.sv-mstat.bad{color:var(--tneg,#ef4444);}
 .sv-mtrend{font-size:9px;opacity:0.5;margin-top:4px;}
 .sv-bar-row{display:flex;align-items:center;gap:8px;margin:5px 0;}
 .sv-bar-lbl{font-size:9px;letter-spacing:1.5px;opacity:0.5;width:52px;flex-shrink:0;}
@@ -259,6 +267,8 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .pv-lang-btn{flex:1;padding:9px;background:var(--sub);border:1px solid var(--bdr);color:var(--tx);font-family:inherit;font-size:10px;letter-spacing:2px;cursor:pointer;text-transform:uppercase;border-radius:3px;transition:all 0.15s;-webkit-tap-highlight-color:transparent;opacity:0.6;}
 .pv-lang-btn.active{border-color:var(--ta);color:var(--ta);opacity:1;}
 .pv-select{background:var(--sub);border:1px solid var(--bdr);color:var(--tx);font-family:inherit;font-size:10px;letter-spacing:1px;padding:7px 9px;cursor:pointer;border-radius:3px;appearance:none;-webkit-appearance:none;}
+.pv-export-btn{background:var(--sub);border:1px solid var(--bdr);color:var(--ta);font-family:inherit;font-size:10px;font-weight:700;letter-spacing:2px;padding:7px 12px;cursor:pointer;border-radius:3px;transition:opacity 0.2s;-webkit-tap-highlight-color:transparent;}
+.pv-export-btn:hover{opacity:0.8;}
 .pv-toggle{width:40px;height:22px;background:var(--sub);border:1px solid var(--bdr);border-radius:12px;cursor:pointer;position:relative;transition:background 0.2s,border-color 0.2s;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
 .pv-toggle.on{background:var(--ta);border-color:var(--ta);}
 .pv-toggle::after{content:'';position:absolute;width:16px;height:16px;background:var(--tx);border-radius:50%;top:2px;left:2px;transition:transform 0.2s;}
@@ -1487,21 +1497,25 @@ body.t-naruto span.vval{
           <div class="sv-mlbl">HRV</div>
           <div class="sv-mval" id="sv-hrv-val">—</div>
           <div class="sv-munit" id="sv-hrv-unit">ms</div>
+          <div class="sv-mstat" id="sv-hrv-stat"></div>
         </div>
         <div class="sv-mini">
           <div class="sv-mlbl">SpO₂</div>
           <div class="sv-mval" id="sv-spo2-val">—</div>
           <div class="sv-munit">%</div>
+          <div class="sv-mstat" id="sv-spo2-stat"></div>
         </div>
         <div class="sv-mini">
           <div class="sv-mlbl" id="sv-temp-lbl">TEMP.</div>
           <div class="sv-mval" id="sv-temp-val">—</div>
           <div class="sv-munit">°C</div>
+          <div class="sv-mstat" id="sv-temp-stat"></div>
         </div>
         <div class="sv-mini">
           <div class="sv-mlbl" id="sv-stress-lbl">ESTRÉS</div>
           <div class="sv-mval" id="sv-stress-val">—</div>
           <div class="sv-munit">/100</div>
+          <div class="sv-mstat" id="sv-stress-stat"></div>
         </div>
       </div>
     </div>
@@ -1566,6 +1580,10 @@ body.t-naruto span.vval{
         <div class="pv-rlbl" id="pv-notif-lbl">NOTIFICACIONES</div>
         <button class="pv-toggle" id="pv-notif-toggle" onclick="toggleNotifications().then(()=>navigate('profile'))" aria-label="toggle notifications"></button>
       </div>
+      <div class="pv-row">
+        <div class="pv-rlbl" id="pv-lastsync-lbl">ÚLTIMA SYNC</div>
+        <div id="pv-lastsync-val" style="font-size:10px;opacity:0.5;letter-spacing:1px;">—</div>
+      </div>
     </div>
 
     <!-- App info -->
@@ -1578,6 +1596,10 @@ body.t-naruto span.vval{
       <div class="pv-row">
         <div class="pv-rlbl">GITHUB</div>
         <a href="https://github.com/iFrodo7/fitbit-dashboard" target="_blank" style="font-size:9px;color:var(--ta);opacity:0.7;letter-spacing:1px;text-decoration:none;">iFrodo7/fitbit-dashboard ↗</a>
+      </div>
+      <div class="pv-row">
+        <div class="pv-rlbl" id="pv-export-lbl">EXPORTAR DATOS</div>
+        <button class="pv-export-btn" id="pv-export-btn" onclick="exportData()">JSON ↓</button>
       </div>
     </div>
   </section>
@@ -1683,6 +1705,7 @@ const T = {
     hv_rec_lbl:'// RECOVERY SCORE', hv_rhr_lbl:'// FRECUENCIA EN REPOSO', hv_sleep_lbl:'// SUEÑO POR NOCHE',
     hv_empty:'CONECTA FITBIT PARA VER TUS TENDENCIAS', hv_no_data:'SIN DATOS EN ESTE RANGO',
     hv_avg:'PROMEDIO', hv_min:'MÍN', hv_max:'MÁX', hv_hrs:'h', hv_bpm:'bpm',
+    hv_trend_better:'Mejorando', hv_trend_worse:'Empeorando', hv_trend_flat:'Estable',
     onb: {
       recovery: { ttl:'Recovery Score', bd:'<p>Indica qué tan <strong>recuperado</strong> está tu cuerpo hoy, en una escala de <strong>0 a 100</strong>.</p><p>Combina cuatro factores: duración del sueño, eficiencia, % de sueño profundo+REM, y tu frecuencia cardíaca en reposo.</p><p><strong>67+</strong> en forma · <strong>50-66</strong> buena · <strong>34-49</strong> moderada · <strong>0-33</strong> descansa.</p>' },
       strain:   { ttl:'Esfuerzo (Strain)', bd:'<p>Mide la carga cardiovascular acumulada en el día, escala <strong>0 a 21</strong>.</p><p>Pondera los minutos en zonas de frecuencia cardíaca: <code>Fat Burn ×0.6</code>, <code>Cardio ×2.0</code>, <code>Peak ×4.5</code>.</p><p>Un día de descanso debería estar en 0-3, un entrenamiento intenso 14+.</p>' },
@@ -1749,7 +1772,8 @@ const T = {
     sv_body_lbl: '// CUERPO',
     sv_rest_lbl: 'REPOSO', sv_max_lbl: 'MÁXIMO', sv_max_unit: 'BPM HOY',
     sv_deep_lbl: 'PROF.', sv_light_lbl: 'LIGER.',
-    sv_hrv_unit: 'ms — BUENO',
+    sv_hrv_unit: 'ms',
+    bstat: { optimal:'ÓPTIMO', good:'BUENO', normal:'NORMAL', low:'BAJO', high:'ALTO', elevated:'ELEVADA', moderate:'MODERADO' },
     sv_temp_lbl: 'TEMP.', sv_stress_lbl: 'ESTRÉS',
     // Profile view
     pv_title: 'PERFIL', pv_sub: '// CONFIGURACIÓN',
@@ -1761,8 +1785,12 @@ const T = {
     pv_sec_sync: 'SINCRONIZACIÓN',
     pv_interval_lbl: 'INTERVALO',
     pv_notif_lbl: 'NOTIFICACIONES',
+    pv_lastsync_lbl: 'ÚLTIMA SYNC',
     pv_sec_info: 'INFORMACIÓN',
     pv_version_lbl: 'VERSIÓN',
+    pv_export_lbl: 'EXPORTAR DATOS',
+    pv_export_ok: 'Datos exportados',
+    pv_export_empty: 'No hay historial para exportar',
     pv_status_demo: 'MODO DEMO',
     pv_status_live: '◆ EN VIVO',
   },
@@ -1802,6 +1830,7 @@ const T = {
     hv_rec_lbl:'// RECOVERY SCORE', hv_rhr_lbl:'// RESTING HEART RATE', hv_sleep_lbl:'// SLEEP PER NIGHT',
     hv_empty:'CONNECT FITBIT TO SEE TRENDS', hv_no_data:'NO DATA IN THIS RANGE',
     hv_avg:'AVG', hv_min:'MIN', hv_max:'MAX', hv_hrs:'h', hv_bpm:'bpm',
+    hv_trend_better:'Improving', hv_trend_worse:'Declining', hv_trend_flat:'Stable',
     onb: {
       recovery: { ttl:'Recovery Score', bd:'<p>Shows how <strong>recovered</strong> your body is today, on a <strong>0 to 100</strong> scale.</p><p>It blends four factors: sleep duration, efficiency, % of deep+REM, and resting heart rate.</p><p><strong>67+</strong> peak · <strong>50-66</strong> good · <strong>34-49</strong> moderate · <strong>0-33</strong> rest.</p>' },
       strain:   { ttl:'Strain', bd:'<p>Measures cardio load accumulated today, scale <strong>0 to 21</strong>.</p><p>Weights minutes in heart-rate zones: <code>Fat Burn ×0.6</code>, <code>Cardio ×2.0</code>, <code>Peak ×4.5</code>.</p><p>A rest day should sit at 0-3, an intense workout 14+.</p>' },
@@ -1867,7 +1896,8 @@ const T = {
     sv_body_lbl: '// BODY',
     sv_rest_lbl: 'RESTING', sv_max_lbl: 'MAX', sv_max_unit: 'BPM TODAY',
     sv_deep_lbl: 'DEEP', sv_light_lbl: 'LIGHT',
-    sv_hrv_unit: 'ms — GOOD',
+    sv_hrv_unit: 'ms',
+    bstat: { optimal:'OPTIMAL', good:'GOOD', normal:'NORMAL', low:'LOW', high:'HIGH', elevated:'ELEVATED', moderate:'MODERATE' },
     sv_temp_lbl: 'TEMP.', sv_stress_lbl: 'STRESS',
     // Profile view
     pv_title: 'PROFILE', pv_sub: '// SETTINGS',
@@ -1879,8 +1909,12 @@ const T = {
     pv_sec_sync: 'SYNC',
     pv_interval_lbl: 'INTERVAL',
     pv_notif_lbl: 'NOTIFICATIONS',
+    pv_lastsync_lbl: 'LAST SYNC',
     pv_sec_info: 'INFO',
     pv_version_lbl: 'VERSION',
+    pv_export_lbl: 'EXPORT DATA',
+    pv_export_ok: 'Data exported',
+    pv_export_empty: 'No history to export',
     pv_status_demo: 'DEMO MODE',
     pv_status_live: '◆ LIVE',
   }
@@ -1968,7 +2002,9 @@ function setLang(l) {
   setText('pv-connect-btn', t.pv_connect_btn); setText('pv-disconnect-btn', t.pv_disconnect_btn);
   setText('pv-sec-appearance', t.pv_sec_appearance); setText('pv-theme-lbl', t.pv_theme_lbl); setText('pv-lang-lbl', t.pv_lang_lbl);
   setText('pv-sec-sync', t.pv_sec_sync); setText('pv-interval-lbl', t.pv_interval_lbl); setText('pv-notif-lbl', t.pv_notif_lbl);
+  setText('pv-lastsync-lbl', t.pv_lastsync_lbl);
   setText('pv-sec-info', t.pv_sec_info); setText('pv-version-lbl', t.pv_version_lbl);
+  setText('pv-export-lbl', t.pv_export_lbl);
   // Re-apply theme overrides if theme is active
   if (theme) applyThemeText(theme);
 }
@@ -2276,6 +2312,27 @@ function renderStats() {
   document.getElementById('sv-spo2-val').textContent   = gv('spo2v') || '—';
   document.getElementById('sv-temp-val').textContent   = gv('tempv') || '—';
   document.getElementById('sv-stress-val').textContent = gv('stressv') || '—';
+  setBodyStatus('sv-hrv-stat',    bodyStatus('hrv',    parseFloat(gv('hrvv'))));
+  setBodyStatus('sv-spo2-stat',   bodyStatus('spo2',   parseFloat(gv('spo2v'))));
+  setBodyStatus('sv-temp-stat',   bodyStatus('temp',   parseFloat(gv('tempv'))));
+  setBodyStatus('sv-stress-stat', bodyStatus('stress', parseFloat(gv('stressv'))));
+}
+// Map a body-metric value to a {key, cls} status using standard healthy ranges.
+function bodyStatus(metric, v) {
+  if (v == null || isNaN(v)) return null;
+  switch (metric) {
+    case 'hrv':    return v >= 60 ? {key:'optimal',cls:'good'} : v >= 40 ? {key:'good',cls:'good'} : {key:'low',cls:'warn'};
+    case 'spo2':   return v >= 95 ? {key:'normal',cls:'good'}  : v >= 90 ? {key:'low',cls:'warn'}  : {key:'low',cls:'bad'};
+    case 'temp':   return v >= 35 && v <= 37.5 ? {key:'normal',cls:'good'} : v > 37.5 ? {key:'elevated',cls:'warn'} : {key:'low',cls:'warn'};
+    case 'stress': return v <= 33 ? {key:'low',cls:'good'} : v <= 66 ? {key:'moderate',cls:'warn'} : {key:'high',cls:'bad'};
+  }
+  return null;
+}
+function setBodyStatus(id, st) {
+  const el = document.getElementById(id); if (!el) return;
+  if (!st) { el.textContent = ''; el.className = 'sv-mstat'; return; }
+  el.textContent = (T[lang].bstat && T[lang].bstat[st.key]) || '';
+  el.className = 'sv-mstat ' + st.cls;
 }
 
 // ══════ PROFILE VIEW ══════
@@ -2311,6 +2368,29 @@ function renderProfile() {
   // Notifications toggle
   const toggle = document.getElementById('pv-notif-toggle');
   if (toggle) toggle.classList.toggle('on', notifEnabled());
+
+  // Last sync time
+  const ls = document.getElementById('pv-lastsync-val');
+  if (ls) {
+    const ts = window._notifState && window._notifState.lastSync;
+    ls.textContent = (isReal && ts) ? new Date(ts).toLocaleTimeString(lang === 'es' ? 'es-ES' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : '—';
+  }
+}
+
+// Export all cached history (IndexedDB) as a downloadable JSON file.
+async function exportData() {
+  const t = T[lang];
+  let rows = [];
+  try { rows = await _hGetAll(); } catch (e) {}
+  if (!rows || !rows.length) { showToast(t.pv_export_empty, 'info'); return; }
+  const payload = { app: 'fitbit-air-dashboard', exported: new Date().toISOString(), days: rows.length, history: rows };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `fitbit-air-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast(t.pv_export_ok, 'info');
 }
 
 // ══════ DISCONNECT FITBIT ══════
@@ -3290,6 +3370,19 @@ function _hStat(rows, key, fmt) {
   const t = T[lang];
   return `<strong>${fmt(avg)}</strong> ${t.hv_avg} · ${fmt(min)} ${t.hv_min} · ${fmt(max)} ${t.hv_max}`;
 }
+// Trend over the range: 2nd-half avg vs 1st-half avg, with a 2% deadband.
+// lowerBetter inverts the good/bad coloring (e.g. resting HR going down is good).
+function _hTrend(rows, key, lowerBetter) {
+  const vals = rows.map(r => r[key]).filter(v => v != null);
+  if (vals.length < 4) return '';
+  const half = Math.floor(vals.length / 2);
+  const avg = a => a.reduce((x,y)=>x+y,0) / a.length;
+  const a1 = avg(vals.slice(0, half)), a2 = avg(vals.slice(half));
+  const d = a2 - a1, t = T[lang];
+  if (Math.abs(d) <= Math.abs(a1) * 0.02) return ` <span class="hv-trend trend-flat" title="${t.hv_trend_flat}">→</span>`;
+  const up = d > 0, good = lowerBetter ? !up : up;
+  return ` <span class="hv-trend ${good ? 'trend-up' : 'trend-down'}" title="${good ? t.hv_trend_better : t.hv_trend_worse}">${up ? '↑' : '↓'}</span>`;
+}
 
 async function renderHistory() {
   if (window._histRange == null) window._histRange = 7;
@@ -3324,9 +3417,9 @@ async function renderHistory() {
   const recStat = _hStat(rows, 'recovery', v => Math.round(v));
   const rhrStat = _hStat(rows, 'rhr', v => Math.round(v) + ' ' + t.hv_bpm);
   const slpStat = _hStat(rows, 'minutesAsleep', v => (v/60).toFixed(1) + t.hv_hrs);
-  document.getElementById('hv-rec-stat').innerHTML = recStat || '';
-  document.getElementById('hv-rhr-stat').innerHTML = rhrStat || '';
-  document.getElementById('hv-sleep-stat').innerHTML = slpStat || '';
+  document.getElementById('hv-rec-stat').innerHTML   = recStat ? recStat + _hTrend(rows, 'recovery', false) : '';
+  document.getElementById('hv-rhr-stat').innerHTML   = rhrStat ? rhrStat + _hTrend(rows, 'rhr', true) : '';
+  document.getElementById('hv-sleep-stat').innerHTML = slpStat ? slpStat + _hTrend(rows, 'minutesAsleep', false) : '';
   // Draw
   _hRenderLineSVG(recSvg, _hLine(rows, 'recovery', { fixedMin:0, fixedMax:100 }), 'rec');
   _hRenderLineSVG(rhrSvg, _hLine(rows, 'rhr'), 'rhr');
