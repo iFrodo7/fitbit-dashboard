@@ -939,7 +939,7 @@ body.t-naruto span.vval{
   <div class="toast" id="toast"></div>
 
   <!-- Futuristic ticker -->
-  <div id="futtick"><div class="fti">◆ FITBIT AIR ONLINE &nbsp;&nbsp;&nbsp; ◆ HR: <span id="tickhr">68</span> BPM &nbsp;&nbsp;&nbsp; ◆ SpO2: 98% &nbsp;&nbsp;&nbsp; ◆ TEMP: 36.4°C &nbsp;&nbsp;&nbsp; ◆ BATERÍA: 87% &nbsp;&nbsp;&nbsp; ◆ GOOGLE HEALTH PREMIUM &nbsp;&nbsp;&nbsp;</div></div>
+  <div id="futtick"><div class="fti">◆ FITBIT AIR ONLINE &nbsp;&nbsp;&nbsp; ◆ HR: <span id="tickhr">68</span> BPM &nbsp;&nbsp;&nbsp; ◆ SpO2: <span id="tickspo2">98</span>% &nbsp;&nbsp;&nbsp; ◆ TEMP: <span id="ticktemp">36.4</span>°C &nbsp;&nbsp;&nbsp;</div></div>
 
   <!-- Header -->
   <header class="db-hdr">
@@ -1673,7 +1673,12 @@ const T = {
     g_eye: '// ANÁLISIS BIOMÉTRICO ACTIVO',
     g_pfx: 'BUEN DÍA, ',
     rl: '// ÍNDICE DE PREPARACIÓN',
-    optimal: 'ÓPTIMO',
+    rstat: {
+      fut:    { peak:'ÓPTIMO', good:'BUENO', moderate:'MODERADO', low:'BAJO' },
+      mc:     { peak:'VIDA COMPLETA', good:'BUENA SALUD', moderate:'HP MEDIO', low:'HP BAJO' },
+      halo:   { peak:'LISTO PARA COMBATE', good:'ESCUDOS NOMINALES', moderate:'ESCUDOS BAJOS', low:'ESCUDO CRÍTICO' },
+      naruto: { peak:'最大 · CHAKRA COMPLETO', good:'CHAKRA ESTABLE', moderate:'CHAKRA MEDIO', low:'CHAKRA BAJO' },
+    },
     lbl_hr: '// FREC. CARDÍACA',
     u_hr: 'BPM — REPOSO',
     lbl_spo2: '// SATURACIÓN O₂',
@@ -1746,13 +1751,13 @@ const T = {
     logo_s_naruto: '木ノ葉隠れの里 · KONOHA',
     // Theme overrides
     mc_eye: '> ESTADÍSTICAS DE JUGADOR',
-    mc_pfx: 'JUGADOR: ', mc_rl: '> BARRA DE VIDA', mc_status: 'VIDA COMPLETA',
+    mc_pfx: 'JUGADOR: ', mc_rl: '> BARRA DE VIDA',
     mc_coach: '> CONSEJOS DEL JUEGO',
     halo_eye: '// VISR OS — BIOMONITOR SPARTAN — CLASIFICADO UNSC',
-    halo_pfx: 'SPARTAN ', halo_rl: '// PREPARACIÓN DE COMBATE', halo_status: 'LISTO PARA COMBATE',
+    halo_pfx: 'SPARTAN ', halo_rl: '// PREPARACIÓN DE COMBATE',
     halo_coach: '// ANÁLISIS DE CORTANA',
     naruto_eye: '木ノ葉の里 — SISTEMA SHINOBI KONOHA',
-    naruto_pfx: '忍者: ', naruto_rl: '// チャクラ PREPARACIÓN', naruto_status: '最大 · CHAKRA COMPLETO',
+    naruto_pfx: '忍者: ', naruto_rl: '// チャクラ PREPARACIÓN',
     naruto_coach: '// 仙人モード ANÁLISIS SABIO',
     connected: '◆ FITBIT AIR CONECTADO', live: 'EN VIVO',
     sync_toast: (t) => `◆ SYNC ${t}`,
@@ -1798,7 +1803,12 @@ const T = {
     g_eye: '// BIOMETRIC ANALYSIS ACTIVE',
     g_pfx: 'GOOD DAY, ',
     rl: '// READINESS INDEX',
-    optimal: 'OPTIMAL',
+    rstat: {
+      fut:    { peak:'OPTIMAL', good:'GOOD', moderate:'MODERATE', low:'LOW' },
+      mc:     { peak:'FULL HP', good:'HEALTHY', moderate:'HALF HP', low:'LOW HP' },
+      halo:   { peak:'COMBAT READY', good:'SHIELDS NOMINAL', moderate:'SHIELDS LOW', low:'SHIELD CRITICAL' },
+      naruto: { peak:'最大 · CHAKRA FULL', good:'CHAKRA STABLE', moderate:'CHAKRA MID', low:'CHAKRA LOW' },
+    },
     lbl_hr: '// HEART RATE',
     u_hr: 'BPM — RESTING',
     lbl_spo2: '// O₂ SATURATION',
@@ -1870,13 +1880,13 @@ const T = {
     logo_s_halo: 'UNSC MJOLNIR BIOMONITOR',
     logo_s_naruto: '木ノ葉隠れの里 · KONOHA',
     mc_eye: '> PLAYER STATS LOADED',
-    mc_pfx: 'PLAYER: ', mc_rl: '> HEALTH BAR', mc_status: 'FULL HP',
+    mc_pfx: 'PLAYER: ', mc_rl: '> HEALTH BAR',
     mc_coach: '> GAME TIPS',
     halo_eye: '// VISR OS — SPARTAN BIOMONITOR — UNSC CLASSIFIED',
-    halo_pfx: 'SPARTAN ', halo_rl: '// COMBAT READINESS', halo_status: 'COMBAT READY',
+    halo_pfx: 'SPARTAN ', halo_rl: '// COMBAT READINESS',
     halo_coach: '// CORTANA ANALYSIS',
     naruto_eye: '木ノ葉の里 — KONOHA SHINOBI SYSTEM',
-    naruto_pfx: '忍者: ', naruto_rl: '// チャクラ READINESS', naruto_status: '最大 · CHAKRA FULL',
+    naruto_pfx: '忍者: ', naruto_rl: '// チャクラ READINESS',
     naruto_coach: '// 仙人モード SAGE ANALYSIS',
     connected: '◆ FITBIT AIR CONNECTED', live: 'LIVE',
     sync_toast: (t) => `◆ SYNC ${t}`,
@@ -1936,7 +1946,7 @@ function setLang(l) {
   setText('g-eye', t.g_eye);
   setText('g-pfx', t.g_pfx);
   setText('rl', t.rl);
-  setText('rstatus', t.optimal);
+  updateStatusLabel();
   setText('lbl-hr', t.lbl_hr); setText('u-hr', t.u_hr);
   setText('lbl-spo2', t.lbl_spo2); setText('lbl-temp', t.lbl_temp);
   setText('u-hrv', t.u_hrv); setText('u-temp', t.u_temp);
@@ -2037,6 +2047,7 @@ function goBack() {
 
 function applyTheme(t) {
   document.getElementById('futtick').style.display = t === 'fut' ? 'block' : 'none';
+  if (t === 'fut') syncTicker();
   // Naruto chakra rings
   document.querySelectorAll('.nring').forEach(e => e.remove());
   if (t === 'naruto') {
@@ -2065,12 +2076,35 @@ function applyTheme(t) {
 function applyThemeText(t) {
   const ls = T[lang];
   const map = {
-    mc:     { 'g-eye': ls.mc_eye, 'g-pfx': ls.mc_pfx, rl: ls.mc_rl, rstatus: ls.mc_status, 'lbl-coach': ls.mc_coach, i1t: ls.i1t.replace('RECUPERACIÓN','RECOVERY').replace('RECOVERY','[!] RECOVERY'), i2t: '[!] ' + (lang==='es'?'SUEÑO':'SLEEP'), i3t: '[!] ' + (lang==='es'?'ACTIVIDAD':'ACTIVITY'), i1x: lang==='es'?'HRV +6ms. Recuperación completa. Listo para grind. Dificultad: Alta recomendada.':'HRV +6ms. Recovery full. Ready to grind. Difficulty: Hard recommended.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Buff: Bien descansado activo.':'Deep sleep +12% this week. Buff: Well Rested active.', i3x: lang==='es'?'Racha de 4 días. Logro: Marathon Runner si terminas hoy.':'4-day streak. Achievement: Marathon Runner incoming if today complete.' },
-    halo:   { 'g-eye': ls.halo_eye, 'g-pfx': ls.halo_pfx, rl: ls.halo_rl, rstatus: ls.halo_status, 'lbl-coach': ls.halo_coach, i1t: '◈ ' + (lang==='es'?'ESCUDOS':'SHIELDS'), i2t: '◈ ' + (lang==='es'?'CICLO DE DESCANSO':'REST CYCLE'), i3t: '◈ ' + (lang==='es'?'REGISTRO DE MISIÓN':'MISSION LOG'), i1x: lang==='es'?'Recarga de escudo nominal. HRV +6ms. Combate de alta intensidad recomendado. Aumentaciones al 98%.':'Shield recharge nominal. HRV +6ms. High-intensity engagement recommended. Augmentations at 98%.', i2x: lang==='es'?'Protocolo de sueño profundo +12%. Recuperación neural óptima. Aumentaciones Spartan-IV al máximo.':'Deep sleep protocol +12%. Neural recovery optimal. Spartan-IV augmentations at peak.', i3x: lang==='es'?'Racha de misión de 4 días activa. Objetivo de pasos 78%. Aumentar radio de patrulla.':'4-day mission streak active. Step objective 78%. Increase patrol radius to complete.' },
-    naruto: { 'g-eye': ls.naruto_eye, 'g-pfx': ls.naruto_pfx, rl: ls.naruto_rl, rstatus: ls.naruto_status, 'lbl-coach': ls.naruto_coach, i1t: '🔥 ' + (lang==='es'?'RECUPERACIÓN DE CHAKRA':'CHAKRA RECOVERY'), i2t: '🌙 ' + (lang==='es'?'JUTSU DE DESCANSO':'REST JUTSU'), i3t: '⚡ ' + (lang==='es'?'ARCO DE ENTRENAMIENTO':'TRAINING ARC'), i1x: lang==='es'?'Flujo de chakra +6ms. Bobinas a plena capacidad. Lista para misión S. Modo Sabio disponible.':'Chakra flow +6ms. Coils at full capacity. Ready for S-rank mission. Sage Mode available.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Reservas de chakra restauradas. Descanso nivel Bijuu.':'Deep sleep +12% this week. Chakra pools restored. Bijuu-level rest achieved. Dattebayo!', i3x: lang==='es'?'Racha de entrenamiento de 4 días. Completar hoy desbloquea: "El Camino del Ninja". ¡Dattebayo!':'4-day training arc streak. Complete today: "Ninja Way" achievement unlocked. Believe it!' },
+    mc:     { 'g-eye': ls.mc_eye, 'g-pfx': ls.mc_pfx, rl: ls.mc_rl, 'lbl-coach': ls.mc_coach, i1t: ls.i1t.replace('RECUPERACIÓN','RECOVERY').replace('RECOVERY','[!] RECOVERY'), i2t: '[!] ' + (lang==='es'?'SUEÑO':'SLEEP'), i3t: '[!] ' + (lang==='es'?'ACTIVIDAD':'ACTIVITY'), i1x: lang==='es'?'HRV +6ms. Recuperación completa. Listo para grind. Dificultad: Alta recomendada.':'HRV +6ms. Recovery full. Ready to grind. Difficulty: Hard recommended.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Buff: Bien descansado activo.':'Deep sleep +12% this week. Buff: Well Rested active.', i3x: lang==='es'?'Racha de 4 días. Logro: Marathon Runner si terminas hoy.':'4-day streak. Achievement: Marathon Runner incoming if today complete.' },
+    halo:   { 'g-eye': ls.halo_eye, 'g-pfx': ls.halo_pfx, rl: ls.halo_rl, 'lbl-coach': ls.halo_coach, i1t: '◈ ' + (lang==='es'?'ESCUDOS':'SHIELDS'), i2t: '◈ ' + (lang==='es'?'CICLO DE DESCANSO':'REST CYCLE'), i3t: '◈ ' + (lang==='es'?'REGISTRO DE MISIÓN':'MISSION LOG'), i1x: lang==='es'?'Recarga de escudo nominal. HRV +6ms. Combate de alta intensidad recomendado. Aumentaciones al 98%.':'Shield recharge nominal. HRV +6ms. High-intensity engagement recommended. Augmentations at 98%.', i2x: lang==='es'?'Protocolo de sueño profundo +12%. Recuperación neural óptima. Aumentaciones Spartan-IV al máximo.':'Deep sleep protocol +12%. Neural recovery optimal. Spartan-IV augmentations at peak.', i3x: lang==='es'?'Racha de misión de 4 días activa. Objetivo de pasos 78%. Aumentar radio de patrulla.':'4-day mission streak active. Step objective 78%. Increase patrol radius to complete.' },
+    naruto: { 'g-eye': ls.naruto_eye, 'g-pfx': ls.naruto_pfx, rl: ls.naruto_rl, 'lbl-coach': ls.naruto_coach, i1t: '🔥 ' + (lang==='es'?'RECUPERACIÓN DE CHAKRA':'CHAKRA RECOVERY'), i2t: '🌙 ' + (lang==='es'?'JUTSU DE DESCANSO':'REST JUTSU'), i3t: '⚡ ' + (lang==='es'?'ARCO DE ENTRENAMIENTO':'TRAINING ARC'), i1x: lang==='es'?'Flujo de chakra +6ms. Bobinas a plena capacidad. Lista para misión S. Modo Sabio disponible.':'Chakra flow +6ms. Coils at full capacity. Ready for S-rank mission. Sage Mode available.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Reservas de chakra restauradas. Descanso nivel Bijuu.':'Deep sleep +12% this week. Chakra pools restored. Bijuu-level rest achieved. Dattebayo!', i3x: lang==='es'?'Racha de entrenamiento de 4 días. Completar hoy desbloquea: "El Camino del Ninja". ¡Dattebayo!':'4-day training arc streak. Complete today: "Ninja Way" achievement unlocked. Believe it!' },
     fut:    {}
   };
   if (map[t]) Object.entries(map[t]).forEach(([id,v]) => setText(id, v));
+  updateStatusLabel();
+}
+
+// Readiness status label — themed flavor that reflects the real recovery score.
+// Single source: window._lastRec (the readiness ring). Falls back to fut labels.
+function updateStatusLabel() {
+  const el = document.getElementById('rstatus'); if (!el) return;
+  const score = window._lastRec;
+  if (score == null) return; // keep markup default until first score is computed
+  const level = score >= 67 ? 'peak' : score >= 50 ? 'good' : score >= 34 ? 'moderate' : 'low';
+  const map = (T[lang].rstat && (T[lang].rstat[theme] || T[lang].rstat.fut));
+  if (map) el.textContent = map[level];
+  el.style.color = score >= 67 ? 'var(--tpos)' : score >= 34 ? '#f59e0b' : 'var(--tneg)';
+}
+
+// Mirror live HR / SpO2 / temp from the cards into the fut-theme ticker.
+function syncTicker() {
+  const tick = document.getElementById('futtick');
+  if (!tick || tick.style.display === 'none') return;
+  const copy = (srcId, dstId) => { const s = document.getElementById(srcId), d = document.getElementById(dstId); if (s && d) d.textContent = s.textContent; };
+  copy('hrlive', 'tickhr');
+  copy('spo2v', 'tickspo2');
+  copy('tempv', 'ticktemp');
 }
 
 // Apply lang on load
@@ -2521,7 +2555,7 @@ function initDash() {
         const e = document.getElementById(id);
         if (e && n !== c) { e.textContent = n; pulseValue(e); }
       });
-      if (document.getElementById('tickhr')) document.getElementById('tickhr').textContent = n;
+      syncTicker();
       hrHist.push(n); if (hrHist.length>48) hrHist.shift(); buildHRC(hrHist);
     }, 4000);
     setInterval(() => {
@@ -2711,10 +2745,9 @@ function updateScores({ rec, strain, sleepPct }) {
   if (spb) setTimeout(()=>{ spb.style.width=sleepPct+'%'; },100);
   animN('sleep-pct-val', 0, sleepPct, 1000);
   // Recomendación y color del status
-  window._lastRec = rec; // para re-traducir en setLang
+  window._lastRec = rec; // single recovery source (read by Stats + status label)
   setText('wrec', recTextFor(rec));
-  const statusEl=document.getElementById('rstatus');
-  if (statusEl) statusEl.style.color = rec>=67?'var(--tpos)':rec>=34?'#f59e0b':'var(--tneg)';
+  updateStatusLabel();
 }
 function recTextFor(rec) {
   return rec>=67 ? (lang==='es'?'Listo para entrenar al máximo':'Ready for peak training') :
@@ -2852,6 +2885,7 @@ async function pollFast() {
       if (String(ns)!==document.getElementById('stepsv').textContent.replace(/\D/g,'')) { document.getElementById('stepsv').textContent=ns.toLocaleString('en-US'); const pct=Math.min((ns/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); flash('stepsv'); }
       const nc=s.activityCalories||0; if(String(nc)!==document.getElementById('calv').textContent){document.getElementById('calv').textContent=nc;flash('calv');}
     }
+    syncTicker();
     animSBar(); showToast(T[lang].sync_toast(new Date().toLocaleTimeString(lang==='es'?'es':'en',{hour:'2-digit',minute:'2-digit',second:'2-digit'})));
   } catch(e) { console.warn(e); } finally { ring.classList.remove('on'); document.body.classList.remove('is-syncing'); }
 }
@@ -2893,6 +2927,7 @@ async function loadReal() {
     // HR zones con datos reales
     const zones_real = hr?.['activities-heart']?.[0]?.value?.heartRateZones || [];
     setHRZones({ zones: zones_real, restHR: rhr_real, maxHR: maxHR_real || 140 });
+    syncTicker();
     isReal=true; setText('stxt',T[lang].live); const dot=document.getElementById('sdot'); dot.style.background='#00ff88'; dot.style.boxShadow='0 0 8px #00ff88'; document.getElementById('dstrip').style.display='none'; closeModal(); startPoll(); showToast(T[lang].connected);
   } catch(e) { if(String(e).includes('401')){if(await refreshTok())await loadReal();else{localStorage.removeItem('fb_tok');token='';}} } finally { hideLoad(); }
 }
