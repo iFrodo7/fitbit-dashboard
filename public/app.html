@@ -1977,7 +1977,8 @@ const T = {
     cyc_phase_sub: { menstrual:'Probabilidad de embarazo muy baja.', follicular:'La fertilidad empieza a subir.', fertile:'Días de mayor probabilidad de embarazo.', ovulation:'Hoy es tu pico de fertilidad.', luteal:'Probabilidad de embarazo baja; la regla se acerca.' },
     cyc_day: 'Día', cyc_in: 'en', cyc_days: 'días', cyc_today: 'hoy', cyc_peak: 'pico', cyc_period_short: 'regla',
     cyc_bio_on: 'Confirmación biométrica: tras ovular, tu temperatura de piel sube ~0.3°C y tu FC en reposo tiende a subir en fase lútea. AIRA cruza esto con tu ventana estimada.',
-    cyc_q_last: 'Primer día de tu última regla (AAAA-MM-DD):', cyc_q_len: 'Duración promedio de tu ciclo en días (ej. 28):',
+    cyc_q_last: 'Primer día de tu última regla (AAAA-MM-DD):', cyc_q_len: 'Duración promedio de tu ciclo en días (ej. 28):', cyc_q_period: '¿Cuántos días dura tu periodo normalmente? (ej. 5):',
+    cyc_err_period: 'Duración entre 1 y 10 días',
     cyc_on_lbl: 'SEGUIMIENTO DE CICLO',
     sv_sleep_lbl: '// SUEÑO', sv_sltotal_lbl: 'TOTAL', sv_sltotal_unit: 'dormido', sv_slscore_lbl: 'CALIDAD',
     sv_hrv_unit: 'ms',
@@ -2130,7 +2131,8 @@ const T = {
     cyc_phase_sub: { menstrual:'Very low chance of pregnancy.', follicular:'Fertility starts rising.', fertile:'Highest chance of pregnancy.', ovulation:'Today is your fertility peak.', luteal:'Low chance of pregnancy; period approaching.' },
     cyc_day: 'Day', cyc_in: 'in', cyc_days: 'days', cyc_today: 'today', cyc_peak: 'peak', cyc_period_short: 'period',
     cyc_bio_on: 'Biometric confirmation: after ovulation your skin temp rises ~0.3°C and resting HR tends to rise in the luteal phase. AIRA cross-checks this with your estimated window.',
-    cyc_q_last: 'First day of your last period (YYYY-MM-DD):', cyc_q_len: 'Your average cycle length in days (e.g. 28):',
+    cyc_q_last: 'First day of your last period (YYYY-MM-DD):', cyc_q_len: 'Your average cycle length in days (e.g. 28):', cyc_q_period: 'How many days does your period usually last? (e.g. 5):',
+    cyc_err_period: 'Duration must be 1–10 days',
     cyc_on_lbl: 'CYCLE TRACKING',
     sv_sleep_lbl: '// SLEEP', sv_sltotal_lbl: 'TOTAL', sv_sltotal_unit: 'asleep', sv_slscore_lbl: 'QUALITY',
     sv_hrv_unit: 'ms',
@@ -2621,18 +2623,37 @@ function renderCycleHomeChip() {
 }
 function cycleLogPeriod() {
   const t = T[lang], cur = _cycData() || {};
+  // Paso 1: fecha de inicio
   const v = prompt(t.cyc_q_last, cur.last || new Date().toISOString().slice(0,10));
   if (!v) return;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(v.trim())) { showToast(lang === 'es' ? 'Usa formato AAAA-MM-DD' : 'Use format YYYY-MM-DD', 'error'); return; }
-  const data = _cycData() || { len:28, period:5 }; data.last = v.trim();
+  const data = cur.len ? { ...cur } : { len:28, period:5 };
+  data.last = v.trim();
+  // Paso 2: duración de la menstruación (solo si no está configurada aún)
+  if (!data.period || data.period === 5) {
+    const vp = prompt(t.cyc_q_period, String(data.period || 5));
+    if (vp) {
+      const np = parseInt(vp);
+      if (!isNaN(np) && np >= 1 && np <= 10) data.period = np;
+      else if (!isNaN(np)) { showToast(t.cyc_err_period, 'error'); return; }
+    }
+  }
   localStorage.setItem('fb_cycle', JSON.stringify(data));
   renderCycle(); showToast(lang === 'es' ? 'Regla registrada' : 'Period logged', 'success');
 }
 function cycleSettings() {
-  const t = T[lang], cur = _cycData() || { len:28 };
-  const v = prompt(t.cyc_q_len, String(cur.len || 28)); if (!v) return;
-  const n = parseInt(v); if (isNaN(n) || n < 20 || n > 45) { showToast(lang === 'es' ? 'Ciclo entre 20 y 45 días' : 'Cycle 20–45 days', 'error'); return; }
-  const data = _cycData() || {}; data.len = n; if (!data.period) data.period = 5;
+  const t = T[lang], cur = _cycData() || { len:28, period:5 };
+  // Paso 1: duración total del ciclo
+  const v1 = prompt(t.cyc_q_len, String(cur.len || 28));
+  if (!v1) return;
+  const n1 = parseInt(v1);
+  if (isNaN(n1) || n1 < 20 || n1 > 45) { showToast(lang === 'es' ? 'Ciclo entre 20 y 45 días' : 'Cycle 20–45 days', 'error'); return; }
+  // Paso 2: duración de la menstruación
+  const v2 = prompt(t.cyc_q_period, String(cur.period || 5));
+  if (!v2) return;
+  const n2 = parseInt(v2);
+  if (isNaN(n2) || n2 < 1 || n2 > 10) { showToast(t.cyc_err_period, 'error'); return; }
+  const data = { ...cur, len: n1, period: n2 };
   localStorage.setItem('fb_cycle', JSON.stringify(data));
   renderCycle(); showToast(lang === 'es' ? 'Ciclo actualizado' : 'Cycle updated', 'success');
 }
