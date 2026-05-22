@@ -257,6 +257,12 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .cyc-btn.ghost{background:transparent;color:var(--ta2);border:1px solid var(--ta2);}
 .cyc-btn:active{opacity:0.7;}
 .cyc-disc{font-size:9px;opacity:0.4;line-height:1.5;margin-top:11px;text-align:center;}
+/* Cycle quick-glance chip on Home */
+.cyc-home-chip{display:none;align-items:center;gap:7px;padding:7px 14px 7px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--ta2);border-radius:20px;font-size:10px;letter-spacing:1.5px;color:var(--ta2);text-transform:uppercase;cursor:pointer;margin-bottom:12px;width:fit-content;max-width:100%;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:opacity 0.15s;overflow:hidden;}
+.cyc-home-chip.on{display:flex;}
+.cyc-home-chip:active{opacity:0.7;}
+.cyc-chip-icon{font-size:14px;flex-shrink:0;line-height:1;}
+.cyc-chip-arrow{opacity:0.4;margin-left:2px;font-size:12px;}
 .sv-mstat.good{color:var(--tpos,#22c55e);}
 .sv-mstat.warn{color:#f59e0b;}
 .sv-mstat.bad{color:var(--tneg,#ef4444);}
@@ -1048,6 +1054,13 @@ body.t-naruto span.vval{
       <div class="db-date" id="clock" style="margin-top:0;align-self:flex-end;padding-bottom:4px;"></div>
     </div>
 
+    <!-- Cycle quick-glance chip — visible on Home when cycle tracking is on -->
+    <div class="cyc-home-chip" id="cyc-home-chip" onclick="navigate('stats')" role="button" aria-label="Ciclo">
+      <span class="cyc-chip-icon">🌸</span>
+      <span id="cyc-chip-txt"></span>
+      <span class="cyc-chip-arrow">›</span>
+    </div>
+
     <!-- ═══ 3-col: ring | vitals | chart+sleep ═══ -->
     <div class="mg">
       <div class="card rw">
@@ -1487,32 +1500,6 @@ body.t-naruto span.vval{
       </div>
     </div>
 
-    <!-- Cycle / Fertility (women's health) — shown only when enabled. All data stays on-device. -->
-    <div class="card hv-card cyc-card" id="sv-cycle" style="display:none;">
-      <div class="clbl" style="display:flex;justify-content:space-between;align-items:baseline;"><span id="cyc-lbl">// CICLO</span><span class="cyc-dchip" id="cyc-day"></span></div>
-      <div class="cyc-phase" id="cyc-phase">—</div>
-      <div class="cyc-sub" id="cyc-phase-sub"></div>
-      <div class="cyc-track" id="cyc-bar"></div>
-      <div class="sv-grid2" style="margin-top:14px;">
-        <div class="sv-mini">
-          <div class="sv-mlbl" id="cyc-fert-lbl">VENTANA FÉRTIL</div>
-          <div class="sv-mval cyc-mval" id="cyc-fert-val">—</div>
-          <div class="sv-munit" id="cyc-fert-sub"></div>
-        </div>
-        <div class="sv-mini">
-          <div class="sv-mlbl" id="cyc-next-lbl">PRÓXIMA REGLA</div>
-          <div class="sv-mval cyc-mval" id="cyc-next-val">—</div>
-          <div class="sv-munit" id="cyc-next-sub"></div>
-        </div>
-      </div>
-      <div class="cyc-bio" id="cyc-bio"></div>
-      <div class="cyc-actions">
-        <button class="cyc-btn" id="cyc-log-btn" onclick="cycleLogPeriod()">REGISTRAR REGLA</button>
-        <button class="cyc-btn ghost" id="cyc-set-btn" onclick="cycleSettings()">AJUSTES</button>
-      </div>
-      <div class="cyc-disc" id="cyc-disc"></div>
-    </div>
-
     <!-- Recovery -->
     <div class="card hv-card">
       <div class="clbl" id="sv-rec-lbl">// RECOVERY SCORE</div>
@@ -1659,6 +1646,32 @@ body.t-naruto span.vval{
         <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-sl-wake-bar" style="width:0%;background:var(--tneg)"></div></div>
         <div class="sv-bar-val" id="sv-sl-wake-tm">—</div>
       </div>
+    </div>
+
+    <!-- Cycle / Fertility — grouped with Fitness & Sleep at bottom, shown only when enabled -->
+    <div class="card hv-card cyc-card" id="sv-cycle" style="display:none;">
+      <div class="clbl" style="display:flex;justify-content:space-between;align-items:baseline;"><span id="cyc-lbl">// CICLO</span><span class="cyc-dchip" id="cyc-day"></span></div>
+      <div class="cyc-phase" id="cyc-phase">—</div>
+      <div class="cyc-sub" id="cyc-phase-sub"></div>
+      <div class="cyc-track" id="cyc-bar"></div>
+      <div class="sv-grid2" style="margin-top:14px;">
+        <div class="sv-mini">
+          <div class="sv-mlbl" id="cyc-fert-lbl">VENTANA FÉRTIL</div>
+          <div class="sv-mval cyc-mval" id="cyc-fert-val">—</div>
+          <div class="sv-munit" id="cyc-fert-sub"></div>
+        </div>
+        <div class="sv-mini">
+          <div class="sv-mlbl" id="cyc-next-lbl">PRÓXIMA REGLA</div>
+          <div class="sv-mval cyc-mval" id="cyc-next-val">—</div>
+          <div class="sv-munit" id="cyc-next-sub"></div>
+        </div>
+      </div>
+      <div class="cyc-bio" id="cyc-bio"></div>
+      <div class="cyc-actions">
+        <button class="cyc-btn" id="cyc-log-btn" onclick="cycleLogPeriod()">REGISTRAR REGLA</button>
+        <button class="cyc-btn ghost" id="cyc-set-btn" onclick="cycleSettings()">AJUSTES</button>
+      </div>
+      <div class="cyc-disc" id="cyc-disc"></div>
     </div>
   </section>
 
@@ -1962,7 +1975,7 @@ const T = {
     cyc_disc: 'Estimación informativa basada en tu ciclo y biométricos. NO es método anticonceptivo ni consejo médico. Tus datos se guardan solo en este dispositivo.',
     cyc_phases: { menstrual:'Menstruación', follicular:'Fase folicular', fertile:'Ventana fértil', ovulation:'Ovulación · máxima fertilidad', luteal:'Fase lútea' },
     cyc_phase_sub: { menstrual:'Probabilidad de embarazo muy baja.', follicular:'La fertilidad empieza a subir.', fertile:'Días de mayor probabilidad de embarazo.', ovulation:'Hoy es tu pico de fertilidad.', luteal:'Probabilidad de embarazo baja; la regla se acerca.' },
-    cyc_day: 'Día', cyc_in: 'en', cyc_days: 'días', cyc_today: 'hoy', cyc_peak: 'pico',
+    cyc_day: 'Día', cyc_in: 'en', cyc_days: 'días', cyc_today: 'hoy', cyc_peak: 'pico', cyc_period_short: 'regla',
     cyc_bio_on: 'Confirmación biométrica: tras ovular, tu temperatura de piel sube ~0.3°C y tu FC en reposo tiende a subir en fase lútea. AIRA cruza esto con tu ventana estimada.',
     cyc_q_last: 'Primer día de tu última regla (AAAA-MM-DD):', cyc_q_len: 'Duración promedio de tu ciclo en días (ej. 28):',
     cyc_on_lbl: 'SEGUIMIENTO DE CICLO',
@@ -2115,7 +2128,7 @@ const T = {
     cyc_disc: 'Informational estimate based on your cycle and biometrics. NOT a contraceptive method or medical advice. Your data stays only on this device.',
     cyc_phases: { menstrual:'Menstruation', follicular:'Follicular phase', fertile:'Fertile window', ovulation:'Ovulation · peak fertility', luteal:'Luteal phase' },
     cyc_phase_sub: { menstrual:'Very low chance of pregnancy.', follicular:'Fertility starts rising.', fertile:'Highest chance of pregnancy.', ovulation:'Today is your fertility peak.', luteal:'Low chance of pregnancy; period approaching.' },
-    cyc_day: 'Day', cyc_in: 'in', cyc_days: 'days', cyc_today: 'today', cyc_peak: 'peak',
+    cyc_day: 'Day', cyc_in: 'in', cyc_days: 'days', cyc_today: 'today', cyc_peak: 'peak', cyc_period_short: 'period',
     cyc_bio_on: 'Biometric confirmation: after ovulation your skin temp rises ~0.3°C and resting HR tends to rise in the luteal phase. AIRA cross-checks this with your estimated window.',
     cyc_q_last: 'First day of your last period (YYYY-MM-DD):', cyc_q_len: 'Your average cycle length in days (e.g. 28):',
     cyc_on_lbl: 'CYCLE TRACKING',
@@ -2237,6 +2250,8 @@ function setLang(l) {
   if (typeof renderProUI === 'function') renderProUI();
   // Re-apply theme overrides if theme is active
   if (theme) applyThemeText(theme);
+  // Re-render cycle chip with new language
+  if (typeof renderCycleHomeChip === 'function') renderCycleHomeChip();
 }
 
 function setText(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
@@ -2582,6 +2597,27 @@ function renderCycle() {
   setText('cyc-next-val', _dFmt(c.nextPeriod));
   setText('cyc-next-sub', `${t.cyc_in} ${Math.max(0, c.daysToNext)} ${t.cyc_days}`);
   setText('cyc-bio', t.cyc_bio_on);
+  renderCycleHomeChip();
+}
+function renderCycleHomeChip() {
+  const el = document.getElementById('cyc-home-chip'); if (!el) return;
+  if (!cycleEnabled()) { el.classList.remove('on'); return; }
+  const t = T[lang], c = computeCycle();
+  if (!c) { el.classList.remove('on'); return; }
+  const phaseName = t.cyc_phases[c.phase] || c.phase;
+  let detail = '';
+  if (c.phase === 'menstrual') {
+    detail = `${t.cyc_day.toLowerCase()} ${c.dayOfCycle}`;
+  } else if (c.phase === 'ovulation') {
+    detail = `${t.cyc_peak} ${t.cyc_today}`;
+  } else if (c.phase === 'fertile' || c.phase === 'follicular') {
+    detail = c.daysToOv > 0 ? `${t.cyc_peak} ${t.cyc_in} ${c.daysToOv}d` : `${t.cyc_peak} ${t.cyc_today}`;
+  } else if (c.phase === 'luteal') {
+    detail = `${t.cyc_period_short} ${t.cyc_in} ${Math.max(0, c.daysToNext)}d`;
+  }
+  const txt = document.getElementById('cyc-chip-txt');
+  if (txt) txt.textContent = detail ? `${phaseName} · ${detail}` : phaseName;
+  el.classList.add('on');
 }
 function cycleLogPeriod() {
   const t = T[lang], cur = _cycData() || {};
@@ -2603,6 +2639,7 @@ function cycleSettings() {
 function toggleCycle() {
   localStorage.setItem('fb_cycle_on', cycleEnabled() ? '0' : '1');
   renderProfile();
+  renderCycleHomeChip();
 }
 
 function renderStats() {
@@ -2959,6 +2996,7 @@ function initDash() {
   document.getElementById('cburl').textContent = REDIR;
   updateClock(); setInterval(updateClock, 1000);
   buildWeeks(); buildHRC(hrHist);
+  renderCycleHomeChip();
   setTimeout(animVals, 300);
   // Welcome onboarding hint (first visit)
   if (!localStorage.getItem('fb_welcomed')) {
