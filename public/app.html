@@ -2041,7 +2041,7 @@ const T = {
     sv_rest_lbl: 'REPOSO', sv_max_lbl: 'MÁXIMO', sv_max_unit: 'BPM HOY',
     sv_deep_lbl: 'PROF.', sv_light_lbl: 'LIGER.', sv_wake_lbl: 'DESP.',
     sv_fit_lbl: '// FITNESS', sv_steps_lbl: 'PASOS', sv_actmin_lbl: 'MIN. ACTIVOS', sv_actcal_lbl: 'CAL. ACTIVAS', sv_totcal_lbl: 'CAL. TOTALES', sv_stepgoal_lbl: 'META',
-    cyc_lbl: '// CICLO', cyc_fert_lbl: 'VENTANA FÉRTIL', cyc_next_lbl: 'PRÓXIMA REGLA', cyc_log: 'REGISTRAR REGLA', cyc_set: 'AJUSTES',
+    cyc_lbl: '// CICLO', cyc_fert_lbl: 'VENTANA FÉRTIL', cyc_fert_lbl_next: 'PRÓX. VENTANA FÉRTIL', cyc_next_lbl: 'PRÓXIMA REGLA', cyc_log: 'REGISTRAR REGLA', cyc_set: 'AJUSTES',
     cyc_setup: 'Registra el primer día de tu última regla para calcular tu ventana fértil.',
     cyc_disc: 'Estimación informativa basada en tu ciclo y biométricos. NO es método anticonceptivo ni consejo médico. Tus datos se guardan solo en este dispositivo.',
     cyc_phases: { menstrual:'Menstruación', follicular:'Fase folicular', fertile:'Ventana fértil', peak:'Pico de fertilidad', ovulation:'Día de ovulación', luteal:'Fase lútea', late:'Periodo tardío' },
@@ -2205,7 +2205,7 @@ const T = {
     sv_rest_lbl: 'RESTING', sv_max_lbl: 'MAX', sv_max_unit: 'BPM TODAY',
     sv_deep_lbl: 'DEEP', sv_light_lbl: 'LIGHT', sv_wake_lbl: 'AWAKE',
     sv_fit_lbl: '// FITNESS', sv_steps_lbl: 'STEPS', sv_actmin_lbl: 'ACTIVE MIN', sv_actcal_lbl: 'ACTIVE CAL', sv_totcal_lbl: 'TOTAL CAL', sv_stepgoal_lbl: 'GOAL',
-    cyc_lbl: '// CYCLE', cyc_fert_lbl: 'FERTILE WINDOW', cyc_next_lbl: 'NEXT PERIOD', cyc_log: 'LOG PERIOD', cyc_set: 'SETTINGS',
+    cyc_lbl: '// CYCLE', cyc_fert_lbl: 'FERTILE WINDOW', cyc_fert_lbl_next: 'NEXT FERTILE WINDOW', cyc_next_lbl: 'NEXT PERIOD', cyc_log: 'LOG PERIOD', cyc_set: 'SETTINGS',
     cyc_setup: 'Log the first day of your last period to estimate your fertile window.',
     cyc_disc: 'Informational estimate based on your cycle and biometrics. NOT a contraceptive method or medical advice. Your data stays only on this device.',
     cyc_phases: { menstrual:'Menstruation', follicular:'Follicular phase', fertile:'Fertile window', peak:'Peak fertility', ovulation:'Ovulation day', luteal:'Luteal phase', late:'Late period' },
@@ -2639,7 +2639,7 @@ function cycleEnabled() {
 function _cycData() { try { return JSON.parse(localStorage.getItem('fb_cycle') || 'null'); } catch (e) { return null; } }
 function _dParse(s) { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
 function _dFmt(dt) { return dt.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { day:'2-digit', month:'short' }); }
-function _daysBetween(a, b) { return Math.floor((b - a) / 86400000); }
+function _daysBetween(a, b) { return Math.round((b - a) / 86400000); }
 // Cycle math: ovulation ≈ length−14; fertile window = 5 days before ovulation through 1 day after.
 function computeCycle() {
   const c = _cycData(); if (!c || !c.last) return null;
@@ -2698,6 +2698,8 @@ function computeCycle() {
   cycleStart.setDate(cycleStart.getDate() + cycleRep * len);
   const D = (n) => { const x = new Date(cycleStart); x.setDate(x.getDate() + (n - 1)); return x; };
   const nextPeriod = D(len + 1);
+  // Next cycle helpers (for showing upcoming window when current is already past)
+  const Dn = (n) => { const x = new Date(nextPeriod); x.setDate(x.getDate() + (n - 1)); return x; };
 
   // ── Phase classification (priority order matters)
   let phase;
@@ -2709,13 +2711,21 @@ function computeCycle() {
   else if (dayOfCycle > fertEnd)                       phase = 'luteal';
   else                                                 phase = 'follicular'; // period+1 → fertStart-1
 
+  const fertStartDate = D(fertStart), fertEndDate = D(fertEnd), ovDate = D(ov);
+  const daysToFertStart = _daysBetween(today, fertStartDate);
+  const daysToOv        = _daysBetween(today, ovDate);
+  // Next-cycle window (always in the future; used when current window is already past)
+  const nextFertStartDate = Dn(fertStart), nextFertEndDate = Dn(fertEnd), nextOvDate = Dn(ov);
+  const daysToNextFertStart = _daysBetween(today, nextFertStartDate);
+  const daysToNextOv        = _daysBetween(today, nextOvDate);
   return {
     len, period, dayOfCycle, ov, peakStart, peakEnd, fertStart, fertEnd,
-    ovDate: D(ov), fertStartDate: D(fertStart), fertEndDate: D(fertEnd),
+    ovDate, fertStartDate, fertEndDate,
     nextPeriod,
-    daysToFertStart: _daysBetween(today, D(fertStart)),
-    daysToOv:   _daysBetween(today, D(ov)),
+    nextFertStartDate, nextFertEndDate, nextOvDate,
+    daysToFertStart, daysToOv,
     daysToNext: _daysBetween(today, nextPeriod),
+    daysToNextFertStart, daysToNextOv,
     phase, fertilityPct, isLate, daysLate
   };
 }
@@ -2767,10 +2777,16 @@ function renderCycle() {
     `<div class="cyc-seg ovu"       style="left:${pct(c.ov)}%;width:${1/c.len*100}%"></div>` +
     `<div class="cyc-today"         style="left:${Math.min(99, pct(c.dayOfCycle))}%"></div>`;
 
-  // Fertile window info
-  setText('cyc-fert-val', `${_dFmt(c.fertStartDate)}–${_dFmt(c.fertEndDate)}`);
-  const ovTxt = c.daysToOv > 0 ? `${t.cyc_peak}: ${_dFmt(c.ovDate)} · ${t.cyc_in} ${c.daysToOv}d`
-              : c.daysToOv === 0 ? `${t.cyc_peak}: ${t.cyc_today}` : `${t.cyc_peak}: ${_dFmt(c.ovDate)}`;
+  // Fertile window info — show next cycle's window when current one is already past
+  const fertWindowPast = c.daysToFertStart < 0 && c.phase === 'luteal';
+  const fStart = fertWindowPast ? c.nextFertStartDate : c.fertStartDate;
+  const fEnd   = fertWindowPast ? c.nextFertEndDate   : c.fertEndDate;
+  const fOv    = fertWindowPast ? c.nextOvDate        : c.ovDate;
+  const dOv    = fertWindowPast ? c.daysToNextOv      : c.daysToOv;
+  setText('cyc-fert-lbl', fertWindowPast ? t.cyc_fert_lbl_next : t.cyc_fert_lbl);
+  setText('cyc-fert-val', `${_dFmt(fStart)}–${_dFmt(fEnd)}`);
+  const ovTxt = dOv > 0 ? `${t.cyc_peak}: ${_dFmt(fOv)} · ${t.cyc_in} ${dOv}d`
+              : dOv === 0 ? `${t.cyc_peak}: ${t.cyc_today}` : `${t.cyc_peak}: ${_dFmt(fOv)}`;
   setText('cyc-fert-sub', ovTxt);
 
   // Next period
