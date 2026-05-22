@@ -7,6 +7,8 @@ const outDir = path.join(__dirname, '..', 'public', 'icons');
 
 if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
+// AIRA app icon — dark rounded tile + biometric ring + the AIRA "A" monogram
+// (matches the in-app coach logo). Original mark; no Fitbit "F".
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -26,12 +28,14 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
     </filter>
   </defs>
   <rect width="512" height="512" rx="96" fill="url(#bg)"/>
-  <circle cx="256" cy="256" r="180" fill="none" stroke="url(#ring)" stroke-width="20" stroke-linecap="round" stroke-dasharray="850 1131" transform="rotate(-90 256 256)" filter="url(#glow)" opacity="0.95"/>
   <circle cx="256" cy="256" r="180" fill="none" stroke="rgba(0,245,255,0.1)" stroke-width="20"/>
-  <text x="256" y="290" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="140" fill="#00f5ff" text-anchor="middle" filter="url(#glow)">F</text>
-  <text x="256" y="290" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="140" fill="#ffffff" text-anchor="middle"/>
-  <circle cx="256" cy="120" r="8" fill="#00ff88" filter="url(#glow)"/>
-  <circle cx="256" cy="120" r="4" fill="#ffffff"/>
+  <circle cx="256" cy="256" r="180" fill="none" stroke="url(#ring)" stroke-width="20" stroke-linecap="round" stroke-dasharray="850 1131" transform="rotate(-90 256 256)" filter="url(#glow)" opacity="0.95"/>
+  <g filter="url(#glow)" fill="none" stroke="url(#ring)" stroke-width="32" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M192 342 L256 184 L320 342"/>
+    <path d="M214 286 H298"/>
+  </g>
+  <circle cx="256" cy="150" r="13" fill="#00ff88" filter="url(#glow)"/>
+  <circle cx="256" cy="150" r="6" fill="#ffffff"/>
 </svg>`;
 
 async function generate() {
