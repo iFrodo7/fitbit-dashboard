@@ -239,6 +239,24 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .sv-mval{font-size:22px;font-weight:700;color:var(--ta);line-height:1;}
 .sv-munit{font-size:8px;opacity:0.45;letter-spacing:1px;margin-top:3px;}
 .sv-mstat{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:6px;}
+/* Cycle / fertility card */
+.cyc-card{border-color:var(--ta2);}
+.cyc-dchip{font-size:9px;letter-spacing:1.5px;opacity:0.55;}
+.cyc-phase{font-size:22px;font-weight:800;letter-spacing:1px;color:var(--ta2);margin:6px 0 2px;text-transform:uppercase;}
+.cyc-sub{font-size:10px;opacity:0.55;letter-spacing:0.5px;line-height:1.5;margin-bottom:12px;}
+.cyc-track{position:relative;height:14px;border-radius:7px;background:var(--sub);overflow:hidden;}
+.cyc-seg{position:absolute;top:0;bottom:0;}
+.cyc-seg.menstrual{background:var(--tneg);opacity:0.8;}
+.cyc-seg.fertile{background:var(--tpos,#22c55e);opacity:0.55;}
+.cyc-seg.ovu{background:var(--tpos,#22c55e);}
+.cyc-today{position:absolute;top:-3px;bottom:-3px;width:3px;background:#fff;box-shadow:0 0 6px #fff;border-radius:2px;}
+.cyc-mval{font-size:15px;}
+.cyc-bio{font-size:10px;opacity:0.6;letter-spacing:0.3px;line-height:1.6;margin-top:12px;padding:9px 11px;background:rgba(255,255,255,0.03);border-radius:6px;border:1px solid var(--bdr);}
+.cyc-actions{display:flex;gap:8px;margin-top:12px;}
+.cyc-btn{flex:1;padding:11px;background:var(--ta2);color:var(--bg);border:none;border-radius:6px;font-family:inherit;font-weight:700;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:opacity 0.15s;-webkit-tap-highlight-color:transparent;}
+.cyc-btn.ghost{background:transparent;color:var(--ta2);border:1px solid var(--ta2);}
+.cyc-btn:active{opacity:0.7;}
+.cyc-disc{font-size:9px;opacity:0.4;line-height:1.5;margin-top:11px;text-align:center;}
 .sv-mstat.good{color:var(--tpos,#22c55e);}
 .sv-mstat.warn{color:#f59e0b;}
 .sv-mstat.bad{color:var(--tneg,#ef4444);}
@@ -1469,6 +1487,32 @@ body.t-naruto span.vval{
       </div>
     </div>
 
+    <!-- Cycle / Fertility (women's health) — shown only when enabled. All data stays on-device. -->
+    <div class="card hv-card cyc-card" id="sv-cycle" style="display:none;">
+      <div class="clbl" style="display:flex;justify-content:space-between;align-items:baseline;"><span id="cyc-lbl">// CICLO</span><span class="cyc-dchip" id="cyc-day"></span></div>
+      <div class="cyc-phase" id="cyc-phase">—</div>
+      <div class="cyc-sub" id="cyc-phase-sub"></div>
+      <div class="cyc-track" id="cyc-bar"></div>
+      <div class="sv-grid2" style="margin-top:14px;">
+        <div class="sv-mini">
+          <div class="sv-mlbl" id="cyc-fert-lbl">VENTANA FÉRTIL</div>
+          <div class="sv-mval cyc-mval" id="cyc-fert-val">—</div>
+          <div class="sv-munit" id="cyc-fert-sub"></div>
+        </div>
+        <div class="sv-mini">
+          <div class="sv-mlbl" id="cyc-next-lbl">PRÓXIMA REGLA</div>
+          <div class="sv-mval cyc-mval" id="cyc-next-val">—</div>
+          <div class="sv-munit" id="cyc-next-sub"></div>
+        </div>
+      </div>
+      <div class="cyc-bio" id="cyc-bio"></div>
+      <div class="cyc-actions">
+        <button class="cyc-btn" id="cyc-log-btn" onclick="cycleLogPeriod()">REGISTRAR REGLA</button>
+        <button class="cyc-btn ghost" id="cyc-set-btn" onclick="cycleSettings()">AJUSTES</button>
+      </div>
+      <div class="cyc-disc" id="cyc-disc"></div>
+    </div>
+
     <!-- Recovery -->
     <div class="card hv-card">
       <div class="clbl" id="sv-rec-lbl">// RECOVERY SCORE</div>
@@ -1690,6 +1734,10 @@ body.t-naruto span.vval{
         <button class="pv-toggle" id="pv-notif-toggle" onclick="toggleNotifications().then(()=>navigate('profile'))" aria-label="toggle notifications"></button>
       </div>
       <div class="pv-row">
+        <div class="pv-rlbl" id="pv-cyc-lbl">SEGUIMIENTO DE CICLO</div>
+        <button class="pv-toggle" id="pv-cyc-toggle" onclick="toggleCycle()" aria-label="toggle cycle tracking"></button>
+      </div>
+      <div class="pv-row">
         <div class="pv-rlbl" id="pv-lastsync-lbl">ÚLTIMA SYNC</div>
         <div id="pv-lastsync-val" style="font-size:10px;opacity:0.5;letter-spacing:1px;">—</div>
       </div>
@@ -1909,6 +1957,15 @@ const T = {
     sv_rest_lbl: 'REPOSO', sv_max_lbl: 'MÁXIMO', sv_max_unit: 'BPM HOY',
     sv_deep_lbl: 'PROF.', sv_light_lbl: 'LIGER.', sv_wake_lbl: 'DESP.',
     sv_fit_lbl: '// FITNESS', sv_steps_lbl: 'PASOS', sv_actmin_lbl: 'MIN. ACTIVOS', sv_actcal_lbl: 'CAL. ACTIVAS', sv_totcal_lbl: 'CAL. TOTALES', sv_stepgoal_lbl: 'META',
+    cyc_lbl: '// CICLO', cyc_fert_lbl: 'VENTANA FÉRTIL', cyc_next_lbl: 'PRÓXIMA REGLA', cyc_log: 'REGISTRAR REGLA', cyc_set: 'AJUSTES',
+    cyc_setup: 'Registra el primer día de tu última regla para calcular tu ventana fértil.',
+    cyc_disc: 'Estimación informativa basada en tu ciclo y biométricos. NO es método anticonceptivo ni consejo médico. Tus datos se guardan solo en este dispositivo.',
+    cyc_phases: { menstrual:'Menstruación', follicular:'Fase folicular', fertile:'Ventana fértil', ovulation:'Ovulación · máxima fertilidad', luteal:'Fase lútea' },
+    cyc_phase_sub: { menstrual:'Probabilidad de embarazo muy baja.', follicular:'La fertilidad empieza a subir.', fertile:'Días de mayor probabilidad de embarazo.', ovulation:'Hoy es tu pico de fertilidad.', luteal:'Probabilidad de embarazo baja; la regla se acerca.' },
+    cyc_day: 'Día', cyc_in: 'en', cyc_days: 'días', cyc_today: 'hoy', cyc_peak: 'pico',
+    cyc_bio_on: 'Confirmación biométrica: tras ovular, tu temperatura de piel sube ~0.3°C y tu FC en reposo tiende a subir en fase lútea. AIRA cruza esto con tu ventana estimada.',
+    cyc_q_last: 'Primer día de tu última regla (AAAA-MM-DD):', cyc_q_len: 'Duración promedio de tu ciclo en días (ej. 28):',
+    cyc_on_lbl: 'SEGUIMIENTO DE CICLO',
     sv_sleep_lbl: '// SUEÑO', sv_sltotal_lbl: 'TOTAL', sv_sltotal_unit: 'dormido', sv_slscore_lbl: 'CALIDAD',
     sv_hrv_unit: 'ms',
     bstat: { optimal:'ÓPTIMO', good:'BUENO', normal:'NORMAL', low:'BAJO', high:'ALTO', elevated:'ELEVADA', moderate:'MODERADO' },
@@ -2053,6 +2110,15 @@ const T = {
     sv_rest_lbl: 'RESTING', sv_max_lbl: 'MAX', sv_max_unit: 'BPM TODAY',
     sv_deep_lbl: 'DEEP', sv_light_lbl: 'LIGHT', sv_wake_lbl: 'AWAKE',
     sv_fit_lbl: '// FITNESS', sv_steps_lbl: 'STEPS', sv_actmin_lbl: 'ACTIVE MIN', sv_actcal_lbl: 'ACTIVE CAL', sv_totcal_lbl: 'TOTAL CAL', sv_stepgoal_lbl: 'GOAL',
+    cyc_lbl: '// CYCLE', cyc_fert_lbl: 'FERTILE WINDOW', cyc_next_lbl: 'NEXT PERIOD', cyc_log: 'LOG PERIOD', cyc_set: 'SETTINGS',
+    cyc_setup: 'Log the first day of your last period to estimate your fertile window.',
+    cyc_disc: 'Informational estimate based on your cycle and biometrics. NOT a contraceptive method or medical advice. Your data stays only on this device.',
+    cyc_phases: { menstrual:'Menstruation', follicular:'Follicular phase', fertile:'Fertile window', ovulation:'Ovulation · peak fertility', luteal:'Luteal phase' },
+    cyc_phase_sub: { menstrual:'Very low chance of pregnancy.', follicular:'Fertility starts rising.', fertile:'Highest chance of pregnancy.', ovulation:'Today is your fertility peak.', luteal:'Low chance of pregnancy; period approaching.' },
+    cyc_day: 'Day', cyc_in: 'in', cyc_days: 'days', cyc_today: 'today', cyc_peak: 'peak',
+    cyc_bio_on: 'Biometric confirmation: after ovulation your skin temp rises ~0.3°C and resting HR tends to rise in the luteal phase. AIRA cross-checks this with your estimated window.',
+    cyc_q_last: 'First day of your last period (YYYY-MM-DD):', cyc_q_len: 'Your average cycle length in days (e.g. 28):',
+    cyc_on_lbl: 'CYCLE TRACKING',
     sv_sleep_lbl: '// SLEEP', sv_sltotal_lbl: 'TOTAL', sv_sltotal_unit: 'asleep', sv_slscore_lbl: 'QUALITY',
     sv_hrv_unit: 'ms',
     bstat: { optimal:'OPTIMAL', good:'GOOD', normal:'NORMAL', low:'LOW', high:'HIGH', elevated:'ELEVATED', moderate:'MODERATE' },
@@ -2164,7 +2230,7 @@ function setLang(l) {
   setText('pv-title', t.pv_title); setText('pv-sub', t.pv_sub);
   setText('pv-connect-btn', t.pv_connect_btn); setText('pv-disconnect-btn', t.pv_disconnect_btn);
   setText('pv-sec-appearance', t.pv_sec_appearance); setText('pv-theme-lbl', t.pv_theme_lbl); setText('pv-lang-lbl', t.pv_lang_lbl);
-  setText('pv-sec-sync', t.pv_sec_sync); setText('pv-interval-lbl', t.pv_interval_lbl); setText('pv-notif-lbl', t.pv_notif_lbl);
+  setText('pv-sec-sync', t.pv_sec_sync); setText('pv-interval-lbl', t.pv_interval_lbl); setText('pv-notif-lbl', t.pv_notif_lbl); setText('pv-cyc-lbl', t.cyc_on_lbl);
   setText('pv-lastsync-lbl', t.pv_lastsync_lbl);
   setText('pv-sec-info', t.pv_sec_info); setText('pv-version-lbl', t.pv_version_lbl);
   setText('pv-export-lbl', t.pv_export_lbl);
@@ -2455,7 +2521,92 @@ function navigate(tab) {
 }
 
 // ══════ STATS VIEW ══════
+// ══════ CYCLE / FERTILITY (women's health — all data stays on-device) ══════
+function cycleEnabled() {
+  const v = localStorage.getItem('fb_cycle_on');
+  if (v === '1') return true;
+  if (v === '0') return false;
+  return localStorage.getItem('fb_sex') === 'female'; // default on for a female profile
+}
+function _cycData() { try { return JSON.parse(localStorage.getItem('fb_cycle') || 'null'); } catch (e) { return null; } }
+function _dParse(s) { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
+function _dFmt(dt) { return dt.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { day:'2-digit', month:'short' }); }
+function _daysBetween(a, b) { return Math.floor((b - a) / 86400000); }
+// Cycle math: ovulation ≈ length−14; fertile window = 5 days before ovulation through 1 day after.
+function computeCycle() {
+  const c = _cycData(); if (!c || !c.last) return null;
+  const len = c.len || 28, period = c.period || 5;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const last = _dParse(c.last); last.setHours(0,0,0,0);
+  let diff = _daysBetween(last, today); if (diff < 0) diff = 0;
+  const cycleStart = new Date(last); cycleStart.setDate(cycleStart.getDate() + Math.floor(diff/len)*len);
+  const dayOfCycle = _daysBetween(cycleStart, today) + 1;
+  const ov = Math.max(1, len - 14), fertStart = Math.max(1, ov - 5), fertEnd = ov + 1;
+  const D = (n) => { const x = new Date(cycleStart); x.setDate(x.getDate() + (n-1)); return x; };
+  const nextPeriod = new Date(cycleStart); nextPeriod.setDate(nextPeriod.getDate() + len);
+  let phase = 'follicular';
+  if (dayOfCycle <= period) phase = 'menstrual';
+  else if (dayOfCycle === ov) phase = 'ovulation';
+  else if (dayOfCycle >= fertStart && dayOfCycle <= fertEnd) phase = 'fertile';
+  else if (dayOfCycle > ov) phase = 'luteal';
+  return { len, period, dayOfCycle, ov, fertStart, fertEnd, ovDate: D(ov), fertStartDate: D(fertStart),
+    fertEndDate: D(fertEnd), nextPeriod, daysToOv: _daysBetween(today, D(ov)), daysToNext: _daysBetween(today, nextPeriod), phase };
+}
+function renderCycle() {
+  const card = document.getElementById('sv-cycle'); if (!card) return;
+  if (!cycleEnabled()) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const t = T[lang];
+  setText('cyc-lbl', t.cyc_lbl); setText('cyc-fert-lbl', t.cyc_fert_lbl); setText('cyc-next-lbl', t.cyc_next_lbl);
+  setText('cyc-log-btn', t.cyc_log); setText('cyc-set-btn', t.cyc_set); setText('cyc-disc', t.cyc_disc);
+  const c = computeCycle();
+  if (!c) {
+    setText('cyc-day', ''); setText('cyc-phase', '—'); setText('cyc-phase-sub', t.cyc_setup);
+    document.getElementById('cyc-bar').innerHTML = '';
+    ['cyc-fert-val','cyc-next-val'].forEach(id => setText(id, '—'));
+    ['cyc-fert-sub','cyc-next-sub','cyc-bio'].forEach(id => setText(id, ''));
+    return;
+  }
+  setText('cyc-day', `${t.cyc_day} ${c.dayOfCycle}/${c.len}`);
+  setText('cyc-phase', t.cyc_phases[c.phase]);
+  setText('cyc-phase-sub', t.cyc_phase_sub[c.phase]);
+  const pct = (n) => ((n-1) / c.len * 100);
+  document.getElementById('cyc-bar').innerHTML =
+    `<div class="cyc-seg menstrual" style="left:0%;width:${c.period/c.len*100}%"></div>` +
+    `<div class="cyc-seg fertile" style="left:${pct(c.fertStart)}%;width:${(c.fertEnd-c.fertStart+1)/c.len*100}%"></div>` +
+    `<div class="cyc-seg ovu" style="left:${pct(c.ov)}%;width:${1/c.len*100}%"></div>` +
+    `<div class="cyc-today" style="left:${Math.min(99, pct(c.dayOfCycle))}%"></div>`;
+  setText('cyc-fert-val', `${_dFmt(c.fertStartDate)}–${_dFmt(c.fertEndDate)}`);
+  setText('cyc-fert-sub', c.daysToOv > 0 ? `${t.cyc_peak}: ${_dFmt(c.ovDate)} · ${t.cyc_in} ${c.daysToOv} ${t.cyc_days}`
+    : c.daysToOv === 0 ? `${t.cyc_peak}: ${t.cyc_today}` : `${t.cyc_peak}: ${_dFmt(c.ovDate)}`);
+  setText('cyc-next-val', _dFmt(c.nextPeriod));
+  setText('cyc-next-sub', `${t.cyc_in} ${Math.max(0, c.daysToNext)} ${t.cyc_days}`);
+  setText('cyc-bio', t.cyc_bio_on);
+}
+function cycleLogPeriod() {
+  const t = T[lang], cur = _cycData() || {};
+  const v = prompt(t.cyc_q_last, cur.last || new Date().toISOString().slice(0,10));
+  if (!v) return;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(v.trim())) { showToast(lang === 'es' ? 'Usa formato AAAA-MM-DD' : 'Use format YYYY-MM-DD', 'error'); return; }
+  const data = _cycData() || { len:28, period:5 }; data.last = v.trim();
+  localStorage.setItem('fb_cycle', JSON.stringify(data));
+  renderCycle(); showToast(lang === 'es' ? 'Regla registrada' : 'Period logged', 'success');
+}
+function cycleSettings() {
+  const t = T[lang], cur = _cycData() || { len:28 };
+  const v = prompt(t.cyc_q_len, String(cur.len || 28)); if (!v) return;
+  const n = parseInt(v); if (isNaN(n) || n < 20 || n > 45) { showToast(lang === 'es' ? 'Ciclo entre 20 y 45 días' : 'Cycle 20–45 days', 'error'); return; }
+  const data = _cycData() || {}; data.len = n; if (!data.period) data.period = 5;
+  localStorage.setItem('fb_cycle', JSON.stringify(data));
+  renderCycle(); showToast(lang === 'es' ? 'Ciclo actualizado' : 'Cycle updated', 'success');
+}
+function toggleCycle() {
+  localStorage.setItem('fb_cycle_on', cycleEnabled() ? '0' : '1');
+  renderProfile();
+}
+
 function renderStats() {
+  renderCycle();
   // Helper to grab text from a DOM element
   const gv = (id) => (document.getElementById(id)?.textContent || '').trim();
 
@@ -2682,6 +2833,11 @@ function renderProfile() {
   // Notifications toggle
   const toggle = document.getElementById('pv-notif-toggle');
   if (toggle) toggle.classList.toggle('on', notifEnabled());
+
+  // Cycle tracking toggle
+  const cyc = document.getElementById('pv-cyc-toggle');
+  if (cyc) cyc.classList.toggle('on', cycleEnabled());
+  setText('pv-cyc-lbl', T[lang].cyc_on_lbl);
 
   // Last sync time
   const ls = document.getElementById('pv-lastsync-val');
@@ -3264,7 +3420,8 @@ async function loadReal() {
   try {
     const h={'Authorization':'Bearer '+token}, td=new Date().toISOString().split('T')[0];
     const [pr,ac,hr,sl] = await Promise.all([fetch('https://api.fitbit.com/1/user/-/profile.json',{headers:h}).then(r=>r.json()),fetch(`https://api.fitbit.com/1/user/-/activities/date/${td}.json`,{headers:h}).then(r=>r.json()),fetch(`https://api.fitbit.com/1/user/-/activities/heart/date/${td}/1d/1min.json`,{headers:h}).then(r=>r.json()),fetch('https://api.fitbit.com/1.2/user/-/sleep/date/today.json',{headers:h}).then(r=>r.json())]);
-    if (pr?.user) document.getElementById('uname').textContent = (pr.user.displayName||pr.user.firstName||'USUARIO').toUpperCase();
+    if (pr?.user) { document.getElementById('uname').textContent = (pr.user.displayName||pr.user.firstName||'USUARIO').toUpperCase();
+      if (pr.user.gender) localStorage.setItem('fb_sex', String(pr.user.gender).toLowerCase()); }
     if (ac?.summary) { const s=ac.summary; document.getElementById('stepsv').textContent=(s.steps||0).toLocaleString('en-US'); document.getElementById('calv').textContent=s.activityCalories||0; const pct=Math.min((s.steps/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); document.getElementById('cal-bmr').textContent=(s.caloriesBMR||0).toLocaleString(); document.getElementById('cal-act').textContent=(s.activityCalories||0).toLocaleString(); setCalbars({sed:s.sedentaryMinutes||0,lig:s.lightlyActiveMinutes||0,mod:s.fairlyActiveMinutes||0,int:s.veryActiveMinutes||0}); }
     let maxHR_real=0; if (hr?.['activities-heart-intraday']?.dataset?.length) { const ds=hr['activities-heart-intraday'].dataset; const lat=ds[ds.length-1]?.value||68; maxHR_real=Math.max(...ds.map(d=>d.value)); document.getElementById('hrv').textContent=lat; document.getElementById('hrlive').textContent=lat; const st=Math.max(1,Math.floor(ds.length/48)); hrHist=ds.filter((_,i)=>i%st===0).slice(-48).map(d=>d.value); buildHRC(hrHist); }
     if (sl?.summary?.stages) updSl(sl.summary.stages);
