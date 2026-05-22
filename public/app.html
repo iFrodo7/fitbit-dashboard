@@ -264,6 +264,16 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .cyc-btn.ghost{background:transparent;color:var(--ta2);border:1px solid var(--ta2);}
 .cyc-btn:active{opacity:0.7;}
 .cyc-disc{font-size:9px;opacity:0.4;line-height:1.5;margin-top:11px;text-align:center;}
+/* Cycle simulation row */
+.cyc-sim-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding:7px 10px;border:1px dashed rgba(255,255,255,0.1);border-radius:6px;background:rgba(255,255,255,0.02);}
+.cyc-sim-lbl{font-size:9px;letter-spacing:1.5px;color:var(--sub);text-transform:uppercase;flex-shrink:0;}
+.cyc-sim-inp{flex:1;background:transparent;border:none;color:var(--ta2);font-family:inherit;font-size:11px;min-width:0;padding:0;letter-spacing:0.5px;}
+.cyc-sim-inp:focus{outline:none;}
+.cyc-sim-inp::-webkit-calendar-picker-indicator{filter:invert(1);opacity:0.4;cursor:pointer;width:12px;}
+.cyc-sim-clear{background:none;border:none;color:var(--sub);cursor:pointer;font-size:13px;padding:0;line-height:1;flex-shrink:0;}
+.cyc-sim-clear:hover{color:var(--tneg);}
+.cyc-sim-badge{display:none;align-items:center;gap:5px;font-size:9px;letter-spacing:1px;color:var(--ta2);text-transform:uppercase;background:rgba(255,255,255,0.06);border:1px solid var(--ta2);border-radius:10px;padding:2px 8px;margin-left:4px;opacity:0.8;}
+.cyc-sim-badge.on{display:inline-flex;}
 /* Cycle quick-glance chip on Home */
 .cyc-home-chip{display:none;align-items:center;gap:7px;padding:7px 14px 7px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--ta2);border-radius:20px;font-size:10px;letter-spacing:1.5px;color:var(--ta2);text-transform:uppercase;cursor:pointer;margin-bottom:12px;width:fit-content;max-width:100%;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:opacity 0.15s;overflow:hidden;}
 .cyc-home-chip.on{display:flex;}
@@ -1674,7 +1684,7 @@ body.t-naruto span.vval{
 
     <!-- Cycle / Fertility — grouped with Fitness & Sleep at bottom, shown only when enabled -->
     <div class="card hv-card cyc-card" id="sv-cycle" style="display:none;">
-      <div class="clbl" style="display:flex;justify-content:space-between;align-items:baseline;"><span id="cyc-lbl">// CICLO</span><span class="cyc-dchip" id="cyc-day"></span></div>
+      <div class="clbl" style="display:flex;justify-content:space-between;align-items:baseline;"><span id="cyc-lbl">// CICLO</span><span style="display:flex;align-items:baseline;gap:6px;"><span class="cyc-sim-badge" id="cyc-sim-badge">SIM</span><span class="cyc-dchip" id="cyc-day"></span></span></div>
       <div class="cyc-phase" id="cyc-phase">—</div>
       <div class="cyc-sub" id="cyc-phase-sub"></div>
       <!-- Fertility probability badge (visible during fertile/peak/ovulation phases) -->
@@ -1701,6 +1711,11 @@ body.t-naruto span.vval{
       <div class="cyc-actions">
         <button class="cyc-btn" id="cyc-log-btn" onclick="cycleLogPeriod()">REGISTRAR REGLA</button>
         <button class="cyc-btn ghost" id="cyc-set-btn" onclick="cycleSettings()">AJUSTES</button>
+      </div>
+      <div class="cyc-sim-row">
+        <span class="cyc-sim-lbl" id="cyc-sim-lbl">SIMULAR FECHA</span>
+        <input type="date" id="cyc-sim-inp" class="cyc-sim-inp" oninput="setCycSimDate(this.value)">
+        <button class="cyc-sim-clear" id="cyc-sim-clear" onclick="clearCycSimDate()" style="display:none" title="Limpiar">✕</button>
       </div>
       <div class="cyc-disc" id="cyc-disc"></div>
     </div>
@@ -2060,6 +2075,7 @@ const T = {
     cyc_modal_save: 'GUARDAR', cyc_modal_cancel: 'CANCELAR', cyc_modal_days: 'días',
     cyc_modal_saved_log: 'Regla registrada', cyc_modal_saved_set: 'Ciclo actualizado',
     cyc_modal_err_date: 'Selecciona una fecha válida', cyc_modal_err_len: 'Ciclo entre 20 y 45 días',
+    cyc_sim_lbl: 'SIMULAR FECHA',
     cyc_on_lbl: 'SEGUIMIENTO DE CICLO',
     sv_sleep_lbl: '// SUEÑO', sv_sltotal_lbl: 'TOTAL', sv_sltotal_unit: 'dormido', sv_slscore_lbl: 'CALIDAD',
     sv_hrv_unit: 'ms',
@@ -2224,6 +2240,7 @@ const T = {
     cyc_modal_save: 'SAVE', cyc_modal_cancel: 'CANCEL', cyc_modal_days: 'days',
     cyc_modal_saved_log: 'Period logged', cyc_modal_saved_set: 'Cycle updated',
     cyc_modal_err_date: 'Select a valid date', cyc_modal_err_len: 'Cycle must be 20–45 days',
+    cyc_sim_lbl: 'SIMULATE DATE',
     cyc_on_lbl: 'CYCLE TRACKING',
     sv_sleep_lbl: '// SLEEP', sv_sltotal_lbl: 'TOTAL', sv_sltotal_unit: 'asleep', sv_slscore_lbl: 'QUALITY',
     sv_hrv_unit: 'ms',
@@ -2646,7 +2663,7 @@ function computeCycle() {
   const len  = Math.max(20, Math.min(45, c.len  || 28));
   const period = Math.max(1, Math.min(10, c.period || 5));
 
-  const today = new Date(); today.setHours(0,0,0,0);
+  const today = window._cycSimDate ? new Date(window._cycSimDate) : new Date(); today.setHours(0,0,0,0);
   const last  = _dParse(c.last); last.setHours(0,0,0,0);
   // Days elapsed since last logged period (never negative)
   let diff = _daysBetween(last, today); if (diff < 0) diff = 0;
@@ -2736,6 +2753,7 @@ function renderCycle() {
   const t = T[lang];
   setText('cyc-lbl', t.cyc_lbl); setText('cyc-fert-lbl', t.cyc_fert_lbl); setText('cyc-next-lbl', t.cyc_next_lbl);
   setText('cyc-log-btn', t.cyc_log); setText('cyc-set-btn', t.cyc_set); setText('cyc-disc', t.cyc_disc);
+  setText('cyc-sim-lbl', t.cyc_sim_lbl);
   const c = computeCycle();
   if (!c) {
     setText('cyc-day', ''); setText('cyc-phase', '—'); setText('cyc-phase-sub', t.cyc_setup);
@@ -2831,6 +2849,29 @@ function renderCycleHomeChip() {
   const txt = document.getElementById('cyc-chip-txt');
   if (txt) txt.textContent = detail ? `${phaseName} · ${detail}` : phaseName;
   el.classList.add('on');
+}
+function setCycSimDate(v) {
+  if (v) {
+    const [y,m,d] = v.split('-').map(Number);
+    window._cycSimDate = new Date(y, m-1, d);
+  } else {
+    window._cycSimDate = null;
+  }
+  const clr = document.getElementById('cyc-sim-clear');
+  if (clr) clr.style.display = v ? '' : 'none';
+  const badge = document.getElementById('cyc-sim-badge');
+  if (badge) badge.classList.toggle('on', !!v);
+  renderCycle();
+}
+function clearCycSimDate() {
+  window._cycSimDate = null;
+  const inp = document.getElementById('cyc-sim-inp');
+  if (inp) inp.value = '';
+  const clr = document.getElementById('cyc-sim-clear');
+  if (clr) clr.style.display = 'none';
+  const badge = document.getElementById('cyc-sim-badge');
+  if (badge) badge.classList.remove('on');
+  renderCycle();
 }
 function cycleLogPeriod() { openCycModal('log'); }
 function cycleSettings()  { openCycModal('settings'); }
