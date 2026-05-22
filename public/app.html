@@ -2658,83 +2658,66 @@ function _dParse(s) { const [y,m,d] = s.split('-').map(Number); return new Date(
 function _dFmt(dt) { return dt.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { day:'2-digit', month:'short' }); }
 function _daysBetween(a, b) { return Math.round((b - a) / 86400000); }
 // Cycle math: ovulation ≈ length−14; fertile window = 5 days before ovulation through 1 day after.
+// NO auto-advance: dates are always relative to the last LOGGED period.
+// The user must log a new period to reset the cycle. This matches Clue's behavior.
 function computeCycle() {
   const c = _cycData(); if (!c || !c.last) return null;
-  const len  = Math.max(20, Math.min(45, c.len  || 28));
-  const period = Math.max(1, Math.min(10, c.period || 5));
+  const len    = Math.max(20, Math.min(45, c.len    || 28));
+  const period = Math.max(1,  Math.min(10, c.period || 5));
 
   const today = window._cycSimDate ? new Date(window._cycSimDate) : new Date(); today.setHours(0,0,0,0);
   const last  = _dParse(c.last); last.setHours(0,0,0,0);
   // Days elapsed since last logged period (never negative)
   let diff = _daysBetween(last, today); if (diff < 0) diff = 0;
 
-  // ── Cycle day: always counted from `last` logged period.
-  // We do NOT auto-advance — the user must log the next period to reset.
-  // This matches Clue's behavior: the calendar doesn't jump to a new cycle
-  // until bleeding is recorded.
-  const totalDays = diff + 1; // day 1 = day of last logged period
-  // Normalize to current cycle repetition (handle very long gaps gracefully)
-  const cycleRep  = Math.floor(diff / len);
-  const dayOfCycle = diff - cycleRep * len + 1; // 1-based within the current expected cycle
+  // Day of cycle: 1-based, counted from last logged period — NO wrapping / auto-advance.
+  // Once dayOfCycle > len the period is overdue; user must log to reset.
+  const dayOfCycle = diff + 1;
 
-  // ── Ovulation: luteal phase mean = 14 days (Clue/Wilcox standard)
-  // Constrained so it can't fall inside the menstrual phase.
+  // ── Ovulation: luteal phase mean = 14 days (Clue/Wilcox)
   const ov = Math.max(period + 2, len - 14);
 
-  // ── Fertile window per Clue / Wilcox 1995 NEJM:
-  // Sperm survive 3–5 days; egg viable ~24 h.
-  // Window: 5 days before ovulation through 1 day after = 7 days total.
-  // fertStart must not overlap the menstrual phase.
+  // ── Fertile window (Clue / Wilcox 1995 NEJM): 5 days before → 1 day after ovulation
   const fertStart = Math.max(period + 1, ov - 5);
-  const fertEnd   = ov + 1; // Clue includes one day post-ovulation (~5 % probability)
-
-  // ── Peak days: ov-2 and ov-1 are statistically highest per Dunson/Wilcox
-  // corrected model (measurement-error adjustment shifts raw peak from ov-0 to ov-2).
-  // We mark both ov-2 and ov-1 as 'peak' phase.
+  const fertEnd   = ov + 1;
   const peakStart = ov - 2;
   const peakEnd   = ov - 1;
 
-  // ── Fertility probability (Wilcox 1995, Dunson 1999 corrected, NEJM/Hum Reprod)
-  // Probabilities are approximate and for educational purposes only.
-  const dFromOv = dayOfCycle - ov;
-  const WILCOX  = { '-5':10, '-4':16, '-3':14, '-2':27, '-1':31, '0':33, '1':5 };
-  const fertilityPct = WILCOX[String(dFromOv)] ?? (dayOfCycle <= period ? 2 : dFromOv > 1 ? 1 : 3);
+  // ── All dates relative to `last` (always cycle 1 — no offset)
+  const D = (n) => { const x = new Date(last); x.setDate(x.getDate() + (n - 1)); return x; };
+  const nextPeriod = D(len + 1); // first expected next period
 
-  // ── Late period detection
-  // Compare today vs the first expected period date after `last`.
-  // If today is within [lastNextPeriod, lastNextPeriod + 13], period is "late"
-  // (we don't show late forever — after 14 days we assume a new cycle started
-  //  and the user should log the new period to reset).
-  const lastNextDate = new Date(last); lastNextDate.setDate(lastNextDate.getDate() + len);
-  const daysSinceDue = _daysBetween(lastNextDate, today); // negative = not yet due
-  const isLate   = daysSinceDue >= 0 && daysSinceDue < 14;
-  const daysLate = isLate ? daysSinceDue : 0; // 0 = due today, n = n days overdue
+  // ── Late: any day past the expected next period
+  const daysLate = Math.max(0, _daysBetween(nextPeriod, today));
+  const isLate   = daysLate > 0;
 
-  // ── Date helpers relative to start of current expected cycle
-  const cycleStart = new Date(last);
-  cycleStart.setDate(cycleStart.getDate() + cycleRep * len);
-  const D = (n) => { const x = new Date(cycleStart); x.setDate(x.getDate() + (n - 1)); return x; };
-  const nextPeriod = D(len + 1);
-  // Next cycle helpers (for showing upcoming window when current is already past)
-  const Dn = (n) => { const x = new Date(nextPeriod); x.setDate(x.getDate() + (n - 1)); return x; };
+  // ── Fertility probability (Wilcox 1995, Dunson 1999 corrected)
+  // Use cycle-1 day for probability even when late (caps naturally at ov+1)
+  const dayForProb = Math.min(dayOfCycle, len);
+  const dFromOv    = dayForProb - ov;
+  const WILCOX     = { '-5':10, '-4':16, '-3':14, '-2':27, '-1':31, '0':33, '1':5 };
+  const fertilityPct = WILCOX[String(dFromOv)] ?? (dayForProb <= period ? 2 : dFromOv > 1 ? 1 : 3);
 
-  // ── Phase classification (priority order matters)
+  // ── Phase classification
   let phase;
-  if (isLate)                                          phase = 'late';
-  else if (dayOfCycle <= period)                       phase = 'menstrual';
-  else if (dFromOv === 0)                              phase = 'ovulation';
-  else if (dayOfCycle >= peakStart && dayOfCycle <= peakEnd) phase = 'peak';
-  else if (dayOfCycle >= fertStart && dayOfCycle <= fertEnd) phase = 'fertile';
-  else if (dayOfCycle > fertEnd)                       phase = 'luteal';
-  else                                                 phase = 'follicular'; // period+1 → fertStart-1
+  if (isLate)                                                          phase = 'late';
+  else if (dayOfCycle <= period)                                       phase = 'menstrual';
+  else if (dayOfCycle === ov)                                          phase = 'ovulation';
+  else if (dayOfCycle >= peakStart && dayOfCycle <= peakEnd)           phase = 'peak';
+  else if (dayOfCycle >= fertStart && dayOfCycle <= fertEnd)           phase = 'fertile';
+  else if (dayOfCycle > fertEnd && dayOfCycle <= len)                  phase = 'luteal';
+  else                                                                 phase = 'follicular';
 
   const fertStartDate = D(fertStart), fertEndDate = D(fertEnd), ovDate = D(ov);
   const daysToFertStart = _daysBetween(today, fertStartDate);
   const daysToOv        = _daysBetween(today, ovDate);
-  // Next-cycle window (always in the future; used when current window is already past)
+
+  // ── Next-cycle window (for display when current window is past)
+  const Dn = (n) => { const x = new Date(nextPeriod); x.setDate(x.getDate() + (n - 1)); return x; };
   const nextFertStartDate = Dn(fertStart), nextFertEndDate = Dn(fertEnd), nextOvDate = Dn(ov);
   const daysToNextFertStart = _daysBetween(today, nextFertStartDate);
   const daysToNextOv        = _daysBetween(today, nextOvDate);
+
   return {
     len, period, dayOfCycle, ov, peakStart, peakEnd, fertStart, fertEnd,
     ovDate, fertStartDate, fertEndDate,
