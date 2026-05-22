@@ -180,7 +180,7 @@ body{width:100%;min-height:100vh;}
 /* ── HISTORY VIEW (overlay) ── */
 #hview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
 body.view-history #hview{display:block;pointer-events:auto;}
-body.view-history #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#hview):not(#cyc-modal-ov){visibility:hidden;pointer-events:none;}
+body.view-history #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#hview):not(#cyc-modal-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
 body.view-history #dash > #install-banner{visibility:visible;}
 .hv-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--sub);}
 .hv-title{font-size:14px;font-weight:700;letter-spacing:3px;color:var(--ta);text-transform:uppercase;}
@@ -220,12 +220,12 @@ body.view-history #dash > #install-banner{visibility:visible;}
 /* ── STATS VIEW (overlay) ── */
 #sview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
 body.view-stats #sview{display:block;pointer-events:auto;}
-body.view-stats #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#sview):not(#cyc-modal-ov){visibility:hidden;pointer-events:none;}
+body.view-stats #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#sview):not(#cyc-modal-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
 
 /* ── PROFILE VIEW (overlay) ── */
 #pview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
 body.view-profile #pview{display:block;pointer-events:auto;}
-body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#pview):not(#cyc-modal-ov){visibility:hidden;pointer-events:none;}
+body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#pview):not(#cyc-modal-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
 
 /* Shared overlay header */
 .ov-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--sub);}
@@ -1673,8 +1673,8 @@ body.t-naruto span.vval{
     </div>
 
     <!-- Cycle / Fertility — grouped with Fitness & Sleep at bottom, shown only when enabled -->
-    <div class="card hv-card cyc-card" id="sv-cycle" style="display:none;">
-      <div class="clbl" style="display:flex;justify-content:space-between;align-items:baseline;"><span id="cyc-lbl">// CICLO</span><span class="cyc-dchip" id="cyc-day"></span></div>
+    <div class="card hv-card cyc-card" id="sv-cycle" data-onb="cycle" style="display:none;">
+      <div class="clbl" style="display:flex;justify-content:space-between;align-items:baseline;"><span><span id="cyc-lbl">// CICLO</span><button class="onb-q" onclick="showOnb('cycle')" aria-label="info">?</button></span><span class="cyc-dchip" id="cyc-day"></span></div>
       <div class="cyc-phase" id="cyc-phase">—</div>
       <div class="cyc-sub" id="cyc-phase-sub"></div>
       <!-- Fertility probability badge (visible during fertile/peak/ovulation phases) -->
@@ -1969,6 +1969,7 @@ const T = {
       hrv:      { ttl:'HRV — Variabilidad Cardíaca', bd:'<p>La <strong>HRV</strong> mide la variación de tiempo entre latidos. Más alta = mejor recuperación del sistema nervioso.</p><p>Se mide mejor durante el sueño profundo. Tu base personal es lo que importa, no comparar con otros.</p><p>Caídas marcadas pueden indicar fatiga, estrés o enfermedad incipiente.</p>' },
       rhr:      { ttl:'FC en Reposo', bd:'<p>Tu frecuencia cardíaca en reposo (<strong>RHR</strong>) es el menor número de latidos por minuto medido en el día.</p><p>Más baja = mejor estado cardiovascular. Atletas <strong>40-60 bpm</strong>, persona promedio <strong>60-80 bpm</strong>.</p><p>Una subida sostenida de 5+ bpm sobre tu base puede indicar sobreentrenamiento o estrés.</p>' },
       steps:    { ttl:'Pasos', bd:'<p>Meta diaria estándar: <strong>10,000 pasos</strong> (~7-8km).</p><p>El indicador muestra el porcentaje cumplido. Constancia &gt; volumen — mejor 7,000 todos los días que 15,000 un día y 2,000 los demás.</p>' },
+      cycle:    { ttl:'Fases del ciclo', bd:'<p>Tu ciclo tiene cuatro fases. AIRA las estima desde tu última regla y tus biométricos.</p><p><strong>🩸 Menstruación</strong> — días de sangrado; el ciclo se reinicia. Probabilidad de embarazo muy baja.</p><p><strong>🌱 Folicular</strong> — tras la regla sube el estrógeno; tu energía y fertilidad empiezan a subir.</p><p><strong>🌸 Ventana fértil + Ovulación</strong> — los ~6 días de mayor probabilidad de embarazo. En la ovulación se libera el óvulo (tu <strong>pico</strong>); justo después tu temperatura de piel sube ~0.3°C.</p><p><strong>🌙 Lútea</strong> — tras ovular sube la progesterona; tu FC en reposo y temperatura quedan más altas. Si no hay embarazo, llega la regla.</p><p style="opacity:0.6">Estimación informativa basada en tu ciclo y biométricos. No es método anticonceptivo ni consejo médico.</p>' },
     },
     tour: [
       { ttl:'¡Bienvenido!', bd:'Esta es tu interfaz biométrica personal. Mide HRV, sueño, recovery y mucho más en tiempo real desde tu Fitbit.' },
@@ -2134,6 +2135,7 @@ const T = {
       hrv:      { ttl:'HRV — Heart Rate Variability', bd:'<p><strong>HRV</strong> measures the variation in time between heartbeats. Higher = better nervous system recovery.</p><p>Best measured during deep sleep. Your personal baseline is what matters — don\\u2019t compare across people.</p><p>Sharp drops can signal fatigue, stress, or incipient illness.</p>' },
       rhr:      { ttl:'Resting Heart Rate', bd:'<p>Your <strong>RHR</strong> is the lowest BPM measured during the day.</p><p>Lower = better cardiovascular shape. Athletes <strong>40-60 bpm</strong>, average person <strong>60-80 bpm</strong>.</p><p>A sustained rise of 5+ bpm above your baseline may indicate overtraining or stress.</p>' },
       steps:    { ttl:'Steps', bd:'<p>Standard daily target: <strong>10,000 steps</strong> (~7-8km).</p><p>The bar shows percent achieved. Consistency &gt; volume — 7,000 every day beats 15,000 once + 2,000 the rest.</p>' },
+      cycle:    { ttl:'Cycle phases', bd:'<p>Your cycle has four phases. AIRA estimates them from your last period and your biometrics.</p><p><strong>🩸 Menstruation</strong> — bleeding days; the cycle resets. Very low chance of pregnancy.</p><p><strong>🌱 Follicular</strong> — after your period estrogen rises; energy and fertility start climbing.</p><p><strong>🌸 Fertile window + Ovulation</strong> — the ~6 days with the highest chance of pregnancy. At ovulation the egg is released (your <strong>peak</strong>); right after, skin temp rises ~0.3°C.</p><p><strong>🌙 Luteal</strong> — after ovulation progesterone rises; resting HR and temperature run higher. If there is no pregnancy, your period arrives.</p><p style="opacity:0.6">Informational estimate based on your cycle and biometrics. Not a contraceptive method or medical advice.</p>' },
     },
     tour: [
       { ttl:'Welcome!', bd:'This is your personal biometric interface. Tracks HRV, sleep, recovery and more in real-time from your Fitbit.' },
