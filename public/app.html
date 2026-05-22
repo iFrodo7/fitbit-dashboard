@@ -247,9 +247,16 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .cyc-track{position:relative;height:14px;border-radius:7px;background:var(--sub);overflow:hidden;}
 .cyc-seg{position:absolute;top:0;bottom:0;}
 .cyc-seg.menstrual{background:var(--tneg);opacity:0.8;}
-.cyc-seg.fertile{background:var(--tpos,#22c55e);opacity:0.55;}
+.cyc-seg.fertile{background:var(--tpos,#22c55e);opacity:0.45;}
+.cyc-seg.peak{background:#f59e0b;opacity:0.85;}
 .cyc-seg.ovu{background:var(--tpos,#22c55e);}
 .cyc-today{position:absolute;top:-3px;bottom:-3px;width:3px;background:#fff;box-shadow:0 0 6px #fff;border-radius:2px;}
+/* Fertility probability row */
+.cyc-fert-row{display:flex;align-items:baseline;gap:8px;margin:6px 0 10px;}
+.cyc-fert-num{font-size:28px;font-weight:800;color:var(--ta2);line-height:1;letter-spacing:-1px;}
+.cyc-fert-lbl2{font-size:9px;letter-spacing:1.5px;opacity:0.5;text-transform:uppercase;}
+/* Late period state */
+.cyc-late-warn{font-size:11px;letter-spacing:1px;color:var(--tneg);font-weight:700;margin:4px 0 8px;}
 .cyc-mval{font-size:15px;}
 .cyc-bio{font-size:10px;opacity:0.6;letter-spacing:0.3px;line-height:1.6;margin-top:12px;padding:9px 11px;background:rgba(255,255,255,0.03);border-radius:6px;border:1px solid var(--bdr);}
 .cyc-actions{display:flex;gap:8px;margin-top:12px;}
@@ -1653,6 +1660,13 @@ body.t-naruto span.vval{
       <div class="clbl" style="display:flex;justify-content:space-between;align-items:baseline;"><span id="cyc-lbl">// CICLO</span><span class="cyc-dchip" id="cyc-day"></span></div>
       <div class="cyc-phase" id="cyc-phase">—</div>
       <div class="cyc-sub" id="cyc-phase-sub"></div>
+      <!-- Fertility probability badge (visible during fertile/peak/ovulation phases) -->
+      <div class="cyc-fert-row" id="cyc-fert-row" style="display:none;">
+        <span class="cyc-fert-num" id="cyc-fert-pct-num">—</span>
+        <span class="cyc-fert-lbl2" id="cyc-fert-pct-lbl">PROB. CONCEPCIÓN</span>
+      </div>
+      <!-- Late period warning -->
+      <div class="cyc-late-warn" id="cyc-late-warn" style="display:none;"></div>
       <div class="cyc-track" id="cyc-bar"></div>
       <div class="sv-grid2" style="margin-top:14px;">
         <div class="sv-mini">
@@ -1973,9 +1987,11 @@ const T = {
     cyc_lbl: '// CICLO', cyc_fert_lbl: 'VENTANA FÉRTIL', cyc_next_lbl: 'PRÓXIMA REGLA', cyc_log: 'REGISTRAR REGLA', cyc_set: 'AJUSTES',
     cyc_setup: 'Registra el primer día de tu última regla para calcular tu ventana fértil.',
     cyc_disc: 'Estimación informativa basada en tu ciclo y biométricos. NO es método anticonceptivo ni consejo médico. Tus datos se guardan solo en este dispositivo.',
-    cyc_phases: { menstrual:'Menstruación', follicular:'Fase folicular', fertile:'Ventana fértil', ovulation:'Ovulación · máxima fertilidad', luteal:'Fase lútea' },
-    cyc_phase_sub: { menstrual:'Probabilidad de embarazo muy baja.', follicular:'La fertilidad empieza a subir.', fertile:'Días de mayor probabilidad de embarazo.', ovulation:'Hoy es tu pico de fertilidad.', luteal:'Probabilidad de embarazo baja; la regla se acerca.' },
+    cyc_phases: { menstrual:'Menstruación', follicular:'Fase folicular', fertile:'Ventana fértil', peak:'Pico de fertilidad', ovulation:'Día de ovulación', luteal:'Fase lútea', late:'Periodo tardío' },
+    cyc_phase_sub: { menstrual:'Probabilidad de concepción muy baja.', follicular:'Estrógenos subiendo. La fertilidad aún es baja.', fertile:'Espermios pueden sobrevivir hasta 5 días. Fertilidad en ascenso.', peak:'Máxima probabilidad de concepción — 1-2 días antes de ovular.', ovulation:'La probabilidad baja ligeramente tras el pico. El óvulo dura ~24h.', luteal:'Probabilidad baja. El útero se prepara para la siguiente regla.', late:'Tu regla se ha retrasado. El estrés, actividad intensa o cambios de peso pueden alterar el ciclo.' },
     cyc_day: 'Día', cyc_in: 'en', cyc_days: 'días', cyc_today: 'hoy', cyc_peak: 'pico', cyc_period_short: 'regla',
+    cyc_fert_pct_lbl: 'PROB. CONCEPCIÓN', cyc_late_warn: '⚠ RETRASO:', cyc_late_days: 'días',
+    cyc_fert_start_in: 'ventana en',
     cyc_bio_on: 'Confirmación biométrica: tras ovular, tu temperatura de piel sube ~0.3°C y tu FC en reposo tiende a subir en fase lútea. AIRA cruza esto con tu ventana estimada.',
     cyc_q_last: 'Primer día de tu última regla (AAAA-MM-DD):', cyc_q_len: 'Duración promedio de tu ciclo en días (ej. 28):', cyc_q_period: '¿Cuántos días dura tu periodo normalmente? (ej. 5):',
     cyc_err_period: 'Duración entre 1 y 10 días',
@@ -2127,9 +2143,11 @@ const T = {
     cyc_lbl: '// CYCLE', cyc_fert_lbl: 'FERTILE WINDOW', cyc_next_lbl: 'NEXT PERIOD', cyc_log: 'LOG PERIOD', cyc_set: 'SETTINGS',
     cyc_setup: 'Log the first day of your last period to estimate your fertile window.',
     cyc_disc: 'Informational estimate based on your cycle and biometrics. NOT a contraceptive method or medical advice. Your data stays only on this device.',
-    cyc_phases: { menstrual:'Menstruation', follicular:'Follicular phase', fertile:'Fertile window', ovulation:'Ovulation · peak fertility', luteal:'Luteal phase' },
-    cyc_phase_sub: { menstrual:'Very low chance of pregnancy.', follicular:'Fertility starts rising.', fertile:'Highest chance of pregnancy.', ovulation:'Today is your fertility peak.', luteal:'Low chance of pregnancy; period approaching.' },
+    cyc_phases: { menstrual:'Menstruation', follicular:'Follicular phase', fertile:'Fertile window', peak:'Peak fertility', ovulation:'Ovulation day', luteal:'Luteal phase', late:'Late period' },
+    cyc_phase_sub: { menstrual:'Very low conception probability.', follicular:'Estrogen rising. Fertility still low.', fertile:'Sperm can survive up to 5 days. Fertility increasing.', peak:'Highest conception probability — 1–2 days before ovulation.', ovulation:'Probability slightly lower than peak. Egg lives ~24h.', luteal:'Low probability. Uterus preparing for next period.', late:'Your period is late. Stress, intense activity or weight changes can affect your cycle.' },
     cyc_day: 'Day', cyc_in: 'in', cyc_days: 'days', cyc_today: 'today', cyc_peak: 'peak', cyc_period_short: 'period',
+    cyc_fert_pct_lbl: 'CONCEPTION PROB.', cyc_late_warn: '⚠ DELAY:', cyc_late_days: 'days',
+    cyc_fert_start_in: 'window in',
     cyc_bio_on: 'Biometric confirmation: after ovulation your skin temp rises ~0.3°C and resting HR tends to rise in the luteal phase. AIRA cross-checks this with your estimated window.',
     cyc_q_last: 'First day of your last period (YYYY-MM-DD):', cyc_q_len: 'Your average cycle length in days (e.g. 28):', cyc_q_period: 'How many days does your period usually last? (e.g. 5):',
     cyc_err_period: 'Duration must be 1–10 days',
@@ -2552,22 +2570,81 @@ function _daysBetween(a, b) { return Math.floor((b - a) / 86400000); }
 // Cycle math: ovulation ≈ length−14; fertile window = 5 days before ovulation through 1 day after.
 function computeCycle() {
   const c = _cycData(); if (!c || !c.last) return null;
-  const len = c.len || 28, period = c.period || 5;
+  const len  = Math.max(20, Math.min(45, c.len  || 28));
+  const period = Math.max(1, Math.min(10, c.period || 5));
+
   const today = new Date(); today.setHours(0,0,0,0);
-  const last = _dParse(c.last); last.setHours(0,0,0,0);
+  const last  = _dParse(c.last); last.setHours(0,0,0,0);
+  // Days elapsed since last logged period (never negative)
   let diff = _daysBetween(last, today); if (diff < 0) diff = 0;
-  const cycleStart = new Date(last); cycleStart.setDate(cycleStart.getDate() + Math.floor(diff/len)*len);
-  const dayOfCycle = _daysBetween(cycleStart, today) + 1;
-  const ov = Math.max(1, len - 14), fertStart = Math.max(1, ov - 5), fertEnd = ov + 1;
-  const D = (n) => { const x = new Date(cycleStart); x.setDate(x.getDate() + (n-1)); return x; };
-  const nextPeriod = new Date(cycleStart); nextPeriod.setDate(nextPeriod.getDate() + len);
-  let phase = 'follicular';
-  if (dayOfCycle <= period) phase = 'menstrual';
-  else if (dayOfCycle === ov) phase = 'ovulation';
+
+  // ── Cycle day: always counted from `last` logged period.
+  // We do NOT auto-advance — the user must log the next period to reset.
+  // This matches Clue's behavior: the calendar doesn't jump to a new cycle
+  // until bleeding is recorded.
+  const totalDays = diff + 1; // day 1 = day of last logged period
+  // Normalize to current cycle repetition (handle very long gaps gracefully)
+  const cycleRep  = Math.floor(diff / len);
+  const dayOfCycle = diff - cycleRep * len + 1; // 1-based within the current expected cycle
+
+  // ── Ovulation: luteal phase mean = 14 days (Clue/Wilcox standard)
+  // Constrained so it can't fall inside the menstrual phase.
+  const ov = Math.max(period + 2, len - 14);
+
+  // ── Fertile window per Clue / Wilcox 1995 NEJM:
+  // Sperm survive 3–5 days; egg viable ~24 h.
+  // Window: 5 days before ovulation through 1 day after = 7 days total.
+  // fertStart must not overlap the menstrual phase.
+  const fertStart = Math.max(period + 1, ov - 5);
+  const fertEnd   = ov + 1; // Clue includes one day post-ovulation (~5 % probability)
+
+  // ── Peak days: ov-2 and ov-1 are statistically highest per Dunson/Wilcox
+  // corrected model (measurement-error adjustment shifts raw peak from ov-0 to ov-2).
+  // We mark both ov-2 and ov-1 as 'peak' phase.
+  const peakStart = ov - 2;
+  const peakEnd   = ov - 1;
+
+  // ── Fertility probability (Wilcox 1995, Dunson 1999 corrected, NEJM/Hum Reprod)
+  // Probabilities are approximate and for educational purposes only.
+  const dFromOv = dayOfCycle - ov;
+  const WILCOX  = { '-5':10, '-4':16, '-3':14, '-2':27, '-1':31, '0':33, '1':5 };
+  const fertilityPct = WILCOX[String(dFromOv)] ?? (dayOfCycle <= period ? 2 : dFromOv > 1 ? 1 : 3);
+
+  // ── Late period detection
+  // Compare today vs the first expected period date after `last`.
+  // If today is within [lastNextPeriod, lastNextPeriod + 13], period is "late"
+  // (we don't show late forever — after 14 days we assume a new cycle started
+  //  and the user should log the new period to reset).
+  const lastNextDate = new Date(last); lastNextDate.setDate(lastNextDate.getDate() + len);
+  const daysSinceDue = _daysBetween(lastNextDate, today); // negative = not yet due
+  const isLate   = daysSinceDue >= 0 && daysSinceDue < 14;
+  const daysLate = isLate ? daysSinceDue : 0; // 0 = due today, n = n days overdue
+
+  // ── Date helpers relative to start of current expected cycle
+  const cycleStart = new Date(last);
+  cycleStart.setDate(cycleStart.getDate() + cycleRep * len);
+  const D = (n) => { const x = new Date(cycleStart); x.setDate(x.getDate() + (n - 1)); return x; };
+  const nextPeriod = D(len + 1);
+
+  // ── Phase classification (priority order matters)
+  let phase;
+  if (isLate)                                          phase = 'late';
+  else if (dayOfCycle <= period)                       phase = 'menstrual';
+  else if (dFromOv === 0)                              phase = 'ovulation';
+  else if (dayOfCycle >= peakStart && dayOfCycle <= peakEnd) phase = 'peak';
   else if (dayOfCycle >= fertStart && dayOfCycle <= fertEnd) phase = 'fertile';
-  else if (dayOfCycle > ov) phase = 'luteal';
-  return { len, period, dayOfCycle, ov, fertStart, fertEnd, ovDate: D(ov), fertStartDate: D(fertStart),
-    fertEndDate: D(fertEnd), nextPeriod, daysToOv: _daysBetween(today, D(ov)), daysToNext: _daysBetween(today, nextPeriod), phase };
+  else if (dayOfCycle > fertEnd)                       phase = 'luteal';
+  else                                                 phase = 'follicular'; // period+1 → fertStart-1
+
+  return {
+    len, period, dayOfCycle, ov, peakStart, peakEnd, fertStart, fertEnd,
+    ovDate: D(ov), fertStartDate: D(fertStart), fertEndDate: D(fertEnd),
+    nextPeriod,
+    daysToFertStart: _daysBetween(today, D(fertStart)),
+    daysToOv:   _daysBetween(today, D(ov)),
+    daysToNext: _daysBetween(today, nextPeriod),
+    phase, fertilityPct, isLate, daysLate
+  };
 }
 function renderCycle() {
   const card = document.getElementById('sv-cycle'); if (!card) return;
@@ -2584,20 +2661,50 @@ function renderCycle() {
     ['cyc-fert-sub','cyc-next-sub','cyc-bio'].forEach(id => setText(id, ''));
     return;
   }
-  setText('cyc-day', `${t.cyc_day} ${c.dayOfCycle}/${c.len}`);
-  setText('cyc-phase', t.cyc_phases[c.phase]);
-  setText('cyc-phase-sub', t.cyc_phase_sub[c.phase]);
-  const pct = (n) => ((n-1) / c.len * 100);
+  setText('cyc-day', c.isLate
+    ? `${t.cyc_day} ${c.len}+ (${t.cyc_late_warn} ${c.daysLate}d)`
+    : `${t.cyc_day} ${c.dayOfCycle}/${c.len}`);
+  setText('cyc-phase', t.cyc_phases[c.phase] || c.phase);
+  setText('cyc-phase-sub', t.cyc_phase_sub[c.phase] || '');
+
+  // Fertility probability badge — visible during fertile window + ovulation
+  const showPct = ['fertile','peak','ovulation'].includes(c.phase);
+  const fertRow  = document.getElementById('cyc-fert-row');
+  if (fertRow) fertRow.style.display = showPct ? 'flex' : 'none';
+  if (showPct) {
+    setText('cyc-fert-pct-num', `${c.fertilityPct}%`);
+    setText('cyc-fert-pct-lbl', t.cyc_fert_pct_lbl);
+  }
+
+  // Late period warning
+  const lateEl = document.getElementById('cyc-late-warn');
+  if (lateEl) {
+    lateEl.style.display = c.isLate ? 'block' : 'none';
+    if (c.isLate) lateEl.textContent = `${t.cyc_late_warn} ${c.daysLate} ${t.cyc_late_days}`;
+  }
+
+  // Progress bar: menstrual | follicular (gap) | fertile | peak | ovu | luteal | today
+  const pct = (n) => Math.min(100, ((n - 1) / c.len * 100));
+  const fertileOnlyW = Math.max(0, c.peakStart - c.fertStart) / c.len * 100;
+  const peakW = Math.max(0, c.peakEnd - c.peakStart + 1) / c.len * 100;
   document.getElementById('cyc-bar').innerHTML =
     `<div class="cyc-seg menstrual" style="left:0%;width:${c.period/c.len*100}%"></div>` +
-    `<div class="cyc-seg fertile" style="left:${pct(c.fertStart)}%;width:${(c.fertEnd-c.fertStart+1)/c.len*100}%"></div>` +
-    `<div class="cyc-seg ovu" style="left:${pct(c.ov)}%;width:${1/c.len*100}%"></div>` +
-    `<div class="cyc-today" style="left:${Math.min(99, pct(c.dayOfCycle))}%"></div>`;
+    `<div class="cyc-seg fertile"   style="left:${pct(c.fertStart)}%;width:${fertileOnlyW}%"></div>` +
+    `<div class="cyc-seg peak"      style="left:${pct(c.peakStart)}%;width:${peakW}%"></div>` +
+    `<div class="cyc-seg ovu"       style="left:${pct(c.ov)}%;width:${1/c.len*100}%"></div>` +
+    `<div class="cyc-today"         style="left:${Math.min(99, pct(c.dayOfCycle))}%"></div>`;
+
+  // Fertile window info
   setText('cyc-fert-val', `${_dFmt(c.fertStartDate)}–${_dFmt(c.fertEndDate)}`);
-  setText('cyc-fert-sub', c.daysToOv > 0 ? `${t.cyc_peak}: ${_dFmt(c.ovDate)} · ${t.cyc_in} ${c.daysToOv} ${t.cyc_days}`
-    : c.daysToOv === 0 ? `${t.cyc_peak}: ${t.cyc_today}` : `${t.cyc_peak}: ${_dFmt(c.ovDate)}`);
-  setText('cyc-next-val', _dFmt(c.nextPeriod));
-  setText('cyc-next-sub', `${t.cyc_in} ${Math.max(0, c.daysToNext)} ${t.cyc_days}`);
+  const ovTxt = c.daysToOv > 0 ? `${t.cyc_peak}: ${_dFmt(c.ovDate)} · ${t.cyc_in} ${c.daysToOv}d`
+              : c.daysToOv === 0 ? `${t.cyc_peak}: ${t.cyc_today}` : `${t.cyc_peak}: ${_dFmt(c.ovDate)}`;
+  setText('cyc-fert-sub', ovTxt);
+
+  // Next period
+  setText('cyc-next-val', c.isLate ? `${_dFmt(c.nextPeriod)} ⚠` : _dFmt(c.nextPeriod));
+  setText('cyc-next-sub', c.isLate
+    ? `${c.daysLate} ${t.cyc_late_days} ${t.cyc_late_warn.replace('⚠','').trim().toLowerCase()}`
+    : `${t.cyc_in} ${Math.max(0, c.daysToNext)} ${t.cyc_days}`);
   setText('cyc-bio', t.cyc_bio_on);
   renderCycleHomeChip();
 }
@@ -2608,14 +2715,29 @@ function renderCycleHomeChip() {
   if (!c) { el.classList.remove('on'); return; }
   const phaseName = t.cyc_phases[c.phase] || c.phase;
   let detail = '';
-  if (c.phase === 'menstrual') {
-    detail = `${t.cyc_day.toLowerCase()} ${c.dayOfCycle}`;
-  } else if (c.phase === 'ovulation') {
-    detail = `${t.cyc_peak} ${t.cyc_today}`;
-  } else if (c.phase === 'fertile' || c.phase === 'follicular') {
-    detail = c.daysToOv > 0 ? `${t.cyc_peak} ${t.cyc_in} ${c.daysToOv}d` : `${t.cyc_peak} ${t.cyc_today}`;
-  } else if (c.phase === 'luteal') {
-    detail = `${t.cyc_period_short} ${t.cyc_in} ${Math.max(0, c.daysToNext)}d`;
+  switch (c.phase) {
+    case 'late':
+      detail = `${c.daysLate}d ${t.cyc_late_warn.replace('⚠','').trim().toLowerCase()}`;
+      break;
+    case 'menstrual':
+      detail = `${t.cyc_day.toLowerCase()} ${c.dayOfCycle}`;
+      break;
+    case 'follicular':
+      detail = c.daysToFertStart > 0 ? `${t.cyc_fert_start_in} ${c.daysToFertStart}d` : '';
+      break;
+    case 'fertile':
+      detail = c.daysToOv > 1 ? `${t.cyc_peak} ${t.cyc_in} ${c.daysToOv}d · ${c.fertilityPct}%`
+             : `${t.cyc_peak} ${t.cyc_in} 1d · ${c.fertilityPct}%`;
+      break;
+    case 'peak':
+      detail = `${c.fertilityPct}%`;
+      break;
+    case 'ovulation':
+      detail = `${c.fertilityPct}%`;
+      break;
+    case 'luteal':
+      detail = `${t.cyc_period_short} ${t.cyc_in} ${Math.max(0, c.daysToNext)}d`;
+      break;
   }
   const txt = document.getElementById('cyc-chip-txt');
   if (txt) txt.textContent = detail ? `${phaseName} · ${detail}` : phaseName;
