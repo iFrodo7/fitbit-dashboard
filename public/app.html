@@ -270,6 +270,23 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .cyc-home-chip:active{opacity:0.7;}
 .cyc-chip-icon{font-size:14px;flex-shrink:0;line-height:1;}
 .cyc-chip-arrow{opacity:0.4;margin-left:2px;font-size:12px;}
+/* Cycle input modal */
+.cyc-field{margin-bottom:18px;}
+.cyc-field-lbl{display:block;font-size:9px;letter-spacing:2px;color:var(--sub);margin-bottom:8px;text-transform:uppercase;}
+.cyc-field-hint{opacity:0.45;margin-left:6px;font-size:9px;letter-spacing:0;text-transform:none;}
+.cyc-date-inp{width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--bdr);color:var(--tx);font-family:inherit;font-size:14px;letter-spacing:1px;border-radius:4px;box-sizing:border-box;-webkit-appearance:none;appearance:none;}
+.cyc-date-inp:focus{outline:none;border-color:var(--ta2);}
+.cyc-date-inp::-webkit-calendar-picker-indicator{filter:invert(1);opacity:0.5;cursor:pointer;}
+.cyc-stepper{display:flex;align-items:center;gap:10px;}
+.cyc-step-btn{width:40px;height:40px;background:rgba(255,255,255,0.04);border:1px solid var(--bdr);color:var(--tx);font-size:20px;font-weight:300;cursor:pointer;border-radius:4px;transition:border-color 0.15s,color 0.15s;display:flex;align-items:center;justify-content:center;font-family:inherit;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
+.cyc-step-btn:hover,.cyc-step-btn:active{border-color:var(--ta2);color:var(--ta2);}
+.cyc-step-val{font-size:24px;font-weight:800;color:var(--ta2);min-width:36px;text-align:center;line-height:1;letter-spacing:-1px;}
+.cyc-step-unit{font-size:10px;letter-spacing:1.5px;color:var(--sub);text-transform:uppercase;flex:1;}
+.cyc-modal-row{display:flex;gap:10px;margin-top:20px;}
+.cyc-modal-save{flex:1;padding:13px;background:var(--ta2);color:var(--bg);border:none;cursor:pointer;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:opacity 0.15s;font-family:inherit;}
+.cyc-modal-save:hover{opacity:0.85;}
+.cyc-modal-cancel{padding:13px 18px;background:transparent;color:var(--ta2);border:1px solid var(--ta2);cursor:pointer;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-family:inherit;transition:opacity 0.15s;}
+.cyc-modal-cancel:hover{opacity:0.7;}
 .sv-mstat.good{color:var(--tpos,#22c55e);}
 .sv-mstat.warn{color:#f59e0b;}
 .sv-mstat.bad{color:var(--tneg,#ef4444);}
@@ -1801,6 +1818,46 @@ body.t-naruto span.vval{
     </div>
   </div>
 
+  <!-- Cycle input modal -->
+  <div class="mov" id="cyc-modal-ov" onclick="if(event.target===this)closeCycModal()">
+    <div class="mbox" style="max-width:380px;">
+      <div class="mhd">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div><div class="mh2" id="cyc-modal-title">REGISTRAR REGLA</div><div class="msub" id="cyc-modal-sub">Primer día de tu último período</div></div>
+          <button onclick="closeCycModal()" style="background:none;border:none;color:var(--sub);cursor:pointer;font-size:20px;line-height:1;padding:4px;">✕</button>
+        </div>
+      </div>
+      <div class="mbd">
+        <div class="cyc-field" id="cyc-field-date">
+          <label class="cyc-field-lbl" id="cyc-field-date-lbl">INICIO DEL ÚLTIMO PERÍODO</label>
+          <input type="date" id="cyc-modal-date" class="cyc-date-inp">
+        </div>
+        <div class="cyc-field">
+          <label class="cyc-field-lbl"><span id="cyc-field-len-lbl">DURACIÓN DEL CICLO</span><span class="cyc-field-hint" id="cyc-len-hint">20–45 días</span></label>
+          <div class="cyc-stepper">
+            <button class="cyc-step-btn" onclick="adjCycModal('len',-1)">−</button>
+            <span class="cyc-step-val" id="cyc-modal-len">28</span>
+            <span class="cyc-step-unit" id="cyc-len-unit">días</span>
+            <button class="cyc-step-btn" onclick="adjCycModal('len',+1)">+</button>
+          </div>
+        </div>
+        <div class="cyc-field">
+          <label class="cyc-field-lbl"><span id="cyc-field-period-lbl">DURACIÓN DE LA REGLA</span><span class="cyc-field-hint" id="cyc-period-hint">1–10 días</span></label>
+          <div class="cyc-stepper">
+            <button class="cyc-step-btn" onclick="adjCycModal('period',-1)">−</button>
+            <span class="cyc-step-val" id="cyc-modal-period">5</span>
+            <span class="cyc-step-unit" id="cyc-period-unit">días</span>
+            <button class="cyc-step-btn" onclick="adjCycModal('period',+1)">+</button>
+          </div>
+        </div>
+        <div class="cyc-modal-row">
+          <button class="cyc-modal-save" onclick="saveCycModal()"><span id="cyc-modal-save-lbl">GUARDAR</span></button>
+          <button class="cyc-modal-cancel" onclick="closeCycModal()"><span id="cyc-modal-cancel-lbl">CANCELAR</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal -->
   <div class="mov" id="modal">
     <div class="mbox">
@@ -1995,6 +2052,14 @@ const T = {
     cyc_bio_on: 'Confirmación biométrica: tras ovular, tu temperatura de piel sube ~0.3°C y tu FC en reposo tiende a subir en fase lútea. AIRA cruza esto con tu ventana estimada.',
     cyc_q_last: 'Primer día de tu última regla (AAAA-MM-DD):', cyc_q_len: 'Duración promedio de tu ciclo en días (ej. 28):', cyc_q_period: '¿Cuántos días dura tu periodo normalmente? (ej. 5):',
     cyc_err_period: 'Duración entre 1 y 10 días',
+    cyc_modal_title_log: 'REGISTRAR REGLA', cyc_modal_sub_log: 'Primer día de tu último período',
+    cyc_modal_title_set: 'AJUSTES DEL CICLO', cyc_modal_sub_set: 'Personaliza la duración de tu ciclo',
+    cyc_modal_date_lbl: 'INICIO DEL ÚLTIMO PERÍODO',
+    cyc_modal_len_lbl: 'DURACIÓN DEL CICLO', cyc_modal_len_hint: '20–45 días',
+    cyc_modal_period_lbl: 'DURACIÓN DE LA REGLA', cyc_modal_period_hint: '1–10 días',
+    cyc_modal_save: 'GUARDAR', cyc_modal_cancel: 'CANCELAR', cyc_modal_days: 'días',
+    cyc_modal_saved_log: 'Regla registrada', cyc_modal_saved_set: 'Ciclo actualizado',
+    cyc_modal_err_date: 'Selecciona una fecha válida', cyc_modal_err_len: 'Ciclo entre 20 y 45 días',
     cyc_on_lbl: 'SEGUIMIENTO DE CICLO',
     sv_sleep_lbl: '// SUEÑO', sv_sltotal_lbl: 'TOTAL', sv_sltotal_unit: 'dormido', sv_slscore_lbl: 'CALIDAD',
     sv_hrv_unit: 'ms',
@@ -2151,6 +2216,14 @@ const T = {
     cyc_bio_on: 'Biometric confirmation: after ovulation your skin temp rises ~0.3°C and resting HR tends to rise in the luteal phase. AIRA cross-checks this with your estimated window.',
     cyc_q_last: 'First day of your last period (YYYY-MM-DD):', cyc_q_len: 'Your average cycle length in days (e.g. 28):', cyc_q_period: 'How many days does your period usually last? (e.g. 5):',
     cyc_err_period: 'Duration must be 1–10 days',
+    cyc_modal_title_log: 'LOG PERIOD', cyc_modal_sub_log: 'First day of your last period',
+    cyc_modal_title_set: 'CYCLE SETTINGS', cyc_modal_sub_set: 'Customize your cycle length',
+    cyc_modal_date_lbl: 'LAST PERIOD START DATE',
+    cyc_modal_len_lbl: 'CYCLE LENGTH', cyc_modal_len_hint: '20–45 days',
+    cyc_modal_period_lbl: 'PERIOD DURATION', cyc_modal_period_hint: '1–10 days',
+    cyc_modal_save: 'SAVE', cyc_modal_cancel: 'CANCEL', cyc_modal_days: 'days',
+    cyc_modal_saved_log: 'Period logged', cyc_modal_saved_set: 'Cycle updated',
+    cyc_modal_err_date: 'Select a valid date', cyc_modal_err_len: 'Cycle must be 20–45 days',
     cyc_on_lbl: 'CYCLE TRACKING',
     sv_sleep_lbl: '// SLEEP', sv_sltotal_lbl: 'TOTAL', sv_sltotal_unit: 'asleep', sv_slscore_lbl: 'QUALITY',
     sv_hrv_unit: 'ms',
@@ -2743,41 +2816,73 @@ function renderCycleHomeChip() {
   if (txt) txt.textContent = detail ? `${phaseName} · ${detail}` : phaseName;
   el.classList.add('on');
 }
-function cycleLogPeriod() {
+function cycleLogPeriod() { openCycModal('log'); }
+function cycleSettings()  { openCycModal('settings'); }
+
+function openCycModal(mode) {
   const t = T[lang], cur = _cycData() || {};
-  // Paso 1: fecha de inicio
-  const v = prompt(t.cyc_q_last, cur.last || new Date().toISOString().slice(0,10));
-  if (!v) return;
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(v.trim())) { showToast(lang === 'es' ? 'Usa formato AAAA-MM-DD' : 'Use format YYYY-MM-DD', 'error'); return; }
-  const data = cur.len ? { ...cur } : { len:28, period:5 };
-  data.last = v.trim();
-  // Paso 2: duración de la menstruación (solo si no está configurada aún)
-  if (!data.period || data.period === 5) {
-    const vp = prompt(t.cyc_q_period, String(data.period || 5));
-    if (vp) {
-      const np = parseInt(vp);
-      if (!isNaN(np) && np >= 1 && np <= 10) data.period = np;
-      else if (!isNaN(np)) { showToast(t.cyc_err_period, 'error'); return; }
-    }
+  // Titles & subtitles
+  setText('cyc-modal-title', mode === 'settings' ? t.cyc_modal_title_set : t.cyc_modal_title_log);
+  setText('cyc-modal-sub',   mode === 'settings' ? t.cyc_modal_sub_set  : t.cyc_modal_sub_log);
+  // Field labels
+  setText('cyc-field-date-lbl',   t.cyc_modal_date_lbl);
+  setText('cyc-field-len-lbl',    t.cyc_modal_len_lbl);
+  setText('cyc-len-hint',         t.cyc_modal_len_hint);
+  setText('cyc-field-period-lbl', t.cyc_modal_period_lbl);
+  setText('cyc-period-hint',      t.cyc_modal_period_hint);
+  // Day unit labels
+  setText('cyc-len-unit',    t.cyc_modal_days);
+  setText('cyc-period-unit', t.cyc_modal_days);
+  // Action buttons
+  setText('cyc-modal-save-lbl',   t.cyc_modal_save);
+  setText('cyc-modal-cancel-lbl', t.cyc_modal_cancel);
+  // Date field — hidden in settings mode
+  const df = document.getElementById('cyc-field-date');
+  if (df) df.style.display = mode === 'settings' ? 'none' : '';
+  // Pre-fill values
+  const di = document.getElementById('cyc-modal-date');
+  if (di) di.value = cur.last || new Date().toISOString().slice(0, 10);
+  setText('cyc-modal-len',    String(cur.len    || 28));
+  setText('cyc-modal-period', String(cur.period || 5));
+  // Store mode and open
+  window._cycModalMode = mode;
+  document.getElementById('cyc-modal-ov').classList.add('on');
+}
+
+function closeCycModal() {
+  document.getElementById('cyc-modal-ov').classList.remove('on');
+}
+
+function adjCycModal(field, delta) {
+  const id = field === 'len' ? 'cyc-modal-len' : 'cyc-modal-period';
+  const el = document.getElementById(id);
+  if (!el) return;
+  let v = parseInt(el.textContent) + delta;
+  v = field === 'len' ? Math.max(20, Math.min(45, v)) : Math.max(1, Math.min(10, v));
+  el.textContent = String(v);
+}
+
+function saveCycModal() {
+  const t = T[lang], cur = _cycData() || {}, mode = window._cycModalMode || 'log';
+  const data = { ...cur };
+  // Cycle length
+  const lenVal = parseInt(document.getElementById('cyc-modal-len')?.textContent || '28');
+  if (isNaN(lenVal) || lenVal < 20 || lenVal > 45) { showToast(t.cyc_modal_err_len, 'error'); return; }
+  data.len = lenVal;
+  // Period duration
+  const periodVal = parseInt(document.getElementById('cyc-modal-period')?.textContent || '5');
+  if (isNaN(periodVal) || periodVal < 1 || periodVal > 10) { showToast(t.cyc_err_period, 'error'); return; }
+  data.period = periodVal;
+  // Date — only in log mode
+  if (mode !== 'settings') {
+    const dv = (document.getElementById('cyc-modal-date')?.value || '').trim();
+    if (!dv || !/^\d{4}-\d{2}-\d{2}$/.test(dv)) { showToast(t.cyc_modal_err_date, 'error'); return; }
+    data.last = dv;
   }
   localStorage.setItem('fb_cycle', JSON.stringify(data));
-  renderCycle(); showToast(lang === 'es' ? 'Regla registrada' : 'Period logged', 'success');
-}
-function cycleSettings() {
-  const t = T[lang], cur = _cycData() || { len:28, period:5 };
-  // Paso 1: duración total del ciclo
-  const v1 = prompt(t.cyc_q_len, String(cur.len || 28));
-  if (!v1) return;
-  const n1 = parseInt(v1);
-  if (isNaN(n1) || n1 < 20 || n1 > 45) { showToast(lang === 'es' ? 'Ciclo entre 20 y 45 días' : 'Cycle 20–45 days', 'error'); return; }
-  // Paso 2: duración de la menstruación
-  const v2 = prompt(t.cyc_q_period, String(cur.period || 5));
-  if (!v2) return;
-  const n2 = parseInt(v2);
-  if (isNaN(n2) || n2 < 1 || n2 > 10) { showToast(t.cyc_err_period, 'error'); return; }
-  const data = { ...cur, len: n1, period: n2 };
-  localStorage.setItem('fb_cycle', JSON.stringify(data));
-  renderCycle(); showToast(lang === 'es' ? 'Ciclo actualizado' : 'Cycle updated', 'success');
+  closeCycModal();
+  renderCycle();
+  showToast(mode === 'settings' ? t.cyc_modal_saved_set : t.cyc_modal_saved_log, 'success');
 }
 function toggleCycle() {
   localStorage.setItem('fb_cycle_on', cycleEnabled() ? '0' : '1');
@@ -4094,13 +4199,17 @@ async function renderHistory() {
   let rows = wanted.map(d => cache.find(c => c.date === d) || { date: d });
   // Demo fallback if nothing real
   if (!token || !rows.some(r => r.rhr != null)) {
-    rows = wanted.map((d, i) => {
-      const seed = i * 7 % 13;
+    const _dh = s => { let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))&0xffffff; return h; };
+    rows = wanted.map(d => {
+      const h = _dh(d);
+      const h2 = _dh(d + 'b'), h3 = _dh(d + 'c'), h4 = _dh(d + 'd');
+      const deep = 55 + (h % 45), rem = 60 + (h2 % 50), light = 170 + (h3 % 90), wake = 5 + (h4 % 25);
+      const minutesAsleep = deep + rem + light;
       return { date: d,
-        rhr: 60 + (seed % 8),
-        deep: 70 + (seed*3 % 30), rem: 80 + (seed*5 % 40), light: 200 + (seed*4 % 60), wake: 15 + (seed%10),
-        minutesAsleep: 365 + (seed*7 % 90), timeInBed: 420 + (seed*5 % 50),
-        recovery: 55 + (seed*6 % 35) };
+        rhr: 55 + (h % 15),
+        deep, rem, light, wake,
+        minutesAsleep, timeInBed: minutesAsleep + wake + 15 + (h4 % 30),
+        recovery: 42 + (h2 % 54) };
     });
   }
   // Stats labels
