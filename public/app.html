@@ -180,7 +180,7 @@ body{width:100%;min-height:100vh;}
 /* ── HISTORY VIEW (overlay) ── */
 #hview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
 body.view-history #hview{display:block;pointer-events:auto;}
-body.view-history #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#hview):not(#cyc-modal-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
+body.view-history #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#hview):not(#cyc-modal-ov):not(#cyc-sym-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
 body.view-history #dash > #install-banner{visibility:visible;}
 .hv-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--sub);}
 .hv-title{font-size:14px;font-weight:700;letter-spacing:3px;color:var(--ta);text-transform:uppercase;}
@@ -220,12 +220,12 @@ body.view-history #dash > #install-banner{visibility:visible;}
 /* ── STATS VIEW (overlay) ── */
 #sview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
 body.view-stats #sview{display:block;pointer-events:auto;}
-body.view-stats #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#sview):not(#cyc-modal-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
+body.view-stats #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#sview):not(#cyc-modal-ov):not(#cyc-sym-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
 
 /* ── PROFILE VIEW (overlay) ── */
 #pview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
 body.view-profile #pview{display:block;pointer-events:auto;}
-body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#pview):not(#cyc-modal-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
+body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#pview):not(#cyc-modal-ov):not(#cyc-sym-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
 
 /* Shared overlay header */
 .ov-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--sub);}
@@ -244,13 +244,28 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .cyc-dchip{font-size:9px;letter-spacing:1.5px;opacity:0.55;}
 .cyc-phase{font-size:22px;font-weight:800;letter-spacing:1px;color:var(--ta2);margin:6px 0 2px;text-transform:uppercase;}
 .cyc-sub{font-size:10px;opacity:0.55;letter-spacing:0.5px;line-height:1.5;margin-bottom:12px;}
-.cyc-track{position:relative;height:14px;border-radius:7px;background:var(--sub);overflow:hidden;}
+.cyc-track{position:relative;height:28px;border-radius:6px;background:rgba(255,255,255,0.05);border:1px solid var(--bdr);overflow:hidden;}
 .cyc-seg{position:absolute;top:0;bottom:0;}
-.cyc-seg.menstrual{background:var(--tneg);opacity:0.8;}
-.cyc-seg.fertile{background:var(--tpos,#22c55e);opacity:0.45;}
-.cyc-seg.peak{background:#f59e0b;opacity:0.85;}
-.cyc-seg.ovu{background:var(--tpos,#22c55e);}
-.cyc-today{position:absolute;top:-3px;bottom:-3px;width:3px;background:#fff;box-shadow:0 0 6px #fff;border-radius:2px;}
+.cyc-seg.menstrual  {background:var(--tneg);opacity:0.75;}
+.cyc-seg.follicular {background:rgba(255,255,255,0.07);}
+.cyc-seg.fertile    {background:var(--tpos,#22c55e);opacity:0.5;}
+.cyc-seg.peak       {background:#f59e0b;opacity:0.85;}
+.cyc-seg.ovu        {background:var(--tpos,#22c55e);}
+.cyc-seg.luteal     {background:var(--ta2);opacity:0.15;}
+.cyc-today{position:absolute;top:0;bottom:0;width:3px;background:#fff;box-shadow:0 0 8px rgba(255,255,255,0.85);border-radius:2px;z-index:2;}
+/* Cycle legend */
+.cyc-legend{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px;}
+.cyc-leg-item{display:flex;align-items:center;gap:4px;font-size:8px;letter-spacing:0.5px;color:var(--sub);text-transform:uppercase;}
+.cyc-leg-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0;}
+/* Today log strip */
+.cyc-log-today{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0 0;padding:7px 10px;background:rgba(255,255,255,0.03);border:1px solid var(--bdr);border-radius:6px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.cyc-log-today:active{opacity:0.7;}
+/* Symptom modal */
+.sym-section-lbl{display:block;font-size:9px;letter-spacing:2px;color:var(--sub);text-transform:uppercase;margin:14px 0 8px;}
+.sym-pill-row{display:flex;flex-wrap:wrap;gap:6px;}
+.sym-pill{padding:7px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--bdr);border-radius:18px;font-size:10px;letter-spacing:0.8px;color:var(--tx);cursor:pointer;transition:background 0.15s,border-color 0.15s,color 0.15s;-webkit-tap-highlight-color:transparent;font-family:inherit;}
+.sym-pill.on{background:var(--ta2);border-color:var(--ta2);color:var(--bg);}
+.sym-pill:active{opacity:0.7;}
 /* Fertility probability row */
 .cyc-fert-row{display:flex;align-items:baseline;gap:8px;margin:6px 0 10px;}
 .cyc-fert-num{font-size:28px;font-weight:800;color:var(--ta2);line-height:1;letter-spacing:-1px;}
@@ -1684,7 +1699,11 @@ body.t-naruto span.vval{
       </div>
       <!-- Late period warning -->
       <div class="cyc-late-warn" id="cyc-late-warn" style="display:none;"></div>
-      <div class="cyc-track" id="cyc-bar"></div>
+      <div style="margin:12px 0 0;">
+        <div class="cyc-track" id="cyc-bar"></div>
+        <div class="cyc-legend" id="cyc-legend"></div>
+      </div>
+      <div class="cyc-log-today" id="cyc-log-today" onclick="openSymModal()" style="display:none;"></div>
       <div class="sv-grid2" style="margin-top:14px;">
         <div class="sv-mini">
           <div class="sv-mlbl"><span id="cyc-fert-lbl">VENTANA FÉRTIL</span><button class="onb-q" onclick="showOnb('cyc_fertile')" aria-label="info">?</button></div>
@@ -1698,8 +1717,9 @@ body.t-naruto span.vval{
         </div>
       </div>
       <div class="cyc-bio" id="cyc-bio" style="position:relative;"></div>
-      <div class="cyc-actions">
-        <button class="cyc-btn" id="cyc-log-btn" onclick="cycleLogPeriod()">REGISTRAR REGLA</button>
+      <div class="cyc-actions" style="flex-wrap:wrap;">
+        <button class="cyc-btn" id="cyc-log-btn" onclick="cycleLogPeriod()" style="flex-basis:100%;">REGISTRAR REGLA</button>
+        <button class="cyc-btn ghost" id="cyc-sym-btn" onclick="openSymModal()"><span id="cyc-sym-btn-lbl">REGISTRAR DÍA</span></button>
         <button class="cyc-btn ghost" id="cyc-set-btn" onclick="cycleSettings()">AJUSTES</button>
       </div>
 
@@ -1816,6 +1836,33 @@ body.t-naruto span.vval{
       <div class="lskel-card"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
       <div class="lskel-card"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
       <div class="lskel-card tall"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
+    </div>
+  </div>
+
+  <!-- Cycle day log / symptom modal -->
+  <div class="mov" id="cyc-sym-ov" onclick="if(event.target===this)closeSymModal()">
+    <div class="mbox" style="max-width:400px;">
+      <div class="mhd">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div class="mh2" id="cyc-sym-title">REGISTRAR DÍA</div>
+            <div class="msub" id="cyc-sym-date-lbl"></div>
+          </div>
+          <button onclick="closeSymModal()" style="background:none;border:none;color:var(--sub);font-size:20px;cursor:pointer;padding:4px 8px;line-height:1;">✕</button>
+        </div>
+      </div>
+      <div class="mbd">
+        <span class="sym-section-lbl" id="cyc-sym-lbl-flow">FLUJO</span>
+        <div class="sym-pill-row" id="cyc-sym-flow-row"></div>
+        <span class="sym-section-lbl" id="cyc-sym-lbl-sex">RELACIONES</span>
+        <div class="sym-pill-row" id="cyc-sym-sex-row"></div>
+        <span class="sym-section-lbl" id="cyc-sym-lbl-sx">SÍNTOMAS</span>
+        <div class="sym-pill-row" id="cyc-sym-sx-row"></div>
+        <div class="cyc-modal-row" style="margin-top:20px;">
+          <button class="cyc-modal-save" onclick="saveSymModal()"><span id="cyc-sym-save-lbl">GUARDAR</span></button>
+          <button class="cyc-modal-cancel" onclick="closeSymModal()"><span id="cyc-sym-cancel-lbl">CANCELAR</span></button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2065,6 +2112,12 @@ const T = {
     cyc_modal_save: 'GUARDAR', cyc_modal_cancel: 'CANCELAR', cyc_modal_days: 'días',
     cyc_modal_saved_log: 'Regla registrada', cyc_modal_saved_set: 'Ciclo actualizado',
     cyc_modal_err_date: 'Selecciona una fecha válida', cyc_modal_err_len: 'Ciclo entre 20 y 45 días',
+    cyc_log_day: 'REGISTRAR DÍA', cyc_today_log: 'HOY',
+    cyc_sym_title: 'REGISTRAR DÍA',
+    cyc_sym_flow: 'FLUJO', cyc_sym_flow_none: 'Sin flujo', cyc_sym_flow_spot: 'Manchado', cyc_sym_flow_light: 'Leve', cyc_sym_flow_med: 'Moderado', cyc_sym_flow_heavy: 'Abundante',
+    cyc_sym_sex: 'RELACIONES', cyc_sym_sex_none: 'Sin actividad', cyc_sym_sex_prot: 'Con protección', cyc_sym_sex_unprot: 'Sin protección',
+    cyc_sym_sx: 'SÍNTOMAS', cyc_sym_cramps: 'Cólicos', cyc_sym_head: 'Dolor de cabeza', cyc_sym_bloat: 'Hinchazón', cyc_sym_fatigue: 'Fatiga', cyc_sym_mood: 'Mal humor', cyc_sym_anxiety: 'Ansiedad', cyc_sym_nausea: 'Náuseas', cyc_sym_acne: 'Acné',
+    cyc_sym_save: 'GUARDAR', cyc_sym_saved: '✓ Registrado',
     cyc_on_lbl: 'SEGUIMIENTO DE CICLO',
     sv_sleep_lbl: '// SUEÑO', sv_sltotal_lbl: 'TOTAL', sv_sltotal_unit: 'dormido', sv_slscore_lbl: 'CALIDAD',
     sv_hrv_unit: 'ms',
@@ -2233,6 +2286,12 @@ const T = {
     cyc_modal_save: 'SAVE', cyc_modal_cancel: 'CANCEL', cyc_modal_days: 'days',
     cyc_modal_saved_log: 'Period logged', cyc_modal_saved_set: 'Cycle updated',
     cyc_modal_err_date: 'Select a valid date', cyc_modal_err_len: 'Cycle must be 20–45 days',
+    cyc_log_day: 'LOG DAY', cyc_today_log: 'TODAY',
+    cyc_sym_title: 'LOG DAY',
+    cyc_sym_flow: 'FLOW', cyc_sym_flow_none: 'No flow', cyc_sym_flow_spot: 'Spotting', cyc_sym_flow_light: 'Light', cyc_sym_flow_med: 'Medium', cyc_sym_flow_heavy: 'Heavy',
+    cyc_sym_sex: 'SEXUAL ACTIVITY', cyc_sym_sex_none: 'No activity', cyc_sym_sex_prot: 'Protected', cyc_sym_sex_unprot: 'Unprotected',
+    cyc_sym_sx: 'SYMPTOMS', cyc_sym_cramps: 'Cramps', cyc_sym_head: 'Headache', cyc_sym_bloat: 'Bloating', cyc_sym_fatigue: 'Fatigue', cyc_sym_mood: 'Low mood', cyc_sym_anxiety: 'Anxiety', cyc_sym_nausea: 'Nausea', cyc_sym_acne: 'Acne',
+    cyc_sym_save: 'SAVE', cyc_sym_saved: '✓ Saved',
     cyc_on_lbl: 'CYCLE TRACKING',
     sv_sleep_lbl: '// SLEEP', sv_sltotal_lbl: 'TOTAL', sv_sltotal_unit: 'asleep', sv_slscore_lbl: 'QUALITY',
     sv_hrv_unit: 'ms',
@@ -2728,6 +2787,7 @@ function renderCycle() {
   const t = T[lang];
   setText('cyc-lbl', t.cyc_lbl); setText('cyc-fert-lbl', t.cyc_fert_lbl); setText('cyc-next-lbl', t.cyc_next_lbl);
   setText('cyc-log-btn', t.cyc_log); setText('cyc-set-btn', t.cyc_set); setText('cyc-disc', t.cyc_disc);
+  setText('cyc-sym-btn-lbl', t.cyc_log_day);
   const c = computeCycle();
   if (!c) {
     setText('cyc-day', ''); setText('cyc-phase', '—'); setText('cyc-phase-sub', t.cyc_setup);
@@ -2758,16 +2818,59 @@ function renderCycle() {
     if (c.isLate) lateEl.textContent = `${t.cyc_late_warn} ${c.daysLate} ${t.cyc_late_days}`;
   }
 
-  // Progress bar: menstrual | follicular (gap) | fertile | peak | ovu | luteal | today
-  const pct = (n) => Math.min(100, ((n - 1) / c.len * 100));
-  const fertileOnlyW = Math.max(0, c.peakStart - c.fertStart) / c.len * 100;
-  const peakW = Math.max(0, c.peakEnd - c.peakStart + 1) / c.len * 100;
+  // Progress bar — all 6 phases + today marker
+  const pct = (n) => Math.min(100, Math.max(0, (n - 1) / c.len * 100));
+  const follW        = Math.max(0, (c.fertStart - c.period - 1) / c.len * 100);
+  const fertileOnlyW = Math.max(0, (c.peakStart - c.fertStart)  / c.len * 100);
+  const peakW        = Math.max(0, (c.ov - c.peakStart)         / c.len * 100);
+  const ovW          = Math.max(0.5, 1 / c.len * 100);
+  const lutealW      = Math.max(0, (c.len - c.ov)               / c.len * 100);
   document.getElementById('cyc-bar').innerHTML =
-    `<div class="cyc-seg menstrual" style="left:0%;width:${c.period/c.len*100}%"></div>` +
-    `<div class="cyc-seg fertile"   style="left:${pct(c.fertStart)}%;width:${fertileOnlyW}%"></div>` +
-    `<div class="cyc-seg peak"      style="left:${pct(c.peakStart)}%;width:${peakW}%"></div>` +
-    `<div class="cyc-seg ovu"       style="left:${pct(c.ov)}%;width:${1/c.len*100}%"></div>` +
-    `<div class="cyc-today"         style="left:${Math.min(99, pct(c.dayOfCycle))}%"></div>`;
+    `<div class="cyc-seg menstrual"  style="left:0%;width:${c.period/c.len*100}%"></div>` +
+    `<div class="cyc-seg follicular" style="left:${c.period/c.len*100}%;width:${follW}%"></div>` +
+    `<div class="cyc-seg fertile"    style="left:${pct(c.fertStart)}%;width:${fertileOnlyW}%"></div>` +
+    `<div class="cyc-seg peak"       style="left:${pct(c.peakStart)}%;width:${peakW}%"></div>` +
+    `<div class="cyc-seg ovu"        style="left:${pct(c.ov)}%;width:${ovW}%"></div>` +
+    `<div class="cyc-seg luteal"     style="left:${pct(c.ov+1)}%;width:${lutealW}%"></div>` +
+    `<div class="cyc-today"          style="left:${Math.min(98, pct(c.dayOfCycle))}%"></div>`;
+
+  // Phase legend
+  const legEl = document.getElementById('cyc-legend');
+  if (legEl) {
+    const legDefs = [
+      { bg:'var(--tneg)',            op:'0.75', lbl:t.cyc_phases.menstrual   },
+      { bg:'rgba(255,255,255,0.25)', op:'1',    lbl:t.cyc_phases.follicular  },
+      { bg:'var(--tpos,#22c55e)',    op:'0.5',  lbl:t.cyc_phases.fertile     },
+      { bg:'#f59e0b',                op:'0.85', lbl:t.cyc_phases.peak        },
+      { bg:'var(--tpos,#22c55e)',    op:'1',    lbl:t.cyc_phases.ovulation   },
+      { bg:'var(--ta2)',             op:'0.4',  lbl:t.cyc_phases.luteal      },
+    ];
+    legEl.innerHTML = legDefs.map(d =>
+      `<div class="cyc-leg-item"><div class="cyc-leg-dot" style="background:${d.bg};opacity:${d.op}"></div><span>${d.lbl}</span></div>`
+    ).join('');
+  }
+
+  // Today log strip — shows icons of what was logged today, tappable to edit
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayLog = _cycLogDay(todayStr);
+  const logEl = document.getElementById('cyc-log-today');
+  if (logEl) {
+    const FLOW_ICO = { spot:'💧', light:'🩸', med:'🩸🩸', heavy:'🩸🩸🩸' };
+    const SX_ICO   = { cramps:'🩹', head:'🤕', bloat:'😮‍💨', fatigue:'😴', mood:'😔', anxiety:'😰', nausea:'🤢', acne:'😣' };
+    const parts = [];
+    if (todayLog.flow && todayLog.flow !== 'none') parts.push(FLOW_ICO[todayLog.flow] || '');
+    if (todayLog.sex  && todayLog.sex  !== 'none') parts.push(todayLog.sex === 'prot' ? '🛡️' : '♀️');
+    (todayLog.sx || []).forEach(s => { if (SX_ICO[s]) parts.push(SX_ICO[s]); });
+    if (parts.length) {
+      logEl.style.display = 'flex';
+      logEl.innerHTML =
+        `<span style="font-size:9px;letter-spacing:1px;color:var(--sub);text-transform:uppercase;margin-right:4px;">${t.cyc_today_log}</span>` +
+        parts.map(p => `<span style="font-size:15px;line-height:1;">${p}</span>`).join('') +
+        `<span style="font-size:9px;color:var(--sub);margin-left:auto;opacity:0.5;">✎</span>`;
+    } else {
+      logEl.style.display = 'none';
+    }
+  }
 
   // Fertile window info — show next cycle's window when current one is already past
   const fertWindowPast = c.daysToFertStart < 0 && c.phase === 'luteal';
@@ -2859,6 +2962,97 @@ function openCycModal(mode) {
 
 function closeCycModal() {
   document.getElementById('cyc-modal-ov').classList.remove('on');
+}
+
+// ── Cycle day log / symptoms ───────────────────────────────────────────────
+function _cycLog() {
+  try { return JSON.parse(localStorage.getItem('fb_cyc_log') || '{}'); } catch { return {}; }
+}
+function _cycLogDay(date) { return (_cycLog())[date] || {}; }
+
+function openSymModal(date) {
+  const t = T[lang];
+  const today = new Date().toISOString().slice(0, 10);
+  const d = date || today;
+  window._symDate = d;
+  const entry = _cycLogDay(d);
+
+  setText('cyc-sym-title',    t.cyc_sym_title);
+  setText('cyc-sym-date-lbl', d === today ? t.cyc_today_log : _dFmt(new Date(d + 'T00:00:00')));
+  setText('cyc-sym-lbl-flow', t.cyc_sym_flow);
+  setText('cyc-sym-lbl-sex',  t.cyc_sym_sex);
+  setText('cyc-sym-lbl-sx',   t.cyc_sym_sx);
+  setText('cyc-sym-save-lbl',   t.cyc_sym_save);
+  setText('cyc-sym-cancel-lbl', t.cyc_modal_cancel);
+
+  const FLOW = [
+    { k:'none',  i:'—',       lbl:t.cyc_sym_flow_none  },
+    { k:'spot',  i:'💧',      lbl:t.cyc_sym_flow_spot  },
+    { k:'light', i:'🩸',      lbl:t.cyc_sym_flow_light },
+    { k:'med',   i:'🩸🩸',    lbl:t.cyc_sym_flow_med   },
+    { k:'heavy', i:'🩸🩸🩸',  lbl:t.cyc_sym_flow_heavy },
+  ];
+  const SEX = [
+    { k:'none',   i:'—',   lbl:t.cyc_sym_sex_none   },
+    { k:'prot',   i:'🛡️',  lbl:t.cyc_sym_sex_prot   },
+    { k:'unprot', i:'♀️',  lbl:t.cyc_sym_sex_unprot },
+  ];
+  const SX = [
+    { k:'cramps',  i:'🩹',    lbl:t.cyc_sym_cramps  },
+    { k:'head',    i:'🤕',    lbl:t.cyc_sym_head    },
+    { k:'bloat',   i:'😮‍💨',  lbl:t.cyc_sym_bloat   },
+    { k:'fatigue', i:'😴',    lbl:t.cyc_sym_fatigue },
+    { k:'mood',    i:'😔',    lbl:t.cyc_sym_mood    },
+    { k:'anxiety', i:'😰',    lbl:t.cyc_sym_anxiety },
+    { k:'nausea',  i:'🤢',    lbl:t.cyc_sym_nausea  },
+    { k:'acne',    i:'😣',    lbl:t.cyc_sym_acne    },
+  ];
+
+  const fillRow = (rowId, opts, selected, multi) => {
+    const row = document.getElementById(rowId); if (!row) return;
+    row.innerHTML = opts.map(o => {
+      const on = multi ? (Array.isArray(selected) && selected.includes(o.k)) : selected === o.k;
+      const cb  = multi ? 'symToggleSx(this)' : 'symToggleSingle(this)';
+      return `<button class="sym-pill${on ? ' on' : ''}" data-key="${o.k}" onclick="${cb}">${o.i} ${o.lbl}</button>`;
+    }).join('');
+  };
+  fillRow('cyc-sym-flow-row', FLOW, entry.flow, false);
+  fillRow('cyc-sym-sex-row',  SEX,  entry.sex,  false);
+  fillRow('cyc-sym-sx-row',   SX,   entry.sx,   true);
+
+  document.getElementById('cyc-sym-ov').classList.add('on');
+}
+
+function closeSymModal() {
+  document.getElementById('cyc-sym-ov').classList.remove('on');
+}
+
+function symToggleSingle(btn) {
+  const row = btn.closest('.sym-pill-row');
+  if (!row) return;
+  row.querySelectorAll('.sym-pill').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function symToggleSx(btn) { btn.classList.toggle('on'); }
+
+function saveSymModal() {
+  const t = T[lang];
+  const d = window._symDate; if (!d) return;
+  const flow = document.querySelector('#cyc-sym-flow-row .sym-pill.on')?.dataset.key;
+  const sex  = document.querySelector('#cyc-sym-sex-row  .sym-pill.on')?.dataset.key;
+  const sx   = [...document.querySelectorAll('#cyc-sym-sx-row .sym-pill.on')].map(b => b.dataset.key).filter(Boolean);
+  const entry = {};
+  if (flow && flow !== 'none') entry.flow = flow;
+  if (sex  && sex  !== 'none') entry.sex  = sex;
+  if (sx.length) entry.sx = sx;
+  const log = _cycLog();
+  if (!entry.flow && !entry.sex && !entry.sx) delete log[d];
+  else log[d] = entry;
+  localStorage.setItem('fb_cyc_log', JSON.stringify(log));
+  closeSymModal();
+  renderCycle();
+  showToast(t.cyc_sym_saved, 'success');
 }
 
 function adjCycModal(field, delta) {
