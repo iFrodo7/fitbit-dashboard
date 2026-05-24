@@ -9,7 +9,7 @@
 ## Estado actual (lo que ya está hecho)
 
 - ✅ Dependencias instaladas: `@capacitor/core`, `cli`, `ios`, `android`, `app`, `browser`, `haptics`, `splash-screen`
-- ✅ `capacitor.config.ts` — appId `com.ifrodo.fitbitair`, `webDir: 'public'`
+- ✅ `capacitor.config.ts` — appId `com.ifrodo.aira`, `webDir: 'public'`
 - ✅ `public/index.html` — entry que redirige a `app.html` (Capacitor carga `index.html` por defecto)
 - ✅ Scripts npm: `cap:sync`, `cap:ios`, `cap:android`, `cap:add:ios`, `cap:add:android`
 - ✅ Detección de entorno nativo + flujo OAuth por deeplink en `app.html`
@@ -44,10 +44,10 @@ build nativo la URL es `capacitor://localhost/...` o `https://localhost/...`, qu
 **Fitbit NO acepta** como redirect URI. Por eso `app.html` ya cambia a un **custom
 URL scheme** cuando detecta entorno nativo:
 
-- `NATIVE_REDIR = 'fitbitair://callback'`
+- `NATIVE_REDIR = 'aira://callback'`
 - `startOAuth()` abre la URL de autorización en el navegador del sistema (`Browser.open`)
 - `initCapacitor()` registra `App.addListener('appUrlOpen', …)` que captura
-  `fitbitair://callback?code=…`, cierra el browser y llama `handleOAuth(code)`
+  `aira://callback?code=…`, cierra el browser y llama `handleOAuth(code)`
 
 ### Falta registrar el scheme en los proyectos nativos:
 
@@ -57,7 +57,7 @@ URL scheme** cuando detecta entorno nativo:
 <array>
   <dict>
     <key>CFBundleURLSchemes</key>
-    <array><string>fitbitair</string></array>
+    <array><string>aira</string></array>
   </dict>
 </array>
 ```
@@ -68,12 +68,12 @@ URL scheme** cuando detecta entorno nativo:
   <action android:name="android.intent.action.VIEW" />
   <category android:name="android.intent.category.DEFAULT" />
   <category android:name="android.intent.category.BROWSABLE" />
-  <data android:scheme="fitbitair" android:host="callback" />
+  <data android:scheme="aira" android:host="callback" />
 </intent-filter>
 ```
 
 **En el portal de Fitbit** (dev.fitbit.com → tu app):
-- Añade `fitbitair://callback` como **Redirect URL** (además de la URL web existente).
+- Añade `aira://callback` como **Redirect URL** (además de la URL web existente).
 - La app sigue siendo tipo "Personal" → sin secret.
 
 > ⚠️ Sin estos 3 registros, el login OAuth fallará en el build nativo. El código JS

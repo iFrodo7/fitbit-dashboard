@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="index,follow">
+<title>AIRA — Política de Privacidad / Privacy Policy</title>
+<link rel="icon" type="image/svg+xml" href="/icons/icon.svg?v=10">
+<style>
+  :root{--bg:#020810;--bg2:#071020;--ta:#00f5ff;--ta2:#7b2fff;--txt:#c8e8f0;--bdr:rgba(0,245,255,0.18);}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;line-height:1.65;-webkit-text-size-adjust:100%;}
+  .wrap{max-width:760px;margin:0 auto;padding:40px 22px 80px;}
+  header{border-bottom:1px solid var(--bdr);padding-bottom:18px;margin-bottom:8px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand svg{width:26px;height:26px;color:var(--ta);}
+  .brand h1{font-size:20px;letter-spacing:3px;margin:0;color:var(--ta);font-weight:700;}
+  .sub{font-size:12px;opacity:0.55;letter-spacing:1px;margin-top:4px;}
+  .langbar{display:flex;gap:8px;margin:18px 0 6px;}
+  .langbar button{background:var(--bg2);border:1px solid var(--bdr);color:var(--txt);padding:6px 14px;border-radius:8px;font-size:12px;letter-spacing:1px;cursor:pointer;font-family:inherit;}
+  .langbar button.on{background:var(--ta);color:var(--bg);font-weight:700;border-color:var(--ta);}
+  h2{font-size:15px;letter-spacing:1px;color:var(--ta);margin:30px 0 8px;}
+  h3{font-size:13px;letter-spacing:0.5px;color:var(--ta2);margin:18px 0 4px;}
+  p,li{font-size:14px;opacity:0.9;}
+  ul{padding-left:20px;}
+  a{color:var(--ta);}
+  .note{background:var(--bg2);border:1px solid var(--bdr);border-left:3px solid var(--ta2);border-radius:8px;padding:12px 16px;font-size:13px;margin:16px 0;}
+  .upd{font-size:12px;opacity:0.5;margin-top:8px;}
+  footer{margin-top:44px;border-top:1px solid var(--bdr);padding-top:16px;font-size:12px;opacity:0.6;}
+  [hidden]{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 L12 5 L19 19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.4 14 H15.6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="4.4" r="1.8" fill="currentColor"/></svg>
+      <h1>AIRA</h1>
+    </div>
+    <div class="sub">Privacy Policy · Política de Privacidad</div>
+    <div class="langbar">
+      <button id="btn-es" class="on" onclick="setLang('es')">Español</button>
+      <button id="btn-en" onclick="setLang('en')">English</button>
+    </div>
+    <div class="upd">Última actualización / Last updated: 2026-05-24</div>
+  </header>
+
+  <!-- ════════════ ESPAÑOL ════════════ -->
+  <section id="es">
+    <p>AIRA ("la app", "nosotros") es un panel personal de bienestar que muestra y analiza tus datos biométricos provenientes de tu cuenta de <strong>Fitbit / Google</strong>. Esta política explica qué datos tratamos y cómo los protegemos. AIRA es una aplicación independiente y <strong>no está afiliada, patrocinada ni respaldada por Fitbit LLC ni Google LLC</strong>.</p>
+
+    <h2>1. Qué datos tratamos</h2>
+    <ul>
+      <li><strong>Datos de salud de Fitbit</strong> que tú autorizas: frecuencia cardíaca y en reposo, sueño y sus etapas, pasos y actividad, SpO₂, variabilidad cardíaca (HRV), ritmo respiratorio y temperatura de piel.</li>
+      <li><strong>Tokens de acceso</strong> de Fitbit (para conectarte) y tus <strong>preferencias</strong> (tema, idioma, registros del ciclo).</li>
+      <li>No recopilamos tu nombre, correo, ubicación ni identificadores publicitarios. No usamos rastreadores de terceros ni analítica.</li>
+    </ul>
+
+    <h2>2. Dónde se guardan tus datos</h2>
+    <p>Tus datos biométricos y tokens se almacenan <strong>únicamente en tu dispositivo</strong> (IndexedDB y almacenamiento local del navegador/app). No mantenemos una base de datos central con tu información de salud.</p>
+
+    <h2>3. Coach IA (AIRA)</h2>
+    <p>Cuando le haces una pregunta al coach de IA, las <strong>métricas relevantes del momento</strong> se envían a nuestro servidor y a nuestro proveedor de modelo de lenguaje (Google Gemini) <strong>solo</strong> para generar la respuesta. No se usan para entrenar modelos ni se almacenan de forma permanente con tu identidad. El análisis automático del Historial se calcula <strong>localmente en tu dispositivo</strong>, sin enviar datos.</p>
+
+    <h2>4. Con quién se comparte</h2>
+    <ul>
+      <li><strong>Fitbit / Google</strong>: para obtener tus datos cuando te conectas (sujeto a su propia política).</li>
+      <li><strong>Google Gemini</strong>: solo si usas el chat del coach, para generar la respuesta.</li>
+      <li>No vendemos, alquilamos ni compartimos tus datos con anunciantes ni terceros con fines comerciales.</li>
+    </ul>
+
+    <h2>5. Tus controles</h2>
+    <ul>
+      <li><strong>Desconectar:</strong> en Perfil → Desconectar, se eliminan tus tokens del dispositivo.</li>
+      <li><strong>Borrar todo:</strong> desinstalar la app o borrar los datos del sitio elimina tu historial local.</li>
+      <li><strong>Revocar acceso:</strong> en tu cuenta Fitbit puedes revocar el permiso de AIRA en cualquier momento.</li>
+      <li><strong>Exportar:</strong> puedes exportar tu historial en JSON desde Perfil.</li>
+    </ul>
+
+    <h2>6. Salud — no es consejo médico</h2>
+    <div class="note">AIRA es una herramienta informativa de bienestar. <strong>No es un dispositivo médico</strong> ni sustituye el consejo de un profesional de la salud. Las estimaciones (recovery, fases del ciclo, etc.) son orientativas. Ante cualquier duda de salud, consulta a un médico.</div>
+
+    <h2>7. Menores</h2>
+    <p>AIRA no está dirigida a menores de 13 años y no recopilamos conscientemente datos de menores.</p>
+
+    <h2>8. Cambios</h2>
+    <p>Podremos actualizar esta política; publicaremos la nueva versión en esta página con su fecha.</p>
+
+    <h2>9. Contacto</h2>
+    <p>Dudas sobre privacidad: <a href="mailto:privacy@aira.app">privacy@aira.app</a> · Repositorio: <a href="https://github.com/iFrodo7/fitbit-dashboard">github.com/iFrodo7/fitbit-dashboard</a></p>
+  </section>
+
+  <!-- ════════════ ENGLISH ════════════ -->
+  <section id="en" hidden>
+    <p>AIRA ("the app", "we") is a personal wellness dashboard that displays and analyzes your biometric data from your <strong>Fitbit / Google</strong> account. This policy explains what data we handle and how we protect it. AIRA is an independent app and is <strong>not affiliated with, sponsored by, or endorsed by Fitbit LLC or Google LLC</strong>.</p>
+
+    <h2>1. Data we handle</h2>
+    <ul>
+      <li><strong>Fitbit health data</strong> you authorize: heart rate &amp; resting HR, sleep and stages, steps and activity, SpO₂, heart-rate variability (HRV), breathing rate, and skin temperature.</li>
+      <li><strong>Access tokens</strong> from Fitbit (to connect) and your <strong>preferences</strong> (theme, language, cycle logs).</li>
+      <li>We do not collect your name, email, location, or advertising identifiers. We use no third-party trackers or analytics.</li>
+    </ul>
+
+    <h2>2. Where your data lives</h2>
+    <p>Your biometric data and tokens are stored <strong>only on your device</strong> (IndexedDB and local browser/app storage). We do not keep a central database of your health information.</p>
+
+    <h2>3. AI Coach (AIRA)</h2>
+    <p>When you ask the AI coach a question, the <strong>relevant current metrics</strong> are sent to our server and our language-model provider (Google Gemini) <strong>only</strong> to generate the answer. They are not used to train models nor permanently stored with your identity. The automatic History analysis is computed <strong>locally on your device</strong>, sending no data.</p>
+
+    <h2>4. Who we share with</h2>
+    <ul>
+      <li><strong>Fitbit / Google</strong>: to fetch your data when you connect (subject to their own policy).</li>
+      <li><strong>Google Gemini</strong>: only if you use the coach chat, to generate the answer.</li>
+      <li>We never sell, rent, or share your data with advertisers or third parties for commercial purposes.</li>
+    </ul>
+
+    <h2>5. Your controls</h2>
+    <ul>
+      <li><strong>Disconnect:</strong> Profile → Disconnect removes your tokens from the device.</li>
+      <li><strong>Delete everything:</strong> uninstalling the app or clearing site data removes your local history.</li>
+      <li><strong>Revoke access:</strong> you can revoke AIRA's permission from your Fitbit account at any time.</li>
+      <li><strong>Export:</strong> you can export your history as JSON from Profile.</li>
+    </ul>
+
+    <h2>6. Health — not medical advice</h2>
+    <div class="note">AIRA is an informational wellness tool. It is <strong>not a medical device</strong> and does not replace professional medical advice. Estimates (recovery, cycle phases, etc.) are indicative only. For any health concern, consult a doctor.</div>
+
+    <h2>7. Children</h2>
+    <p>AIRA is not directed at children under 13 and we do not knowingly collect data from minors.</p>
+
+    <h2>8. Changes</h2>
+    <p>We may update this policy; the new version will be posted on this page with its date.</p>
+
+    <h2>9. Contact</h2>
+    <p>Privacy questions: <a href="mailto:privacy@aira.app">privacy@aira.app</a> · Repository: <a href="https://github.com/iFrodo7/fitbit-dashboard">github.com/iFrodo7/fitbit-dashboard</a></p>
+  </section>
+
+  <footer>© 2026 AIRA. Independent app · Aplicación independiente.</footer>
+</div>
+<script>
+  function setLang(l){
+    document.getElementById('es').hidden = l!=='es';
+    document.getElementById('en').hidden = l!=='en';
+    document.getElementById('btn-es').classList.toggle('on', l==='es');
+    document.getElementById('btn-en').classList.toggle('on', l==='en');
+    document.documentElement.lang = l;
+  }
+  // Default to browser language if English
+  if ((navigator.language||'').slice(0,2) === 'en') setLang('en');
+</script>
+</body>
+</html>

@@ -6,14 +6,14 @@
 <meta name="theme-color" content="#020810" id="theme-color-meta">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Fitbit Air">
+<meta name="apple-mobile-web-app-title" content="AIRA">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="description" content="Panel biométrico personal con 4 temas visuales y datos reales de Fitbit">
+<meta name="description" content="Tu panel biométrico personal: recovery, sueño, frecuencia cardíaca y pasos con análisis de tu coach IA. Se conecta con tu cuenta Fitbit.">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icons/icon-192.png?v=10">
 <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png?v=10">
 <link rel="icon" type="image/svg+xml" href="/icons/icon.svg?v=10">
-<title>FITBIT AIR — BIOMETRIC DASHBOARD</title>
+<title>AIRA — BIOMETRIC DASHBOARD</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=IBM+Plex+Mono:wght@400;700&family=VT323&family=Silkscreen:wght@400;700&family=Oxanium:wght@400;600;700;800&family=Electrolize&family=Noto+Serif+JP:wght@400;700;900&family=Permanent+Marker&display=swap" rel="stylesheet">
 <style>
 /* === RESET === */
@@ -1122,7 +1122,7 @@ body.t-naruto span.vval{
 <!-- ══════════════ SELECTOR ══════════════ -->
 <div id="sel">
   <div class="sel-eye" id="sel-eye">// selecciona tu interfaz de monitoreo biométrico</div>
-  <div class="sel-title">FITBIT AIR <em>·</em> BIOMETRIC CORE</div>
+  <div class="sel-title">AIRA <em>·</em> BIOMETRIC CORE</div>
 
   <!-- Language selector -->
   <div class="lang-bar">
@@ -1171,7 +1171,7 @@ body.t-naruto span.vval{
 <div class="install-banner" id="install-banner" style="display:none;">
   <div class="install-icon">📲</div>
   <div class="install-text">
-    <div class="install-title">Instalar Fitbit Air</div>
+    <div class="install-title">Instalar AIRA</div>
     <div class="install-sub">Acceso rápido desde tu pantalla de inicio</div>
   </div>
   <button class="install-btn" onclick="installPWA()">Instalar</button>
@@ -1183,14 +1183,14 @@ body.t-naruto span.vval{
   <div class="toast" id="toast"></div>
 
   <!-- Futuristic ticker -->
-  <div id="futtick"><div class="fti">◆ FITBIT AIR ONLINE &nbsp;&nbsp;&nbsp; ◆ HR: <span id="tickhr">68</span> BPM &nbsp;&nbsp;&nbsp; ◆ SpO2: <span id="tickspo2">98</span>% &nbsp;&nbsp;&nbsp; ◆ TEMP: <span id="ticktemp">36.4</span>°C &nbsp;&nbsp;&nbsp;</div></div>
+  <div id="futtick"><div class="fti">◆ AIRA ONLINE &nbsp;&nbsp;&nbsp; ◆ HR: <span id="tickhr">68</span> BPM &nbsp;&nbsp;&nbsp; ◆ SpO2: <span id="tickspo2">98</span>% &nbsp;&nbsp;&nbsp; ◆ TEMP: <span id="ticktemp">36.4</span>°C &nbsp;&nbsp;&nbsp;</div></div>
 
   <!-- Header -->
   <header class="db-hdr">
     <div style="display:flex;align-items:center;gap:13px;">
       <button class="bbtn" id="btn-back" onclick="goBack()">← TEMAS</button>
       <div>
-        <div id="logo-t" style="font-size:15px;font-weight:700;letter-spacing:4px;color:var(--ta);">FITBIT AIR</div>
+        <div id="logo-t" style="font-size:15px;font-weight:700;letter-spacing:4px;color:var(--ta);">AIRA</div>
         <div id="logo-s" style="font-size:10px;letter-spacing:3px;opacity:0.3;">BIOMETRIC CORE v2.6</div>
       </div>
     </div>
@@ -1997,7 +1997,7 @@ body.t-naruto span.vval{
     </div>
   </section>
 
-  <div class="dstrip" id="dstrip"><div class="ddot"></div><span id="demo-txt">DEMO — CONECTA TU FITBIT AIR</span></div>
+  <div class="dstrip" id="dstrip"><div class="ddot"></div><span id="demo-txt">DEMO — CONECTA TU FITBIT</span></div>
   <div class="lov" id="lov">
     <div class="ltxt" id="load-txt">SINCRONIZANDO...</div>
     <div class="lbar"><div class="lfi"></div></div>
@@ -2146,7 +2146,7 @@ const T = {
     fut_sub: 'NÚCLEO BIOMÉTRICO v2.6',
     back: '← TEMAS',
     connect: 'CONECTAR',
-    demo_txt: 'DEMO — CONECTA TU FITBIT AIR',
+    demo_txt: 'DEMO — CONECTA TU FITBIT',
     loading: 'SINCRONIZANDO...',
     g_eye: '// ANÁLISIS BIOMÉTRICO ACTIVO',
     g_pfx: 'BUEN DÍA, ',
@@ -2286,7 +2286,7 @@ const T = {
     halo_pfx: 'SPARTAN ', halo_rl: '// PREPARACIÓN DE COMBATE',
     naruto_eye: '木ノ葉の里 — SISTEMA SHINOBI KONOHA',
     naruto_pfx: '忍者: ', naruto_rl: '// チャクラ PREPARACIÓN',
-    connected: '◆ FITBIT AIR CONECTADO', live: 'EN VIVO',
+    connected: '◆ FITBIT CONECTADO', live: 'EN VIVO',
     sync_toast: (t) => `◆ SYNC ${t}`,
     // Stats view
     sv_title: 'STATS', sv_sub: '// MÉTRICAS DE HOY',
@@ -2354,7 +2354,7 @@ const T = {
     fut_sub: 'BIOMETRIC CORE v2.6',
     back: '← THEMES',
     connect: 'CONNECT',
-    demo_txt: 'DEMO — CONNECT YOUR FITBIT AIR',
+    demo_txt: 'DEMO — CONNECT YOUR FITBIT',
     loading: 'SYNCING...',
     g_eye: '// BIOMETRIC ANALYSIS ACTIVE',
     g_pfx: 'GOOD DAY, ',
@@ -2493,7 +2493,7 @@ const T = {
     halo_pfx: 'SPARTAN ', halo_rl: '// COMBAT READINESS',
     naruto_eye: '木ノ葉の里 — KONOHA SHINOBI SYSTEM',
     naruto_pfx: '忍者: ', naruto_rl: '// チャクラ READINESS',
-    connected: '◆ FITBIT AIR CONNECTED', live: 'LIVE',
+    connected: '◆ FITBIT CONNECTED', live: 'LIVE',
     sync_toast: (t) => `◆ SYNC ${t}`,
     // Stats view
     sv_title: 'STATS', sv_sub: '// TODAY\'S METRICS',
@@ -3821,7 +3821,7 @@ function initDash() {
   // Welcome onboarding hint (first visit)
   if (!localStorage.getItem('fb_welcomed')) {
     setTimeout(() => {
-      showToast(lang === 'es' ? '👋 Bienvenido a Fitbit Air' : '👋 Welcome to Fitbit Air', 'info');
+      showToast(lang === 'es' ? '👋 Bienvenido a AIRA' : '👋 Welcome to AIRA', 'info');
       localStorage.setItem('fb_welcomed', '1');
     }, 1200);
     setTimeout(() => {
@@ -4108,7 +4108,7 @@ document.addEventListener('click', e => { if (e.target.id==='modal') closeModal(
 // In a native build Fitbit can't redirect to capacitor://localhost, so we use a
 // custom scheme deeplink (registered in the native projects). See CAPACITOR.md.
 function isNativeApp() { return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()); }
-const NATIVE_REDIR = 'fitbitair://callback';
+const NATIVE_REDIR = 'aira://callback';
 function getRedirectUri() { return isNativeApp() ? NATIVE_REDIR : REDIR; }
 
 // One-tap pairing: register ONE Fitbit app of type "Client" (not "Personal") at

@@ -1,7 +1,7 @@
 {
-  "name": "Fitbit Air — Biometric Dashboard",
-  "short_name": "Fitbit Air",
-  "description": "Panel biométrico personal con 4 temas visuales y datos reales de Fitbit",
+  "name": "AIRA — Biometric Dashboard",
+  "short_name": "AIRA",
+  "description": "Tu panel biométrico personal: recovery, sueño, frecuencia cardíaca y pasos con análisis de tu coach IA. Se conecta con tu cuenta Fitbit.",
   "start_url": "/app.html",
   "scope": "/",
   "display": "standalone",
