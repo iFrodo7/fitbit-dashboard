@@ -242,7 +242,7 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 /* Cycle / fertility card */
 .cyc-card{border-color:var(--ta2);}
 .cyc-dchip{font-size:9px;letter-spacing:1.5px;opacity:0.55;}
-.cyc-today-date{font-size:9px;letter-spacing:2px;color:var(--sub);text-transform:uppercase;margin:4px 0 8px;display:flex;align-items:center;gap:6px;}
+.cyc-today-date{font-size:10px;letter-spacing:2px;color:var(--txt);opacity:0.8;text-transform:uppercase;margin:4px 0 8px;display:flex;align-items:center;gap:6px;}
 .cyc-today-date::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--ta2);flex-shrink:0;}
 .cyc-phase{font-size:22px;font-weight:800;letter-spacing:1px;color:var(--ta2);margin:6px 0 2px;text-transform:uppercase;}
 .cyc-sub{font-size:10px;opacity:0.55;letter-spacing:0.5px;line-height:1.5;margin-bottom:12px;}
@@ -257,7 +257,7 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .cyc-today{position:absolute;top:0;bottom:0;width:3px;background:#fff;box-shadow:0 0 8px rgba(255,255,255,0.85);border-radius:2px;z-index:2;}
 /* Cycle date ruler */
 .cyc-ruler{position:relative;height:28px;margin-top:4px;}
-.cyc-ruler-tick{position:absolute;font-size:8px;letter-spacing:0.3px;color:var(--sub);white-space:nowrap;line-height:1;top:0;}
+.cyc-ruler-tick{position:absolute;font-size:8px;letter-spacing:0.3px;color:var(--txt);opacity:0.6;white-space:nowrap;line-height:1;top:0;}
 /* Cycle legend — 2-column grid with date ranges */
 .cyc-legend{display:grid;grid-template-columns:1fr 1fr;gap:5px 6px;margin-top:8px;}
 .cyc-leg-item{display:flex;align-items:center;gap:4px;font-size:8px;letter-spacing:0.4px;text-transform:uppercase;min-width:0;}
@@ -268,7 +268,7 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .cyc-log-today{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0 0;padding:7px 10px;background:rgba(255,255,255,0.03);border:1px solid var(--bdr);border-radius:6px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .cyc-log-today:active{opacity:0.7;}
 /* Symptom modal */
-.sym-section-lbl{display:block;font-size:9px;letter-spacing:2px;color:var(--sub);text-transform:uppercase;margin:14px 0 8px;}
+.sym-section-lbl{display:block;font-size:9px;letter-spacing:2px;color:var(--txt);opacity:0.55;text-transform:uppercase;margin:14px 0 8px;}
 .sym-pill-row{display:flex;flex-wrap:wrap;gap:6px;}
 .sym-pill{padding:7px 12px;background:rgba(255,255,255,0.04);border:1px solid var(--bdr);border-radius:18px;font-size:10px;letter-spacing:0.8px;color:var(--tx);cursor:pointer;transition:background 0.15s,border-color 0.15s,color 0.15s;-webkit-tap-highlight-color:transparent;font-family:inherit;}
 .sym-pill.on{background:var(--ta2);border-color:var(--ta2);color:var(--bg);}
@@ -289,7 +289,7 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 /* Cycle log history list */
 .cyc-loglist-wrap{margin-top:14px;border-top:1px solid var(--bdr);padding-top:10px;}
 .cyc-loglist-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.cyc-loglist-lbl{font-size:9px;letter-spacing:2px;color:var(--sub);text-transform:uppercase;}
+.cyc-loglist-lbl{font-size:9px;letter-spacing:2px;color:var(--txt);opacity:0.6;text-transform:uppercase;}
 .cyc-log-more-btn{background:none;border:none;color:var(--ta2);font-family:inherit;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;padding:0 2px;-webkit-tap-highlight-color:transparent;}
 .cyc-log-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity 0.15s;}
 .cyc-log-row:last-child{border-bottom:none;}
@@ -298,8 +298,8 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .cyc-log-row-date.today{color:var(--ta2);font-weight:700;}
 .cyc-log-row-icons{display:flex;gap:3px;flex:1;flex-wrap:wrap;align-items:center;}
 .cyc-log-row-icon{font-size:14px;line-height:1;}
-.cyc-log-row-edit{font-size:10px;color:var(--sub);opacity:0.35;flex-shrink:0;}
-.cyc-log-empty{font-size:10px;color:var(--sub);opacity:0.5;letter-spacing:0.5px;padding:4px 0;line-height:1.6;}
+.cyc-log-row-edit{font-size:10px;color:var(--txt);opacity:0.35;flex-shrink:0;}
+.cyc-log-empty{font-size:10px;color:var(--txt);opacity:0.6;letter-spacing:0.5px;padding:4px 0;line-height:1.6;}
 /* Cycle quick-glance chip on Home */
 .cyc-home-chip{display:none;align-items:center;gap:7px;padding:7px 14px 7px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--ta2);border-radius:20px;font-size:10px;letter-spacing:1.5px;color:var(--ta2);text-transform:uppercase;cursor:pointer;margin-bottom:12px;width:fit-content;max-width:100%;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:opacity 0.15s;overflow:hidden;}
 .cyc-home-chip.on{display:flex;}
@@ -308,7 +308,7 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .cyc-chip-arrow{opacity:0.4;margin-left:2px;font-size:12px;}
 /* Cycle input modal */
 .cyc-field{margin-bottom:18px;}
-.cyc-field-lbl{display:block;font-size:9px;letter-spacing:2px;color:var(--sub);margin-bottom:8px;text-transform:uppercase;}
+.cyc-field-lbl{display:block;font-size:9px;letter-spacing:2px;color:var(--txt);opacity:0.6;margin-bottom:8px;text-transform:uppercase;}
 .cyc-field-hint{opacity:0.45;margin-left:6px;font-size:9px;letter-spacing:0;text-transform:none;}
 .cyc-date-inp{width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--bdr);color:var(--tx);font-family:inherit;font-size:14px;letter-spacing:1px;border-radius:4px;box-sizing:border-box;-webkit-appearance:none;appearance:none;}
 .cyc-date-inp:focus{outline:none;border-color:var(--ta2);}
@@ -317,7 +317,7 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .cyc-step-btn{width:40px;height:40px;background:rgba(255,255,255,0.04);border:1px solid var(--bdr);color:var(--tx);font-size:20px;font-weight:300;cursor:pointer;border-radius:4px;transition:border-color 0.15s,color 0.15s;display:flex;align-items:center;justify-content:center;font-family:inherit;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
 .cyc-step-btn:hover,.cyc-step-btn:active{border-color:var(--ta2);color:var(--ta2);}
 .cyc-step-val{font-size:24px;font-weight:800;color:var(--ta2);min-width:36px;text-align:center;line-height:1;letter-spacing:-1px;}
-.cyc-step-unit{font-size:10px;letter-spacing:1.5px;color:var(--sub);text-transform:uppercase;flex:1;}
+.cyc-step-unit{font-size:10px;letter-spacing:1.5px;color:var(--txt);opacity:0.6;text-transform:uppercase;flex:1;}
 .cyc-modal-row{display:flex;gap:10px;margin-top:20px;}
 .cyc-modal-save{flex:1;padding:13px;background:var(--ta2);color:var(--bg);border:none;cursor:pointer;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:opacity 0.15s;font-family:inherit;}
 .cyc-modal-save:hover{opacity:0.85;}
@@ -394,7 +394,9 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .hypno-blk.rem{background:var(--ta);}
 .hypno-blk.light{background:rgba(180,205,225,0.7);}
 .hypno-blk.wake{background:var(--tneg);}
-.hypno-axis{display:flex;justify-content:space-between;margin:5px 0 0 50px;font-size:10px;opacity:0.55;letter-spacing:1px;}
+.hypno-axis{position:relative;height:13px;margin:6px 0 0 50px;font-size:9px;opacity:0.6;letter-spacing:0.5px;}
+.hypno-tick{position:absolute;transform:translateX(-50%);white-space:nowrap;top:0;}
+.hypno-gl{position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,0.08);pointer-events:none;z-index:0;}
 .hypno-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;opacity:0.45;letter-spacing:2px;}
 .slrw{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--sub);}
 .slrw:last-child{border:none;}
@@ -1507,7 +1509,7 @@ body.t-naruto span.vval{
               </div>
               <div class="hypno-track" id="hypno-track"><div class="hypno-empty" id="hypno-empty">— SIN DATOS DE ETAPAS —</div></div>
             </div>
-            <div class="hypno-axis"><span id="hypno-t0">23:00</span><span id="hypno-t1">07:00</span></div>
+            <div class="hypno-axis" id="hypno-axis"></div>
           </div>
           <div class="slrw"><div class="sllbl" id="sl-deep">PROF.</div><div class="sltr"><div class="slfi" id="sl0" style="width:35%;background:var(--ta2);"></div></div><div class="sltm">1h 44m</div></div>
           <div class="slrw"><div class="sllbl">REM</div><div class="sltr"><div class="slfi" id="sl1" style="width:28%;background:var(--ta);"></div></div><div class="sltm">1h 22m</div></div>
@@ -1965,7 +1967,7 @@ body.t-naruto span.vval{
             <div class="mh2" id="cyc-sym-title">REGISTRAR DÍA</div>
             <div class="msub" id="cyc-sym-date-lbl"></div>
           </div>
-          <button onclick="closeSymModal()" style="background:none;border:none;color:var(--sub);font-size:20px;cursor:pointer;padding:4px 8px;line-height:1;">✕</button>
+          <button onclick="closeSymModal()" style="background:none;border:none;color:var(--txt);font-size:20px;cursor:pointer;padding:4px 8px;line-height:1;">✕</button>
         </div>
       </div>
       <div class="mbd">
@@ -1989,7 +1991,7 @@ body.t-naruto span.vval{
       <div class="mhd">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div><div class="mh2" id="cyc-modal-title">REGISTRAR REGLA</div><div class="msub" id="cyc-modal-sub">Primer día de tu último período</div></div>
-          <button onclick="closeCycModal()" style="background:none;border:none;color:var(--sub);cursor:pointer;font-size:20px;line-height:1;padding:4px;">✕</button>
+          <button onclick="closeCycModal()" style="background:none;border:none;color:var(--txt);cursor:pointer;font-size:20px;line-height:1;padding:4px;">✕</button>
         </div>
       </div>
       <div class="mbd">
@@ -2989,7 +2991,7 @@ function renderCycle() {
     rulerEl.innerHTML = rtks.map(r =>
       `<span class="cyc-ruler-tick" style="left:${r.left};transform:${r.xf};display:flex;flex-direction:column;align-items:center;gap:1px;">` +
       `<span style="font-size:7px;letter-spacing:0.5px;color:${r.color};opacity:0.85;text-transform:uppercase;">${r.title}</span>` +
-      `<span style="color:var(--sub);">${r.lbl}</span>` +
+      `<span style="color:var(--txt);">${r.lbl}</span>` +
       `</span>`
     ).join('');
   }
@@ -3034,9 +3036,9 @@ function renderCycle() {
     if (parts.length) {
       logEl.style.display = 'flex';
       logEl.innerHTML =
-        `<span style="font-size:9px;letter-spacing:1px;color:var(--sub);text-transform:uppercase;margin-right:4px;">${t.cyc_today_log}</span>` +
+        `<span style="font-size:9px;letter-spacing:1px;color:var(--txt);text-transform:uppercase;margin-right:4px;">${t.cyc_today_log}</span>` +
         parts.map(p => `<span style="font-size:15px;line-height:1;">${p}</span>`).join('') +
-        `<span style="font-size:9px;color:var(--sub);margin-left:auto;opacity:0.5;">✎</span>`;
+        `<span style="font-size:9px;color:var(--txt);margin-left:auto;opacity:0.5;">✎</span>`;
     } else {
       logEl.style.display = 'none';
     }
@@ -4243,11 +4245,21 @@ function renderHypnogram(main) {
     const c = cls(d.level);
     blocks += `<div class="hypno-blk ${c}" style="left:${left.toFixed(2)}%;width:${Math.max(w,0.5).toFixed(2)}%;top:calc(${lane[c]*25}% + 5px)" title="${d.level} · ${Math.round(d.seconds/60)}min"></div>`;
   });
-  track.innerHTML = blocks;
-  const t0 = document.getElementById('hypno-t0');
-  const t1 = document.getElementById('hypno-t1');
-  if (t0) t0.textContent = fmt(startMs);
-  if (t1) t1.textContent = fmt(endMs);
+  // Hour gridlines (in the track) + hour labels (on the axis) so events are time-readable
+  let grid = '', ticks = '';
+  const firstHour = new Date(startMs); firstHour.setMinutes(0, 0, 0);
+  if (firstHour.getTime() < startMs) firstHour.setHours(firstHour.getHours() + 1);
+  const spanH = total / 3600000;
+  const stepH = spanH > 9 ? 2 : 1; // avoid crowding on long sleeps
+  let i = 0;
+  for (let tms = firstHour.getTime(); tms <= endMs; tms += 3600000, i++) {
+    const left = (tms - startMs) / total * 100;
+    grid += `<div class="hypno-gl" style="left:${left.toFixed(2)}%"></div>`;
+    if (i % stepH === 0) ticks += `<span class="hypno-tick" style="left:${left.toFixed(2)}%">${fmt(tms)}</span>`;
+  }
+  track.innerHTML = grid + blocks; // gridlines first → blocks paint over them
+  const axis = document.getElementById('hypno-axis');
+  if (axis) axis.innerHTML = ticks;
 }
 function showLoad() { document.getElementById('lov').classList.add('on'); }
 function hideLoad() { document.getElementById('lov').classList.remove('on'); }
