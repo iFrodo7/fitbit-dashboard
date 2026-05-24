@@ -135,7 +135,10 @@
     <p>Privacy questions: <a href="mailto:privacy@aira.app">privacy@aira.app</a> · Repository: <a href="https://github.com/iFrodo7/fitbit-dashboard">github.com/iFrodo7/fitbit-dashboard</a></p>
   </section>
 
-  <footer>© 2026 AIRA. Independent app · Aplicación independiente.</footer>
+  <footer>
+    <a href="app.html" style="display:inline-block;background:var(--bg2);border:1px solid var(--bdr);color:var(--ta);padding:8px 16px;border-radius:8px;text-decoration:none;letter-spacing:1px;margin-bottom:14px;">← <span id="back-lbl">Volver a AIRA</span></a>
+    <div>© 2026 AIRA. Independent app · Aplicación independiente.</div>
+  </footer>
 </div>
 <script>
   function setLang(l){
@@ -143,6 +146,7 @@
     document.getElementById('en').hidden = l!=='en';
     document.getElementById('btn-es').classList.toggle('on', l==='es');
     document.getElementById('btn-en').classList.toggle('on', l==='en');
+    document.getElementById('back-lbl').textContent = l==='en' ? 'Back to AIRA' : 'Volver a AIRA';
     document.documentElement.lang = l;
   }
   // Default to browser language if English

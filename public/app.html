@@ -1991,6 +1991,10 @@ body.t-naruto span.vval{
         <a href="https://github.com/iFrodo7/fitbit-dashboard" target="_blank" style="font-size:9px;color:var(--ta);opacity:0.7;letter-spacing:1px;text-decoration:none;">iFrodo7/fitbit-dashboard ↗</a>
       </div>
       <div class="pv-row">
+        <div class="pv-rlbl" id="pv-privacy-lbl">PRIVACIDAD</div>
+        <a href="privacy.html" id="pv-privacy-link" style="font-size:9px;color:var(--ta);opacity:0.7;letter-spacing:1px;text-decoration:none;">VER ↗</a>
+      </div>
+      <div class="pv-row">
         <div class="pv-rlbl" id="pv-export-lbl">EXPORTAR DATOS</div>
         <button class="pv-export-btn" id="pv-export-btn" onclick="exportData()">JSON ↓</button>
       </div>
@@ -2340,6 +2344,8 @@ const T = {
     pv_lastsync_lbl: 'ÚLTIMA SYNC',
     pv_sec_info: 'INFORMACIÓN',
     pv_version_lbl: 'VERSIÓN',
+    pv_privacy_lbl: 'PRIVACIDAD',
+    pv_privacy_link: 'VER ↗',
     pv_export_lbl: 'EXPORTAR DATOS',
     pv_export_ok: 'Datos exportados',
     pv_export_empty: 'No hay historial para exportar',
@@ -2547,6 +2553,8 @@ const T = {
     pv_lastsync_lbl: 'LAST SYNC',
     pv_sec_info: 'INFO',
     pv_version_lbl: 'VERSION',
+    pv_privacy_lbl: 'PRIVACY',
+    pv_privacy_link: 'VIEW ↗',
     pv_export_lbl: 'EXPORT DATA',
     pv_export_ok: 'Data exported',
     pv_export_empty: 'No history to export',
@@ -2648,6 +2656,7 @@ function setLang(l) {
   setText('pv-sec-sync', t.pv_sec_sync); setText('pv-interval-lbl', t.pv_interval_lbl); setText('pv-notif-lbl', t.pv_notif_lbl); setText('pv-cyc-lbl', t.cyc_on_lbl);
   setText('pv-lastsync-lbl', t.pv_lastsync_lbl);
   setText('pv-sec-info', t.pv_sec_info); setText('pv-version-lbl', t.pv_version_lbl);
+  setText('pv-privacy-lbl', t.pv_privacy_lbl); setText('pv-privacy-link', t.pv_privacy_link);
   setText('pv-export-lbl', t.pv_export_lbl);
   if (typeof renderProUI === 'function') renderProUI();
   // Re-apply theme overrides if theme is active
