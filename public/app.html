@@ -4326,6 +4326,8 @@ function maybeAutoTour() {
 function notifSupported() {
   return ('Notification' in window) && ('serviceWorker' in navigator);
 }
+function isIOSDevice() { return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+function isStandalonePWA() { return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches; }
 function notifEnabled() {
   try { return localStorage.getItem('fb_notif') === '1' && Notification.permission === 'granted'; }
   catch(e) { return false; }
@@ -4347,7 +4349,16 @@ function _syncNotifUI() {
   if (t) t.classList.toggle('on', notifPref());
 }
 async function toggleNotifications() {
-  if (!notifSupported()) { showToast(lang==='es'?'Notificaciones no soportadas':'Notifications not supported','warning'); return; }
+  if (!notifSupported()) {
+    if (isIOSDevice() && !isStandalonePWA()) {
+      showToast(lang==='es'
+        ? 'En iPhone: Compartir → Añadir a pantalla de inicio, y abre la app desde el ícono para activar notificaciones.'
+        : 'On iPhone: Share → Add to Home Screen, then open the app from the icon to enable notifications.','warning');
+    } else {
+      showToast(lang==='es'?'Tu navegador no soporta notificaciones':'Your browser does not support notifications','warning');
+    }
+    return;
+  }
   // Turn OFF
   if (notifPref()) {
     try { localStorage.setItem('fb_notif','0'); } catch(e) {}
