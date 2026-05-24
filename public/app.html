@@ -3230,7 +3230,14 @@ function saveCycModal() {
   }
   localStorage.setItem('fb_cycle', JSON.stringify(data));
   closeCycModal();
-  renderCycle();
+  // Force-refresh stats view. If already there, renderStats() directly (navigate has an
+  // early-return guard when the view is already active and skips renderStats). If not
+  // in stats, navigate() switches the view AND calls renderStats().
+  if (document.body.classList.contains('view-stats')) {
+    try { renderStats(); } catch(e) {}
+  } else {
+    navigate('stats');
+  }
   showToast(mode === 'settings' ? t.cyc_modal_saved_set : t.cyc_modal_saved_log, 'success');
 }
 function toggleCycle() {
