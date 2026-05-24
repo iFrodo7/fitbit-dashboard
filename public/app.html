@@ -1777,8 +1777,8 @@ body.t-naruto span.vval{
         <div class="pv-rlbl" id="pv-lang-lbl">IDIOMA</div>
       </div>
       <div class="pv-lang">
-        <button class="pv-lang-btn" id="pvl-es" onclick="setLang('es');navigate('profile')">ES — ESPAÑOL</button>
-        <button class="pv-lang-btn" id="pvl-en" onclick="setLang('en');navigate('profile')">EN — ENGLISH</button>
+        <button class="pv-lang-btn" id="pvl-es" onclick="setLang('es')">ES — ESPAÑOL</button>
+        <button class="pv-lang-btn" id="pvl-en" onclick="setLang('en')">EN — ENGLISH</button>
       </div>
     </div>
 
@@ -2326,6 +2326,10 @@ function setLang(l) {
   document.getElementById('lang-en').classList.toggle('active', l === 'en');
   document.getElementById('h-lang-es').classList.toggle('active', l === 'es');
   document.getElementById('h-lang-en').classList.toggle('active', l === 'en');
+  // Profile language buttons — must update here because navigate('profile') aborts early
+  // when the profile view is already open, so renderProfile() never runs.
+  document.getElementById('pvl-es')?.classList.toggle('active', l === 'es');
+  document.getElementById('pvl-en')?.classList.toggle('active', l === 'en');
   const t = T[l];
   // selector screen
   setText('sel-eye', t.sel_eye);
