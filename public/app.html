@@ -1915,7 +1915,7 @@ body.t-naruto span.vval{
       </div>
       <div class="pv-row">
         <div class="pv-rlbl" id="pv-notif-lbl">NOTIFICACIONES</div>
-        <button class="pv-toggle" id="pv-notif-toggle" onclick="toggleNotifications().then(()=>navigate('profile'))" aria-label="toggle notifications"></button>
+        <button class="pv-toggle" id="pv-notif-toggle" onclick="toggleNotifications()" aria-label="toggle notifications"></button>
       </div>
       <div class="pv-row">
         <div class="pv-rlbl" id="pv-cyc-lbl">SEGUIMIENTO DE CICLO</div>
@@ -3571,9 +3571,9 @@ function renderProfile() {
     Array.from(isel.options).forEach(o => { o.selected = parseInt(o.value) === pSec; });
   }
 
-  // Notifications toggle
+  // Notifications toggle (reflects user preference; delivery also needs permission)
   const toggle = document.getElementById('pv-notif-toggle');
-  if (toggle) toggle.classList.toggle('on', notifEnabled());
+  if (toggle) toggle.classList.toggle('on', notifPref());
 
   // Cycle tracking toggle
   const cyc = document.getElementById('pv-cyc-toggle');
@@ -4330,6 +4330,8 @@ function notifEnabled() {
   try { return localStorage.getItem('fb_notif') === '1' && Notification.permission === 'granted'; }
   catch(e) { return false; }
 }
+// User preference (drives the toggle); delivery additionally needs permission.
+function notifPref() { try { return localStorage.getItem('fb_notif') === '1'; } catch(e) { return false; } }
 function refreshBell() {
   const b = document.getElementById('bell-btn'); if (!b) return;
   b.classList.remove('on','denied');
@@ -4337,36 +4339,42 @@ function refreshBell() {
   if (Notification.permission === 'denied') { b.classList.add('denied'); return; }
   if (notifEnabled()) b.classList.add('on');
 }
+// Toggle reflects the user's PREFERENCE so it always responds; actual delivery
+// also needs browser permission (handled below + checked in notifEnabled()).
+function _syncNotifUI() {
+  refreshBell();
+  const t = document.getElementById('pv-notif-toggle');
+  if (t) t.classList.toggle('on', notifPref());
+}
 async function toggleNotifications() {
   if (!notifSupported()) { showToast(lang==='es'?'Notificaciones no soportadas':'Notifications not supported','warning'); return; }
-  if (Notification.permission === 'denied') {
-    showToast(lang==='es'?'Permiso bloqueado. Actívalo en ajustes del navegador':'Permission blocked. Enable it in browser settings','warning');
-    return;
-  }
-  // Already enabled → turn off (preference only; can't revoke browser permission)
-  if (notifEnabled()) {
+  // Turn OFF
+  if (notifPref()) {
     try { localStorage.setItem('fb_notif','0'); } catch(e) {}
-    unsubscribeWebPush(); // best-effort server unsubscribe
-    refreshBell();
+    unsubscribeWebPush();
+    _syncNotifUI();
     showToast(lang==='es'?'Notificaciones desactivadas':'Notifications off','info');
     return;
   }
-  // Request permission
+  // Turn ON — record preference immediately so the toggle moves
+  try { localStorage.setItem('fb_notif','1'); } catch(e) {}
+  _syncNotifUI();
+  // Ensure browser permission for actual delivery
   let perm = Notification.permission;
-  if (perm !== 'granted') { try { perm = await Notification.requestPermission(); } catch(e) {} }
+  if (perm === 'default') { try { perm = await Notification.requestPermission(); } catch(e) {} }
+  _syncNotifUI();
   if (perm === 'granted') {
-    try { localStorage.setItem('fb_notif','1'); } catch(e) {}
-    refreshBell();
-    subscribeWebPush(); // best-effort: server push si el backend está configurado
+    subscribeWebPush();
     showLocalNotification(
       lang==='es' ? '🔔 Notificaciones activas' : '🔔 Notifications on',
       lang==='es' ? 'Te avisaremos de cambios importantes en tu biometría.' : "We'll alert you to important biometric changes.",
       'welcome'
     );
     showToast(lang==='es'?'Notificaciones activadas':'Notifications on','success');
+  } else if (perm === 'denied') {
+    showToast(lang==='es'?'Activado. Permite las notificaciones en los ajustes del navegador para recibirlas.':'On. Allow notifications in your browser settings to receive them.','warning');
   } else {
-    showToast(lang==='es'?'Permiso no concedido':'Permission not granted','warning');
-    refreshBell();
+    showToast(lang==='es'?'Activado (permiso pendiente)':'On (permission pending)','info');
   }
 }
 
