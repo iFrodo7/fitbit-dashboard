@@ -197,8 +197,8 @@ body.view-history #dash > #install-banner{visibility:visible;}
 .hv-trend.trend-flat{color:var(--sub,#888);}
 .hv-stat strong{color:var(--ta);font-weight:700;}
 .hv-chart{width:100%;display:block;margin-top:10px;overflow:visible;}
-.hv-chart .grid{stroke:var(--tx);stroke-width:0.6;opacity:0.07;}
-.hv-chart .axlbl{font-size:11px;fill:var(--tx);opacity:0.5;letter-spacing:0.3px;font-family:inherit;font-weight:600;}
+.hv-chart .grid{stroke:var(--txt);stroke-width:0.6;opacity:0.09;}
+.hv-chart .axlbl{font-size:11px;fill:var(--txt);opacity:0.62;letter-spacing:0.3px;font-family:inherit;font-weight:600;}
 .hv-chart .ln{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;}
 .hv-chart .ln.rec{stroke:var(--ta);}
 .hv-chart .ln.rhr{stroke:var(--ta2);}
@@ -208,12 +208,12 @@ body.view-history #dash > #install-banner{visibility:visible;}
 .hv-chart .pt-last-core{fill:var(--bg);}
 .hv-chart .bar-deep{fill:var(--ta2);}
 .hv-chart .bar-rem{fill:var(--ta);}
-.hv-chart .bar-light{fill:var(--tx);opacity:0.20;}
+.hv-chart .bar-light{fill:var(--txt);opacity:0.42;}
 .hv-chart .bar-wake{fill:var(--tneg);}
 .hv-empty{display:flex;align-items:center;justify-content:center;height:160px;font-size:10px;opacity:0.4;letter-spacing:2px;flex-direction:column;gap:6px;}
 .hv-skel{height:160px;background:linear-gradient(90deg,var(--sub) 0%,var(--rbg) 50%,var(--sub) 100%);background-size:200% 100%;animation:hvShim 1.4s linear infinite;border-radius:10px;margin-top:10px;}
 @keyframes hvShim{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
-.hv-tt{position:absolute;background:var(--rbg);border:1px solid var(--bdr);color:var(--tx);padding:8px 11px;font-size:10px;letter-spacing:0.5px;line-height:1.5;pointer-events:none;transform:translate(-50%,-118%);white-space:nowrap;z-index:3;box-shadow:0 6px 24px rgba(0,0,0,0.5);display:none;border-radius:9px;backdrop-filter:blur(8px);}
+.hv-tt{position:absolute;background:var(--bg2,var(--rbg));border:1px solid var(--bdr);color:var(--txt);padding:8px 11px;font-size:10px;letter-spacing:0.5px;line-height:1.55;pointer-events:none;transform:translate(-50%,-118%);white-space:normal;max-width:210px;text-align:center;z-index:3;box-shadow:0 6px 24px rgba(0,0,0,0.6);display:none;border-radius:9px;backdrop-filter:blur(8px);}
 .hv-tt strong{color:var(--ta);font-weight:700;font-size:12px;}
 .hv-chart-wrap{position:relative;}
 /* History: chart entrance animations */
@@ -224,8 +224,8 @@ body.view-history #dash > #install-banner{visibility:visible;}
 .hv-chart .fade-anim{opacity:0;animation:hvFade .8s ease .25s forwards;}
 .hv-chart .bar-anim{transform-box:fill-box;transform-origin:center bottom;animation:hvGrow .65s cubic-bezier(.4,0,.2,1) backwards;}
 /* History: reference zones & lines */
-.hv-chart .ref-line{stroke:var(--tx);stroke-width:1.2;stroke-dasharray:1,6;stroke-linecap:round;opacity:0.3;}
-.hv-chart .ref-lbl{font-size:9.5px;fill:var(--tx);opacity:0.4;letter-spacing:0.3px;font-family:inherit;font-weight:600;}
+.hv-chart .ref-line{stroke:var(--txt);stroke-width:1.2;stroke-dasharray:1,6;stroke-linecap:round;opacity:0.35;}
+.hv-chart .ref-lbl{font-size:9.5px;fill:var(--txt);opacity:0.5;letter-spacing:0.3px;font-family:inherit;font-weight:600;}
 .hv-chart .zone{opacity:0.06;}
 .hv-chart .zone-good{fill:var(--tpos,#22c55e);}
 .hv-chart .zone-warn{fill:#f59e0b;}
@@ -1671,7 +1671,7 @@ body.t-naruto span.vval{
       <div class="hv-sleep-legend">
         <div class="hv-sl-item"><div class="hv-sl-dot" style="background:var(--ta2)"></div><span id="hv-sl-deep">PROF.</span></div>
         <div class="hv-sl-item"><div class="hv-sl-dot" style="background:var(--ta)"></div><span id="hv-sl-rem">REM</span></div>
-        <div class="hv-sl-item"><div class="hv-sl-dot" style="background:rgba(255,255,255,0.25)"></div><span id="hv-sl-light">LIGER.</span></div>
+        <div class="hv-sl-item"><div class="hv-sl-dot" style="background:var(--txt);opacity:0.55"></div><span id="hv-sl-light">LIGER.</span></div>
         <div class="hv-sl-item"><div class="hv-sl-dot" style="background:var(--tneg)"></div><span id="hv-sl-wake">DESP.</span></div>
       </div>
     </div>
@@ -2205,6 +2205,13 @@ const T = {
     hv_ca_all_rhr:'Tu FC en reposo es el área de mayor oportunidad. Incorpora 20-30min de cardio moderado 3×/semana y técnicas de reducción de estrés.',
     hv_ca_all_mid:'Métricas en zona de mantenimiento. Pequeñas mejoras en consistencia del sueño pueden elevar tu recovery score de forma sostenida.',
     hv_ca_all_demo:'Conecta Fitbit para obtener un análisis completo con todas tus métricas biométricas.',
+    hv_ca_stp_lbl:'PASOS',
+    hv_ca_stp_peak:'Promedio de <strong>$1k pasos</strong> — superas la meta de 10k. Excelente nivel de actividad.',
+    hv_ca_stp_good:'Promedio de <strong>$1k pasos</strong> — buen nivel. Sumar ~2k más al día te lleva a la meta de 10k.',
+    hv_ca_stp_low:'Promedio de <strong>$1k pasos</strong> — por debajo del objetivo. Camina 10-15min extra al día para subir.',
+    hv_ca_stp_days:' Alcanzaste la meta <strong>$1</strong> día(s).',
+    hv_ca_stp_up:' Tendencia <strong>al alza</strong> — sigue así.',
+    hv_ca_stp_dn:' Tendencia <strong>a la baja</strong> — recupera el ritmo.',
     onb: {
       recovery: { ttl:'Recovery Score', bd:'<p>Indica qué tan <strong>recuperado</strong> está tu cuerpo hoy, en una escala de <strong>0 a 100</strong>.</p><p>Combina cuatro factores: duración del sueño, eficiencia, % de sueño profundo+REM, y tu frecuencia cardíaca en reposo.</p><p><strong>67+</strong> en forma · <strong>50-66</strong> buena · <strong>34-49</strong> moderada · <strong>0-33</strong> descansa.</p>' },
       strain:   { ttl:'Esfuerzo (Strain)', bd:'<p>Mide la carga cardiovascular acumulada en el día, escala <strong>0 a 21</strong>.</p><p>Pondera los minutos en zonas de frecuencia cardíaca: <code>Fat Burn ×0.6</code>, <code>Cardio ×2.0</code>, <code>Peak ×4.5</code>.</p><p>Un día de descanso debería estar en 0-3, un entrenamiento intenso 14+.</p>' },
@@ -2406,6 +2413,13 @@ const T = {
     hv_ca_all_rhr:'Your resting HR is the main area for improvement. Add 20-30min moderate cardio 3×/week and stress-reduction techniques.',
     hv_ca_all_mid:'Metrics in maintenance zone. Small improvements in sleep consistency can raise your recovery score sustainably.',
     hv_ca_all_demo:'Connect Fitbit for a complete analysis with all your biometric metrics.',
+    hv_ca_stp_lbl:'STEPS',
+    hv_ca_stp_peak:'Avg <strong>$1k steps</strong> — above the 10k goal. Excellent activity level.',
+    hv_ca_stp_good:'Avg <strong>$1k steps</strong> — solid. Adding ~2k more a day gets you to the 10k goal.',
+    hv_ca_stp_low:'Avg <strong>$1k steps</strong> — below target. A 10-15min extra walk daily moves the needle.',
+    hv_ca_stp_days:' Hit the goal on <strong>$1</strong> day(s).',
+    hv_ca_stp_up:' Trending <strong>up</strong> — keep it going.',
+    hv_ca_stp_dn:' Trending <strong>down</strong> — pick the pace back up.',
     onb: {
       recovery: { ttl:'Recovery Score', bd:'<p>Shows how <strong>recovered</strong> your body is today, on a <strong>0 to 100</strong> scale.</p><p>It blends four factors: sleep duration, efficiency, % of deep+REM, and resting heart rate.</p><p><strong>67+</strong> peak · <strong>50-66</strong> good · <strong>34-49</strong> moderate · <strong>0-33</strong> rest.</p>' },
       strain:   { ttl:'Strain', bd:'<p>Measures cardio load accumulated today, scale <strong>0 to 21</strong>.</p><p>Weights minutes in heart-rate zones: <code>Fat Burn ×0.6</code>, <code>Cardio ×2.0</code>, <code>Peak ×4.5</code>.</p><p>A rest day should sit at 0-3, an intense workout 14+.</p>' },
@@ -4914,9 +4928,11 @@ function _hCoachAnalysis(rows) {
   const slpVals = rows.map(r=>r.minutesAsleep).filter(v=>v!=null);
   const deepVals= rows.map(r=>r.deep).filter(v=>v!=null);
   const remVals = rows.map(r=>r.rem).filter(v=>v!=null);
+  const stpVals = rows.map(r=>r.steps).filter(v=>v!=null);
   const avgRec  = avg(recVals), avgRhr = avg(rhrVals);
   const avgSlp  = avg(slpVals), avgDeep = avg(deepVals), avgRem = avg(remVals);
-  const recTrend= halfTrend(recVals), rhrTrend = halfTrend(rhrVals);
+  const avgStp  = avg(stpVals);
+  const recTrend= halfTrend(recVals), rhrTrend = halfTrend(rhrVals), stpTrend = halfTrend(stpVals);
   const fill = (s, v) => s.replace('$1', v);
   const insights = [];
 
@@ -4942,6 +4958,15 @@ function _hCoachAnalysis(rows) {
       text += qp >= 45 ? fill(t.hv_ca_slp_hi_qual, qp) : qp >= 30 ? fill(t.hv_ca_slp_mid_qual, qp) : fill(t.hv_ca_slp_lo_qual, qp);
     }
     insights.push({ icon: avgSlp/60 >= 7.5 ? '◉' : '◈', label: t.hv_ca_slp_lbl, text });
+  }
+  if (avgStp != null) {
+    const k = (Math.round(avgStp/100)/10).toFixed(1);
+    const daysGoal = stpVals.filter(v=>v>=10000).length;
+    let text = avgStp >= 10000 ? fill(t.hv_ca_stp_peak, k) : avgStp >= 7000 ? fill(t.hv_ca_stp_good, k) : fill(t.hv_ca_stp_low, k);
+    if (daysGoal > 0) text += fill(t.hv_ca_stp_days, daysGoal);
+    if (stpTrend > 600) text += t.hv_ca_stp_up;
+    else if (stpTrend < -600) text += t.hv_ca_stp_dn;
+    insights.push({ icon: avgStp >= 10000 ? '✦' : avgStp >= 7000 ? '◈' : '◇', label: t.hv_ca_stp_lbl, text });
   }
 
   let overallText = '';
@@ -5041,75 +5066,61 @@ async function renderHistory() {
   _hRenderCoachAnalysis(rows);
 }
 
-function _hBindTooltip(svg, ttId, fmt) {
-  const tt = document.getElementById(ttId);
-  if (!svg || !tt) return;
-  const hide = () => tt.style.display='none';
-  svg.querySelectorAll('.pt').forEach(p => {
-    const show = () => {
-      const v = parseFloat(p.dataset.v), d = p.dataset.d;
-      const rect = svg.getBoundingClientRect();
-      const wrapRect = svg.parentElement.getBoundingClientRect();
-      const cx = +p.getAttribute('cx'), cy = +p.getAttribute('cy');
-      const vb = svg.viewBox.baseVal;
-      const x = (cx/vb.width)*rect.width + (rect.left-wrapRect.left);
-      const y = (cy/vb.height)*rect.height + (rect.top-wrapRect.top);
-      tt.style.left=x+'px'; tt.style.top=y+'px';
-      tt.innerHTML = fmt(v, d);
-      tt.style.display='block';
-    };
-    p.addEventListener('mouseenter', show);
-    p.addEventListener('touchstart', show, {passive:true});
-    p.addEventListener('mouseleave', hide);
-  });
+// Position a tooltip at SVG coords (cx,cy in viewBox units of `el`), clamping
+// horizontally so it never gets cut off at the chart edges.
+function _hPlaceTT(tt, svg, el, html) {
+  const rect = svg.getBoundingClientRect();
+  const wrap = svg.parentElement.getBoundingClientRect();
+  const vb = svg.viewBox.baseVal;
+  const rx = +el.getAttribute('x'), rw = el.getAttribute('width') ? +el.getAttribute('width') : 0;
+  const cxU = el.tagName === 'circle' ? +el.getAttribute('cx') : (rx + rw/2);
+  const cyU = el.tagName === 'circle' ? +el.getAttribute('cy') : +el.getAttribute('y');
+  const px = (cxU/vb.width)*rect.width + (rect.left - wrap.left);
+  const py = (cyU/vb.height)*rect.height + (rect.top - wrap.top);
+  tt.innerHTML = html;
+  // Reset position before measuring: shrink-to-fit width depends on `left`
+  // (right:auto), so a stale left would yield a wrong offsetWidth.
+  tt.style.left = '0px';
+  tt.style.display = 'block';        // make measurable
+  const ttW = tt.offsetWidth, pad = 6, half = ttW/2;
+  let left = px;
+  if (ttW + pad*2 >= wrap.width) left = wrap.width/2;
+  else left = Math.max(half + pad, Math.min(px, wrap.width - half - pad));
+  tt.style.left = left + 'px';
+  tt.style.top  = Math.max(py, 4) + 'px';
 }
-
-function _hBindSleepTooltip(svg, ttId) {
+function _hBindTT(svg, ttId, selector, htmlFor) {
   const tt = document.getElementById(ttId);
   if (!svg || !tt) return;
-  const t = T[lang];
   const hide = () => tt.style.display='none';
-  svg.querySelectorAll('.bar-hit').forEach(el => {
-    const show = (e) => {
-      const d  = el.dataset.d;
-      const total= el.dataset.total, deep=el.dataset.deep, rem=el.dataset.rem;
-      const light=el.dataset.light, wake=el.dataset.wake;
-      const rect = svg.getBoundingClientRect(), wrapRect = svg.parentElement.getBoundingClientRect();
-      const rx = +el.getAttribute('x'), rw = +el.getAttribute('width');
-      const vb = svg.viewBox.baseVal;
-      const cx = (rx + rw/2)/vb.width * rect.width + (rect.left-wrapRect.left);
-      const cy = +el.getAttribute('y')/vb.height * rect.height + (rect.top-wrapRect.top);
-      tt.style.left=cx+'px'; tt.style.top=cy+'px';
-      tt.innerHTML = `<strong>${total}h</strong> ${_hFmtDate(d)}<br><span style="color:var(--ta2)">${t.hv_sl_deep||'PROF'} ${deep}h</span> · <span style="color:var(--ta)">REM ${rem}h</span> · ${t.hv_sl_light||'LIGER'} ${light}h · <span style="color:var(--tneg)">${t.hv_sl_wake||'DESP'} ${wake}h</span>`;
-      tt.style.display='block';
-    };
+  svg.querySelectorAll(selector).forEach(el => {
+    const show = () => _hPlaceTT(tt, svg, el, htmlFor(el));
     el.addEventListener('mouseenter', show);
     el.addEventListener('touchstart', show, {passive:true});
     el.addEventListener('mouseleave', hide);
+  });
+}
+
+function _hBindTooltip(svg, ttId, fmt) {
+  _hBindTT(svg, ttId, '.pt', el => fmt(parseFloat(el.dataset.v), el.dataset.d));
+}
+
+function _hBindSleepTooltip(svg, ttId) {
+  const t = T[lang];
+  _hBindTT(svg, ttId, '.bar-hit', el => {
+    const d=el.dataset.d, total=el.dataset.total, deep=el.dataset.deep, rem=el.dataset.rem, light=el.dataset.light, wake=el.dataset.wake;
+    return `<strong>${total}h</strong> · ${_hFmtDate(d)}<br>`
+      + `<span style="color:var(--ta2)">${t.hv_sl_deep||'PROF'} ${deep}</span> · `
+      + `<span style="color:var(--ta)">REM ${rem}</span> · `
+      + `<span style="opacity:0.7">${t.hv_sl_light||'LIGER'} ${light}</span> · `
+      + `<span style="color:var(--tneg)">${t.hv_sl_wake||'DESP'} ${wake}</span>`;
   });
 }
 
 function _hBindStepsTooltip(svg, ttId) {
-  const tt = document.getElementById(ttId);
-  if (!svg || !tt) return;
-  const t = T[lang];
-  const hide = () => tt.style.display='none';
-  svg.querySelectorAll('[data-v]').forEach(el => {
-    const show = () => {
-      const v = parseInt(el.dataset.v), d = el.dataset.d;
-      const rect = svg.getBoundingClientRect(), wrapRect = svg.parentElement.getBoundingClientRect();
-      const rx = +el.getAttribute('x'), rw = +el.getAttribute('width');
-      const vb = svg.viewBox.baseVal;
-      const cx = (rx+rw/2)/vb.width * rect.width + (rect.left-wrapRect.left);
-      const cy = +el.getAttribute('y')/vb.height * rect.height + (rect.top-wrapRect.top);
-      const pct = Math.round(v/100);
-      tt.style.left=cx+'px'; tt.style.top=cy+'px';
-      tt.innerHTML = `<strong>${v.toLocaleString()}</strong> pasos · ${pct}% <span style="opacity:0.45;margin-left:6px">${_hFmtDate(d)}</span>`;
-      tt.style.display='block';
-    };
-    el.addEventListener('mouseenter', show);
-    el.addEventListener('touchstart', show, {passive:true});
-    el.addEventListener('mouseleave', hide);
+  _hBindTT(svg, ttId, '[data-v]', el => {
+    const v = parseInt(el.dataset.v), d = el.dataset.d, pct = Math.round(v/100);
+    return `<strong>${v.toLocaleString()}</strong> ${lang==='es'?'pasos':'steps'} · ${pct}%<br><span style="opacity:0.55">${_hFmtDate(d)}</span>`;
   });
 }
 

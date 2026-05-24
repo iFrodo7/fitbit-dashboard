@@ -1,6 +1,6 @@
 # 🤝 Handoff — Fitbit Air Dashboard
 
-> **Para el próximo desarrollador y su Claude.** Lee esto **primero**, luego `CLAUDE.md` (referencia técnica). Última actualización: **2026-05-21**.
+> **Para el próximo desarrollador y su Claude.** Lee esto **primero**, luego `CLAUDE.md` (referencia técnica). Última actualización: **2026-05-24**.
 
 ---
 
@@ -11,6 +11,18 @@
   - Instalar en móvil: iPhone Safari → Compartir → *Añadir a pantalla de inicio*; Android Chrome → ⋮ → *Instalar app*.
 - Cada merge a `main` auto-despliega a Vercel (producción).
 - **Bug #12 RESUELTO** — ya se puede usar `let`/`const` top-level (declarados antes del bloque `// BOOT` final). Mantén invocaciones de arranque en BOOT.
+
+## ✅ Qué está construido (sesión 2026-05-24, History v2)
+
+| Área | Qué |
+|---|---|
+| **History — Análisis AIRA** | Tarjeta de análisis automático al final de History. Interpreta **las 4 métricas graficadas** (recovery, FC reposo, sueño, pasos) en lenguaje claro + tendencia (↑/↓/→) + **recomendación global**. 100% local (sin llamada API). Strings `hv_ca_*` en ES/EN. |
+| **History — gráficas rediseñadas** | Estética Apple Health: curvas suaves (Catmull-Rom `_hSmoothPath`), relleno con degradado, glow, último punto destacado, barras con tope redondeado (`_hRoundTop`), animaciones de entrada. Geometría compartida en `_HC`/`_hGeo()`. |
+| **History — gráfica de Pasos** | Nueva (`_hRenderStepsBar`) con línea de meta 10k. `steps` ahora se cachea en IndexedDB (fetch añadido en `_hFetchRange` desde `activities/steps`). |
+| **History — legibilidad** | Ejes con máx. 4 etiquetas sin solaparse (`_hTickIdx` + `_hFmtTick`), números más grandes y con contraste. Tooltips con clamping horizontal (`_hPlaceTT`) que ya no se cortan en los bordes; sueño muestra desglose por etapa. |
+| **Cache-bust logo** | favicon `?v=10` + SW `CACHE_VERSION=fitbit-air-v10` (el icono AIRA "A" ya estaba desplegado; el "viejo" era caché de cliente / PWA instalada → requiere reinstalar). |
+
+> ⚠️ **Doc fix:** la variable de color de texto es **`--txt`** (no `--tx`). Usar `var(--tx)` en SVG hace que `fill` caiga a **negro**. Hay usos legacy de `var(--tx)` en el código que conviene migrar a `--txt`.
 
 ## ✅ Qué está construido (sesión 2026-05-21, PRs #21–#30)
 
@@ -56,7 +68,7 @@ npm run typecheck                 # tsc --noEmit (correr antes de PR)
 ## 🧠 Contexto crítico
 
 - **`public/app.html`** es el único frontend (~3500 líneas, SPA vanilla). Casi todo el trabajo ocurre acá.
-- **4 temas** (`mc`/`halo`/`naruto`/`fut`): usa SIEMPRE CSS vars (`--ta`, `--ta2`, `--tpos`, `--tneg`, `--sub`, `--bg`, `--bdr`, `--tx`, `--sat`) — nunca colores hard-coded.
+- **4 temas** (`mc`/`halo`/`naruto`/`fut`): usa SIEMPRE CSS vars (`--ta`, `--ta2`, `--tpos`, `--tneg`, `--sub`, `--bg`, `--bg2`, `--bdr`, `--txt` ←texto, `--sat`) — nunca colores hard-coded. **OJO:** es `--txt`, no `--tx` (este último no existe → en SVG el `fill` se vuelve negro).
 - **i18n ES/EN obligatorio**: si añades string en `T.es`, añádelo en `T.en`. Aplica con `setText`/`setHTML` en `applyText()`.
 - **Coach key NUNCA en el cliente** — vive solo en `app/api/coach` (server). Es el patrón a seguir para cualquier integración con costo.
 - **Recovery = una sola fuente**: el anillo (`window._lastRec` vía `calcScores`). Stats lo refleja. No reintroducir cálculos paralelos.
