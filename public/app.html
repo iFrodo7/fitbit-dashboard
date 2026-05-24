@@ -279,6 +279,20 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .cyc-btn.ghost{background:transparent;color:var(--ta2);border:1px solid var(--ta2);}
 .cyc-btn:active{opacity:0.7;}
 .cyc-disc{font-size:9px;opacity:0.4;line-height:1.5;margin-top:11px;text-align:center;}
+/* Cycle log history list */
+.cyc-loglist-wrap{margin-top:14px;border-top:1px solid var(--bdr);padding-top:10px;}
+.cyc-loglist-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.cyc-loglist-lbl{font-size:9px;letter-spacing:2px;color:var(--sub);text-transform:uppercase;}
+.cyc-log-more-btn{background:none;border:none;color:var(--ta2);font-family:inherit;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;padding:0 2px;-webkit-tap-highlight-color:transparent;}
+.cyc-log-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.06);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity 0.15s;}
+.cyc-log-row:last-child{border-bottom:none;}
+.cyc-log-row:active{opacity:0.6;}
+.cyc-log-row-date{font-size:10px;letter-spacing:1px;min-width:54px;color:var(--tx);flex-shrink:0;}
+.cyc-log-row-date.today{color:var(--ta2);font-weight:700;}
+.cyc-log-row-icons{display:flex;gap:3px;flex:1;flex-wrap:wrap;align-items:center;}
+.cyc-log-row-icon{font-size:14px;line-height:1;}
+.cyc-log-row-edit{font-size:10px;color:var(--sub);opacity:0.35;flex-shrink:0;}
+.cyc-log-empty{font-size:10px;color:var(--sub);opacity:0.5;letter-spacing:0.5px;padding:4px 0;line-height:1.6;}
 /* Cycle quick-glance chip on Home */
 .cyc-home-chip{display:none;align-items:center;gap:7px;padding:7px 14px 7px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--ta2);border-radius:20px;font-size:10px;letter-spacing:1.5px;color:var(--ta2);text-transform:uppercase;cursor:pointer;margin-bottom:12px;width:fit-content;max-width:100%;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:opacity 0.15s;overflow:hidden;}
 .cyc-home-chip.on{display:flex;}
@@ -1724,6 +1738,15 @@ body.t-naruto span.vval{
       </div>
 
       <div class="cyc-disc" id="cyc-disc"></div>
+
+      <!-- Log history -->
+      <div class="cyc-loglist-wrap" id="cyc-loglist-wrap" style="display:none;">
+        <div class="cyc-loglist-hd">
+          <span class="cyc-loglist-lbl" id="cyc-loglist-lbl">REGISTRO</span>
+          <button class="cyc-log-more-btn" id="cyc-log-more-btn" onclick="toggleCycLogMore()" style="display:none;"><span id="cyc-log-more-lbl">VER MÁS</span></button>
+        </div>
+        <div id="cyc-loglist"></div>
+      </div>
     </div>
   </section>
 
@@ -2118,6 +2141,7 @@ const T = {
     cyc_sym_sex: 'RELACIONES', cyc_sym_sex_none: 'Sin actividad', cyc_sym_sex_prot: 'Con protección', cyc_sym_sex_unprot: 'Sin protección',
     cyc_sym_sx: 'SÍNTOMAS', cyc_sym_cramps: 'Cólicos', cyc_sym_head: 'Dolor de cabeza', cyc_sym_bloat: 'Hinchazón', cyc_sym_fatigue: 'Fatiga', cyc_sym_mood: 'Mal humor', cyc_sym_anxiety: 'Ansiedad', cyc_sym_nausea: 'Náuseas', cyc_sym_acne: 'Acné',
     cyc_sym_save: 'GUARDAR', cyc_sym_saved: '✓ Registrado',
+    cyc_log_sec_lbl: 'REGISTRO', cyc_log_empty: 'Aún no hay registros. Usa "Registrar día" para añadir síntomas a cualquier fecha.', cyc_log_more: 'VER MÁS', cyc_log_less: 'VER MENOS',
     cyc_on_lbl: 'SEGUIMIENTO DE CICLO',
     sv_sleep_lbl: '// SUEÑO', sv_sltotal_lbl: 'TOTAL', sv_sltotal_unit: 'dormido', sv_slscore_lbl: 'CALIDAD',
     sv_hrv_unit: 'ms',
@@ -2292,6 +2316,7 @@ const T = {
     cyc_sym_sex: 'SEXUAL ACTIVITY', cyc_sym_sex_none: 'No activity', cyc_sym_sex_prot: 'Protected', cyc_sym_sex_unprot: 'Unprotected',
     cyc_sym_sx: 'SYMPTOMS', cyc_sym_cramps: 'Cramps', cyc_sym_head: 'Headache', cyc_sym_bloat: 'Bloating', cyc_sym_fatigue: 'Fatigue', cyc_sym_mood: 'Low mood', cyc_sym_anxiety: 'Anxiety', cyc_sym_nausea: 'Nausea', cyc_sym_acne: 'Acne',
     cyc_sym_save: 'SAVE', cyc_sym_saved: '✓ Saved',
+    cyc_log_sec_lbl: 'LOG', cyc_log_empty: 'No entries yet. Use "Log day" to add symptoms to any date.', cyc_log_more: 'SEE MORE', cyc_log_less: 'SEE LESS',
     cyc_on_lbl: 'CYCLE TRACKING',
     sv_sleep_lbl: '// SLEEP', sv_sltotal_lbl: 'TOTAL', sv_sltotal_unit: 'asleep', sv_slscore_lbl: 'QUALITY',
     sv_hrv_unit: 'ms',
@@ -2895,6 +2920,7 @@ function renderCycle() {
     : `${t.cyc_in} ${Math.max(0, c.daysToNext)} ${t.cyc_days}`);
   setText('cyc-bio', t.cyc_bio_on);
   renderCycleHomeChip();
+  renderCycLogList();
 }
 function renderCycleHomeChip() {
   const el = document.getElementById('cyc-home-chip'); if (!el) return;
@@ -3057,6 +3083,77 @@ function saveSymModal() {
   closeSymModal();
   renderCycle();
   showToast(t.cyc_sym_saved, 'success');
+}
+
+// ── Cycle log history list ─────────────────────────────────────────────────
+const FLOW_ICONS_MAP = { spot:'💧', light:'🩸', med:'🩸🩸', heavy:'🩸🩸🩸' };
+const SEX_ICONS_MAP  = { prot:'🛡️', unprot:'♀️' };
+const SX_ICONS_MAP   = { cramps:'🩹', head:'🤕', bloat:'😮‍💨', fatigue:'😴', mood:'😔', anxiety:'😰', nausea:'🤢', acne:'😣' };
+const CYC_LOG_PAGE   = 7; // entries shown before "see more"
+
+function renderCycLogList() {
+  const wrap = document.getElementById('cyc-loglist-wrap');
+  const list = document.getElementById('cyc-loglist');
+  if (!wrap || !list) return;
+
+  const t = T[lang];
+  setText('cyc-loglist-lbl', t.cyc_log_sec_lbl);
+
+  const log   = _cycLog();
+  const dates = Object.keys(log).sort().reverse(); // newest first
+
+  wrap.style.display = 'block';
+
+  if (!dates.length) {
+    list.innerHTML = `<div class="cyc-log-empty">${t.cyc_log_empty}</div>`;
+    const mb = document.getElementById('cyc-log-more-btn');
+    if (mb) mb.style.display = 'none';
+    return;
+  }
+
+  const showAll  = !!window._cycLogShowAll;
+  const toShow   = showAll ? dates : dates.slice(0, CYC_LOG_PAGE);
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  list.innerHTML = toShow.map(d => {
+    const e    = log[d];
+    const dt   = new Date(d + 'T00:00:00');
+    const lbl  = d === todayStr
+      ? t.cyc_today_log
+      : dt.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { day: '2-digit', month: 'short' });
+    const isToday = d === todayStr;
+
+    const icons = [];
+    if (e.flow && FLOW_ICONS_MAP[e.flow]) icons.push(FLOW_ICONS_MAP[e.flow]);
+    if (e.sex  && SEX_ICONS_MAP[e.sex])   icons.push(SEX_ICONS_MAP[e.sex]);
+    (e.sx || []).forEach(s => { if (SX_ICONS_MAP[s]) icons.push(SX_ICONS_MAP[s]); });
+
+    const iconsHtml = icons.map(i => `<span class="cyc-log-row-icon">${i}</span>`).join('');
+    return `<div class="cyc-log-row" onclick="openSymModal('${d}')">
+      <span class="cyc-log-row-date${isToday ? ' today' : ''}">${lbl}</span>
+      <span class="cyc-log-row-icons">${iconsHtml}</span>
+      <span class="cyc-log-row-edit">✎</span>
+    </div>`;
+  }).join('');
+
+  const moreBtn = document.getElementById('cyc-log-more-btn');
+  if (moreBtn) {
+    const hidden = dates.length - CYC_LOG_PAGE;
+    if (!showAll && hidden > 0) {
+      moreBtn.style.display = '';
+      setText('cyc-log-more-lbl', `${t.cyc_log_more} (${hidden})`);
+    } else if (showAll && dates.length > CYC_LOG_PAGE) {
+      moreBtn.style.display = '';
+      setText('cyc-log-more-lbl', t.cyc_log_less);
+    } else {
+      moreBtn.style.display = 'none';
+    }
+  }
+}
+
+function toggleCycLogMore() {
+  window._cycLogShowAll = !window._cycLogShowAll;
+  renderCycLogList();
 }
 
 function adjCycModal(field, delta) {
