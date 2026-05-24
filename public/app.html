@@ -113,7 +113,7 @@ body{width:100%;min-height:100vh;}
 
 /* Greeting */
 .db-greet{margin-bottom:12px;display:flex;align-items:baseline;gap:20px;flex-wrap:wrap;}
-.db-eye{font-size:12px;letter-spacing:4px;text-transform:uppercase;opacity:0.4;margin-bottom:6px;}
+.db-eye{font-size:12px;letter-spacing:4px;text-transform:uppercase;opacity:0.6;margin-bottom:6px;}
 .db-name{font-weight:700;text-transform:uppercase;line-height:1.1;font-size:clamp(28px,3.8vw,44px);}
 .db-ac{color:var(--ta);}
 .db-date{font-size:13px;letter-spacing:2px;margin-top:6px;opacity:0.35;}
@@ -128,7 +128,7 @@ body{width:100%;min-height:100vh;}
 /* Cards */
 .card{padding:12px 14px;border:var(--cbdr);background:var(--cbg);position:relative;overflow:hidden;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}
 .card:hover{border-color:var(--ta);box-shadow:0 0 12px rgba(0,0,0,0.3);}
-.clbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;opacity:0.4;margin-bottom:8px;display:block;}
+.clbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;opacity:0.6;margin-bottom:8px;display:block;}
 .coach-logo{width:17px;height:17px;color:var(--ta2);flex-shrink:0;display:inline-block;}
 #lbl-coach{opacity:0.95;font-weight:700;letter-spacing:4px;color:var(--ta2);}
 .vc{padding:10px 12px;border:var(--cbdr);background:var(--cbg);position:relative;overflow:hidden;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}
@@ -147,9 +147,9 @@ body{width:100%;min-height:100vh;}
 .rstatus{font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--tpos);}
 
 /* Vital cards */
-.vlbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;opacity:0.4;margin-bottom:3px;display:block;}
+.vlbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;opacity:0.6;margin-bottom:3px;display:block;}
 .vval{font-size:38px;font-weight:700;line-height:1;color:var(--txt);}
-.vunit{font-size:10px;letter-spacing:1px;opacity:0.35;margin-top:2px;display:block;}
+.vunit{font-size:10px;letter-spacing:1px;opacity:0.55;margin-top:2px;display:block;}
 .vtrd{position:absolute;top:8px;right:8px;font-size:11px;color:var(--tpos);font-weight:700;}
 .vtrd.neg{color:var(--tneg);}
 
@@ -164,7 +164,7 @@ body{width:100%;min-height:100vh;}
 /* Steps */
 .snum{font-size:clamp(28px,3.5vw,48px);font-weight:700;line-height:1;animation:snumload 0.9s cubic-bezier(0.34,1.56,0.64,1);}
 @keyframes snumload{from{opacity:0;transform:scale(0.9);}to{opacity:1;transform:scale(1);}}
-.sgoal{font-size:12px;letter-spacing:2px;opacity:0.35;}
+.sgoal{font-size:12px;letter-spacing:2px;opacity:0.55;}
 .strk{width:100%;height:4px;margin-top:10px;background:var(--rbg);border-radius:2px;overflow:hidden;box-shadow:inset 0 0 8px rgba(0,0,0,0.3);}
 .sprg{height:100%;background:var(--ta);transition:width 1.5s cubic-bezier(.4,0,.2,1);box-shadow:0 0 12px rgba(0,0,0,0.3);}
 .spct{font-size:11px;letter-spacing:2px;color:var(--ta);margin-top:5px;font-weight:600;}
@@ -184,7 +184,7 @@ body.view-history #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 body.view-history #dash > #install-banner{visibility:visible;}
 .hv-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--sub);}
 .hv-title{font-size:14px;font-weight:700;letter-spacing:3px;color:var(--ta);text-transform:uppercase;}
-.hv-sub{font-size:9px;letter-spacing:2px;opacity:0.45;margin-top:3px;}
+.hv-sub{font-size:9px;letter-spacing:2px;opacity:0.55;margin-top:3px;}
 .hv-pills{display:flex;gap:6px;}
 .hv-pill{background:var(--sub);border:1px solid var(--bdr);color:var(--tx);font-size:10px;letter-spacing:2px;padding:6px 10px;cursor:pointer;font-family:inherit;text-transform:uppercase;transition:all 0.2s;border-radius:3px;-webkit-tap-highlight-color:transparent;}
 .hv-pill.on{background:var(--ta);color:var(--bg);border-color:var(--ta);font-weight:700;}
@@ -230,7 +230,7 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 /* Shared overlay header */
 .ov-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--sub);}
 .ov-title{font-size:14px;font-weight:700;letter-spacing:3px;color:var(--ta);text-transform:uppercase;}
-.ov-sub{font-size:9px;letter-spacing:2px;opacity:0.45;margin-top:3px;}
+.ov-sub{font-size:9px;letter-spacing:2px;opacity:0.55;margin-top:3px;}
 
 /* Stats view metric grid */
 .sv-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
@@ -375,32 +375,33 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .pv-select{background:var(--sub);border:1px solid var(--bdr);color:var(--tx);font-family:inherit;font-size:10px;letter-spacing:1px;padding:7px 9px;cursor:pointer;border-radius:3px;appearance:none;-webkit-appearance:none;}
 .pv-export-btn{background:var(--sub);border:1px solid var(--bdr);color:var(--ta);font-family:inherit;font-size:10px;font-weight:700;letter-spacing:2px;padding:7px 12px;cursor:pointer;border-radius:3px;transition:opacity 0.2s;-webkit-tap-highlight-color:transparent;}
 .pv-export-btn:hover{opacity:0.8;}
-.pv-toggle{width:40px;height:22px;background:var(--sub);border:1px solid var(--bdr);border-radius:12px;cursor:pointer;position:relative;transition:background 0.2s,border-color 0.2s;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+.pv-toggle{width:48px;height:27px;background:rgba(255,255,255,0.13);border:1px solid var(--bdr);border-radius:14px;cursor:pointer;position:relative;transition:background 0.2s,border-color 0.2s;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
 .pv-toggle.on{background:var(--ta);border-color:var(--ta);}
-.pv-toggle::after{content:'';position:absolute;width:16px;height:16px;background:var(--tx);border-radius:50%;top:2px;left:2px;transition:transform 0.2s;}
-.pv-toggle.on::after{transform:translateX(18px);background:var(--bg);}
-.pv-section-lbl{font-size:8px;letter-spacing:2.5px;opacity:0.3;text-transform:uppercase;margin:14px 0 4px;}
+.pv-toggle::after{content:'';position:absolute;width:21px;height:21px;background:#fff;border-radius:50%;top:2px;left:2px;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.55);}
+.pv-toggle.on::after{transform:translateX(21px);}
+.pv-section-lbl{font-size:9px;letter-spacing:2.5px;opacity:0.55;text-transform:uppercase;margin:14px 0 4px;}
 .pv-version{font-size:9px;opacity:0.22;letter-spacing:2px;text-align:center;margin-top:18px;}
 
 /* Sleep */
 .hypno{margin:8px 0 10px;}
-.hypno-track{position:relative;width:100%;height:48px;background:var(--rbg);border-radius:3px;overflow:hidden;display:flex;}
-.hypno-seg{height:100%;transition:flex-grow 0.6s ease;flex-shrink:0;flex-basis:0;}
-.hypno-seg.deep{background:var(--ta2);}
-.hypno-seg.rem{background:var(--ta);}
-.hypno-seg.light{background:rgba(255,255,255,0.22);}
-.hypno-seg.wake{background:var(--tneg);}
-.hypno-axis{display:flex;justify-content:space-between;margin-top:4px;font-size:9px;opacity:0.35;letter-spacing:1px;}
-.hypno-lgnd{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:9px;letter-spacing:1px;opacity:0.55;}
-.hypno-lgnd span{display:inline-flex;align-items:center;gap:4px;}
-.hypno-lgnd i{width:8px;height:8px;display:inline-block;border-radius:1px;}
-.hypno-empty{display:flex;align-items:center;justify-content:center;height:100%;font-size:10px;opacity:0.35;letter-spacing:2px;}
+.hypno-grid{display:flex;gap:8px;align-items:stretch;}
+.hypno-lanes{display:flex;flex-direction:column;justify-content:space-around;width:42px;flex-shrink:0;text-align:right;font-size:8px;font-weight:600;letter-spacing:0.5px;opacity:0.65;padding:2px 0;}
+.hypno-track{position:relative;flex:1;height:116px;background:var(--rbg);border-radius:6px;overflow:hidden;}
+/* faint horizontal lane separators (4 lanes) */
+.hypno-track::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(25% - 1px),var(--bdr) calc(25% - 1px),var(--bdr) 25%);pointer-events:none;}
+.hypno-blk{position:absolute;height:18px;border-radius:3px;}
+.hypno-blk.deep{background:var(--ta2);}
+.hypno-blk.rem{background:var(--ta);}
+.hypno-blk.light{background:rgba(180,205,225,0.7);}
+.hypno-blk.wake{background:var(--tneg);}
+.hypno-axis{display:flex;justify-content:space-between;margin:5px 0 0 50px;font-size:10px;opacity:0.55;letter-spacing:1px;}
+.hypno-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;opacity:0.45;letter-spacing:2px;}
 .slrw{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--sub);}
 .slrw:last-child{border:none;}
-.sllbl{font-size:11px;letter-spacing:2px;opacity:0.35;width:48px;flex-shrink:0;}
+.sllbl{font-size:11px;letter-spacing:2px;opacity:0.6;width:48px;flex-shrink:0;}
 .sltr{flex:1;height:7px;background:var(--rbg);}
 .slfi{height:100%;transition:width 1.5s cubic-bezier(.4,0,.2,1);}
-.sltm{font-size:11px;opacity:0.35;width:36px;text-align:right;flex-shrink:0;}
+.sltm{font-size:11px;opacity:0.6;width:36px;text-align:right;flex-shrink:0;}
 
 /* Activity */
 .acit{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--sub);transition:all 0.3s;}
@@ -1497,23 +1498,25 @@ body.t-naruto span.vval{
         <div class="card">
           <span class="clbl" id="lbl-sleep">// ANÁLISIS DE SUEÑO</span><button class="onb-q" onclick="showOnb('sleep')" aria-label="info">?</button>
           <div class="hypno">
-            <div class="hypno-track" id="hypno-track"><div class="hypno-empty" id="hypno-empty">— SIN DATOS DE ETAPAS —</div></div>
-            <div class="hypno-axis"><span id="hypno-t0">23:00</span><span id="hypno-t1">07:00</span></div>
-            <div class="hypno-lgnd">
-              <span><i style="background:var(--ta2)"></i><span id="hl-deep">PROF.</span></span>
-              <span><i style="background:var(--ta)"></i>REM</span>
-              <span><i style="background:rgba(255,255,255,0.22)"></i><span id="hl-light">LIGER.</span></span>
-              <span><i style="background:var(--tneg)"></i><span id="hl-wake">DESP.</span></span>
+            <div class="hypno-grid">
+              <div class="hypno-lanes" aria-hidden="true">
+                <span id="hl-wake">DESP.</span>
+                <span>REM</span>
+                <span id="hl-light">LIGER.</span>
+                <span id="hl-deep">PROF.</span>
+              </div>
+              <div class="hypno-track" id="hypno-track"><div class="hypno-empty" id="hypno-empty">— SIN DATOS DE ETAPAS —</div></div>
             </div>
+            <div class="hypno-axis"><span id="hypno-t0">23:00</span><span id="hypno-t1">07:00</span></div>
           </div>
           <div class="slrw"><div class="sllbl" id="sl-deep">PROF.</div><div class="sltr"><div class="slfi" id="sl0" style="width:35%;background:var(--ta2);"></div></div><div class="sltm">1h 44m</div></div>
           <div class="slrw"><div class="sllbl">REM</div><div class="sltr"><div class="slfi" id="sl1" style="width:28%;background:var(--ta);"></div></div><div class="sltm">1h 22m</div></div>
           <div class="slrw"><div class="sllbl" id="sl-light">LIGER.</div><div class="sltr"><div class="slfi" id="sl2" style="width:72%;background:rgba(255,255,255,0.22);"></div></div><div class="sltm">3h 34m</div></div>
           <div class="slrw"><div class="sllbl" id="sl-awake">DESP.</div><div class="sltr"><div class="slfi" id="sl3" style="width:12%;background:var(--tneg);"></div></div><div class="sltm">0h 22m</div></div>
           <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--sub);">
-            <div><div style="font-size:9px;opacity:0.3;letter-spacing:2px;" id="lbl-total">TOTAL</div><div style="font-size:16px;font-weight:700;color:var(--ta2);" id="sl-total-v">7h 22m</div></div>
-            <div><div style="font-size:9px;opacity:0.3;letter-spacing:2px;" id="lbl-start">INICIO</div><div style="font-size:14px;font-weight:600;">23:18</div></div>
-            <div><div style="font-size:9px;opacity:0.3;letter-spacing:2px;">SCORE</div><div style="font-size:14px;font-weight:700;color:var(--ta);" id="sl-score-v">84/100</div></div>
+            <div><div style="font-size:9px;opacity:0.55;letter-spacing:2px;" id="lbl-total">TOTAL</div><div style="font-size:16px;font-weight:700;color:var(--ta2);" id="sl-total-v">7h 22m</div></div>
+            <div><div style="font-size:9px;opacity:0.55;letter-spacing:2px;" id="lbl-start">INICIO</div><div style="font-size:14px;font-weight:600;">23:18</div></div>
+            <div><div style="font-size:9px;opacity:0.55;letter-spacing:2px;">SCORE</div><div style="font-size:14px;font-weight:700;color:var(--ta);" id="sl-score-v">84/100</div></div>
           </div>
         </div>
       </div><!-- /rcs -->
@@ -4230,11 +4233,17 @@ function renderHypnogram(main) {
     if (lvl === 'light' || lvl === 'asleep' || lvl === 'restless') return 'light';
     return 'wake';
   };
-  const segs = data.map(d => {
-    const pct = (d.seconds * 1000) / total * 100;
-    return `<div class="hypno-seg ${cls(d.level)}" style="flex-grow:${pct.toFixed(3)}" title="${d.level} · ${Math.round(d.seconds/60)}min"></div>`;
-  }).join('');
-  track.innerHTML = segs;
+  // Stepped depth chart: 4 lanes top→bottom = wake / REM / light / deep.
+  const lane = { wake:0, rem:1, light:2, deep:3 };
+  let cum = 0, blocks = '';
+  data.forEach(d => {
+    const left = (cum / total) * 100;
+    const w = (d.seconds * 1000) / total * 100;
+    cum += d.seconds * 1000;
+    const c = cls(d.level);
+    blocks += `<div class="hypno-blk ${c}" style="left:${left.toFixed(2)}%;width:${Math.max(w,0.5).toFixed(2)}%;top:calc(${lane[c]*25}% + 5px)" title="${d.level} · ${Math.round(d.seconds/60)}min"></div>`;
+  });
+  track.innerHTML = blocks;
   const t0 = document.getElementById('hypno-t0');
   const t1 = document.getElementById('hypno-t1');
   if (t0) t0.textContent = fmt(startMs);
