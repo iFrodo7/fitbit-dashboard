@@ -242,6 +242,8 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 /* Cycle / fertility card */
 .cyc-card{border-color:var(--ta2);}
 .cyc-dchip{font-size:9px;letter-spacing:1.5px;opacity:0.55;}
+.cyc-today-date{font-size:9px;letter-spacing:2px;color:var(--sub);text-transform:uppercase;margin:4px 0 8px;display:flex;align-items:center;gap:6px;}
+.cyc-today-date::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--ta2);flex-shrink:0;}
 .cyc-phase{font-size:22px;font-weight:800;letter-spacing:1px;color:var(--ta2);margin:6px 0 2px;text-transform:uppercase;}
 .cyc-sub{font-size:10px;opacity:0.55;letter-spacing:0.5px;line-height:1.5;margin-bottom:12px;}
 .cyc-track{position:relative;height:28px;border-radius:6px;background:rgba(255,255,255,0.05);border:1px solid var(--bdr);overflow:hidden;}
@@ -1704,6 +1706,7 @@ body.t-naruto span.vval{
     <!-- Cycle / Fertility — grouped with Fitness & Sleep at bottom, shown only when enabled -->
     <div class="card hv-card cyc-card" id="sv-cycle" data-onb="cycle" style="display:none;">
       <div class="clbl" style="display:flex;justify-content:space-between;align-items:baseline;"><span id="cyc-lbl">// CICLO</span><button class="onb-q" onclick="showOnb('cycle')" aria-label="info">?</button><span class="cyc-dchip" id="cyc-day" style="margin-left:auto;"></span></div>
+      <div class="cyc-today-date" id="cyc-today-date"></div>
       <div class="cyc-phase" id="cyc-phase">—</div>
       <div class="cyc-sub" id="cyc-phase-sub"></div>
       <!-- Fertility probability badge (visible during fertile/peak/ovulation phases) -->
@@ -2817,10 +2820,21 @@ function renderCycle() {
   setText('cyc-lbl', t.cyc_lbl); setText('cyc-fert-lbl', t.cyc_fert_lbl); setText('cyc-next-lbl', t.cyc_next_lbl);
   setText('cyc-log-btn', t.cyc_log); setText('cyc-set-btn', t.cyc_set); setText('cyc-disc', t.cyc_disc);
   setText('cyc-sym-btn-lbl', t.cyc_log_day);
+
+  // ── Always: today's date + log history (run before any early return) ──
+  const _todayDate = new Date();
+  setText('cyc-today-date', _todayDate.toLocaleDateString(
+    lang === 'es' ? 'es-MX' : 'en-US',
+    { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }
+  ).toUpperCase());
+  renderCycLogList();
+
   const c = computeCycle();
   if (!c) {
     setText('cyc-day', ''); setText('cyc-phase', '—'); setText('cyc-phase-sub', t.cyc_setup);
     document.getElementById('cyc-bar').innerHTML = '';
+    const legEl2 = document.getElementById('cyc-legend'); if (legEl2) legEl2.innerHTML = '';
+    const logEl2 = document.getElementById('cyc-log-today'); if (logEl2) logEl2.style.display = 'none';
     ['cyc-fert-val','cyc-next-val'].forEach(id => setText(id, '—'));
     ['cyc-fert-sub','cyc-next-sub','cyc-bio'].forEach(id => setText(id, ''));
     return;
@@ -2920,7 +2934,6 @@ function renderCycle() {
     : `${t.cyc_in} ${Math.max(0, c.daysToNext)} ${t.cyc_days}`);
   setText('cyc-bio', t.cyc_bio_on);
   renderCycleHomeChip();
-  renderCycLogList();
 }
 function renderCycleHomeChip() {
   const el = document.getElementById('cyc-home-chip'); if (!el) return;
@@ -3194,6 +3207,10 @@ function toggleCycle() {
 }
 
 function renderStats() {
+  // Show today's date as the stats section subtitle
+  const _sd = new Date().toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-US',
+    { weekday: 'short', day: 'numeric', month: 'short' });
+  setText('sv-sub', '// ' + _sd.toUpperCase());
   renderCycle();
   // Helper to grab text from a DOM element
   const gv = (id) => (document.getElementById(id)?.textContent || '').trim();
