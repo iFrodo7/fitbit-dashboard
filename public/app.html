@@ -255,10 +255,15 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .cyc-seg.ovu        {background:var(--tpos,#22c55e);}
 .cyc-seg.luteal     {background:var(--ta2);opacity:0.15;}
 .cyc-today{position:absolute;top:0;bottom:0;width:3px;background:#fff;box-shadow:0 0 8px rgba(255,255,255,0.85);border-radius:2px;z-index:2;}
-/* Cycle legend */
-.cyc-legend{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px;}
-.cyc-leg-item{display:flex;align-items:center;gap:4px;font-size:8px;letter-spacing:0.5px;color:var(--sub);text-transform:uppercase;}
+/* Cycle date ruler */
+.cyc-ruler{position:relative;height:14px;margin-top:3px;}
+.cyc-ruler-tick{position:absolute;font-size:8px;letter-spacing:0.3px;color:var(--sub);white-space:nowrap;line-height:1;top:2px;}
+/* Cycle legend — 2-column grid with date ranges */
+.cyc-legend{display:grid;grid-template-columns:1fr 1fr;gap:5px 6px;margin-top:8px;}
+.cyc-leg-item{display:flex;align-items:center;gap:4px;font-size:8px;letter-spacing:0.4px;text-transform:uppercase;min-width:0;}
 .cyc-leg-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0;}
+.cyc-leg-name{color:var(--tx);opacity:0.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cyc-leg-range{color:var(--ta2);letter-spacing:0;text-transform:none;font-size:8px;white-space:nowrap;flex-shrink:0;margin-left:2px;opacity:0.85;}
 /* Today log strip */
 .cyc-log-today{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0 0;padding:7px 10px;background:rgba(255,255,255,0.03);border:1px solid var(--bdr);border-radius:6px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .cyc-log-today:active{opacity:0.7;}
@@ -1718,6 +1723,7 @@ body.t-naruto span.vval{
       <div class="cyc-late-warn" id="cyc-late-warn" style="display:none;"></div>
       <div style="margin:12px 0 0;">
         <div class="cyc-track" id="cyc-bar"></div>
+        <div class="cyc-ruler" id="cyc-ruler"></div>
         <div class="cyc-legend" id="cyc-legend"></div>
       </div>
       <div class="cyc-log-today" id="cyc-log-today" onclick="openSymModal()" style="display:none;"></div>
@@ -2877,19 +2883,46 @@ function renderCycle() {
     `<div class="cyc-seg luteal"     style="left:${pct(c.ov+1)}%;width:${lutealW}%"></div>` +
     `<div class="cyc-today"          style="left:${Math.min(98, pct(c.dayOfCycle))}%"></div>`;
 
-  // Phase legend
+  // Date helpers local to this render
+  const _DfL = (n) => { const x = _dParse(c.last); x.setDate(x.getDate() + n - 1); return x; };
+  const _fr  = (a, b) => a.getTime() === b.getTime() ? _dFmt(a) : `${_dFmt(a)}–${_dFmt(b)}`;
+
+  // Ruler — 3 anchor dates pinned to the bar: period start · ovulation · next period
+  const rulerEl = document.getElementById('cyc-ruler');
+  if (rulerEl) {
+    const rtks = [
+      { left:'1%',              xf:'translateX(0)',      lbl:_dFmt(_DfL(1))        },
+      { left:`${pct(c.ov)}%`,   xf:'translateX(-50%)',   lbl:_dFmt(_DfL(c.ov))     },
+      { left:'99%',             xf:'translateX(-100%)',  lbl:_dFmt(c.nextPeriod)   },
+    ];
+    rulerEl.innerHTML = rtks.map(r =>
+      `<span class="cyc-ruler-tick" style="left:${r.left};transform:${r.xf};">${r.lbl}</span>`
+    ).join('');
+  }
+
+  // Legend — 2-column grid, each row: color dot · phase name · date range
   const legEl = document.getElementById('cyc-legend');
   if (legEl) {
     const legDefs = [
-      { bg:'var(--tneg)',            op:'0.75', lbl:t.cyc_phases.menstrual   },
-      { bg:'rgba(255,255,255,0.25)', op:'1',    lbl:t.cyc_phases.follicular  },
-      { bg:'var(--tpos,#22c55e)',    op:'0.5',  lbl:t.cyc_phases.fertile     },
-      { bg:'#f59e0b',                op:'0.85', lbl:t.cyc_phases.peak        },
-      { bg:'var(--tpos,#22c55e)',    op:'1',    lbl:t.cyc_phases.ovulation   },
-      { bg:'var(--ta2)',             op:'0.4',  lbl:t.cyc_phases.luteal      },
+      { bg:'var(--tneg)',            op:'0.75', lbl:t.cyc_phases.menstrual,
+        range: _fr(_DfL(1), _DfL(c.period)) },
+      { bg:'rgba(255,255,255,0.25)', op:'1',    lbl:t.cyc_phases.follicular,
+        range: c.fertStart > c.period + 1 ? _fr(_DfL(c.period+1), _DfL(c.fertStart-1)) : '' },
+      { bg:'var(--tpos,#22c55e)',    op:'0.5',  lbl:t.cyc_phases.fertile,
+        range: c.peakStart > c.fertStart ? _fr(_DfL(c.fertStart), _DfL(c.peakStart-1)) : _dFmt(_DfL(c.fertStart)) },
+      { bg:'#f59e0b',                op:'0.85', lbl:t.cyc_phases.peak,
+        range: c.ov > c.peakStart ? _fr(_DfL(c.peakStart), _DfL(c.ov-1)) : '' },
+      { bg:'var(--tpos,#22c55e)',    op:'1',    lbl:t.cyc_phases.ovulation,
+        range: _dFmt(_DfL(c.ov)) },
+      { bg:'var(--ta2)',             op:'0.4',  lbl:t.cyc_phases.luteal,
+        range: c.len > c.ov ? _fr(_DfL(c.ov+1), _DfL(c.len)) : '' },
     ];
     legEl.innerHTML = legDefs.map(d =>
-      `<div class="cyc-leg-item"><div class="cyc-leg-dot" style="background:${d.bg};opacity:${d.op}"></div><span>${d.lbl}</span></div>`
+      `<div class="cyc-leg-item">` +
+      `<div class="cyc-leg-dot" style="background:${d.bg};opacity:${d.op};flex-shrink:0;"></div>` +
+      `<span class="cyc-leg-name">${d.lbl}</span>` +
+      `${d.range ? `<span class="cyc-leg-range">${d.range}</span>` : ''}` +
+      `</div>`
     ).join('');
   }
 
