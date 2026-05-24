@@ -4124,7 +4124,37 @@ function getRedirectUri() { return isNativeApp() ? NATIVE_REDIR : REDIR; }
 // dev.fitbit.com, enable PKCE, set its redirect URL to this app's deployed URL,
 // then paste its Client ID here. Empty → users fall back to the manual flow.
 const SHARED_CLIENT_ID = '';
-const OAUTH_SCOPE = 'activity heartrate sleep profile weight oxygen_saturation temperature respiratory_rate cardio_fitness';
+
+// ══════════════ DATA SOURCE ADAPTER ══════════════════════════════════════
+// Every provider-specific detail (OAuth URLs, scopes, endpoints) lives behind
+// this object so the rest of the app never hardcodes a wearable provider.
+// The Fitbit Web API shuts down Sep 2026 → to migrate, define a
+// GoogleHealthSource with the SAME shape (oauth{authorize,token,scope}, base,
+// ep{...}) and set `HS` to it. All fetch callers below only talk to `HS`, so
+// the migration stays localized to this object + a response translator.
+const FitbitSource = {
+  id: 'fitbit',
+  oauth: {
+    authorize: 'https://www.fitbit.com/oauth2/authorize',
+    token:     'https://api.fitbit.com/oauth2/token',
+    scope:     'activity heartrate sleep profile weight oxygen_saturation temperature respiratory_rate cardio_fitness',
+  },
+  base: 'https://api.fitbit.com',
+  ep: {
+    profile:       ()    => `${FitbitSource.base}/1/user/-/profile.json`,
+    activities:    (d)   => `${FitbitSource.base}/1/user/-/activities/date/${d}.json`,
+    heartIntraday: (d)   => `${FitbitSource.base}/1/user/-/activities/heart/date/${d}/1d/1min.json`,
+    sleepToday:    ()    => `${FitbitSource.base}/1.2/user/-/sleep/date/today.json`,
+    spo2:          (d)   => `${FitbitSource.base}/1/user/-/spo2/date/${d}.json`,
+    hrv:           (d)   => `${FitbitSource.base}/1/user/-/hrv/date/${d}.json`,
+    br:            (d)   => `${FitbitSource.base}/1/user/-/br/date/${d}.json`,
+    heartRange:    (s,e) => `${FitbitSource.base}/1/user/-/activities/heart/date/${s}/${e}.json`,
+    sleepRange:    (s,e) => `${FitbitSource.base}/1.2/user/-/sleep/date/${s}/${e}.json`,
+    stepsRange:    (s,e) => `${FitbitSource.base}/1/user/-/activities/steps/date/${s}/${e}.json`,
+  },
+};
+// Active data source. Migration target: GoogleHealthSource (same shape).
+let HS = FitbitSource;
 
 // PKCE (RFC 7636) lets a public client authorize with no secret in client-side JS.
 function b64url(bytes) {
@@ -4145,8 +4175,8 @@ async function startOAuthSimple() {
   localStorage.setItem('fb_cid', SHARED_CLIENT_ID);
   localStorage.setItem('fb_pub', '1');
   const challenge = await genCodeChallenge(verifier);
-  const url = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=${SHARED_CLIENT_ID}` +
-    `&redirect_uri=${encodeURIComponent(getRedirectUri())}&scope=${encodeURIComponent(OAUTH_SCOPE)}` +
+  const url = `${HS.oauth.authorize}?response_type=code&client_id=${SHARED_CLIENT_ID}` +
+    `&redirect_uri=${encodeURIComponent(getRedirectUri())}&scope=${encodeURIComponent(HS.oauth.scope)}` +
     `&code_challenge=${challenge}&code_challenge_method=S256&expires_in=604800`;
   if (isNativeApp() && window.Capacitor?.Plugins?.Browser) window.Capacitor.Plugins.Browser.open({ url });
   else location.href = url;
@@ -4159,7 +4189,7 @@ function startOAuth() {
   localStorage.setItem('fb_cid', id);
   localStorage.removeItem('fb_pkce_v');
   localStorage.removeItem('fb_pub');
-  const url = `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=${id}&redirect_uri=${encodeURIComponent(getRedirectUri())}&scope=${encodeURIComponent(OAUTH_SCOPE)}&expires_in=604800`;
+  const url = `${HS.oauth.authorize}?response_type=code&client_id=${id}&redirect_uri=${encodeURIComponent(getRedirectUri())}&scope=${encodeURIComponent(HS.oauth.scope)}&expires_in=604800`;
   if (isNativeApp() && window.Capacitor?.Plugins?.Browser) {
     // Open the system browser; the deeplink listener (initCapacitor) catches the callback
     window.Capacitor.Plugins.Browser.open({ url });
@@ -4175,7 +4205,7 @@ async function handleOAuth(code) {
     const body = { code, grant_type:'authorization_code', redirect_uri:getRedirectUri(), client_id:cid };
     if (verifier) body.code_verifier = verifier;             // PKCE public client — no auth header
     else headers['Authorization'] = 'Basic '+btoa(cid+':');  // manual "Personal" app
-    const r = await fetch('https://api.fitbit.com/oauth2/token',{method:'POST',headers,body:new URLSearchParams(body)});
+    const r = await fetch(HS.oauth.token,{method:'POST',headers,body:new URLSearchParams(body)});
     const d = await r.json();
     if (d.access_token) { localStorage.setItem('fb_tok',d.access_token); if(d.refresh_token)localStorage.setItem('fb_rt',d.refresh_token); localStorage.removeItem('fb_pkce_v'); token=d.access_token; if(!isNativeApp())history.replaceState({},'',location.pathname); await loadReal(); }
   } catch(e) { hideLoad(); }
@@ -4205,7 +4235,7 @@ async function refreshTok() {
     const body = { grant_type:'refresh_token', refresh_token:rt };
     if (pub) body.client_id = cid;                            // PKCE public client
     else headers['Authorization'] = 'Basic '+btoa(cid+':');   // manual "Personal" app
-    const r=await fetch('https://api.fitbit.com/oauth2/token',{method:'POST',headers,body:new URLSearchParams(body)});
+    const r=await fetch(HS.oauth.token,{method:'POST',headers,body:new URLSearchParams(body)});
     const d=await r.json();
     if(d.access_token){localStorage.setItem('fb_tok',d.access_token);if(d.refresh_token)localStorage.setItem('fb_rt',d.refresh_token);token=d.access_token;return true;}
   } catch(e) {} return false;
@@ -4254,7 +4284,7 @@ async function pollFast() {
   const ring=document.getElementById('sring'); ring.classList.add('on'); document.body.classList.add('is-syncing'); startCd();
   try {
     const h={'Authorization':'Bearer '+token}, td=new Date().toISOString().split('T')[0];
-    const [hr,act] = await Promise.all([fetch(`https://api.fitbit.com/1/user/-/activities/heart/date/${td}/1d/1min.json`,{headers:h}),fetch(`https://api.fitbit.com/1/user/-/activities/date/${td}.json`,{headers:h})]);
+    const [hr,act] = await Promise.all([fetch(HS.ep.heartIntraday(td),{headers:h}),fetch(HS.ep.activities(td),{headers:h})]);
     if (hr.status===401) { if(await refreshTok())await pollFast(); else stopPoll(); return; }
     const hd=await hr.json(), ad=await act.json();
     if (hd?.['activities-heart-intraday']?.dataset?.length) {
@@ -4274,7 +4304,7 @@ async function pollFast() {
 async function pollSlow() {
   if(!token) return;
   try {
-    const r = await fetch('https://api.fitbit.com/1.2/user/-/sleep/date/today.json',{headers:{'Authorization':'Bearer '+token}});
+    const r = await fetch(HS.ep.sleepToday(),{headers:{'Authorization':'Bearer '+token}});
     const d = await r.json();
     if (d?.summary?.stages) updSl(d.summary.stages);
     const main = d?.sleep?.find(s=>s.isMainSleep) ?? d?.sleep?.[0];
@@ -4286,7 +4316,7 @@ async function loadReal() {
   showLoad();
   try {
     const h={'Authorization':'Bearer '+token}, td=new Date().toISOString().split('T')[0];
-    const [pr,ac,hr,sl] = await Promise.all([fetch('https://api.fitbit.com/1/user/-/profile.json',{headers:h}).then(r=>r.json()),fetch(`https://api.fitbit.com/1/user/-/activities/date/${td}.json`,{headers:h}).then(r=>r.json()),fetch(`https://api.fitbit.com/1/user/-/activities/heart/date/${td}/1d/1min.json`,{headers:h}).then(r=>r.json()),fetch('https://api.fitbit.com/1.2/user/-/sleep/date/today.json',{headers:h}).then(r=>r.json())]);
+    const [pr,ac,hr,sl] = await Promise.all([fetch(HS.ep.profile(),{headers:h}).then(r=>r.json()),fetch(HS.ep.activities(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.heartIntraday(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.sleepToday(),{headers:h}).then(r=>r.json())]);
     if (pr?.user) { document.getElementById('uname').textContent = (pr.user.displayName||pr.user.firstName||'USUARIO').toUpperCase();
       if (pr.user.gender) localStorage.setItem('fb_sex', String(pr.user.gender).toLowerCase()); }
     if (ac?.summary) { const s=ac.summary; document.getElementById('stepsv').textContent=(s.steps||0).toLocaleString('en-US'); document.getElementById('calv').textContent=s.activityCalories||0; const pct=Math.min((s.steps/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); document.getElementById('cal-bmr').textContent=(s.caloriesBMR||0).toLocaleString(); document.getElementById('cal-act').textContent=(s.activityCalories||0).toLocaleString(); setCalbars({sed:s.sedentaryMinutes||0,lig:s.lightlyActiveMinutes||0,mod:s.fairlyActiveMinutes||0,int:s.veryActiveMinutes||0}); }
@@ -4323,9 +4353,9 @@ async function loadHealthMetrics(h, td) {
   const set = (id, v) => { const el = document.getElementById(id); if (el && v != null && !isNaN(v)) el.textContent = v; };
   try {
     const [spo2, hrv, br] = await Promise.all([
-      get(`https://api.fitbit.com/1/user/-/spo2/date/${td}.json`),
-      get(`https://api.fitbit.com/1/user/-/hrv/date/${td}.json`),
-      get(`https://api.fitbit.com/1/user/-/br/date/${td}.json`),
+      get(HS.ep.spo2(td)),
+      get(HS.ep.hrv(td)),
+      get(HS.ep.br(td)),
     ]);
     set('spo2v', spo2?.value?.avg != null ? Math.round(spo2.value.avg) : null);          // SpO2 daily avg %
     set('hrvv',  hrv?.hrv?.[0]?.value?.dailyRmssd != null ? Math.round(hrv.hrv[0].value.dailyRmssd) : null); // HRV RMSSD ms
@@ -4671,9 +4701,9 @@ async function _hFetchRange(range) {
       try { const r = await fetch(url, { headers:h }); if (r.status===429) { showToast(lang==='es'?'Límite de Fitbit, intenta luego':'Fitbit rate limit, try later','warning'); return null; } if (r.status===401) { if (await refreshTok()) return fetchSafe(url); return null; } return await r.json(); } catch(e) { return null; }
     };
     const [hrTs, sleepTs, stepsTs] = await Promise.all([
-      fetchSafe(`https://api.fitbit.com/1/user/-/activities/heart/date/${start}/${end}.json`),
-      fetchSafe(`https://api.fitbit.com/1.2/user/-/sleep/date/${start}/${end}.json`),
-      fetchSafe(`https://api.fitbit.com/1/user/-/activities/steps/date/${start}/${end}.json`),
+      fetchSafe(HS.ep.heartRange(start, end)),
+      fetchSafe(HS.ep.sleepRange(start, end)),
+      fetchSafe(HS.ep.stepsRange(start, end)),
     ]);
     // Index Fitbit responses by date
     const hrByDate = {};

@@ -2,6 +2,8 @@
 
 Panel biométrico personal con 4 temas visuales (Minecraft, Halo, Naruto, Futuristic) y datos reales de Fitbit. PWA instalable en mobile y accesible vía web.
 
+> **🚨 MIGRACIÓN INMINENTE — lee `MIGRATION.md`:** El **Fitbit Web API se apaga en SEPTIEMBRE 2026** y TODA la app depende de él. Hay que migrar al **Google Health API**. La capa de datos **ya está blindada** con un adaptador único (`FitbitSource` / `HS` en `public/app.html`) → migrar = escribir `GoogleHealthSource` con la misma forma y cambiar `let HS = FitbitSource`. **Cualquier trabajo sobre datos/OAuth debe pasar por `HS`, nunca hardcodear URLs de Fitbit.** Fechas, costos (~$0) y checklist completo en **`MIGRATION.md`**.
+
 > **⚠️ Antes de empezar:** Lee `HANDOFF.md` primero. Tiene el estado actual del sprint, PRs abiertos, bugs conocidos (#12 es crítico) y orden de merge. Este archivo es la **referencia técnica**; el handoff es la **lista de qué hacer ahora**.
 
 ---
