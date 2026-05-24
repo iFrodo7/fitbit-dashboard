@@ -997,9 +997,107 @@ body.t-naruto span.vval{
 /* Chakra pulse rings */
 .nring{position:fixed;border-radius:50%;pointer-events:none;z-index:0;border:1px solid rgba(255,69,0,0.055);animation:cpls 5s ease-in-out infinite;}
 @keyframes cpls{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.5;}50%{transform:translate(-50%,-50%) scale(1.07);opacity:1;}}
+
+/* ══ SPLASH SCREEN ────────────────────────────────────────────────── */
+#sp{position:fixed;inset:0;z-index:9999;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:36px;pointer-events:none;}
+#sp.sp-on{display:flex;}
+#sp-svg{width:min(188px,42vw);height:min(188px,42vw);overflow:visible;}
+
+/* crossbar — bloom / ignition from center */
+#sp-c{opacity:0;filter:drop-shadow(0 0 6px #00f5ff) drop-shadow(0 0 14px rgba(0,245,255,.4));}
+@keyframes sp-c-in{
+  0%  {opacity:.04;filter:drop-shadow(0 0 36px #00f5ff) drop-shadow(0 0 72px rgba(0,245,255,.55));}
+  55% {opacity:1; filter:drop-shadow(0 0 10px #00f5ff) drop-shadow(0 0 24px rgba(0,245,255,.45));}
+  100%{opacity:1; filter:drop-shadow(0 0 5px  #00f5ff) drop-shadow(0 0 12px rgba(0,245,255,.25));}
+}
+#sp.sp-on #sp-c{animation:sp-c-in .5s .28s cubic-bezier(.16,1,.3,1) forwards;}
+
+/* legs — draw from base corners toward apex */
+#sp-ll,#sp-rl{opacity:0;filter:drop-shadow(0 0 5px #00f5ff) drop-shadow(0 0 12px rgba(0,245,255,.25));}
+@keyframes sp-leg{
+  0%  {stroke-dashoffset:183;opacity:0;}
+  14% {opacity:1;}
+  100%{stroke-dashoffset:0;  opacity:1;}
+}
+#sp.sp-on #sp-ll{animation:sp-leg .52s .55s cubic-bezier(.16,1,.3,1) forwards;}
+#sp.sp-on #sp-rl{animation:sp-leg .52s .60s cubic-bezier(.16,1,.3,1) forwards;}
+
+/* ring — sweep clockwise */
+#sp-r{opacity:0;filter:drop-shadow(0 0 9px #00f5ff) drop-shadow(0 0 20px rgba(0,245,255,.4));}
+@keyframes sp-ring{
+  0%  {stroke-dasharray:0 1131;  opacity:.35;}
+  16% {opacity:1;}
+  100%{stroke-dasharray:850 1131;opacity:1;}
+}
+#sp.sp-on #sp-r{animation:sp-ring .78s .96s cubic-bezier(.16,1,.3,1) forwards;}
+
+/* pulse ripple — radiates after ring seals */
+#sp-p{opacity:0;transform-box:fill-box;transform-origin:center;}
+@keyframes sp-pulse{
+  0%  {opacity:.5; transform:scale(1);}
+  100%{opacity:0;  transform:scale(1.38);}
+}
+#sp.sp-on #sp-p{animation:sp-pulse .65s 1.68s ease-out forwards;}
+
+/* brand text */
+#sp-brd{opacity:0;transform:translateY(10px);text-align:center;}
+#sp-nm{font-family:'Rajdhani',sans-serif;font-size:clamp(30px,7vw,42px);font-weight:700;letter-spacing:14px;color:#fff;line-height:1;padding-left:14px;}
+#sp-st{font-family:'Rajdhani',sans-serif;font-size:9px;letter-spacing:5px;color:rgba(0,245,255,.5);margin-top:5px;padding-left:5px;text-transform:uppercase;}
+@keyframes sp-brd{
+  from{opacity:0;transform:translateY(10px);}
+  to  {opacity:1;transform:translateY(0);}
+}
+#sp.sp-on #sp-brd{animation:sp-brd .48s 1.55s cubic-bezier(.16,1,.3,1) forwards;}
+
+/* exit — scale up + dissolve */
+@keyframes sp-out{
+  from{opacity:1;transform:scale(1);}
+  to  {opacity:0;transform:scale(1.045);}
+}
+#sp.sp-off{animation:sp-out .42s cubic-bezier(.4,0,1,1) forwards;}
 </style>
 </head>
 <body>
+
+<!-- ══ SPLASH ══════════════════════════════════════════════════════ -->
+<div id="sp" role="presentation" aria-hidden="true">
+  <svg id="sp-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="sp-g" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#00f5ff"/>
+        <stop offset="100%" stop-color="#00ff88"/>
+      </linearGradient>
+    </defs>
+    <!-- "Off" ghost traces — logo outline at rest, barely lit -->
+    <circle cx="256" cy="256" r="180" fill="none" stroke="rgba(255,255,255,0.055)" stroke-width="20"/>
+    <path d="M188 346 L256 176 L324 346 M214 282 H298" fill="none"
+          stroke="rgba(255,255,255,0.055)" stroke-width="34"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Crossbar — ignites first -->
+    <path id="sp-c" d="M214 282 H298"
+          fill="none" stroke="url(#sp-g)" stroke-width="34" stroke-linecap="round"/>
+    <!-- Left leg — draws from base corner up to apex -->
+    <path id="sp-ll" d="M188 346 L256 176"
+          fill="none" stroke="url(#sp-g)" stroke-width="34" stroke-linecap="round"
+          stroke-dasharray="183 300" stroke-dashoffset="183"/>
+    <!-- Right leg — draws from base corner up to apex -->
+    <path id="sp-rl" d="M324 346 L256 176"
+          fill="none" stroke="url(#sp-g)" stroke-width="34" stroke-linecap="round"
+          stroke-dasharray="183 300" stroke-dashoffset="183"/>
+    <!-- Ring — sweeps clockwise -->
+    <circle id="sp-r" cx="256" cy="256" r="180"
+            fill="none" stroke="url(#sp-g)" stroke-width="20" stroke-linecap="round"
+            stroke-dasharray="0 1131" transform="rotate(-90 256 256)"/>
+    <!-- Pulse ripple — expands after ring seals -->
+    <circle id="sp-p" cx="256" cy="256" r="180"
+            fill="none" stroke="rgba(0,245,255,0.5)" stroke-width="3"/>
+  </svg>
+  <!-- Brand -->
+  <div id="sp-brd">
+    <div id="sp-nm">AIRA</div>
+    <div id="sp-st">BIOMETRIC CORE</div>
+  </div>
+</div>
 
 <!-- ══════════════ SELECTOR ══════════════ -->
 <div id="sel">
@@ -4627,12 +4725,32 @@ function setHistoryRange(n) {
   renderHistory();
 }
 
+// ── Splash screen ─────────────────────────────────────────────────────
+// Shown on every fresh launch for returning users (theme saved).
+// Uses `var` to stay clear of TDZ (Bug #12 pattern).
+function showSplash() {
+  var el = document.getElementById('sp');
+  if (!el) return;
+  // Trigger all CSS animations
+  el.classList.add('sp-on');
+  // Begin exit at 2 150 ms — after all elements are fully lit
+  setTimeout(function () {
+    el.classList.add('sp-off');
+    // Hide after exit transition ends
+    setTimeout(function () {
+      el.style.display = 'none';
+      el.classList.remove('sp-on', 'sp-off');
+    }, 450);
+  }, 2150);
+}
+
 // ══════════════════════════════════════════════════════════════════════
 // BOOT — runs LAST so every top-level const/function is initialized.
 // This is the fix for bug #12 (TDZ abort). If you add new top-level state,
 // you can now safely use `let`/`const` again as long as it's declared
 // above this line.
 // ══════════════════════════════════════════════════════════════════════
+if (theme) showSplash();   // ← boot animation for returning users
 if (theme) selectTheme(theme);
 initCapacitor();
 
