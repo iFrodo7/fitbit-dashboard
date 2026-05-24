@@ -246,18 +246,18 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .cyc-today-date::before{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--ta2);flex-shrink:0;}
 .cyc-phase{font-size:22px;font-weight:800;letter-spacing:1px;color:var(--ta2);margin:6px 0 2px;text-transform:uppercase;}
 .cyc-sub{font-size:10px;opacity:0.55;letter-spacing:0.5px;line-height:1.5;margin-bottom:12px;}
-.cyc-track{position:relative;height:28px;border-radius:6px;background:rgba(255,255,255,0.05);border:1px solid var(--bdr);overflow:hidden;}
+.cyc-track{position:relative;height:34px;border-radius:6px;background:rgba(255,255,255,0.05);border:1px solid var(--bdr);overflow:hidden;}
 .cyc-seg{position:absolute;top:0;bottom:0;}
 .cyc-seg.menstrual  {background:var(--tneg);opacity:0.75;}
-.cyc-seg.follicular {background:rgba(255,255,255,0.07);}
-.cyc-seg.fertile    {background:var(--tpos,#22c55e);opacity:0.5;}
-.cyc-seg.peak       {background:#f59e0b;opacity:0.85;}
+.cyc-seg.follicular {background:rgba(255,255,255,0.12);}
+.cyc-seg.fertile    {background:var(--tpos,#22c55e);opacity:0.55;}
+.cyc-seg.peak       {background:#f59e0b;opacity:0.9;}
 .cyc-seg.ovu        {background:var(--tpos,#22c55e);}
-.cyc-seg.luteal     {background:var(--ta2);opacity:0.15;}
+.cyc-seg.luteal     {background:var(--ta2);opacity:0.22;}
 .cyc-today{position:absolute;top:0;bottom:0;width:3px;background:#fff;box-shadow:0 0 8px rgba(255,255,255,0.85);border-radius:2px;z-index:2;}
 /* Cycle date ruler */
-.cyc-ruler{position:relative;height:14px;margin-top:3px;}
-.cyc-ruler-tick{position:absolute;font-size:8px;letter-spacing:0.3px;color:var(--sub);white-space:nowrap;line-height:1;top:2px;}
+.cyc-ruler{position:relative;height:28px;margin-top:4px;}
+.cyc-ruler-tick{position:absolute;font-size:8px;letter-spacing:0.3px;color:var(--sub);white-space:nowrap;line-height:1;top:0;}
 /* Cycle legend — 2-column grid with date ranges */
 .cyc-legend{display:grid;grid-template-columns:1fr 1fr;gap:5px 6px;margin-top:8px;}
 .cyc-leg-item{display:flex;align-items:center;gap:4px;font-size:8px;letter-spacing:0.4px;text-transform:uppercase;min-width:0;}
@@ -2815,7 +2815,8 @@ function computeCycle() {
     daysToFertStart, daysToOv,
     daysToNext: _daysBetween(today, nextPeriod),
     daysToNextFertStart, daysToNextOv,
-    phase, fertilityPct, isLate, daysLate
+    phase, fertilityPct, isLate, daysLate,
+    lastDate: last   // ← Date object needed by _DfL in renderCycle
   };
 }
 function renderCycle() {
@@ -2833,7 +2834,7 @@ function renderCycle() {
     lang === 'es' ? 'es-MX' : 'en-US',
     { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }
   ).toUpperCase());
-  renderCycLogList();
+  try { renderCycLogList(); } catch(e) { console.error('[cyc] loglist:', e); }
 
   const c = computeCycle();
   if (!c) {
@@ -2884,19 +2885,27 @@ function renderCycle() {
     `<div class="cyc-today"          style="left:${Math.min(98, pct(c.dayOfCycle))}%"></div>`;
 
   // Date helpers local to this render
-  const _DfL = (n) => { const x = _dParse(c.last); x.setDate(x.getDate() + n - 1); return x; };
+  const _DfL = (n) => { const x = new Date(c.lastDate); x.setDate(x.getDate() + n - 1); return x; };
   const _fr  = (a, b) => a.getTime() === b.getTime() ? _dFmt(a) : `${_dFmt(a)}–${_dFmt(b)}`;
 
-  // Ruler — 3 anchor dates pinned to the bar: period start · ovulation · next period
+  // Ruler — 4 anchor dates: cycle start · fertile window start · ovulation · next period
   const rulerEl = document.getElementById('cyc-ruler');
   if (rulerEl) {
+    // Clamp helper so edge labels don't clip
+    const clampL = (p) => `${Math.max(0, Math.min(99, p))}%`;
+    const ovPct  = pct(c.ov);
+    const fsP    = pct(c.fertStart);
     const rtks = [
-      { left:'1%',              xf:'translateX(0)',      lbl:_dFmt(_DfL(1))        },
-      { left:`${pct(c.ov)}%`,   xf:'translateX(-50%)',   lbl:_dFmt(_DfL(c.ov))     },
-      { left:'99%',             xf:'translateX(-100%)',  lbl:_dFmt(c.nextPeriod)   },
+      { left:'0%',          xf:'translateX(0)',      lbl:_dFmt(_DfL(1)),          color:'var(--tneg)',        title: lang==='es'?'Inicio':'Start' },
+      { left:clampL(fsP),   xf:'translateX(-50%)',   lbl:_dFmt(_DfL(c.fertStart)),color:'var(--tpos,#22c55e)',title: lang==='es'?'Fértil':'Fertile'},
+      { left:clampL(ovPct), xf:'translateX(-50%)',   lbl:_dFmt(_DfL(c.ov)),       color:'#f59e0b',            title: lang==='es'?'Ovulación':'Ovulation'},
+      { left:'100%',        xf:'translateX(-100%)',  lbl:_dFmt(c.nextPeriod),      color:'var(--tneg)',        title: lang==='es'?'Próx. regla':'Next period'},
     ];
     rulerEl.innerHTML = rtks.map(r =>
-      `<span class="cyc-ruler-tick" style="left:${r.left};transform:${r.xf};">${r.lbl}</span>`
+      `<span class="cyc-ruler-tick" style="left:${r.left};transform:${r.xf};display:flex;flex-direction:column;align-items:center;gap:1px;">` +
+      `<span style="font-size:7px;letter-spacing:0.5px;color:${r.color};opacity:0.85;text-transform:uppercase;">${r.title}</span>` +
+      `<span style="color:var(--sub);">${r.lbl}</span>` +
+      `</span>`
     ).join('');
   }
 
