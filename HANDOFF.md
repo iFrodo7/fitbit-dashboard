@@ -4,6 +4,13 @@
 
 > **🚨 MIGRACIÓN INMINENTE — Fitbit Web API → Google Health API (sep 2026).** Toda la app depende del Fitbit Web API, que **se apaga en septiembre 2026**. **HECHO:** la capa de datos ya está blindada con un adaptador (`FitbitSource` / `HS` en `public/app.html`) — todas las llamadas pasan por `HS`, cero URLs hardcodeadas. **PENDIENTE:** escribir `GoogleHealthSource` (misma forma) + iniciar la verificación OAuth de Google (gratis pero lenta → **empezar YA**). Sobrevivir cuesta **~$0** (local-first exime del assessment pagado). **Runbook completo y checklist: `MIGRATION.md`.**
 
+> **⚙️ CONFIGURA TU GIT ANTES DE COMMITEAR (el repo es privado).** Vercel **bloquea** el deploy si el email del autor del commit no corresponde a una cuenta de GitHub real. Pon tu correo de GitHub (idealmente el `noreply`) una sola vez:
+> ```
+> git config user.email "TU-ID+TU-USUARIO@users.noreply.github.com"
+> git config user.name "Tu Nombre"
+> ```
+> Lo encuentras en GitHub → Settings → Emails. Si ves un deploy en estado `BLOCKED`, casi siempre es esto.
+
 ---
 
 ## 📍 Estado actual
