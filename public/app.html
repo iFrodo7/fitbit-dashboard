@@ -10,9 +10,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="description" content="Panel biométrico personal con 4 temas visuales y datos reales de Fitbit">
 <link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" href="/icons/icon-192.png?v=8">
-<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png?v=8">
-<link rel="icon" type="image/svg+xml" href="/icons/icon.svg?v=8">
+<link rel="apple-touch-icon" href="/icons/icon-192.png?v=10">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png?v=10">
+<link rel="icon" type="image/svg+xml" href="/icons/icon.svg?v=10">
 <title>FITBIT AIR — BIOMETRIC DASHBOARD</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=IBM+Plex+Mono:wght@400;700&family=VT323&family=Silkscreen:wght@400;700&family=Oxanium:wght@400;600;700;800&family=Electrolize&family=Noto+Serif+JP:wght@400;700;900&family=Permanent+Marker&display=swap" rel="stylesheet">
 <style>
@@ -196,26 +196,59 @@ body.view-history #dash > #install-banner{visibility:visible;}
 .hv-trend.trend-down{color:var(--tneg,#ef4444);}
 .hv-trend.trend-flat{color:var(--sub,#888);}
 .hv-stat strong{color:var(--ta);font-weight:700;}
-.hv-chart{width:100%;display:block;margin-top:8px;}
-.hv-chart .grid{stroke:var(--sub);stroke-width:1;}
-.hv-chart .axlbl{font-size:9px;fill:var(--tx);opacity:0.4;letter-spacing:1px;font-family:inherit;}
-.hv-chart .ln{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.hv-chart{width:100%;display:block;margin-top:10px;overflow:visible;}
+.hv-chart .grid{stroke:var(--tx);stroke-width:0.6;opacity:0.07;}
+.hv-chart .axlbl{font-size:11px;fill:var(--tx);opacity:0.5;letter-spacing:0.3px;font-family:inherit;font-weight:600;}
+.hv-chart .ln{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;}
 .hv-chart .ln.rec{stroke:var(--ta);}
 .hv-chart .ln.rhr{stroke:var(--ta2);}
-.hv-chart .area{opacity:0.12;}
-.hv-chart .pt{r:2.5;}
-.hv-chart .pt-rec{fill:var(--ta);}
-.hv-chart .pt-rhr{fill:var(--ta2);}
+.hv-chart .ln-glow{fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;opacity:0.32;}
+.hv-chart .pt{fill:transparent;}
+.hv-chart .pt-last-ring{fill:none;stroke-width:2.4;}
+.hv-chart .pt-last-core{fill:var(--bg);}
 .hv-chart .bar-deep{fill:var(--ta2);}
 .hv-chart .bar-rem{fill:var(--ta);}
-.hv-chart .bar-light{fill:rgba(255,255,255,0.22);}
+.hv-chart .bar-light{fill:var(--tx);opacity:0.20;}
 .hv-chart .bar-wake{fill:var(--tneg);}
-.hv-empty{display:flex;align-items:center;justify-content:center;height:140px;font-size:10px;opacity:0.4;letter-spacing:2px;flex-direction:column;gap:6px;}
-.hv-skel{height:140px;background:linear-gradient(90deg,var(--sub) 0%,var(--rbg) 50%,var(--sub) 100%);background-size:200% 100%;animation:hvShim 1.4s linear infinite;border-radius:4px;margin-top:8px;}
+.hv-empty{display:flex;align-items:center;justify-content:center;height:160px;font-size:10px;opacity:0.4;letter-spacing:2px;flex-direction:column;gap:6px;}
+.hv-skel{height:160px;background:linear-gradient(90deg,var(--sub) 0%,var(--rbg) 50%,var(--sub) 100%);background-size:200% 100%;animation:hvShim 1.4s linear infinite;border-radius:10px;margin-top:10px;}
 @keyframes hvShim{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
-.hv-tt{position:absolute;background:var(--rbg);border:1px solid var(--bdr);color:var(--tx);padding:6px 9px;font-size:10px;letter-spacing:1px;pointer-events:none;transform:translate(-50%,-110%);white-space:nowrap;z-index:2;box-shadow:0 2px 12px rgba(0,0,0,0.4);display:none;border-radius:3px;}
-.hv-tt strong{color:var(--ta);font-weight:700;}
+.hv-tt{position:absolute;background:var(--rbg);border:1px solid var(--bdr);color:var(--tx);padding:8px 11px;font-size:10px;letter-spacing:0.5px;line-height:1.5;pointer-events:none;transform:translate(-50%,-118%);white-space:nowrap;z-index:3;box-shadow:0 6px 24px rgba(0,0,0,0.5);display:none;border-radius:9px;backdrop-filter:blur(8px);}
+.hv-tt strong{color:var(--ta);font-weight:700;font-size:12px;}
 .hv-chart-wrap{position:relative;}
+/* History: chart entrance animations */
+@keyframes hvDraw{from{stroke-dashoffset:1;}to{stroke-dashoffset:0;}}
+@keyframes hvFade{from{opacity:0;}to{opacity:1;}}
+@keyframes hvGrow{from{transform:scaleY(0);}to{transform:scaleY(1);}}
+.hv-chart .ln-anim{stroke-dasharray:1;stroke-dashoffset:1;animation:hvDraw 1s cubic-bezier(.45,.05,.2,1) forwards;}
+.hv-chart .fade-anim{opacity:0;animation:hvFade .8s ease .25s forwards;}
+.hv-chart .bar-anim{transform-box:fill-box;transform-origin:center bottom;animation:hvGrow .65s cubic-bezier(.4,0,.2,1) backwards;}
+/* History: reference zones & lines */
+.hv-chart .ref-line{stroke:var(--tx);stroke-width:1.2;stroke-dasharray:1,6;stroke-linecap:round;opacity:0.3;}
+.hv-chart .ref-lbl{font-size:9.5px;fill:var(--tx);opacity:0.4;letter-spacing:0.3px;font-family:inherit;font-weight:600;}
+.hv-chart .zone{opacity:0.06;}
+.hv-chart .zone-good{fill:var(--tpos,#22c55e);}
+.hv-chart .zone-warn{fill:#f59e0b;}
+.hv-chart .zone-bad{fill:var(--tneg,#ef4444);}
+/* Sleep legend */
+.hv-sleep-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;}
+.hv-sl-item{display:flex;align-items:center;gap:6px;font-size:9.5px;letter-spacing:1px;opacity:0.7;font-weight:600;}
+.hv-sl-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+/* Steps bar */
+.hv-chart .bar-steps{fill:var(--ta);}
+.hv-chart .bar-steps-miss{fill:var(--ta);opacity:0.4;}
+/* Coach analysis in history */
+.hv-coach{background:linear-gradient(135deg,rgba(0,0,0,0.08) 0%,transparent 100%);border:1px solid var(--bdr);border-left:2px solid var(--ta2);padding:12px 14px;border-radius:4px;}
+.hv-coach-insights{display:flex;flex-direction:column;gap:10px;}
+.hv-ci{display:flex;gap:10px;align-items:flex-start;}
+.hv-ci-icon{font-size:14px;line-height:1;flex-shrink:0;margin-top:1px;color:var(--ta);}
+.hv-ci-body{flex:1;min-width:0;}
+.hv-ci-label{font-size:9px;letter-spacing:2px;opacity:0.45;margin-bottom:3px;font-weight:700;}
+.hv-ci-text{font-size:11px;line-height:1.6;opacity:0.85;}
+.hv-ci-text strong{color:var(--ta);font-weight:700;}
+.hv-coach-rec{margin-top:12px;padding-top:12px;border-top:1px solid var(--sub);font-size:11px;line-height:1.65;opacity:0.8;}
+.hv-coach-rec strong{color:var(--ta2);}
+.hv-coach-empty{opacity:0.35;font-size:10px;letter-spacing:2px;padding:10px 0;}
 
 /* ── STATS VIEW (overlay) ── */
 #sview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
@@ -1635,6 +1668,25 @@ body.t-naruto span.vval{
     <div class="card hv-card">
       <div class="clbl"><span id="hv-sleep-lbl">// SUEÑO POR NOCHE</span><span class="hv-stat" id="hv-sleep-stat"></span></div>
       <div class="hv-chart-wrap"><div id="hv-sleep-skel" class="hv-skel"></div><svg class="hv-chart" id="hv-sleep-svg" style="display:none"></svg><div class="hv-tt" id="hv-sleep-tt"></div></div>
+      <div class="hv-sleep-legend">
+        <div class="hv-sl-item"><div class="hv-sl-dot" style="background:var(--ta2)"></div><span id="hv-sl-deep">PROF.</span></div>
+        <div class="hv-sl-item"><div class="hv-sl-dot" style="background:var(--ta)"></div><span id="hv-sl-rem">REM</span></div>
+        <div class="hv-sl-item"><div class="hv-sl-dot" style="background:rgba(255,255,255,0.25)"></div><span id="hv-sl-light">LIGER.</span></div>
+        <div class="hv-sl-item"><div class="hv-sl-dot" style="background:var(--tneg)"></div><span id="hv-sl-wake">DESP.</span></div>
+      </div>
+    </div>
+
+    <div class="card hv-card">
+      <div class="clbl"><span id="hv-steps-lbl">// PASOS DIARIOS</span><span class="hv-stat" id="hv-steps-stat"></span></div>
+      <div class="hv-chart-wrap"><div id="hv-steps-skel" class="hv-skel"></div><svg class="hv-chart" id="hv-steps-svg" style="display:none"></svg><div class="hv-tt" id="hv-steps-tt"></div></div>
+    </div>
+
+    <div class="card hv-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <svg style="width:15px;height:15px;color:var(--ta2);flex-shrink:0;" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 L12 5 L19 19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.4 14 H15.6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="4.4" r="1.8" fill="currentColor"/></svg>
+        <span id="hv-coach-lbl" style="font-size:10px;letter-spacing:3px;font-weight:700;color:var(--ta2);text-transform:uppercase;">ANÁLISIS AIRA</span>
+      </div>
+      <div id="hv-coach-body"><div class="hv-coach-empty" id="hv-coach-loading">ANALIZANDO...</div></div>
     </div>
   </section>
 
@@ -2128,6 +2180,31 @@ const T = {
     hv_empty:'CONECTA FITBIT PARA VER TUS TENDENCIAS', hv_no_data:'SIN DATOS EN ESTE RANGO',
     hv_avg:'PROMEDIO', hv_min:'MÍN', hv_max:'MÁX', hv_hrs:'h', hv_bpm:'bpm',
     hv_trend_better:'Mejorando', hv_trend_worse:'Empeorando', hv_trend_flat:'Estable',
+    hv_steps_lbl:'// PASOS DIARIOS', hv_steps_goal:'META 10K',
+    hv_sl_deep:'PROF.', hv_sl_rem:'REM', hv_sl_light:'LIGER.', hv_sl_wake:'DESP.',
+    hv_coach_lbl:'ANÁLISIS AIRA',
+    hv_ca_rec_lbl:'RECOVERY', hv_ca_rhr_lbl:'FREC. CARDÍACA', hv_ca_slp_lbl:'SUEÑO', hv_ca_overall:'RECOMENDACIÓN',
+    hv_ca_rec_peak:'Promedio de <strong>$1/100</strong> — excelente recuperación. Tu cuerpo responde bien al entrenamiento.',
+    hv_ca_rec_good:'Promedio de <strong>$1/100</strong> — zona de mantenimiento. Prioriza dormir 7-8h.',
+    hv_ca_rec_low:'Recovery bajo: <strong>$1/100</strong>. Reduce la carga de entrenamiento y mejora el sueño.',
+    hv_ca_rec_up:' Tendencia <strong>positiva</strong> este período.',
+    hv_ca_rec_dn:' Tendencia <strong>descendente</strong> — revisa tu carga.',
+    hv_ca_rhr_peak:'FC en reposo de <strong>$1 bpm</strong> — condición cardiovascular excelente.',
+    hv_ca_rhr_good:'FC en reposo de <strong>$1 bpm</strong> — buena salud cardiovascular.',
+    hv_ca_rhr_ok:'FC en reposo de <strong>$1 bpm</strong> — zona normal. El cardio regular puede bajarla.',
+    hv_ca_rhr_high:'FC en reposo elevada: <strong>$1 bpm</strong>. Revisa tu nivel de estrés y descanso.',
+    hv_ca_rhr_dn:' Bajando — <strong>buena señal</strong>.', hv_ca_rhr_up:' Subiendo — monitorea el estrés.',
+    hv_ca_slp_peak:'Promedio de <strong>$1h</strong> de sueño — excelente. Estás en el rango óptimo 7.5-9h.',
+    hv_ca_slp_ok:'Promedio de <strong>$1h</strong> — cercano al objetivo. Intenta acostarte 30min antes.',
+    hv_ca_slp_low:'Solo <strong>$1h</strong> por noche. El déficit acumulado afecta recuperación y cognición.',
+    hv_ca_slp_hi_qual:' Calidad alta — <strong>$1%</strong> en sueño profundo+REM.',
+    hv_ca_slp_mid_qual:' <strong>$1%</strong> en profundo+REM (objetivo ≥45%).',
+    hv_ca_slp_lo_qual:' Solo <strong>$1%</strong> en fases restauradoras — evita alcohol y pantallas antes de dormir.',
+    hv_ca_all_peak:'Todos tus indicadores están en zona óptima. Es el momento ideal para aumentar intensidad o buscar un nuevo récord personal.',
+    hv_ca_all_rest:'Tu cuerpo necesita más descanso. Prioriza el sueño, reduce el estrés y opta por actividad de baja intensidad esta semana.',
+    hv_ca_all_rhr:'Tu FC en reposo es el área de mayor oportunidad. Incorpora 20-30min de cardio moderado 3×/semana y técnicas de reducción de estrés.',
+    hv_ca_all_mid:'Métricas en zona de mantenimiento. Pequeñas mejoras en consistencia del sueño pueden elevar tu recovery score de forma sostenida.',
+    hv_ca_all_demo:'Conecta Fitbit para obtener un análisis completo con todas tus métricas biométricas.',
     onb: {
       recovery: { ttl:'Recovery Score', bd:'<p>Indica qué tan <strong>recuperado</strong> está tu cuerpo hoy, en una escala de <strong>0 a 100</strong>.</p><p>Combina cuatro factores: duración del sueño, eficiencia, % de sueño profundo+REM, y tu frecuencia cardíaca en reposo.</p><p><strong>67+</strong> en forma · <strong>50-66</strong> buena · <strong>34-49</strong> moderada · <strong>0-33</strong> descansa.</p>' },
       strain:   { ttl:'Esfuerzo (Strain)', bd:'<p>Mide la carga cardiovascular acumulada en el día, escala <strong>0 a 21</strong>.</p><p>Pondera los minutos en zonas de frecuencia cardíaca: <code>Fat Burn ×0.6</code>, <code>Cardio ×2.0</code>, <code>Peak ×4.5</code>.</p><p>Un día de descanso debería estar en 0-3, un entrenamiento intenso 14+.</p>' },
@@ -2304,6 +2381,31 @@ const T = {
     hv_empty:'CONNECT FITBIT TO SEE TRENDS', hv_no_data:'NO DATA IN THIS RANGE',
     hv_avg:'AVG', hv_min:'MIN', hv_max:'MAX', hv_hrs:'h', hv_bpm:'bpm',
     hv_trend_better:'Improving', hv_trend_worse:'Declining', hv_trend_flat:'Stable',
+    hv_steps_lbl:'// DAILY STEPS', hv_steps_goal:'10K GOAL',
+    hv_sl_deep:'DEEP', hv_sl_rem:'REM', hv_sl_light:'LIGHT', hv_sl_wake:'AWAKE',
+    hv_coach_lbl:'AIRA ANALYSIS',
+    hv_ca_rec_lbl:'RECOVERY', hv_ca_rhr_lbl:'HEART RATE', hv_ca_slp_lbl:'SLEEP', hv_ca_overall:'RECOMMENDATION',
+    hv_ca_rec_peak:'Avg <strong>$1/100</strong> — excellent recovery. Your body is adapting well to training.',
+    hv_ca_rec_good:'Avg <strong>$1/100</strong> — maintenance zone. Prioritize 7-8h of sleep.',
+    hv_ca_rec_low:'Low recovery: <strong>$1/100</strong>. Reduce training load and improve sleep.',
+    hv_ca_rec_up:' <strong>Positive</strong> trend this period.',
+    hv_ca_rec_dn:' <strong>Declining</strong> trend — review your load.',
+    hv_ca_rhr_peak:'Resting HR <strong>$1 bpm</strong> — excellent cardiovascular fitness.',
+    hv_ca_rhr_good:'Resting HR <strong>$1 bpm</strong> — good cardiovascular health.',
+    hv_ca_rhr_ok:'Resting HR <strong>$1 bpm</strong> — normal range. Regular cardio can lower it.',
+    hv_ca_rhr_high:'Elevated resting HR: <strong>$1 bpm</strong>. Check stress levels and recovery.',
+    hv_ca_rhr_dn:' Dropping — <strong>good sign</strong>.', hv_ca_rhr_up:' Rising — monitor stress.',
+    hv_ca_slp_peak:'Avg <strong>$1h</strong> sleep — excellent. You\'re in the optimal 7.5-9h range.',
+    hv_ca_slp_ok:'Avg <strong>$1h</strong> — close to target. Try sleeping 30min earlier.',
+    hv_ca_slp_low:'Only <strong>$1h</strong> per night. Cumulative sleep debt impacts recovery and cognition.',
+    hv_ca_slp_hi_qual:' High quality — <strong>$1%</strong> in deep+REM.',
+    hv_ca_slp_mid_qual:' <strong>$1%</strong> in deep+REM (target ≥45%).',
+    hv_ca_slp_lo_qual:' Only <strong>$1%</strong> in restorative phases — avoid alcohol and screens before bed.',
+    hv_ca_all_peak:'All your indicators are in the optimal zone. This is the ideal time to increase training intensity or set a new personal record.',
+    hv_ca_all_rest:"Your body needs more rest. Prioritize sleep, reduce stress, and opt for low-intensity activity this week.",
+    hv_ca_all_rhr:'Your resting HR is the main area for improvement. Add 20-30min moderate cardio 3×/week and stress-reduction techniques.',
+    hv_ca_all_mid:'Metrics in maintenance zone. Small improvements in sleep consistency can raise your recovery score sustainably.',
+    hv_ca_all_demo:'Connect Fitbit for a complete analysis with all your biometric metrics.',
     onb: {
       recovery: { ttl:'Recovery Score', bd:'<p>Shows how <strong>recovered</strong> your body is today, on a <strong>0 to 100</strong> scale.</p><p>It blends four factors: sleep duration, efficiency, % of deep+REM, and resting heart rate.</p><p><strong>67+</strong> peak · <strong>50-66</strong> good · <strong>34-49</strong> moderate · <strong>0-33</strong> rest.</p>' },
       strain:   { ttl:'Strain', bd:'<p>Measures cardio load accumulated today, scale <strong>0 to 21</strong>.</p><p>Weights minutes in heart-rate zones: <code>Fat Burn ×0.6</code>, <code>Cardio ×2.0</code>, <code>Peak ×4.5</code>.</p><p>A rest day should sit at 0-3, an intense workout 14+.</p>' },
@@ -4499,6 +4601,33 @@ function _hFmtDate(d) {
   const dd = new Date(d);
   return dd.toLocaleDateString(lang==='es'?'es':'en',{day:'2-digit',month:'short'}).toUpperCase();
 }
+// Compact axis label: "17 MAY" (full) or just day number for dense ranges.
+function _hFmtTick(d, dayOnly) {
+  const dd = new Date(d);
+  if (dayOnly) return String(dd.getDate());
+  return dd.toLocaleDateString(lang==='es'?'es':'en',{day:'numeric',month:'short'}).replace('.','').toUpperCase();
+}
+// Pick at most `max` evenly-spaced indices so axis labels never overlap.
+function _hTickIdx(n, max) {
+  if (n <= max) return Array.from({length:n}, (_,i)=>i);
+  const out = [];
+  for (let i = 0; i < max; i++) out.push(Math.round(i*(n-1)/(max-1)));
+  return [...new Set(out)];
+}
+// Catmull-Rom → cubic Bézier: smooth flowing line (Apple Health style).
+function _hSmoothPath(pts) {
+  if (!pts.length) return '';
+  if (pts.length < 3) return 'M' + pts.map(p=>`${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' L');
+  const t = 0.16; // tension: low = gentle curve, minimal overshoot
+  let d = `M${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+  for (let i = 0; i < pts.length-1; i++) {
+    const p0 = pts[i-1] || pts[i], p1 = pts[i], p2 = pts[i+1], p3 = pts[i+2] || p2;
+    const c1x = p1.x + (p2.x-p0.x)*t, c1y = p1.y + (p2.y-p0.y)*t;
+    const c2x = p2.x - (p3.x-p1.x)*t, c2y = p2.y - (p3.y-p1.y)*t;
+    d += ` C${c1x.toFixed(1)} ${c1y.toFixed(1)} ${c2x.toFixed(1)} ${c2y.toFixed(1)} ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+  }
+  return d;
+}
 
 async function _hFetchRange(range) {
   if (!token) return;
@@ -4518,9 +4647,10 @@ async function _hFetchRange(range) {
     const fetchSafe = async (url) => {
       try { const r = await fetch(url, { headers:h }); if (r.status===429) { showToast(lang==='es'?'Límite de Fitbit, intenta luego':'Fitbit rate limit, try later','warning'); return null; } if (r.status===401) { if (await refreshTok()) return fetchSafe(url); return null; } return await r.json(); } catch(e) { return null; }
     };
-    const [hrTs, sleepTs] = await Promise.all([
+    const [hrTs, sleepTs, stepsTs] = await Promise.all([
       fetchSafe(`https://api.fitbit.com/1/user/-/activities/heart/date/${start}/${end}.json`),
       fetchSafe(`https://api.fitbit.com/1.2/user/-/sleep/date/${start}/${end}.json`),
+      fetchSafe(`https://api.fitbit.com/1/user/-/activities/steps/date/${start}/${end}.json`),
     ]);
     // Index Fitbit responses by date
     const hrByDate = {};
@@ -4530,6 +4660,8 @@ async function _hFetchRange(range) {
       if (!s.isMainSleep && slByDate[s.dateOfSleep]) return;
       slByDate[s.dateOfSleep] = s;
     });
+    const stByDate = {};
+    (stepsTs?.['activities-steps'] || []).forEach(s => { stByDate[s.dateTime] = parseInt(s.value) || 0; });
     // Merge into cache
     for (const date of missing) {
       const prev = byDate[date] || { date };
@@ -4543,6 +4675,7 @@ async function _hFetchRange(range) {
       const minutesAsleep = sl?.minutesAsleep ?? prev.minutesAsleep;
       const timeInBed     = sl?.timeInBed     ?? prev.timeInBed;
       const eff           = sl?.efficiency    ?? prev.eff;
+      const steps         = stByDate[date]    ?? prev.steps;
       // Recovery 0-100 (sleep duration + efficiency + quality + RHR contributions)
       let recovery = prev.recovery;
       if (minutesAsleep != null && rhr != null) {
@@ -4554,97 +4687,195 @@ async function _hFetchRange(range) {
         recovery = Math.min(100, sd+se+sq+hs);
       }
       const _complete = date !== today && rhr != null && minutesAsleep != null;
-      await _hPut({ date, rhr, deep, rem, light, wake, minutesAsleep, timeInBed, eff, recovery, _complete });
+      await _hPut({ date, rhr, deep, rem, light, wake, minutesAsleep, timeInBed, eff, recovery, steps, _complete });
     }
   } finally {
     window._histFetching = false;
   }
 }
 
+// Shared chart geometry (Apple-style: roomy padding, crisp labels).
+const _HC = { w:340, h:172, pad:{ l:30, r:16, t:14, b:28 } };
+function _hGeo() {
+  const { w, h, pad } = _HC;
+  return { w, h, pad, innerW: w-pad.l-pad.r, innerH: h-pad.t-pad.b };
+}
+// Rounded-top rectangle path (flat bottom on the axis).
+function _hRoundTop(x, y, bw, bh, r) {
+  r = Math.max(0, Math.min(r, bw/2, bh));
+  const b = y + bh;
+  return `M${x.toFixed(1)} ${b.toFixed(1)} L${x.toFixed(1)} ${(y+r).toFixed(1)} Q${x.toFixed(1)} ${y.toFixed(1)} ${(x+r).toFixed(1)} ${y.toFixed(1)} L${(x+bw-r).toFixed(1)} ${y.toFixed(1)} Q${(x+bw).toFixed(1)} ${y.toFixed(1)} ${(x+bw).toFixed(1)} ${(y+r).toFixed(1)} L${(x+bw).toFixed(1)} ${b.toFixed(1)} Z`;
+}
+
 function _hLine(rows, key, opts={}) {
-  const w = opts.w || 320, h = opts.h || 140, pad = { l:34, r:24, t:10, b:22 };
+  const { w, h, pad, innerW, innerH } = _hGeo();
   const vals = rows.map(r => r[key]).filter(v => v != null);
   if (!vals.length) return null;
   const min = Math.min(...vals), max = Math.max(...vals);
-  const lo = opts.fixedMin != null ? opts.fixedMin : Math.floor(min - (max-min)*0.15 - 1);
-  const hi = opts.fixedMax != null ? opts.fixedMax : Math.ceil(max + (max-min)*0.15 + 1);
+  const lo = opts.fixedMin != null ? opts.fixedMin : Math.floor(min - (max-min)*0.18 - 1);
+  const hi = opts.fixedMax != null ? opts.fixedMax : Math.ceil(max + (max-min)*0.18 + 1);
   const range = Math.max(1, hi - lo);
-  const innerW = w - pad.l - pad.r;
-  const innerH = h - pad.t - pad.b;
   const xAt = (i) => pad.l + (rows.length === 1 ? innerW/2 : (i/(rows.length-1))*innerW);
   const yAt = (v) => pad.t + (1 - (v - lo)/range) * innerH;
-  let d = '', area = '';
   const pts = [];
-  rows.forEach((r,i) => {
-    const v = r[key];
-    if (v == null) return;
-    const x = xAt(i), y = yAt(v);
-    d += (d ? ' L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
-    pts.push({ x, y, v, date: r.date });
-  });
-  if (pts.length > 1) {
-    area = d + ` L${pts[pts.length-1].x.toFixed(1)} ${(pad.t+innerH).toFixed(1)} L${pts[0].x.toFixed(1)} ${(pad.t+innerH).toFixed(1)} Z`;
-  }
-  return { w, h, d, area, pts, lo, hi, pad, innerW, innerH, vals };
+  rows.forEach((r,i) => { const v = r[key]; if (v == null) return; pts.push({ x:xAt(i), y:yAt(v), v, date:r.date }); });
+  return { w, h, pts, lo, hi, pad, innerW, innerH, vals, zones: opts.zones||[], refLines: opts.refLines||[] };
 }
 
-function _hRenderLineSVG(svg, plot, cls, range) {
-  if (!plot) { svg.style.display='none'; return; }
-  const { w, h, d, area, pts, lo, hi, pad, innerH } = plot;
-  const gridLines = 3;
+function _hRenderLineSVG(svg, plot, cls) {
+  if (!plot || !plot.pts.length) { svg.style.display='none'; return; }
+  const { w, h, pts, lo, hi, pad, innerW, innerH, zones, refLines } = plot;
+  const col = cls === 'rhr' ? 'var(--ta2)' : 'var(--ta)';
+  const range = Math.max(1, hi - lo);
+  const yAt = (v) => pad.t + (1 - (v - lo)/range) * innerH;
+  const baseY = pad.t + innerH;
+  // defs: gradient fill + soft glow
+  const defs = `<defs>`
+    + `<linearGradient id="hg-${cls}" x1="0" y1="0" x2="0" y2="1">`
+    + `<stop offset="0" style="stop-color:${col};stop-opacity:0.34"/>`
+    + `<stop offset="0.6" style="stop-color:${col};stop-opacity:0.07"/>`
+    + `<stop offset="1" style="stop-color:${col};stop-opacity:0"/></linearGradient>`
+    + `<filter id="hgl-${cls}" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3"/></filter>`
+    + `</defs>`;
+  // gridlines + y labels (3 bands)
   let grid = '';
-  for (let i = 0; i <= gridLines; i++) {
-    const y = pad.t + (i/gridLines)*innerH;
-    const val = Math.round(hi - (i/gridLines)*(hi - lo));
-    grid += `<line class="grid" x1="${pad.l}" x2="${w - pad.r}" y1="${y}" y2="${y}"/>`;
-    grid += `<text class="axlbl" x="${pad.l - 4}" y="${y + 3}" text-anchor="end">${val}</text>`;
+  for (let i = 0; i <= 3; i++) {
+    const y = pad.t + (i/3)*innerH;
+    const val = Math.round(hi - (i/3)*(hi - lo));
+    grid += `<line class="grid" x1="${pad.l}" x2="${w-pad.r}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+    grid += `<text class="axlbl" x="${(pad.l-6).toFixed(1)}" y="${(y+3.5).toFixed(1)}" text-anchor="end">${val}</text>`;
   }
-  // x-axis labels: first, middle, last
-  const tickIdx = pts.length <= 2 ? [0] : (pts.length <= 7 ? pts.map((_,i)=>i) : [0, Math.floor(pts.length/2), pts.length-1]);
+  // zones
+  let zoneSvg = '';
+  zones.forEach(z => {
+    const yTop = Math.max(pad.t, yAt(Math.min(z.hi, hi)));
+    const yBot = Math.min(baseY, yAt(Math.max(z.lo, lo)));
+    if (yBot <= yTop) return;
+    zoneSvg += `<rect class="zone ${z.cls}" x="${pad.l}" y="${yTop.toFixed(1)}" width="${innerW}" height="${(yBot-yTop).toFixed(1)}"/>`;
+  });
+  // reference lines
+  let refSvg = '';
+  refLines.forEach(rl => {
+    if (rl.val < lo || rl.val > hi) return;
+    const y = yAt(rl.val);
+    refSvg += `<line class="ref-line" x1="${pad.l}" x2="${w-pad.r}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+    if (rl.label) refSvg += `<text class="ref-lbl" x="${(w-pad.r+3).toFixed(1)}" y="${(y+3.5).toFixed(1)}" text-anchor="start">${rl.label}</text>`;
+  });
+  // smooth line + gradient area
+  const lineD = _hSmoothPath(pts);
+  const areaD = pts.length > 1 ? `${lineD} L${pts[pts.length-1].x.toFixed(1)} ${baseY.toFixed(1)} L${pts[0].x.toFixed(1)} ${baseY.toFixed(1)} Z` : '';
+  // x labels: max 4, never overlapping
+  const idx = _hTickIdx(pts.length, 4);
   let xax = '';
-  tickIdx.forEach(i => { const p=pts[i]; if(!p) return; xax += `<text class="axlbl" x="${p.x}" y="${h - 6}" text-anchor="middle">${_hFmtDate(p.date)}</text>`; });
-  const ptsSvg = pts.map(p => `<circle class="pt pt-${cls}" cx="${p.x}" cy="${p.y}" data-v="${p.v}" data-d="${p.date}"/>`).join('');
+  idx.forEach(i => { const p=pts[i]; if(!p) return; xax += `<text class="axlbl" x="${p.x.toFixed(1)}" y="${(h-8).toFixed(1)}" text-anchor="middle">${_hFmtTick(p.date)}</text>`; });
+  // dots: subtle on all (if not too dense) + transparent hit targets + highlighted last
+  const last = pts[pts.length-1];
+  let dots = '';
+  if (pts.length <= 10) dots += pts.map(p => `<circle class="pt-dot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.4" style="fill:${col};opacity:0.5"/>`).join('');
+  const lastDot = `<circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="4.5" style="fill:${col};filter:url(#hgl-${cls});opacity:0.9"/>`
+    + `<circle class="pt-last-ring" cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="5" style="stroke:${col}"/>`
+    + `<circle class="pt-last-core" cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="2.3"/>`;
+  const hits = pts.map(p => `<circle class="pt" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="13" fill="transparent" data-v="${p.v}" data-d="${p.date}" style="cursor:pointer"/>`).join('');
   svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-  svg.innerHTML = `${grid}${area?`<path class="area pt-${cls}" d="${area}" style="fill:currentColor;color:var(--ta${cls==='rhr'?'2':''})"/>`:''}<path class="ln ${cls}" d="${d}"/>${ptsSvg}${xax}`;
+  svg.innerHTML = `${defs}${zoneSvg}${grid}${refSvg}`
+    + (areaD ? `<path class="fade-anim" d="${areaD}" fill="url(#hg-${cls})"/>` : '')
+    + (pts.length > 1 ? `<path class="ln-glow ln-anim" d="${lineD}" pathLength="1" style="stroke:${col}"/>` : '')
+    + `<path class="ln ${cls} ln-anim" d="${lineD}" pathLength="1"/>`
+    + `<g class="fade-anim">${dots}${lastDot}</g>${hits}${xax}`;
   svg.style.display = 'block';
 }
 
 function _hRenderStackedBars(svg, rows) {
-  const w = 320, h = 140, pad = { l:34, r:24, t:10, b:22 };
-  const innerW = w - pad.l - pad.r, innerH = h - pad.t - pad.b;
+  const { w, h, pad, innerW, innerH } = _hGeo();
   const slpRows = rows.filter(r => r.minutesAsleep != null);
   if (!slpRows.length) { svg.style.display='none'; return; }
   const maxMin = Math.max(...slpRows.map(r => (r.deep||0)+(r.rem||0)+(r.light||0)+(r.wake||0)), 480);
-  const hi = Math.ceil(maxMin/60) * 60; // round up to hour
+  const hi = Math.ceil(maxMin/60) * 60;
   const n  = rows.length;
-  const barW = (innerW / n) * 0.72;
-  const gap  = (innerW / n) * 0.28;
-  const grid = [0, 2*60, 4*60, 6*60, 8*60].filter(v => v <= hi);
+  const slot = innerW / n;
+  const barW = Math.min(slot * 0.6, 26);
+  const radius = Math.min(barW/2, 3.5);
   let gridSvg = '';
-  grid.forEach(v => {
+  [0, 2*60, 4*60, 6*60, 8*60].filter(v => v <= hi).forEach(v => {
     const y = pad.t + (1 - v/hi) * innerH;
-    gridSvg += `<line class="grid" x1="${pad.l}" x2="${w-pad.r}" y1="${y}" y2="${y}"/>`;
-    gridSvg += `<text class="axlbl" x="${pad.l - 4}" y="${y + 3}" text-anchor="end">${v/60}h</text>`;
+    gridSvg += `<line class="grid" x1="${pad.l}" x2="${w-pad.r}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+    gridSvg += `<text class="axlbl" x="${(pad.l-6).toFixed(1)}" y="${(y+3.5).toFixed(1)}" text-anchor="end">${v/60}h</text>`;
   });
+  const y8h = pad.t + (1 - 480/hi) * innerH;
+  if (y8h >= pad.t && y8h <= pad.t+innerH) {
+    gridSvg += `<line class="ref-line" x1="${pad.l}" x2="${w-pad.r}" y1="${y8h.toFixed(1)}" y2="${y8h.toFixed(1)}"/>`;
+    gridSvg += `<text class="ref-lbl" x="${(w-pad.r+3).toFixed(1)}" y="${(y8h+3.5).toFixed(1)}" text-anchor="start">8h</text>`;
+  }
   let bars = '';
   rows.forEach((r,i) => {
     if (r.minutesAsleep == null) return;
-    const x = pad.l + (i + 0.5) * (innerW / n) - barW/2;
-    const segs = [['deep', r.deep||0],['rem', r.rem||0],['light', r.light||0],['wake', r.wake||0]];
-    let acc = 0;
-    segs.forEach(([cls, v]) => {
+    const x = pad.l + (i + 0.5) * slot - barW/2;
+    const order = [['deep', r.deep||0],['rem', r.rem||0],['light', r.light||0],['wake', r.wake||0]];
+    const total = order.reduce((s,[,v])=>s+v,0);
+    const topIdx = order.reduce((a,[,v],ix)=> v>0?ix:a, -1);
+    const hitY = pad.t + (1 - total/hi)*innerH, hitH = (total/hi)*innerH;
+    bars += `<rect class="bar-hit" x="${x.toFixed(1)}" y="${hitY.toFixed(1)}" width="${barW.toFixed(1)}" height="${hitH.toFixed(1)}" fill="transparent" data-d="${r.date}" data-total="${(total/60).toFixed(1)}" data-deep="${((r.deep||0)/60).toFixed(1)}" data-rem="${((r.rem||0)/60).toFixed(1)}" data-light="${((r.light||0)/60).toFixed(1)}" data-wake="${((r.wake||0)/60).toFixed(1)}" style="cursor:pointer"/>`;
+    let segHtml = '', acc = 0;
+    order.forEach(([cls, v], ix) => {
       if (!v) return;
       const segH = (v/hi) * innerH;
-      const y    = pad.t + (1 - (acc+v)/hi) * innerH;
-      bars += `<rect class="bar-${cls}" x="${x}" y="${y}" width="${barW}" height="${segH}"/>`;
+      const sy   = pad.t + (1 - (acc+v)/hi) * innerH;
+      segHtml += (ix === topIdx)
+        ? `<path class="bar-${cls}" d="${_hRoundTop(x, sy, barW, segH, radius)}"/>`
+        : `<rect class="bar-${cls}" x="${x.toFixed(1)}" y="${sy.toFixed(1)}" width="${barW.toFixed(1)}" height="${segH.toFixed(1)}"/>`;
       acc += v;
     });
+    bars += `<g class="bar-anim" style="animation-delay:${(i*0.035).toFixed(2)}s;pointer-events:none">${segHtml}</g>`;
   });
-  const tickIdx = n <= 7 ? rows.map((_,i)=>i) : [0, Math.floor(n/2), n-1];
+  const idx = _hTickIdx(n, 4);
   let xax = '';
-  tickIdx.forEach(i => { const r = rows[i]; if(!r) return; const x = pad.l + (i + 0.5) * (innerW / n); xax += `<text class="axlbl" x="${x}" y="${h-6}" text-anchor="middle">${_hFmtDate(r.date)}</text>`; });
+  idx.forEach(i => { const r = rows[i]; if(!r) return; const x = pad.l + (i + 0.5) * slot; xax += `<text class="axlbl" x="${x.toFixed(1)}" y="${(h-8).toFixed(1)}" text-anchor="middle">${_hFmtTick(r.date)}</text>`; });
   svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
   svg.innerHTML = `${gridSvg}${bars}${xax}`;
+  svg.style.display = 'block';
+}
+
+function _hRenderStepsBar(svg, rows) {
+  const { w, h, pad, innerW, innerH } = _hGeo();
+  const stRows = rows.filter(r => r.steps != null);
+  if (!stRows.length) { svg.style.display='none'; return; }
+  const GOAL = 10000;
+  const maxSteps = Math.max(...stRows.map(r => r.steps), GOAL);
+  const hi = Math.ceil(maxSteps / 2000) * 2000;
+  const n  = rows.length;
+  const slot = innerW / n;
+  const barW = Math.min(slot * 0.6, 26);
+  const radius = Math.min(barW/2, 3.5);
+  const col = 'var(--ta)';
+  const defs = `<defs><linearGradient id="hg-steps" x1="0" y1="0" x2="0" y2="1">`
+    + `<stop offset="0" style="stop-color:${col};stop-opacity:0.95"/>`
+    + `<stop offset="1" style="stop-color:${col};stop-opacity:0.45"/></linearGradient></defs>`;
+  let gridSvg = '';
+  [0, 5000, 10000].filter(v => v <= hi).forEach(v => {
+    const y = pad.t + (1 - v/hi) * innerH;
+    gridSvg += `<line class="grid" x1="${pad.l}" x2="${w-pad.r}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+    gridSvg += `<text class="axlbl" x="${(pad.l-6).toFixed(1)}" y="${(y+3.5).toFixed(1)}" text-anchor="end">${v>=1000?v/1000+'k':v}</text>`;
+  });
+  const yGoal = pad.t + (1 - GOAL/hi) * innerH;
+  gridSvg += `<line class="ref-line" x1="${pad.l}" x2="${w-pad.r}" y1="${yGoal.toFixed(1)}" y2="${yGoal.toFixed(1)}"/>`;
+  gridSvg += `<text class="ref-lbl" x="${(w-pad.r+3).toFixed(1)}" y="${(yGoal+3.5).toFixed(1)}" text-anchor="start">10k</text>`;
+  let bars = '';
+  rows.forEach((r,i) => {
+    if (r.steps == null) return;
+    const x    = pad.l + (i + 0.5) * slot - barW/2;
+    const pct  = Math.min(r.steps / hi, 1);
+    const barH = Math.max(pct * innerH, r.steps > 0 ? 2 : 0);
+    const y    = pad.t + innerH - barH;
+    const met  = r.steps >= GOAL;
+    const fill = met ? `fill:url(#hg-steps)` : '';
+    bars += `<path class="bar-anim ${met ? 'bar-steps' : 'bar-steps-miss'}" style="animation-delay:${(i*0.035).toFixed(2)}s;${fill}" d="${_hRoundTop(x, y, barW, barH, radius)}"/>`;
+    bars += `<rect class="bar-hit" x="${x.toFixed(1)}" y="${pad.t.toFixed(1)}" width="${barW.toFixed(1)}" height="${innerH.toFixed(1)}" fill="transparent" data-v="${r.steps}" data-d="${r.date}" style="cursor:pointer"/>`;
+  });
+  const idx = _hTickIdx(n, 4);
+  let xax = '';
+  idx.forEach(i => { const r=rows[i]; if(!r) return; const x=pad.l+(i+0.5)*slot; xax+=`<text class="axlbl" x="${x.toFixed(1)}" y="${(h-8).toFixed(1)}" text-anchor="middle">${_hFmtTick(r.date)}</text>`; });
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  svg.innerHTML = `${defs}${gridSvg}${bars}${xax}`;
   svg.style.display = 'block';
 }
 
@@ -4656,8 +4887,7 @@ function _hStat(rows, key, fmt) {
   const t = T[lang];
   return `<strong>${fmt(avg)}</strong> ${t.hv_avg} · ${fmt(min)} ${t.hv_min} · ${fmt(max)} ${t.hv_max}`;
 }
-// Trend over the range: 2nd-half avg vs 1st-half avg, with a 2% deadband.
-// lowerBetter inverts the good/bad coloring (e.g. resting HR going down is good).
+
 function _hTrend(rows, key, lowerBetter) {
   const vals = rows.map(r => r[key]).filter(v => v != null);
   if (vals.length < 4) return '';
@@ -4670,59 +4900,151 @@ function _hTrend(rows, key, lowerBetter) {
   return ` <span class="hv-trend ${good ? 'trend-up' : 'trend-down'}" title="${good ? t.hv_trend_better : t.hv_trend_worse}">${up ? '↑' : '↓'}</span>`;
 }
 
+function _hCoachAnalysis(rows) {
+  const t = T[lang];
+  const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
+  const halfTrend = vals => {
+    if (vals.length < 4) return 0;
+    const half = Math.floor(vals.length/2);
+    const a = arr => arr.reduce((x,y)=>x+y,0)/arr.length;
+    return a(vals.slice(half)) - a(vals.slice(0,half));
+  };
+  const recVals = rows.map(r=>r.recovery).filter(v=>v!=null);
+  const rhrVals = rows.map(r=>r.rhr).filter(v=>v!=null);
+  const slpVals = rows.map(r=>r.minutesAsleep).filter(v=>v!=null);
+  const deepVals= rows.map(r=>r.deep).filter(v=>v!=null);
+  const remVals = rows.map(r=>r.rem).filter(v=>v!=null);
+  const avgRec  = avg(recVals), avgRhr = avg(rhrVals);
+  const avgSlp  = avg(slpVals), avgDeep = avg(deepVals), avgRem = avg(remVals);
+  const recTrend= halfTrend(recVals), rhrTrend = halfTrend(rhrVals);
+  const fill = (s, v) => s.replace('$1', v);
+  const insights = [];
+
+  if (avgRec != null) {
+    const r = Math.round(avgRec);
+    let text = avgRec >= 67 ? fill(t.hv_ca_rec_peak, r) : avgRec >= 50 ? fill(t.hv_ca_rec_good, r) : fill(t.hv_ca_rec_low, r);
+    if (recTrend > 3) text += t.hv_ca_rec_up;
+    else if (recTrend < -3) text += t.hv_ca_rec_dn;
+    insights.push({ icon: avgRec >= 67 ? '✦' : avgRec >= 50 ? '◈' : '◇', label: t.hv_ca_rec_lbl, text });
+  }
+  if (avgRhr != null) {
+    const r = Math.round(avgRhr);
+    let text = avgRhr < 55 ? fill(t.hv_ca_rhr_peak, r) : avgRhr < 65 ? fill(t.hv_ca_rhr_good, r) : avgRhr < 75 ? fill(t.hv_ca_rhr_ok, r) : fill(t.hv_ca_rhr_high, r);
+    if (rhrTrend < -1.5) text += t.hv_ca_rhr_dn;
+    else if (rhrTrend > 1.5) text += t.hv_ca_rhr_up;
+    insights.push({ icon: avgRhr < 65 ? '♥' : '◈', label: t.hv_ca_rhr_lbl, text });
+  }
+  if (avgSlp != null) {
+    const hrs = (avgSlp/60).toFixed(1);
+    let text = avgSlp/60 >= 7.5 ? fill(t.hv_ca_slp_peak, hrs) : avgSlp/60 >= 6.5 ? fill(t.hv_ca_slp_ok, hrs) : fill(t.hv_ca_slp_low, hrs);
+    if (avgDeep != null && avgRem != null && avgSlp > 0) {
+      const qp = Math.round(((avgDeep+avgRem)/avgSlp)*100);
+      text += qp >= 45 ? fill(t.hv_ca_slp_hi_qual, qp) : qp >= 30 ? fill(t.hv_ca_slp_mid_qual, qp) : fill(t.hv_ca_slp_lo_qual, qp);
+    }
+    insights.push({ icon: avgSlp/60 >= 7.5 ? '◉' : '◈', label: t.hv_ca_slp_lbl, text });
+  }
+
+  let overallText = '';
+  if (avgRec != null && avgSlp != null && avgRhr != null) {
+    overallText = (avgRec >= 67 && avgSlp/60 >= 7.5 && avgRhr < 65) ? t.hv_ca_all_peak
+      : (avgRec < 50 || avgSlp/60 < 6.5) ? t.hv_ca_all_rest
+      : avgRhr >= 70 ? t.hv_ca_all_rhr : t.hv_ca_all_mid;
+  } else if (insights.length > 0) {
+    overallText = t.hv_ca_all_demo;
+  }
+  return { insights, overallText };
+}
+
+function _hRenderCoachAnalysis(rows) {
+  const t = T[lang];
+  const body = document.getElementById('hv-coach-body');
+  if (!body) return;
+  setText('hv-coach-lbl', t.hv_coach_lbl || 'ANÁLISIS AIRA');
+  const { insights, overallText } = _hCoachAnalysis(rows);
+  if (!insights.length) {
+    body.innerHTML = `<div class="hv-coach-empty">${t.hv_empty}</div>`;
+    return;
+  }
+  let html = '<div class="hv-coach"><div class="hv-coach-insights">';
+  insights.forEach(ins => {
+    html += `<div class="hv-ci"><div class="hv-ci-icon">${ins.icon}</div><div class="hv-ci-body"><div class="hv-ci-label">${ins.label}</div><div class="hv-ci-text">${ins.text}</div></div></div>`;
+  });
+  html += '</div>';
+  if (overallText) html += `<div class="hv-coach-rec"><strong>${t.hv_ca_overall}:</strong> ${overallText}</div>`;
+  html += '</div>';
+  body.innerHTML = html;
+}
+
 async function renderHistory() {
   if (window._histRange == null) window._histRange = 7;
   const t = T[lang];
-  const recSvg = document.getElementById('hv-rec-svg');
-  const rhrSvg = document.getElementById('hv-rhr-svg');
-  const slpSvg = document.getElementById('hv-sleep-svg');
-  const recSkel= document.getElementById('hv-rec-skel');
-  const rhrSkel= document.getElementById('hv-rhr-skel');
-  const slpSkel= document.getElementById('hv-sleep-skel');
-  // Show skeletons
-  [recSkel, rhrSkel, slpSkel].forEach(e => e.style.display='block');
-  [recSvg, rhrSvg, slpSvg].forEach(e => e.style.display='none');
-  // Fetch if real
+  const recSvg  = document.getElementById('hv-rec-svg');
+  const rhrSvg  = document.getElementById('hv-rhr-svg');
+  const slpSvg  = document.getElementById('hv-sleep-svg');
+  const stpSvg  = document.getElementById('hv-steps-svg');
+  const recSkel = document.getElementById('hv-rec-skel');
+  const rhrSkel = document.getElementById('hv-rhr-skel');
+  const slpSkel = document.getElementById('hv-sleep-skel');
+  const stpSkel = document.getElementById('hv-steps-skel');
+  const svgs = [recSvg,rhrSvg,slpSvg,stpSvg].filter(Boolean);
+  const skels= [recSkel,rhrSkel,slpSkel,stpSkel].filter(Boolean);
+  skels.forEach(e => e.style.display='block');
+  svgs.forEach(e => e.style.display='none');
+  // Update labels
+  setText('hv-steps-lbl', t.hv_steps_lbl || '// PASOS DIARIOS');
+  setText('hv-sl-deep', t.hv_sl_deep || 'PROF.'); setText('hv-sl-rem', t.hv_sl_rem || 'REM');
+  setText('hv-sl-light', t.hv_sl_light || 'LIGER.'); setText('hv-sl-wake', t.hv_sl_wake || 'DESP.');
   if (token) await _hFetchRange(window._histRange);
-  // Pull from cache (or mock if demo)
   let cache = await _hGetAll();
   const wanted = _hDays(window._histRange);
   let rows = wanted.map(d => cache.find(c => c.date === d) || { date: d });
-  // Demo fallback if nothing real
   if (!token || !rows.some(r => r.rhr != null)) {
     const _dh = s => { let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))&0xffffff; return h; };
     rows = wanted.map(d => {
-      const h = _dh(d);
-      const h2 = _dh(d + 'b'), h3 = _dh(d + 'c'), h4 = _dh(d + 'd');
-      const deep = 55 + (h % 45), rem = 60 + (h2 % 50), light = 170 + (h3 % 90), wake = 5 + (h4 % 25);
-      const minutesAsleep = deep + rem + light;
-      return { date: d,
-        rhr: 55 + (h % 15),
-        deep, rem, light, wake,
-        minutesAsleep, timeInBed: minutesAsleep + wake + 15 + (h4 % 30),
-        recovery: 42 + (h2 % 54) };
+      const h=_dh(d), h2=_dh(d+'b'), h3=_dh(d+'c'), h4=_dh(d+'d'), h5=_dh(d+'e');
+      const deep=55+(h%45), rem=60+(h2%50), light=170+(h3%90), wake=5+(h4%25);
+      const minutesAsleep = deep+rem+light;
+      return { date:d, rhr:55+(h%15), deep, rem, light, wake,
+        minutesAsleep, timeInBed:minutesAsleep+wake+15+(h4%30),
+        recovery:42+(h2%54), steps:4000+(h5%8000) };
     });
   }
-  // Stats labels
+  // Stats
   const recStat = _hStat(rows, 'recovery', v => Math.round(v));
-  const rhrStat = _hStat(rows, 'rhr', v => Math.round(v) + ' ' + t.hv_bpm);
-  const slpStat = _hStat(rows, 'minutesAsleep', v => (v/60).toFixed(1) + t.hv_hrs);
-  document.getElementById('hv-rec-stat').innerHTML   = recStat ? recStat + _hTrend(rows, 'recovery', false) : '';
-  document.getElementById('hv-rhr-stat').innerHTML   = rhrStat ? rhrStat + _hTrend(rows, 'rhr', true) : '';
-  document.getElementById('hv-sleep-stat').innerHTML = slpStat ? slpStat + _hTrend(rows, 'minutesAsleep', false) : '';
-  // Draw
-  _hRenderLineSVG(recSvg, _hLine(rows, 'recovery', { fixedMin:0, fixedMax:100 }), 'rec');
-  _hRenderLineSVG(rhrSvg, _hLine(rows, 'rhr'), 'rhr');
+  const rhrStat = _hStat(rows, 'rhr',      v => Math.round(v)+' '+t.hv_bpm);
+  const slpStat = _hStat(rows, 'minutesAsleep', v => (v/60).toFixed(1)+t.hv_hrs);
+  const stpStat = _hStat(rows, 'steps', v => (Math.round(v/100)/10).toFixed(1)+'k');
+  document.getElementById('hv-rec-stat').innerHTML   = recStat ? recStat+_hTrend(rows,'recovery',false) : '';
+  document.getElementById('hv-rhr-stat').innerHTML   = rhrStat ? rhrStat+_hTrend(rows,'rhr',true)  : '';
+  document.getElementById('hv-sleep-stat').innerHTML = slpStat ? slpStat+_hTrend(rows,'minutesAsleep',false) : '';
+  const stpStatEl = document.getElementById('hv-steps-stat');
+  if (stpStatEl) stpStatEl.innerHTML = stpStat ? stpStat+_hTrend(rows,'steps',false) : '';
+  // Draw charts
+  _hRenderLineSVG(recSvg, _hLine(rows, 'recovery', {
+    fixedMin:0, fixedMax:100,
+    zones: [{lo:67,hi:100,cls:'zone-good'},{lo:40,hi:67,cls:'zone-warn'},{lo:0,hi:40,cls:'zone-bad'}],
+    refLines: [{val:67}]
+  }), 'rec');
+  _hRenderLineSVG(rhrSvg, _hLine(rows, 'rhr', {
+    zones: [{lo:0,hi:55,cls:'zone-good'},{lo:55,hi:65,cls:'zone-warn'},{lo:65,hi:999,cls:'zone-bad'}],
+    refLines: [{val:60}]
+  }), 'rhr');
   _hRenderStackedBars(slpSvg, rows);
-  [recSkel, rhrSkel, slpSkel].forEach(e => e.style.display='none');
-  // Bind tooltips
-  _hBindTooltip(recSvg, 'hv-rec-tt', v => `<strong>${Math.round(v)}</strong> ${t.hv_avg.replace(/PROMEDIO|AVG/,'RECOVERY')}`);
-  _hBindTooltip(rhrSvg, 'hv-rhr-tt', v => `<strong>${Math.round(v)}</strong> ${t.hv_bpm}`);
+  _hRenderStepsBar(stpSvg, rows);
+  skels.forEach(e => e.style.display='none');
+  // Tooltips
+  _hBindTooltip(recSvg, 'hv-rec-tt', (v,d) => `<strong>${Math.round(v)}</strong>/100 RECOVERY <span style="opacity:0.45;margin-left:6px">${_hFmtDate(d)}</span>`);
+  _hBindTooltip(rhrSvg, 'hv-rhr-tt', (v,d) => `<strong>${Math.round(v)}</strong> ${t.hv_bpm} <span style="opacity:0.45;margin-left:6px">${_hFmtDate(d)}</span>`);
+  _hBindStepsTooltip(stpSvg, 'hv-steps-tt');
+  _hBindSleepTooltip(slpSvg, 'hv-sleep-tt');
+  // Coach analysis
+  _hRenderCoachAnalysis(rows);
 }
 
 function _hBindTooltip(svg, ttId, fmt) {
   const tt = document.getElementById(ttId);
   if (!svg || !tt) return;
+  const hide = () => tt.style.display='none';
   svg.querySelectorAll('.pt').forEach(p => {
     const show = () => {
       const v = parseFloat(p.dataset.v), d = p.dataset.d;
@@ -4730,15 +5052,64 @@ function _hBindTooltip(svg, ttId, fmt) {
       const wrapRect = svg.parentElement.getBoundingClientRect();
       const cx = +p.getAttribute('cx'), cy = +p.getAttribute('cy');
       const vb = svg.viewBox.baseVal;
-      const x = (cx / vb.width) * rect.width + (rect.left - wrapRect.left);
-      const y = (cy / vb.height) * rect.height + (rect.top - wrapRect.top);
-      tt.style.left = x + 'px'; tt.style.top = y + 'px';
-      tt.innerHTML = `${fmt(v)} <span style="opacity:0.5;margin-left:6px">${_hFmtDate(d)}</span>`;
-      tt.style.display = 'block';
+      const x = (cx/vb.width)*rect.width + (rect.left-wrapRect.left);
+      const y = (cy/vb.height)*rect.height + (rect.top-wrapRect.top);
+      tt.style.left=x+'px'; tt.style.top=y+'px';
+      tt.innerHTML = fmt(v, d);
+      tt.style.display='block';
     };
     p.addEventListener('mouseenter', show);
-    p.addEventListener('touchstart', show, { passive: true });
-    p.addEventListener('mouseleave', () => tt.style.display = 'none');
+    p.addEventListener('touchstart', show, {passive:true});
+    p.addEventListener('mouseleave', hide);
+  });
+}
+
+function _hBindSleepTooltip(svg, ttId) {
+  const tt = document.getElementById(ttId);
+  if (!svg || !tt) return;
+  const t = T[lang];
+  const hide = () => tt.style.display='none';
+  svg.querySelectorAll('.bar-hit').forEach(el => {
+    const show = (e) => {
+      const d  = el.dataset.d;
+      const total= el.dataset.total, deep=el.dataset.deep, rem=el.dataset.rem;
+      const light=el.dataset.light, wake=el.dataset.wake;
+      const rect = svg.getBoundingClientRect(), wrapRect = svg.parentElement.getBoundingClientRect();
+      const rx = +el.getAttribute('x'), rw = +el.getAttribute('width');
+      const vb = svg.viewBox.baseVal;
+      const cx = (rx + rw/2)/vb.width * rect.width + (rect.left-wrapRect.left);
+      const cy = +el.getAttribute('y')/vb.height * rect.height + (rect.top-wrapRect.top);
+      tt.style.left=cx+'px'; tt.style.top=cy+'px';
+      tt.innerHTML = `<strong>${total}h</strong> ${_hFmtDate(d)}<br><span style="color:var(--ta2)">${t.hv_sl_deep||'PROF'} ${deep}h</span> · <span style="color:var(--ta)">REM ${rem}h</span> · ${t.hv_sl_light||'LIGER'} ${light}h · <span style="color:var(--tneg)">${t.hv_sl_wake||'DESP'} ${wake}h</span>`;
+      tt.style.display='block';
+    };
+    el.addEventListener('mouseenter', show);
+    el.addEventListener('touchstart', show, {passive:true});
+    el.addEventListener('mouseleave', hide);
+  });
+}
+
+function _hBindStepsTooltip(svg, ttId) {
+  const tt = document.getElementById(ttId);
+  if (!svg || !tt) return;
+  const t = T[lang];
+  const hide = () => tt.style.display='none';
+  svg.querySelectorAll('[data-v]').forEach(el => {
+    const show = () => {
+      const v = parseInt(el.dataset.v), d = el.dataset.d;
+      const rect = svg.getBoundingClientRect(), wrapRect = svg.parentElement.getBoundingClientRect();
+      const rx = +el.getAttribute('x'), rw = +el.getAttribute('width');
+      const vb = svg.viewBox.baseVal;
+      const cx = (rx+rw/2)/vb.width * rect.width + (rect.left-wrapRect.left);
+      const cy = +el.getAttribute('y')/vb.height * rect.height + (rect.top-wrapRect.top);
+      const pct = Math.round(v/100);
+      tt.style.left=cx+'px'; tt.style.top=cy+'px';
+      tt.innerHTML = `<strong>${v.toLocaleString()}</strong> pasos · ${pct}% <span style="opacity:0.45;margin-left:6px">${_hFmtDate(d)}</span>`;
+      tt.style.display='block';
+    };
+    el.addEventListener('mouseenter', show);
+    el.addEventListener('touchstart', show, {passive:true});
+    el.addEventListener('mouseleave', hide);
   });
 }
 

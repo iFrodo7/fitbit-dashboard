@@ -31,3 +31,6 @@ next-env.d.ts
 /ios
 /android
 .capacitor/
+
+# Local Claude Code tooling (preview launch config, etc.)
+.claude/
