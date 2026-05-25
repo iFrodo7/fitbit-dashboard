@@ -3672,8 +3672,20 @@ function renderProUI() {
 function renderProfile() {
   const t = T[lang];
   // User info
-  const uname = document.getElementById('uname')?.textContent?.trim() || t.user_demo;
+  // Name priority: 1) saved in localStorage (persists across sessions)
+  //                2) live DOM #uname (set by current loadReal())
+  //                3) demo fallback
+  const uname = localStorage.getItem('fb_display_name')
+    || document.getElementById('uname')?.textContent?.trim()
+    || t.user_demo;
   document.getElementById('pv-uname').textContent = uname;
+  // Sync #uname DOM element too so home screen is consistent
+  if (localStorage.getItem('fb_display_name')) {
+    const unEl = document.getElementById('uname');
+    if (unEl && (unEl.textContent.trim() === t.user_demo || unEl.textContent.trim() === 'USUARIO' || unEl.textContent.trim() === 'USER')) {
+      unEl.textContent = localStorage.getItem('fb_display_name');
+    }
+  }
   const isConnected = !!localStorage.getItem('fb_tok');
   document.getElementById('pv-ustatus').textContent = isConnected ? t.pv_status_live : t.pv_status_demo;
   document.getElementById('pv-connect-btn').style.display    = isConnected ? 'none'  : 'block';
@@ -3744,9 +3756,15 @@ function disconnectFitbit() {
   localStorage.removeItem('fb_rt');
   localStorage.removeItem('fb_cid');
   localStorage.removeItem('fb_provider');
+  localStorage.removeItem('fb_display_name');   // clear persisted name
   token = ''; HS = FitbitSource;
   isReal = false;
   clearInterval(ptmr);
+  // Reset name display and restore Connect button
+  const _unEl = document.getElementById('uname');
+  if (_unEl) _unEl.textContent = lang === 'es' ? 'USUARIO' : 'USER';
+  const _bcEl = document.getElementById('btn-connect');
+  if (_bcEl) _bcEl.style.display = '';
   showToast(lang === 'es' ? 'Fitbit desconectado' : 'Fitbit disconnected', 'info');
   navigate('profile'); // re-render profile
   setTimeout(() => window.location.reload(), 800);
@@ -3834,6 +3852,16 @@ function initDash() {
   buildWeeks(); buildHRC(hrHist);
   renderCycleHomeChip();
   setTimeout(animVals, 300);
+  // Restore persisted name + hide Connect button if already authenticated
+  const _savedName = localStorage.getItem('fb_display_name');
+  if (_savedName) {
+    const _un = document.getElementById('uname');
+    if (_un) _un.textContent = _savedName;
+  }
+  if (token) {
+    const _bc = document.getElementById('btn-connect');
+    if (_bc) _bc.style.display = 'none';
+  }
   // Welcome onboarding hint (first visit)
   if (!localStorage.getItem('fb_welcomed')) {
     setTimeout(() => {
@@ -4423,8 +4451,12 @@ async function loadReal() {
   try {
     const h={'Authorization':'Bearer '+token}, td=new Date().toISOString().split('T')[0];
     const [pr,ac,hr,sl] = await Promise.all([fetch(HS.ep.profile(),{headers:h}).then(r=>r.json()),fetch(HS.ep.activities(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.heartIntraday(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.sleepToday(),{headers:h}).then(r=>r.json())]);
-    if (pr?.user) { document.getElementById('uname').textContent = (pr.user.displayName||pr.user.firstName||'USUARIO').toUpperCase();
-      if (pr.user.gender) localStorage.setItem('fb_sex', String(pr.user.gender).toLowerCase()); }
+    if (pr?.user) {
+      const _dn = (pr.user.displayName||pr.user.firstName||'').toUpperCase() || (lang==='es'?'USUARIO':'USER');
+      document.getElementById('uname').textContent = _dn;
+      localStorage.setItem('fb_display_name', _dn);           // persist across sessions
+      if (pr.user.gender) localStorage.setItem('fb_sex', String(pr.user.gender).toLowerCase());
+    }
     if (ac?.summary) { const s=ac.summary; document.getElementById('stepsv').textContent=(s.steps||0).toLocaleString('en-US'); document.getElementById('calv').textContent=s.activityCalories||0; const pct=Math.min((s.steps/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); document.getElementById('cal-bmr').textContent=(s.caloriesBMR||0).toLocaleString(); document.getElementById('cal-act').textContent=(s.activityCalories||0).toLocaleString(); setCalbars({sed:s.sedentaryMinutes||0,lig:s.lightlyActiveMinutes||0,mod:s.fairlyActiveMinutes||0,int:s.veryActiveMinutes||0}); }
     let maxHR_real=0; if (hr?.['activities-heart-intraday']?.dataset?.length) { const ds=hr['activities-heart-intraday'].dataset; const lat=ds[ds.length-1]?.value||68; maxHR_real=Math.max(...ds.map(d=>d.value)); document.getElementById('hrv').textContent=lat; document.getElementById('hrlive').textContent=lat; const st=Math.max(1,Math.floor(ds.length/48)); hrHist=ds.filter((_,i)=>i%st===0).slice(-48).map(d=>d.value); buildHRC(hrHist); }
     if (sl?.summary?.stages) updSl(sl.summary.stages);
@@ -4448,7 +4480,9 @@ async function loadReal() {
     setHRZones({ zones: zones_real, restHR: rhr_real, maxHR: maxHR_real || 140 });
     syncTicker();
     loadHealthMetrics(h, td); // best-effort; populates SpO2/HRV/breathing from daily summaries
-    isReal=true; setText('stxt',T[lang].live); const dot=document.getElementById('sdot'); dot.style.background='#00ff88'; dot.style.boxShadow='0 0 8px #00ff88'; document.getElementById('dstrip').style.display='none'; closeModal(); startPoll(); showToast(T[lang].connected);
+    isReal=true; setText('stxt',T[lang].live); const dot=document.getElementById('sdot'); dot.style.background='#00ff88'; dot.style.boxShadow='0 0 8px #00ff88'; document.getElementById('dstrip').style.display='none';
+    const _bcBtn = document.getElementById('btn-connect'); if (_bcBtn) _bcBtn.style.display = 'none'; // hide Connect button
+    closeModal(); startPoll(); showToast(T[lang].connected);
   } catch(e) { if(String(e).includes('401')){if(await refreshTok())await loadReal();else{localStorage.removeItem('fb_tok');token='';}} } finally { hideLoad(); }
 }
 // Daily health summaries from Fitbit/Google (needs oxygen_saturation, heartrate,
