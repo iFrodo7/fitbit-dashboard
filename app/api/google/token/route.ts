@@ -79,16 +79,9 @@ export async function POST(request: NextRequest) {
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
+    const d = data as { error?: string; error_description?: string };
     console.error(
-      "[google/token] exchange failed",
-      JSON.stringify({
-        grant: body.refresh_token ? "refresh" : "code",
-        hasCode: !!body.code,
-        hasVerifier: !!body.code_verifier,
-        redirect_uri: body.redirect_uri,
-        status: res.status,
-        google: data,
-      })
+      `GTOKENFAIL status=${res.status} err=${d.error || "?"} desc=${d.error_description || "?"} hasVerifier=${!!body.code_verifier} redirect=${body.redirect_uri}`
     );
     return NextResponse.json(
       { error: "Token exchange failed", detail: data },
