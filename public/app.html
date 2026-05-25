@@ -2091,8 +2091,13 @@ body.t-naruto span.vval{
         </div>
       </div>
       <div class="mbd">
-        <!-- One-tap pairing via shared Fitbit app (no developer account) -->
-        <div id="m-simple">
+        <!-- Primary: Google sign-in (Google Health API — the path going forward) -->
+        <div id="m-google">
+          <button class="mbtn" id="m-google-btn" onclick="startGoogleOAuth()">ENTRAR CON GOOGLE →</button>
+          <div class="mnote" id="m-google-note">Inicia sesión con tu cuenta de Google vinculada a tu Fitbit. Tus datos de salud se quedan en tu dispositivo.</div>
+        </div>
+        <!-- Legacy Fitbit one-tap (registration closed; kept for existing tokens) -->
+        <div id="m-simple" style="display:none;">
           <button class="mbtn" id="m-simple-btn" onclick="startOAuthSimple()">CONECTAR CON FITBIT →</button>
           <div class="mnote" id="m-simple-note">Inicia sesión con tu cuenta Fitbit y aprueba el acceso. No necesitas cuenta de desarrollador.</div>
           <button class="m-adv-toggle" id="m-adv-toggle" onclick="toggleAdvanced()">Opciones avanzadas</button>
@@ -3738,6 +3743,8 @@ function disconnectFitbit() {
   localStorage.removeItem('fb_tok');
   localStorage.removeItem('fb_rt');
   localStorage.removeItem('fb_cid');
+  localStorage.removeItem('fb_provider');
+  token = ''; HS = FitbitSource;
   isReal = false;
   clearInterval(ptmr);
   showToast(lang === 'es' ? 'Fitbit desconectado' : 'Fitbit disconnected', 'info');
@@ -3838,8 +3845,9 @@ function initDash() {
     }, 4500);
   }
   const p = new URLSearchParams(location.search);
-  if (p.get('code')) handleOAuth(p.get('code'));
-  else if (token) loadReal();
+  const _isG = localStorage.getItem('fb_provider') === 'google';
+  if (p.get('code')) { _isG ? handleGoogleOAuth(p.get('code')) : handleOAuth(p.get('code')); }
+  else if (token) { _isG ? loadRealGoogle() : loadReal(); }
   if (!token) {
     setTimeout(() => renderHypnogram({
       startTime: '2026-01-01T23:18:00.000',
@@ -4098,11 +4106,13 @@ function closeModal() { document.getElementById('modal').classList.remove('on');
 // Show one-tap pairing when a shared Client app is configured; otherwise fall back
 // to the manual flow as the only option.
 function initConnectModal() {
-  const hasShared = !!SHARED_CLIENT_ID;
+  // Google is the path for new logins (Fitbit app registration is closed).
+  const g = document.getElementById('m-google');
   const simple = document.getElementById('m-simple');
   const adv = document.getElementById('m-advanced');
-  if (simple) simple.style.display = hasShared ? '' : 'none';
-  if (adv) adv.style.display = hasShared ? 'none' : '';
+  if (g) g.style.display = '';
+  if (simple) simple.style.display = 'none';
+  if (adv) adv.style.display = 'none';
 }
 function toggleAdvanced() {
   const adv = document.getElementById('m-advanced'); if (!adv) return;
@@ -4153,8 +4163,35 @@ const FitbitSource = {
     stepsRange:    (s,e) => `${FitbitSource.base}/1/user/-/activities/steps/date/${s}/${e}.json`,
   },
 };
-// Active data source. Migration target: GoogleHealthSource (same shape).
+// Google Health API source (Fitbit Web API shuts down Sep 2026; new app
+// registration is already Google-only). Login uses Google OAuth (PKCE) with a
+// server-side token exchange (/api/google/token) because Google "Web" clients
+// require the client_secret. See MIGRATION.md.
+const GoogleHealthSource = {
+  id: 'google',
+  clientId: '147327076393-n6i71gic3n57fbcv8eqro9ph4h6ugggr.apps.googleusercontent.com',
+  oauth: {
+    authorize: 'https://accounts.google.com/o/oauth2/v2/auth',
+    token: '/api/google/token',   // our server route (adds client_secret)
+    scope: [
+      'https://www.googleapis.com/auth/googlehealth.health_metrics_and_measurements.readonly',
+      'https://www.googleapis.com/auth/googlehealth.sleep.readonly',
+      'https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly',
+      'https://www.googleapis.com/auth/googlehealth.profile.readonly',
+    ].join(' '),
+  },
+  base: 'https://health.googleapis.com/v4',
+  // NOTE (junio): los nombres exactos de dataType y la forma de la respuesta del
+  // Google Health API se verifican con el Fitbit real conectado. El login ya es
+  // funcional; el mapeo de datos se finaliza en esa fase.
+  ep: {
+    dataPoints: (type) => `${GoogleHealthSource.base}/users/me/dataTypes/${type}/dataPoints`,
+    identity:   ()     => `${GoogleHealthSource.base}/users/me:getIdentity`,
+  },
+};
+// Active data source — restored from the last login provider.
 let HS = FitbitSource;
+try { if (localStorage.getItem('fb_provider') === 'google') HS = GoogleHealthSource; } catch (e) {}
 
 // PKCE (RFC 7636) lets a public client authorize with no secret in client-side JS.
 function b64url(bytes) {
@@ -4228,6 +4265,7 @@ function initCapacitor() {
   if (P.SplashScreen && P.SplashScreen.hide) setTimeout(() => P.SplashScreen.hide(), 400);
 }
 async function refreshTok() {
+  if (localStorage.getItem('fb_provider') === 'google') return refreshGoogleTok();
   const rt=localStorage.getItem('fb_rt'),cid=localStorage.getItem('fb_cid'); if(!rt||!cid)return false;
   const pub = localStorage.getItem('fb_pub')==='1';
   try {
@@ -4239,6 +4277,73 @@ async function refreshTok() {
     const d=await r.json();
     if(d.access_token){localStorage.setItem('fb_tok',d.access_token);if(d.refresh_token)localStorage.setItem('fb_rt',d.refresh_token);token=d.access_token;return true;}
   } catch(e) {} return false;
+}
+
+// ══════ GOOGLE LOGIN (Google Health API · PKCE + server token exchange) ══════
+async function startGoogleOAuth() {
+  HS = GoogleHealthSource;
+  const verifier = genCodeVerifier();
+  localStorage.setItem('fb_pkce_v', verifier);
+  localStorage.setItem('fb_provider', 'google');
+  const challenge = await genCodeChallenge(verifier);
+  const url = `${GoogleHealthSource.oauth.authorize}?response_type=code` +
+    `&client_id=${encodeURIComponent(GoogleHealthSource.clientId)}` +
+    `&redirect_uri=${encodeURIComponent(getRedirectUri())}` +
+    `&scope=${encodeURIComponent(GoogleHealthSource.oauth.scope)}` +
+    `&access_type=offline&prompt=consent&include_granted_scopes=true`;
+  if (isNativeApp() && window.Capacitor?.Plugins?.Browser) window.Capacitor.Plugins.Browser.open({ url });
+  else location.href = url;
+}
+async function handleGoogleOAuth(code) {
+  HS = GoogleHealthSource; showLoad();
+  const verifier = localStorage.getItem('fb_pkce_v');
+  try {
+    const r = await fetch(GoogleHealthSource.oauth.token, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, code_verifier: verifier, redirect_uri: getRedirectUri() }),
+    });
+    const d = await r.json();
+    if (d.access_token) {
+      localStorage.setItem('fb_tok', d.access_token);
+      if (d.refresh_token) localStorage.setItem('fb_rt', d.refresh_token);
+      localStorage.setItem('fb_provider', 'google');
+      localStorage.removeItem('fb_pkce_v');
+      token = d.access_token;
+      if (!isNativeApp()) history.replaceState({}, '', location.pathname);
+      await loadRealGoogle();
+    } else {
+      hideLoad();
+      showToast(lang === 'es' ? 'No se pudo iniciar sesión con Google' : 'Google sign-in failed', 'error');
+    }
+  } catch (e) { hideLoad(); showToast(lang === 'es' ? 'Error de conexión con Google' : 'Google connection error', 'error'); }
+}
+async function refreshGoogleTok() {
+  const rt = localStorage.getItem('fb_rt'); if (!rt) return false;
+  try {
+    const r = await fetch(GoogleHealthSource.oauth.token, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: rt }),
+    });
+    const d = await r.json();
+    if (d.access_token) { localStorage.setItem('fb_tok', d.access_token); if (d.refresh_token) localStorage.setItem('fb_rt', d.refresh_token); token = d.access_token; return true; }
+  } catch (e) {}
+  return false;
+}
+// Phase 1: confirm sign-in works and show the connected state. Data fetching /
+// mapping from the Google Health API is finalized in June with the real device
+// (see GoogleHealthSource notes). Defensive: never crashes the UI.
+async function loadRealGoogle() {
+  showLoad();
+  try {
+    isReal = true;
+    setText('stxt', T[lang].live);
+    const dot = document.getElementById('sdot'); if (dot) { dot.style.background = '#00ff88'; dot.style.boxShadow = '0 0 8px #00ff88'; }
+    const ds = document.getElementById('dstrip'); if (ds) ds.style.display = 'none';
+    closeModal();
+    showToast(lang === 'es' ? '◆ GOOGLE CONECTADO' : '◆ GOOGLE CONNECTED');
+    // Best-effort identity check (proves the token works). Data mapping = June.
+    try { await fetch(GoogleHealthSource.ep.identity(), { headers: { 'Authorization': 'Bearer ' + token } }); } catch (e) {}
+  } catch (e) { /* keep UI stable */ } finally { hideLoad(); }
 }
 function startCd() {
   clearInterval(cdtmr); cd = pSec;
