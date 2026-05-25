@@ -4390,11 +4390,20 @@ async function loadRealGoogle(displayName) {
     const _bcBtn = document.getElementById('btn-connect'); if (_bcBtn) _bcBtn.style.display = 'none';
     // If name wasn't passed (e.g. page-reload path), try Google's userinfo endpoint
     // as a fallback — works whenever openid/profile scope was granted.
+    // If the access token is expired (401), refresh it once and retry.
     if (!displayName) {
       try {
-        const _ui = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        let _ui = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: { 'Authorization': 'Bearer ' + token }
         });
+        if (_ui.status === 401) {
+          const refreshed = await refreshGoogleTok();
+          if (refreshed) {
+            _ui = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+              headers: { 'Authorization': 'Bearer ' + token }
+            });
+          }
+        }
         if (_ui.ok) {
           const _up = await _ui.json();
           displayName = (_up.name || _up.given_name || _up.email || '').toUpperCase();
