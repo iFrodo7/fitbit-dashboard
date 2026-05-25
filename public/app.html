@@ -4201,7 +4201,14 @@ const GoogleHealthSource = {
   oauth: {
     authorize: 'https://accounts.google.com/o/oauth2/v2/auth',
     token: '/api/google/token',   // our server route (adds client_secret)
+    // openid/email/profile → always granted, gives us id_token with the user's
+    // name so the connected state works even before health scopes are approved.
+    // The googlehealth.* scopes are requested alongside so they activate
+    // automatically once the app clears Google's health data review.
     scope: [
+      'openid',
+      'email',
+      'profile',
       'https://www.googleapis.com/auth/googlehealth.health_metrics_and_measurements.readonly',
       'https://www.googleapis.com/auth/googlehealth.sleep.readonly',
       'https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly',
@@ -4322,6 +4329,10 @@ async function startGoogleOAuth() {
   if (isNativeApp() && window.Capacitor?.Plugins?.Browser) window.Capacitor.Plugins.Browser.open({ url });
   else location.href = url;
 }
+// Decode a JWT payload (client-side, no verification — only used for display).
+function _decodeJwt(jwt) {
+  try { return JSON.parse(atob((jwt.split('.')[1] || '').replace(/-/g, '+').replace(/_/g, '/'))); } catch (e) { return {}; }
+}
 async function handleGoogleOAuth(code) {
   HS = GoogleHealthSource; showLoad();
   try {
@@ -4336,8 +4347,15 @@ async function handleGoogleOAuth(code) {
       localStorage.setItem('fb_provider', 'google');
       localStorage.removeItem('fb_pkce_v');
       token = d.access_token;
+      // Extract display name from the id_token JWT (included because we request
+      // the 'openid profile' scope). Falls back gracefully if absent.
+      let _gName = '';
+      if (d.id_token) {
+        const _p = _decodeJwt(d.id_token);
+        _gName = (_p.name || _p.given_name || _p.email || '').toUpperCase();
+      }
       if (!isNativeApp()) history.replaceState({}, '', location.pathname);
-      await loadRealGoogle();
+      await loadRealGoogle(_gName);
     } else {
       hideLoad();
       console.error('[google login] token exchange error:', d);
@@ -4361,13 +4379,20 @@ async function refreshGoogleTok() {
 // Phase 1: confirm sign-in works and show the connected state. Data fetching /
 // mapping from the Google Health API is finalized in June with the real device
 // (see GoogleHealthSource notes). Defensive: never crashes the UI.
-async function loadRealGoogle() {
+async function loadRealGoogle(displayName) {
   showLoad();
   try {
     isReal = true;
     setText('stxt', T[lang].live);
     const dot = document.getElementById('sdot'); if (dot) { dot.style.background = '#00ff88'; dot.style.boxShadow = '0 0 8px #00ff88'; }
     const ds = document.getElementById('dstrip'); if (ds) ds.style.display = 'none';
+    // Hide the connect button (same treatment as the Fitbit flow).
+    const _bcBtn = document.getElementById('btn-connect'); if (_bcBtn) _bcBtn.style.display = 'none';
+    // Persist and show the user's name extracted from the id_token.
+    if (displayName) {
+      localStorage.setItem('fb_display_name', displayName);
+      const _un = document.getElementById('uname'); if (_un) _un.textContent = displayName;
+    }
     closeModal();
     showToast(lang === 'es' ? '◆ GOOGLE CONECTADO' : '◆ GOOGLE CONNECTED');
     // Best-effort identity check (proves the token works). Data mapping = June.
