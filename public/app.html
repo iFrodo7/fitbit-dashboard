@@ -4282,10 +4282,10 @@ async function refreshTok() {
 // ══════ GOOGLE LOGIN (Google Health API · PKCE + server token exchange) ══════
 async function startGoogleOAuth() {
   HS = GoogleHealthSource;
-  const verifier = genCodeVerifier();
-  localStorage.setItem('fb_pkce_v', verifier);
   localStorage.setItem('fb_provider', 'google');
-  const challenge = await genCodeChallenge(verifier);
+  // Confidential "Web" client → the client_secret (server-side) provides the
+  // security; no PKCE. (Sending a code_verifier without a code_challenge makes
+  // Google reject with "code_verifier ... is not needed".)
   const url = `${GoogleHealthSource.oauth.authorize}?response_type=code` +
     `&client_id=${encodeURIComponent(GoogleHealthSource.clientId)}` +
     `&redirect_uri=${encodeURIComponent(getRedirectUri())}` +
@@ -4296,11 +4296,10 @@ async function startGoogleOAuth() {
 }
 async function handleGoogleOAuth(code) {
   HS = GoogleHealthSource; showLoad();
-  const verifier = localStorage.getItem('fb_pkce_v');
   try {
     const r = await fetch(GoogleHealthSource.oauth.token, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, code_verifier: verifier, redirect_uri: getRedirectUri() }),
+      body: JSON.stringify({ code, redirect_uri: getRedirectUri() }),
     });
     const d = await r.json();
     if (d.access_token) {
