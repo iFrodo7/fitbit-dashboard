@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="AIRA">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="description" content="Tu panel biométrico personal: recovery, sueño, frecuencia cardíaca y pasos con análisis de tu coach IA. Se conecta con tu cuenta Fitbit.">
+<meta name="description" content="Tu panel biométrico personal: recovery, sueño, frecuencia cardíaca y pasos con análisis de tu coach IA. Conecta con Google Health.">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icons/icon-192.png?v=10">
 <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png?v=10">
@@ -1916,7 +1916,7 @@ body.t-naruto span.vval{
           <div class="pv-ustatus" id="pv-ustatus">DEMO MODE</div>
         </div>
       </div>
-      <button class="pv-connect-btn" id="pv-connect-btn" onclick="openModal()">CONECTAR FITBIT →</button>
+      <button class="pv-connect-btn" id="pv-connect-btn" onclick="openModal()">CONECTAR CON GOOGLE →</button>
       <button class="pv-disconnect-btn" id="pv-disconnect-btn" onclick="disconnectFitbit()" style="display:none;">DESCONECTAR</button>
     </div>
 
@@ -2001,7 +2001,7 @@ body.t-naruto span.vval{
     </div>
   </section>
 
-  <div class="dstrip" id="dstrip"><div class="ddot"></div><span id="demo-txt">DEMO — CONECTA TU FITBIT</span></div>
+  <div class="dstrip" id="dstrip"><div class="ddot"></div><span id="demo-txt">DEMO — CONECTA CON GOOGLE</span></div>
   <div class="lov" id="lov">
     <div class="ltxt" id="load-txt">SINCRONIZANDO...</div>
     <div class="lbar"><div class="lfi"></div></div>
@@ -2086,7 +2086,7 @@ body.t-naruto span.vval{
     <div class="mbox">
       <div class="mhd">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <div><div class="mh2" id="modal-title">CONECTAR FITBIT</div><div class="msub" id="modal-sub">Autorización OAuth · Solo una vez</div></div>
+          <div><div class="mh2" id="modal-title">CONECTAR GOOGLE</div><div class="msub" id="modal-sub">Autorización OAuth · Solo una vez</div></div>
           <button onclick="closeModal()" style="background:none;border:none;color:#3a3a3a;cursor:pointer;font-size:20px;">✕</button>
         </div>
       </div>
@@ -2094,7 +2094,7 @@ body.t-naruto span.vval{
         <!-- Primary: Google sign-in (Google Health API — the path going forward) -->
         <div id="m-google">
           <button class="mbtn" id="m-google-btn" onclick="startGoogleOAuth()">ENTRAR CON GOOGLE →</button>
-          <div class="mnote" id="m-google-note">Inicia sesión con tu cuenta de Google vinculada a tu Fitbit. Tus datos de salud se quedan en tu dispositivo.</div>
+          <div class="mnote" id="m-google-note">Inicia sesión con tu cuenta de Google. Tus datos de salud se quedan en tu dispositivo.</div>
         </div>
         <!-- Legacy Fitbit one-tap (registration closed; kept for existing tokens) -->
         <div id="m-simple" style="display:none;">
@@ -2155,7 +2155,7 @@ const T = {
     fut_sub: 'NÚCLEO BIOMÉTRICO v2.6',
     back: '← TEMAS',
     connect: 'CONECTAR',
-    demo_txt: 'DEMO — CONECTA TU FITBIT',
+    demo_txt: 'DEMO — CONECTA CON GOOGLE',
     loading: 'SINCRONIZANDO...',
     g_eye: '// ANÁLISIS BIOMÉTRICO ACTIVO',
     g_pfx: 'BUEN DÍA, ',
@@ -2186,7 +2186,7 @@ const T = {
     sl_deep: 'PROF.', sl_light: 'LIGER.', sl_awake: 'DESP.',
     hv_title:'HISTORIAL', hv_sub:'// TENDENCIAS BIOMÉTRICAS',
     hv_rec_lbl:'// RECOVERY SCORE', hv_rhr_lbl:'// FRECUENCIA EN REPOSO', hv_sleep_lbl:'// SUEÑO POR NOCHE',
-    hv_empty:'CONECTA FITBIT PARA VER TUS TENDENCIAS', hv_no_data:'SIN DATOS EN ESTE RANGO',
+    hv_empty:'CONECTA GOOGLE PARA VER TUS TENDENCIAS', hv_no_data:'SIN DATOS EN ESTE RANGO',
     hv_avg:'PROMEDIO', hv_min:'MÍN', hv_max:'MÁX', hv_hrs:'h', hv_bpm:'bpm',
     hv_trend_better:'Mejorando', hv_trend_worse:'Empeorando', hv_trend_flat:'Estable',
     hv_steps_lbl:'// PASOS DIARIOS', hv_steps_goal:'META 10K',
@@ -2213,7 +2213,7 @@ const T = {
     hv_ca_all_rest:'Tu cuerpo necesita más descanso. Prioriza el sueño, reduce el estrés y opta por actividad de baja intensidad esta semana.',
     hv_ca_all_rhr:'Tu FC en reposo es el área de mayor oportunidad. Incorpora 20-30min de cardio moderado 3×/semana y técnicas de reducción de estrés.',
     hv_ca_all_mid:'Métricas en zona de mantenimiento. Pequeñas mejoras en consistencia del sueño pueden elevar tu recovery score de forma sostenida.',
-    hv_ca_all_demo:'Conecta Fitbit para obtener un análisis completo con todas tus métricas biométricas.',
+    hv_ca_all_demo:'Conecta Google para obtener un análisis completo con todas tus métricas biométricas.',
     hv_ca_stp_lbl:'PASOS',
     hv_ca_stp_peak:'Promedio de <strong>$1k pasos</strong> — superas la meta de 10k. Excelente nivel de actividad.',
     hv_ca_stp_good:'Promedio de <strong>$1k pasos</strong> — buen nivel. Sumar ~2k más al día te lleva a la meta de 10k.',
@@ -2234,10 +2234,10 @@ const T = {
       cyc_next:     { ttl:'Próxima Regla', bd:'<p>Fecha estimada del inicio de tu siguiente período, calculada como:<br><code>última regla + duración del ciclo</code></p><p>La <strong>fase lútea</strong> (post-ovulación) dura entre 10 y 16 días; AIRA usa <strong>14 días</strong> como promedio estándar (Clue / Oura).</p><p>Ciclos irregulares pueden provocar una diferencia de ±2 a 4 días. Registra cada regla para mejorar la precisión.</p>' },
     },
     tour: [
-      { ttl:'¡Bienvenido!', bd:'Esta es tu interfaz biométrica personal. Mide HRV, sueño, recovery y mucho más en tiempo real desde tu Fitbit.' },
+      { ttl:'¡Bienvenido!', bd:'Esta es tu interfaz biométrica personal. Mide HRV, sueño, recovery y mucho más en tiempo real desde Google Health.' },
       { ttl:'Cuatro mundos visuales', bd:'Elegiste un tema arriba. Cada uno tiene su propia identidad: Minecraft pixelado, Halo militar, Naruto chakra, o Futuristic minimal.' },
       { ttl:'Tap en el <strong>?</strong>', bd:'Junto a cada métrica importante verás un botón <strong>?</strong>. Tócalo para entender qué significa: Recovery, HRV, Strain, etc.' },
-      { ttl:'Conecta tu Fitbit', bd:'Al pulsar <strong>CONECTAR</strong> abrirás OAuth de Fitbit. Tus datos viajan directo del dispositivo al navegador — no pasan por ningún servidor nuestro.' },
+      { ttl:'Conecta con Google', bd:'Al pulsar <strong>CONECTAR</strong> abrirás Google OAuth. Tus datos viajan directo del dispositivo al navegador — no pasan por ningún servidor nuestro.' },
     ],
     tour_skip:'Saltar', tour_next:'Siguiente', tour_done:'Empezar',
     lbl_total: 'TOTAL', lbl_start: 'INICIO',
@@ -2273,7 +2273,7 @@ const T = {
     i1x: 'Tu HRV subió 6ms desde ayer. Señales sólidas de recuperación. Día ideal para entrenamiento moderado-alto.',
     i2x: 'Tu sueño profundo aumentó 12% esta semana. Consistencia de horario: ±20min de tu ventana óptima.',
     i3x: '4 días consecutivos cumpliendo tu meta. Si terminas hoy, será tu racha más larga del mes.',
-    modal_title: 'CONECTAR FITBIT', modal_sub: 'Autorización OAuth · Solo una vez',
+    modal_title: 'CONECTAR GOOGLE', modal_sub: 'Autorización OAuth · Solo una vez',
     m_simple_btn: 'CONECTAR CON FITBIT →',
     m_simple_note: 'Inicia sesión con tu cuenta Fitbit y aprueba el acceso. No necesitas cuenta de desarrollador.',
     m_adv: 'Opciones avanzadas',
@@ -2295,7 +2295,7 @@ const T = {
     halo_pfx: 'SPARTAN ', halo_rl: '// PREPARACIÓN DE COMBATE',
     naruto_eye: '木ノ葉の里 — SISTEMA SHINOBI KONOHA',
     naruto_pfx: '忍者: ', naruto_rl: '// チャクラ PREPARACIÓN',
-    connected: '◆ FITBIT CONECTADO', live: 'EN VIVO',
+    connected: '◆ GOOGLE CONECTADO', live: 'EN VIVO',
     sync_toast: (t) => `◆ SYNC ${t}`,
     // Stats view
     sv_title: 'STATS', sv_sub: '// MÉTRICAS DE HOY',
@@ -2338,7 +2338,7 @@ const T = {
     sv_temp_lbl: 'TEMP.', sv_stress_lbl: 'ESTRÉS',
     // Profile view
     pv_title: 'PERFIL', pv_sub: '// CONFIGURACIÓN',
-    pv_connect_btn: 'CONECTAR FITBIT →',
+    pv_connect_btn: 'CONECTAR CON GOOGLE →',
     pv_disconnect_btn: 'DESCONECTAR',
     pv_sec_appearance: 'APARIENCIA',
     pv_theme_lbl: 'TEMA',
@@ -2365,7 +2365,7 @@ const T = {
     fut_sub: 'BIOMETRIC CORE v2.6',
     back: '← THEMES',
     connect: 'CONNECT',
-    demo_txt: 'DEMO — CONNECT YOUR FITBIT',
+    demo_txt: 'DEMO — CONNECT WITH GOOGLE',
     loading: 'SYNCING...',
     g_eye: '// BIOMETRIC ANALYSIS ACTIVE',
     g_pfx: 'GOOD DAY, ',
@@ -2396,7 +2396,7 @@ const T = {
     sl_deep: 'DEEP', sl_light: 'LIGHT', sl_awake: 'AWAKE',
     hv_title:'HISTORY', hv_sub:'// BIOMETRIC TRENDS',
     hv_rec_lbl:'// RECOVERY SCORE', hv_rhr_lbl:'// RESTING HEART RATE', hv_sleep_lbl:'// SLEEP PER NIGHT',
-    hv_empty:'CONNECT FITBIT TO SEE TRENDS', hv_no_data:'NO DATA IN THIS RANGE',
+    hv_empty:'CONNECT GOOGLE TO SEE TRENDS', hv_no_data:'NO DATA IN THIS RANGE',
     hv_avg:'AVG', hv_min:'MIN', hv_max:'MAX', hv_hrs:'h', hv_bpm:'bpm',
     hv_trend_better:'Improving', hv_trend_worse:'Declining', hv_trend_flat:'Stable',
     hv_steps_lbl:'// DAILY STEPS', hv_steps_goal:'10K GOAL',
@@ -2423,7 +2423,7 @@ const T = {
     hv_ca_all_rest:"Your body needs more rest. Prioritize sleep, reduce stress, and opt for low-intensity activity this week.",
     hv_ca_all_rhr:'Your resting HR is the main area for improvement. Add 20-30min moderate cardio 3×/week and stress-reduction techniques.',
     hv_ca_all_mid:'Metrics in maintenance zone. Small improvements in sleep consistency can raise your recovery score sustainably.',
-    hv_ca_all_demo:'Connect Fitbit for a complete analysis with all your biometric metrics.',
+    hv_ca_all_demo:'Connect Google for a complete analysis with all your biometric metrics.',
     hv_ca_stp_lbl:'STEPS',
     hv_ca_stp_peak:'Avg <strong>$1k steps</strong> — above the 10k goal. Excellent activity level.',
     hv_ca_stp_good:'Avg <strong>$1k steps</strong> — solid. Adding ~2k more a day gets you to the 10k goal.',
@@ -2444,10 +2444,10 @@ const T = {
       cyc_next:     { ttl:'Next Period', bd:'<p>Estimated start date of your next period, calculated as:<br><code>last period + cycle length</code></p><p>The <strong>luteal phase</strong> (post-ovulation) typically lasts 10–16 days; AIRA uses <strong>14 days</strong> as the standard average (Clue / Oura).</p><p>Irregular cycles may result in a ±2–4 day difference. Log each period to improve accuracy.</p>' },
     },
     tour: [
-      { ttl:'Welcome!', bd:'This is your personal biometric interface. Tracks HRV, sleep, recovery and more in real-time from your Fitbit.' },
+      { ttl:'Welcome!', bd:'This is your personal biometric interface. Tracks HRV, sleep, recovery and more in real-time from Google Health.' },
       { ttl:'Four visual worlds', bd:'You picked a theme above. Each has its own identity: pixelated Minecraft, military Halo, chakra Naruto, or minimal Futuristic.' },
       { ttl:'Tap the <strong>?</strong>', bd:'Next to each key metric you\\u2019ll see a <strong>?</strong> button. Tap it to understand what it means: Recovery, HRV, Strain, etc.' },
-      { ttl:'Connect your Fitbit', bd:'When you press <strong>CONNECT</strong> you\\u2019ll open Fitbit OAuth. Your data flows straight from the device to the browser — no server of ours sees it.' },
+      { ttl:'Connect with Google', bd:'When you press <strong>CONNECT</strong> you\\u2019ll open Google OAuth. Your data flows straight from the device to the browser — no server of ours sees it.' },
     ],
     tour_skip:'Skip', tour_next:'Next', tour_done:'Start',
     lbl_total: 'TOTAL', lbl_start: 'START',
@@ -2483,7 +2483,7 @@ const T = {
     i1x: 'Your HRV rose 6ms since yesterday. Strong recovery signals. Ideal day for moderate-high intensity training.',
     i2x: 'Your deep sleep increased 12% this week. Schedule consistency improved: ±20min from your optimal window.',
     i3x: '4 consecutive days hitting your step goal. Complete today and it\'ll be your longest streak this month.',
-    modal_title: 'CONNECT FITBIT', modal_sub: 'OAuth Authorization · One time only',
+    modal_title: 'CONNECT GOOGLE', modal_sub: 'OAuth Authorization · One time only',
     m_simple_btn: 'CONNECT WITH FITBIT →',
     m_simple_note: 'Sign in with your Fitbit account and approve access. No developer account needed.',
     m_adv: 'Advanced options',
@@ -2504,7 +2504,7 @@ const T = {
     halo_pfx: 'SPARTAN ', halo_rl: '// COMBAT READINESS',
     naruto_eye: '木ノ葉の里 — KONOHA SHINOBI SYSTEM',
     naruto_pfx: '忍者: ', naruto_rl: '// チャクラ READINESS',
-    connected: '◆ FITBIT CONNECTED', live: 'LIVE',
+    connected: '◆ GOOGLE CONNECTED', live: 'LIVE',
     sync_toast: (t) => `◆ SYNC ${t}`,
     // Stats view
     sv_title: 'STATS', sv_sub: '// TODAY\'S METRICS',
@@ -2547,7 +2547,7 @@ const T = {
     sv_temp_lbl: 'TEMP.', sv_stress_lbl: 'STRESS',
     // Profile view
     pv_title: 'PROFILE', pv_sub: '// SETTINGS',
-    pv_connect_btn: 'CONNECT FITBIT →',
+    pv_connect_btn: 'CONNECT WITH GOOGLE →',
     pv_disconnect_btn: 'DISCONNECT',
     pv_sec_appearance: 'APPEARANCE',
     pv_theme_lbl: 'THEME',
