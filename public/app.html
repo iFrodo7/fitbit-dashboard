@@ -2813,8 +2813,10 @@ setLang(lang);
       if (navigator.vibrate) navigator.vibrate(20);
       // Trigger data refresh (placeholder for real poll)
       setTimeout(() => {
-        if (typeof pollFast === 'function') pollFast();
-        if (typeof pollSlow === 'function') pollSlow();
+        const _pf = (typeof HS!=='undefined'&&HS.id==='google') ? pollFastGoogle : pollFast;
+        const _ps = (typeof HS!=='undefined'&&HS.id==='google') ? pollSlowGoogle : pollSlow;
+        if (typeof _pf === 'function') _pf();
+        if (typeof _ps === 'function') _ps();
         ptr.classList.remove('show', 'refreshing');
         ptr.style.cssText = '';
         refreshing = false;
@@ -3748,9 +3750,10 @@ async function exportData() {
 
 // ══════ DISCONNECT FITBIT ══════
 function disconnectFitbit() {
+  const _isG = localStorage.getItem('fb_provider') === 'google';
   const msg = lang === 'es'
-    ? '¿Desconectar Fitbit? Se borrarán los tokens de sesión.'
-    : 'Disconnect Fitbit? Session tokens will be cleared.';
+    ? (_isG ? '¿Desconectar Google? Se borrarán los tokens de sesión.' : '¿Desconectar Fitbit? Se borrarán los tokens de sesión.')
+    : (_isG ? 'Disconnect Google? Session tokens will be cleared.'     : 'Disconnect Fitbit? Session tokens will be cleared.');
   if (!confirm(msg)) return;
   localStorage.removeItem('fb_tok');
   localStorage.removeItem('fb_rt');
@@ -3765,7 +3768,10 @@ function disconnectFitbit() {
   if (_unEl) _unEl.textContent = lang === 'es' ? 'USUARIO' : 'USER';
   const _bcEl = document.getElementById('btn-connect');
   if (_bcEl) _bcEl.style.display = '';
-  showToast(lang === 'es' ? 'Fitbit desconectado' : 'Fitbit disconnected', 'info');
+  const _toastMsg = lang === 'es'
+    ? (_isG ? 'Google desconectado' : 'Fitbit desconectado')
+    : (_isG ? 'Google disconnected' : 'Fitbit disconnected');
+  showToast(_toastMsg, 'info');
   navigate('profile'); // re-render profile
   setTimeout(() => window.location.reload(), 800);
 }
@@ -3799,7 +3805,8 @@ function updateOnlineStatus() {
     showToast(lang === 'es' ? 'Sin conexión — datos en caché' : 'Offline — cached data', 'warning');
   } else if (document.body.dataset.wasOffline === '1') {
     showToast(lang === 'es' ? 'Conexión restaurada' : 'Connection restored', 'success');
-    if (typeof pollFast === 'function') pollFast();
+    const _pf = (typeof HS!=='undefined'&&HS.id==='google') ? pollFastGoogle : pollFast;
+    if (typeof _pf === 'function') _pf();
   }
   document.body.dataset.wasOffline = offline ? '1' : '0';
 }
@@ -4216,12 +4223,29 @@ const GoogleHealthSource = {
     ].join(' '),
   },
   base: 'https://health.googleapis.com/v4',
-  // NOTE (junio): los nombres exactos de dataType y la forma de la respuesta del
-  // Google Health API se verifican con el Fitbit real conectado. El login ya es
-  // funcional; el mapeo de datos se finaliza en esa fase.
+  // Endpoint catalog — all calls go through _ghGet() + per-function filter params.
+  // Naming mirrors FitbitSource.ep so a reader can trace each migration mapping.
+  // Scopes required:  activity_and_fitness → steps, calories, active-zone-minutes
+  //                   health_metrics_and_measurements → HR, RHR, SpO2, HRV, BR
+  //                   sleep → sleep sessions
+  //                   profile → identity
   ep: {
-    dataPoints: (type) => `${GoogleHealthSource.base}/users/me/dataTypes/${type}/dataPoints`,
-    identity:   ()     => `${GoogleHealthSource.base}/users/me:getIdentity`,
+    // Generic builder (used by loadHealthMetricsGoogle)
+    dataPoints: (type)  => `${GoogleHealthSource.base}/users/me/dataTypes/${type}/dataPoints`,
+    // Named equivalents (mirror FitbitSource.ep names)
+    heartIntraday: ()   => `${GoogleHealthSource.base}/users/me/dataTypes/heart-rate/dataPoints`,
+    rhrToday:      ()   => `${GoogleHealthSource.base}/users/me/dataTypes/daily-resting-heart-rate/dataPoints`,
+    stepsToday:    ()   => `${GoogleHealthSource.base}/users/me/dataTypes/steps/dataPoints`,
+    sleepToday:    ()   => `${GoogleHealthSource.base}/users/me/dataTypes/sleep/dataPoints`,
+    spo2:          ()   => `${GoogleHealthSource.base}/users/me/dataTypes/daily-oxygen-saturation/dataPoints`,
+    hrv:           ()   => `${GoogleHealthSource.base}/users/me/dataTypes/daily-heart-rate-variability/dataPoints`,
+    br:            ()   => `${GoogleHealthSource.base}/users/me/dataTypes/daily-respiratory-rate/dataPoints`,
+    calories:      ()   => `${GoogleHealthSource.base}/users/me/dataTypes/total-calories/dataPoints`,
+    activeZones:   ()   => `${GoogleHealthSource.base}/users/me/dataTypes/active-zone-minutes/dataPoints`,
+    heartRange:    ()   => `${GoogleHealthSource.base}/users/me/dataTypes/daily-resting-heart-rate/dataPoints`,
+    sleepRange:    ()   => `${GoogleHealthSource.base}/users/me/dataTypes/sleep/dataPoints`,
+    stepsRange:    ()   => `${GoogleHealthSource.base}/users/me/dataTypes/steps/dataPoints`,
+    identity:      ()   => `${GoogleHealthSource.base}/users/me:getIdentity`,
   },
 };
 // Active data source — restored from the last login provider.
@@ -4448,12 +4472,15 @@ function _ghSleepToFitbit(dp) {
 // ── Initial full load ─────────────────────────────────────────────────────
 async function loadRealGoogleData() {
   const td=new Date().toISOString().split('T')[0];
-  const B=GoogleHealthSource.base, enc=encodeURIComponent, nd=_ghNextDay(td);
+  const B=GoogleHealthSource.base, enc=encodeURIComponent;
+  const nd=_ghNextDay(td); // tomorrow
+  const _ydx=new Date(td+'T12:00:00Z'); _ydx.setDate(_ydx.getDate()-1);
+  const yd=_ydx.toISOString().split('T')[0]; // yesterday — sleep look-back
   const [hrD,rhrD,stD,slD,calD] = await Promise.all([
     _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=1440`),
     _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?filter=${enc('daily_resting_heart_rate.date = "'+td+'"')}`),
     _ghGet(`${B}/users/me/dataTypes/steps/dataPoints?filter=${enc('steps.interval.civil_start_time >= "'+td+'" AND steps.interval.civil_start_time < "'+nd+'"')}&pageSize=1440`),
-    _ghGet(`${B}/users/me/dataTypes/sleep/dataPoints?filter=${enc('sleep.interval.civil_end_time >= "'+td+'" AND sleep.interval.civil_end_time < "'+nd+'"')}&pageSize=5`),
+    _ghGet(`${B}/users/me/dataTypes/sleep/dataPoints?filter=${enc('sleep.interval.civil_end_time >= "'+yd+'" AND sleep.interval.civil_end_time < "'+nd+'"')}&pageSize=5`),
     _ghGet(`${B}/users/me/dataTypes/total-calories/dataPoints?filter=${enc('total_calories.interval.civil_start_time >= "'+td+'" AND total_calories.interval.civil_start_time < "'+nd+'"')}&pageSize=1440`),
   ]);
   let rhr_v=65, maxHR_v=0;
@@ -4494,10 +4521,10 @@ async function loadRealGoogleData() {
   setStressBars({hrv:68,rhr:rhr_v,br:14});
   setHRZones({zones:[],restHR:rhr_v,maxHR:maxHR_v||140});
   syncTicker();
-  loadHealthMetricsGoogle(td);
+  loadHealthMetricsGoogle(td, rhr_v);
 }
 // ── SpO2 / HRV / Breathing rate ───────────────────────────────────────────
-async function loadHealthMetricsGoogle(td) {
+async function loadHealthMetricsGoogle(td, rhr_v) {
   const B=GoogleHealthSource.base, enc=encodeURIComponent;
   const set=(id,v)=>{const el=document.getElementById(id); if(el&&v!=null&&!isNaN(+v))el.textContent=Math.round(+v);};
   try {
@@ -4506,10 +4533,14 @@ async function loadHealthMetricsGoogle(td) {
       _ghGet(`${B}/users/me/dataTypes/daily-heart-rate-variability/dataPoints?filter=${enc('daily_heart_rate_variability.date = "'+td+'"')}`),
       _ghGet(`${B}/users/me/dataTypes/daily-respiratory-rate/dataPoints?filter=${enc('daily_respiratory_rate.date = "'+td+'"')}`),
     ]);
-    console.debug('[gh metrics]', spo2?.dataPoints?.[0], hrv?.dataPoints?.[0], br?.dataPoints?.[0]);
+    console.debug('[gh metrics raw]', spo2?.dataPoints?.[0], hrv?.dataPoints?.[0], br?.dataPoints?.[0]);
     const sp=spo2?.dataPoints?.[0]?.dailyOxygenSaturation; set('spo2v', sp?.avg??sp?.avgPercent??sp?.value);
     const hv=hrv?.dataPoints?.[0]?.dailyHeartRateVariability;  set('hrvv',  hv?.rmssd??hv?.dailyRmssd??hv?.value);
     const bv=br?.dataPoints?.[0]?.dailyRespiratoryRate;         set('resp-val', bv?.rate??bv?.breathingRate??bv?.value);
+    // Update stress bars with real HRV + BR values once available
+    const hrvReal = Math.round(+(hv?.rmssd??hv?.dailyRmssd??hv?.value??68));
+    const brReal  = Math.round(+(bv?.rate??bv?.breathingRate??bv?.value??14));
+    setStressBars({ hrv: hrvReal, rhr: rhr_v || 65, br: brReal });
     if (typeof syncTicker==='function') syncTicker();
   } catch(e) {}
 }
@@ -4547,8 +4578,10 @@ async function pollSlowGoogle() {
   if (!token) return;
   try {
     const td=new Date().toISOString().split('T')[0], nd=_ghNextDay(td);
+    const _psx=new Date(td+'T12:00:00Z'); _psx.setDate(_psx.getDate()-1);
+    const yd=_psx.toISOString().split('T')[0]; // look back to yesterday
     const B=GoogleHealthSource.base, enc=encodeURIComponent;
-    const data=await _ghGet(`${B}/users/me/dataTypes/sleep/dataPoints?filter=${enc('sleep.interval.civil_end_time >= "'+td+'" AND sleep.interval.civil_end_time < "'+nd+'"')}&pageSize=5`);
+    const data=await _ghGet(`${B}/users/me/dataTypes/sleep/dataPoints?filter=${enc('sleep.interval.civil_end_time >= "'+yd+'" AND sleep.interval.civil_end_time < "'+nd+'"')}&pageSize=5`);
     const dp=data?.dataPoints?.[0];
     if (dp?.sleep){
       const sm={}; (dp.sleep.stagesSummary||[]).forEach(s=>{const k=s.type==='AWAKE'?'wake':(s.type||'').toLowerCase(); sm[k]=parseInt(s.minutes)||0;});
@@ -4562,7 +4595,7 @@ async function _hFetchGoogle(start, end) {
   const [rhrTs,sleepTs,stepsTs] = await Promise.all([
     _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?filter=${enc('daily_resting_heart_rate.date >= "'+start+'" AND daily_resting_heart_rate.date <= "'+end+'"')}&pageSize=100`),
     _ghGet(`${B}/users/me/dataTypes/sleep/dataPoints?filter=${enc('sleep.interval.civil_end_time >= "'+start+'" AND sleep.interval.civil_end_time < "'+nd+'"')}&pageSize=100`),
-    _ghGet(`${B}/users/me/dataTypes/steps/dataPoints?filter=${enc('steps.interval.civil_start_time >= "'+start+'T00:00:00Z" AND steps.interval.civil_start_time < "'+nd+'T00:00:00Z"')}&pageSize=10000`),
+    _ghGet(`${B}/users/me/dataTypes/steps/dataPoints?filter=${enc('steps.interval.civil_start_time >= "'+start+'" AND steps.interval.civil_start_time < "'+nd+'"')}&pageSize=10000`),
   ]);
   const hrByDate={};
   (rhrTs?.dataPoints||[]).forEach(dp=>{
@@ -4596,7 +4629,7 @@ function startCd() {
     ec.style.color = cd<=5?'var(--tneg)':'var(--ta)';
   }, 1000);
 }
-function chgI(v) { pSec=parseInt(v); startCd(); clearInterval(ptmr); if(isReal)ptmr=setInterval(pollFast,pSec*1000); }
+function chgI(v) { pSec=parseInt(v); startCd(); clearInterval(ptmr); if(isReal){ const _pf=HS.id==='google'?pollFastGoogle:pollFast; ptmr=setInterval(_pf,pSec*1000); } }
 function animSBar() { const f=document.getElementById('sbfi'); f.style.transition='none'; f.style.width='0%'; requestAnimationFrame(()=>{ f.style.transition=`width ${pSec*1000}ms linear`; f.style.width='100%'; setTimeout(()=>{ f.style.transition='width 0.3s'; f.style.width='0%'; },pSec*1000); }); }
 // Short readiness label for a recovery score (same buckets as recTextFor).
 // Single recovery source = the readiness ring (window._lastRec via calcScores).
