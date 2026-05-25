@@ -4388,15 +4388,26 @@ async function loadRealGoogle(displayName) {
     const ds = document.getElementById('dstrip'); if (ds) ds.style.display = 'none';
     // Hide the connect button (same treatment as the Fitbit flow).
     const _bcBtn = document.getElementById('btn-connect'); if (_bcBtn) _bcBtn.style.display = 'none';
-    // Persist and show the user's name extracted from the id_token.
+    // If name wasn't passed (e.g. page-reload path), try Google's userinfo endpoint
+    // as a fallback — works whenever openid/profile scope was granted.
+    if (!displayName) {
+      try {
+        const _ui = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (_ui.ok) {
+          const _up = await _ui.json();
+          displayName = (_up.name || _up.given_name || _up.email || '').toUpperCase();
+        }
+      } catch (e) {}
+    }
+    // Persist and show the user's name.
     if (displayName) {
       localStorage.setItem('fb_display_name', displayName);
       const _un = document.getElementById('uname'); if (_un) _un.textContent = displayName;
     }
     closeModal();
     showToast(lang === 'es' ? '◆ GOOGLE CONECTADO' : '◆ GOOGLE CONNECTED');
-    // Best-effort identity check (proves the token works). Data mapping = June.
-    try { await fetch(GoogleHealthSource.ep.identity(), { headers: { 'Authorization': 'Bearer ' + token } }); } catch (e) {}
   } catch (e) { /* keep UI stable */ } finally { hideLoad(); }
 }
 function startCd() {
