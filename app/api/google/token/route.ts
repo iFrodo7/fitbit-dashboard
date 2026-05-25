@@ -53,6 +53,10 @@ export async function POST(request: NextRequest) {
     params.set("redirect_uri", body.redirect_uri || "");
     if (body.code_verifier) params.set("code_verifier", body.code_verifier);
   } else {
+    console.error(
+      "[google/token] missing code and refresh_token; body keys:",
+      JSON.stringify(Object.keys(body || {}))
+    );
     return NextResponse.json(
       { error: "Missing code or refresh_token" },
       { status: 400 }
@@ -75,6 +79,17 @@ export async function POST(request: NextRequest) {
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
+    console.error(
+      "[google/token] exchange failed",
+      JSON.stringify({
+        grant: body.refresh_token ? "refresh" : "code",
+        hasCode: !!body.code,
+        hasVerifier: !!body.code_verifier,
+        redirect_uri: body.redirect_uri,
+        status: res.status,
+        google: data,
+      })
+    );
     return NextResponse.json(
       { error: "Token exchange failed", detail: data },
       { status: res.status }

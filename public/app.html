@@ -4313,7 +4313,9 @@ async function handleGoogleOAuth(code) {
       await loadRealGoogle();
     } else {
       hideLoad();
-      showToast(lang === 'es' ? 'No se pudo iniciar sesión con Google' : 'Google sign-in failed', 'error');
+      console.error('[google login] token exchange error:', d);
+      const reason = d?.detail?.error_description || d?.detail?.error || d?.error || '';
+      showToast((lang === 'es' ? 'No se pudo iniciar sesión con Google' : 'Google sign-in failed') + (reason ? ' — ' + reason : ''), 'error');
     }
   } catch (e) { hideLoad(); showToast(lang === 'es' ? 'Error de conexión con Google' : 'Google connection error', 'error'); }
 }
