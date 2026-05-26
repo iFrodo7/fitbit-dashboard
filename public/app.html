@@ -605,8 +605,10 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 
 /* Loading overlay — premium skeleton */
 /* ── Offline / No-Connection Waiting Overlay ─────────────────────── */
-.owait{display:none;position:fixed;inset:0;background:var(--bg);z-index:910;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
+.owait{display:none;position:fixed;inset:0;background:var(--bg);z-index:910;flex-direction:column;align-items:center;justify-content:center;gap:20px;opacity:1;transition:opacity 0.38s ease;}
 .owait.on{display:flex;}
+/* Fade-out before transitioning to splash */
+.owait.owait-exit{opacity:0;pointer-events:none;}
 .owait-logo{position:relative;width:clamp(96px,28vw,148px);height:clamp(96px,28vw,148px);}
 .owait-logo-svg{width:100%;height:100%;overflow:visible;}
 /* Ghost AIRA geometry — slow breath, matches splash off-state */
@@ -2107,13 +2109,11 @@ body.t-naruto span.vval{
   <div class="owait" id="owait" aria-live="polite" aria-label="Esperando conexión">
     <div class="owait-logo" aria-hidden="true">
       <svg class="owait-logo-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-        <!-- Ghost AIRA logo — same geometry as splash, barely lit -->
+        <!-- Ghost AIRA logo — same geometry as splash, barely lit (no crossbar) -->
         <g class="ow-ghost">
           <circle cx="256" cy="256" r="180" fill="none" stroke="var(--ta)" stroke-width="20"/>
           <path d="M188 346 L256 176 L324 346" fill="none" stroke="var(--ta)"
                 stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M214 290 H298" fill="none" stroke="var(--ta)"
-                stroke-width="22" stroke-linecap="round"/>
         </g>
         <!-- 3 ripple rings — sp-pulse effect, looped, staggered -->
         <circle class="ow-ring ow-r1" cx="256" cy="256" r="180"/>
@@ -5267,7 +5267,22 @@ function _showOwait() {
   document.getElementById('lov')?.classList.remove('on'); // hide regular loader
   el.classList.add('on');
 }
-function _hideOwait() { document.getElementById('owait')?.classList.remove('on'); }
+function _hideOwait() {
+  var el = document.getElementById('owait');
+  if (!el) return;
+  // If this is the very first connection restore (was showing the "waiting" screen),
+  // fade out smoothly and then play the splash "online" animation.
+  var isFirstRestore = el.classList.contains('on') && !_connInited;
+  if (isFirstRestore) {
+    el.classList.add('owait-exit');        // start opacity → 0
+    setTimeout(function() {
+      el.classList.remove('on', 'owait-exit');
+      showSplash();                        // celebrate — "you're online!"
+    }, 400);
+  } else {
+    el.classList.remove('on');
+  }
+}
 
 function showLoad() {
   if (!navigator.onLine) {
@@ -6043,6 +6058,10 @@ function setHistoryRange(n) {
 function showSplash() {
   var el = document.getElementById('sp');
   if (!el) return;
+  // Reset any state from a previous call (inline display:none + leftover classes)
+  el.style.display = '';
+  el.classList.remove('sp-on', 'sp-off');
+  void el.offsetWidth; // force reflow so CSS animations restart cleanly
   // Trigger all CSS animations
   el.classList.add('sp-on');
   // Begin exit at 2 150 ms — after all elements are fully lit
