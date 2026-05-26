@@ -178,7 +178,7 @@ body{width:100%;min-height:100vh;}
 .scard-inner{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;}
 
 /* ── HISTORY VIEW (overlay) ── */
-#hview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
+#hview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:110;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
 body.view-history #hview{display:block;pointer-events:auto;}
 body.view-history #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#hview):not(#cyc-modal-ov):not(#cyc-sym-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
 body.view-history #dash > #install-banner{visibility:visible;}
@@ -251,12 +251,12 @@ body.view-history #dash > #install-banner{visibility:visible;}
 .hv-coach-empty{opacity:0.35;font-size:10px;letter-spacing:2px;padding:10px 0;}
 
 /* ── STATS VIEW (overlay) ── */
-#sview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
+#sview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:110;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
 body.view-stats #sview{display:block;pointer-events:auto;}
 body.view-stats #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#sview):not(#cyc-modal-ov):not(#cyc-sym-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
 
 /* ── PROFILE VIEW (overlay) ── */
-#pview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:40;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
+#pview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:110;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
 body.view-profile #pview{display:block;pointer-events:auto;}
 body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#pview):not(#cyc-modal-ov):not(#cyc-sym-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
 
