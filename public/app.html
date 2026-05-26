@@ -987,29 +987,32 @@ body.t-mc::before{content:'';position:fixed;inset:0;background-image:repeating-l
 .t-naruto .naruto-bars{display:block;}
 .t-naruto .mc-bars,.halo-bars,.t-fut-bars{display:none;}
 
-/* ── NARUTO: Chakra Ring ── */
+/* ── NARUTO: Fuinjutsu Sealing Ring ──
+   Inspired by the Eight Trigrams Sealing Style (八卦封印式).
+   No rotating parts — the mystique comes from the static seal design,
+   the Ba Gua trigrams, and chakra energy breathing through the arc.  */
 .nrt-rc{display:none;position:relative;width:220px;height:220px;}
 .nrt-rsvg{width:100%;height:100%;overflow:visible;}
 .t-naruto .rc{display:none;}
 .t-naruto .nrt-rc{display:block;}
-/* Chakra arc */
-#nrt-rfil{fill:none;stroke:#ff4500;stroke-width:9;stroke-linecap:round;stroke-dasharray:402.1;stroke-dashoffset:80;transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 0 7px #ff4500) drop-shadow(0 0 20px rgba(255,69,0,0.45));}
-/* Outer seal ring rotates CW */
-.nrt-s1{transform-box:fill-box;transform-origin:center;animation:nrtCW 28s linear infinite;}
-/* Cardinal marks rotate CCW */
-.nrt-s2{transform-box:fill-box;transform-origin:center;animation:nrtCCW 18s linear infinite;}
-/* Tomoe pulse staggered */
-.nrt-t1{animation:nrtTGlow 2.6s 0s    ease-in-out infinite;}
-.nrt-t2{animation:nrtTGlow 2.6s -0.87s ease-in-out infinite;}
-.nrt-t3{animation:nrtTGlow 2.6s -1.73s ease-in-out infinite;}
-@keyframes nrtCW  {to{transform:rotate( 360deg);}}
-@keyframes nrtCCW {to{transform:rotate(-360deg);}}
-@keyframes nrtTGlow{
-  0%,100%{opacity:0.6;}
-  50%{opacity:1;filter:drop-shadow(0 0 9px rgba(255,69,0,0.95));}}
-/* Percentage display */
+/* Chakra arc — glows like chakra flowing through an ancient seal */
+#nrt-rfil{fill:none;stroke:#ff4500;stroke-width:9;stroke-linecap:round;
+  stroke-dasharray:364;stroke-dashoffset:73;
+  transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1);
+  animation:nrtArcGlow 3.5s ease-in-out infinite;}
+/* Ba Gua kanji (八卦) and seal marks */
+.nrt-kj{font-family:'Noto Serif JP',serif;font-size:9.5px;fill:rgba(255,90,0,0.6);}
+/* Center 渦 Uzumaki seal */
+.nrt-seal{font-family:'Noto Serif JP',serif;font-size:42px;fill:rgba(255,69,0,0.16);
+  animation:nrtSealPulse 4.2s ease-in-out infinite;}
+@keyframes nrtArcGlow{
+  0%,100%{filter:drop-shadow(0 0 4px rgba(255,69,0,0.85)) drop-shadow(0 0 14px rgba(255,69,0,0.35));}
+  50%    {filter:drop-shadow(0 0 9px rgba(255,110,0,1))   drop-shadow(0 0 26px rgba(255,69,0,0.65));}}
+@keyframes nrtSealPulse{0%,100%{opacity:0.7;}50%{opacity:1;}}
+/* Percentage number */
 .nrt-pct-row{display:flex;align-items:baseline;line-height:1;}
-.nrt-pct-sym{font-family:'Permanent Marker',cursive;font-size:20px;color:#ff4500;opacity:0.75;margin-left:1px;text-shadow:0 0 10px rgba(255,69,0,0.5);}
+.nrt-pct-sym{font-family:'Permanent Marker',cursive;font-size:20px;color:#ff4500;
+  opacity:0.75;margin-left:1px;text-shadow:0 0 10px rgba(255,69,0,0.5);}
 
 /* ── FUTURISTIC: ENERGY & PROCESSOR ── */
 .fut-bars{margin-top:10px;width:100%;}
@@ -1501,61 +1504,60 @@ body.t-naruto span.vval{
         </div>
 
         <!-- Naruto Ring — naruto theme only -->
+        <!-- Design: Eight Trigrams Sealing Style (八卦封印式)           -->
+        <!-- Static seal with Ba Gua trigrams + Uzumaki spiral center   -->
         <div class="nrt-rc">
           <svg class="nrt-rsvg" viewBox="0 0 160 160">
-            <defs>
-              <!-- Path for seal text to follow (circle at r=68) -->
-              <path id="nrt-tp" d="M80,12 A68,68 0 1,1 79.99,12" fill="none"/>
-            </defs>
-            <!-- Seal text running around the ring -->
-            <text font-family="'Noto Serif JP',serif" font-size="6.5" fill="rgba(255,69,0,0.3)" letter-spacing="2">
-              <textPath href="#nrt-tp">封印 · 木ノ葉 · 忍道 · 渦 · 封印 · 木ノ葉 · 忍道 · 渦 · 封印</textPath>
-            </text>
-            <!-- Outer seal: segmented ring, rotates CW -->
-            <circle class="nrt-s1" cx="80" cy="80" r="74" fill="none" stroke="rgba(255,69,0,0.2)" stroke-width="2" stroke-dasharray="6 13.3"/>
-            <!-- 4 kuchiyose marks: counter-rotate -->
-            <circle class="nrt-s2" cx="80" cy="80" r="74" fill="none" stroke="rgba(255,100,0,0.55)" stroke-width="2.5" stroke-dasharray="4 117"/>
-            <!-- 12 seal ticks alternating major/minor -->
-            <g stroke="rgba(255,69,0,0.4)" stroke-width="1.5" stroke-linecap="round">
-              <line x1="80" y1="6"  x2="80" y2="11"  transform="rotate(0   80 80)"/>
-              <line x1="80" y1="6"  x2="80" y2="9"   transform="rotate(30  80 80)"/>
-              <line x1="80" y1="6"  x2="80" y2="11"  transform="rotate(60  80 80)"/>
-              <line x1="80" y1="6"  x2="80" y2="9"   transform="rotate(90  80 80)"/>
-              <line x1="80" y1="6"  x2="80" y2="11"  transform="rotate(120 80 80)"/>
-              <line x1="80" y1="6"  x2="80" y2="9"   transform="rotate(150 80 80)"/>
-              <line x1="80" y1="6"  x2="80" y2="11"  transform="rotate(180 80 80)"/>
-              <line x1="80" y1="6"  x2="80" y2="9"   transform="rotate(210 80 80)"/>
-              <line x1="80" y1="6"  x2="80" y2="11"  transform="rotate(240 80 80)"/>
-              <line x1="80" y1="6"  x2="80" y2="9"   transform="rotate(270 80 80)"/>
-              <line x1="80" y1="6"  x2="80" y2="11"  transform="rotate(300 80 80)"/>
-              <line x1="80" y1="6"  x2="80" y2="9"   transform="rotate(330 80 80)"/>
+
+            <!-- ── BACKGROUND ── -->
+            <!-- Dark aged-parchment circle -->
+            <circle cx="80" cy="80" r="76" fill="rgba(28,6,0,0.72)"/>
+
+            <!-- ── OUTER SEAL RINGS (static, concentric) ── -->
+            <circle cx="80" cy="80" r="73" fill="none" stroke="rgba(255,69,0,0.28)" stroke-width="1.2"/>
+            <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,69,0,0.10)" stroke-width="0.6"/>
+
+            <!-- ── 八卦 BA GUA — 8 trigrams at 8 compass points (r=72) ── -->
+            <!-- Each kanji is one of the classical I Ching trigrams used in -->
+            <!-- Minato's Eight Trigrams Sealing Style on Naruto's seal      -->
+            <!-- N  --> <text x="80"  y="8"   text-anchor="middle" dominant-baseline="central" class="nrt-kj">乾</text>
+            <!-- NE --> <text x="131" y="29"  text-anchor="middle" dominant-baseline="central" class="nrt-kj">兌</text>
+            <!-- E  --> <text x="152" y="80"  text-anchor="middle" dominant-baseline="central" class="nrt-kj">離</text>
+            <!-- SE --> <text x="131" y="131" text-anchor="middle" dominant-baseline="central" class="nrt-kj">震</text>
+            <!-- S  --> <text x="80"  y="152" text-anchor="middle" dominant-baseline="central" class="nrt-kj">坤</text>
+            <!-- SW --> <text x="29"  y="131" text-anchor="middle" dominant-baseline="central" class="nrt-kj">巽</text>
+            <!-- W  --> <text x="8"   y="80"  text-anchor="middle" dominant-baseline="central" class="nrt-kj">坎</text>
+            <!-- NW --> <text x="29"  y="29"  text-anchor="middle" dominant-baseline="central" class="nrt-kj">艮</text>
+
+            <!-- ── 8 RADIAL SEAL MARKS at the trigram positions ── -->
+            <!-- Short lines from r=63 to r=70, aligned with each trigram  -->
+            <g stroke="rgba(255,80,0,0.45)" stroke-width="1.5" stroke-linecap="round">
+              <line x1="80" y1="10" x2="80" y2="17" transform="rotate(0   80 80)"/>
+              <line x1="80" y1="10" x2="80" y2="17" transform="rotate(45  80 80)"/>
+              <line x1="80" y1="10" x2="80" y2="17" transform="rotate(90  80 80)"/>
+              <line x1="80" y1="10" x2="80" y2="17" transform="rotate(135 80 80)"/>
+              <line x1="80" y1="10" x2="80" y2="17" transform="rotate(180 80 80)"/>
+              <line x1="80" y1="10" x2="80" y2="17" transform="rotate(225 80 80)"/>
+              <line x1="80" y1="10" x2="80" y2="17" transform="rotate(270 80 80)"/>
+              <line x1="80" y1="10" x2="80" y2="17" transform="rotate(315 80 80)"/>
             </g>
-            <!-- Chakra ring background track -->
-            <circle cx="80" cy="80" r="64" fill="none" stroke="rgba(255,69,0,0.07)" stroke-width="9"/>
-            <!-- Chakra arc (animated) -->
-            <circle id="nrt-rfil" cx="80" cy="80" r="64" transform="rotate(-90 80 80)"/>
-            <!-- Inner accent ring -->
-            <circle cx="80" cy="80" r="54" fill="none" stroke="rgba(255,69,0,0.08)" stroke-width="1"/>
-            <!-- 3 Tomoe (巴) at r=46, staggered 120° -->
-            <g transform="translate(80,80)">
-              <g class="nrt-t1">
-                <circle cx="0" cy="-46" r="5" fill="#ff4500" opacity="0.9"/>
-                <path d="M 0,-46 C 14,-32 14,-12 0,-12" stroke="#ff4500" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.5"/>
-              </g>
-              <g class="nrt-t2" transform="rotate(120)">
-                <circle cx="0" cy="-46" r="5" fill="#ff4500" opacity="0.9"/>
-                <path d="M 0,-46 C 14,-32 14,-12 0,-12" stroke="#ff4500" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.5"/>
-              </g>
-              <g class="nrt-t3" transform="rotate(240)">
-                <circle cx="0" cy="-46" r="5" fill="#ff4500" opacity="0.9"/>
-                <path d="M 0,-46 C 14,-32 14,-12 0,-12" stroke="#ff4500" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.5"/>
-              </g>
-            </g>
-            <!-- Dark backdrop — hides tail ends, frames the number -->
-            <circle cx="80" cy="80" r="34" fill="rgba(12,4,0,0.94)"/>
-            <!-- 渦 Uzumaki seal watermark in center -->
-            <text x="80" y="80" text-anchor="middle" dominant-baseline="central"
-                  font-family="'Noto Serif JP',serif" font-size="28" fill="rgba(255,69,0,0.12)">渦</text>
+
+            <!-- ── CHAKRA ARC ── -->
+            <!-- Background track -->
+            <circle cx="80" cy="80" r="58" fill="none" stroke="rgba(255,69,0,0.07)" stroke-width="9"/>
+            <!-- Animated chakra fill -->
+            <circle id="nrt-rfil" cx="80" cy="80" r="58" transform="rotate(-90 80 80)"/>
+
+            <!-- ── INNER SEAL RINGS ── -->
+            <circle cx="80" cy="80" r="48" fill="none" stroke="rgba(255,69,0,0.14)" stroke-width="0.8"/>
+            <circle cx="80" cy="80" r="43" fill="none" stroke="rgba(255,69,0,0.07)" stroke-width="0.5"/>
+
+            <!-- ── CENTER ── -->
+            <!-- Dark backdrop framing the number -->
+            <circle cx="80" cy="80" r="37" fill="rgba(10,2,0,0.96)"/>
+            <!-- 渦 Uzumaki clan spiral — the soul of the seal -->
+            <text x="80" y="80" text-anchor="middle" dominant-baseline="central" class="nrt-seal">渦</text>
+
           </svg>
           <div class="ri">
             <div class="nrt-pct-row">
@@ -4644,9 +4646,9 @@ function updateScores({ rec, strain, sleepPct }) {
   setMCHearts('r', Math.round(rec/10));
   setMCHearts('s', Math.round(sleepPct/10));
   animN('mc-rscore', 0, rec, 1200);
-  // Naruto ring
+  // Naruto ring (r=58, circumference=364)
   const nrf = document.getElementById('nrt-rfil');
-  if (nrf) nrf.style.strokeDashoffset = (402.1*(1-rec/100)).toFixed(1);
+  if (nrf) nrf.style.strokeDashoffset = (364*(1-rec/100)).toFixed(1);
   animN('nrt-rscore', 0, rec, 1200);
   // Strain
   const sb = document.getElementById('strain-bar');
