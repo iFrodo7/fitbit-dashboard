@@ -1417,15 +1417,13 @@ body.t-naruto span.vval{
 .t-halo .card.rw::before,.t-halo .card.rw::after{content:'';position:absolute;width:16px;height:16px;pointer-events:none;}
 .t-halo .card.rw::before{top:7px;left:7px;border-top:1px solid rgba(255,45,120,0.6);border-left:1px solid rgba(255,45,120,0.6);}
 .t-halo .card.rw::after{bottom:7px;right:7px;border-bottom:1px solid rgba(189,0,255,0.5);border-right:1px solid rgba(189,0,255,0.5);}
-/* NN Boot sequence overlay */
-#nn-boot{display:none;position:fixed;inset:0;background:#060010;z-index:1999;flex-direction:column;justify-content:center;align-items:flex-start;padding:clamp(28px,6vw,60px);}
-#nn-boot.on{display:flex;}
-.nn-bl{font-family:'IBM Plex Mono',monospace;font-size:clamp(11px,1.8vw,13px);letter-spacing:2px;line-height:2;opacity:0;transition:opacity 0.08s;}
-.nn-bl.vis{opacity:1;}
-.nn-bl.dim{color:rgba(255,45,120,0.3);}
-.nn-bl.ok{color:#39ff14;}
-.nn-bl.err{color:#ff4500;}
-#nn-cursor{display:inline-block;width:8px;height:13px;background:#ff2d78;animation:blink 0.7s step-end infinite;vertical-align:middle;margin-left:4px;}
+/* ══ Universal boot / intro overlay (all themes) ══ */
+#theme-boot{display:none;position:fixed;inset:0;z-index:10001;flex-direction:column;justify-content:center;align-items:flex-start;padding:clamp(28px,6vw,60px);transition:opacity 0.38s ease;}
+#theme-boot.on{display:flex;}
+#theme-boot.boot-out{opacity:0;}
+.boot-line{opacity:0;line-height:1.95;transition:opacity 0.09s;}
+.boot-line.vis{opacity:1;}
+.boot-cursor{display:inline-block;width:9px;height:14px;animation:blink 0.7s step-end infinite;vertical-align:middle;margin-left:4px;}
 /* NN scan sweep on ring card (periodic) */
 @keyframes nn-sweep{0%{top:-4px;opacity:0.7;}100%{top:105%;opacity:0;}}
 .nn-sweep{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(255,45,120,0.5),rgba(189,0,255,0.3),transparent);pointer-events:none;animation:nn-sweep 3.5s ease-in infinite;z-index:2;}
@@ -1601,8 +1599,8 @@ body.t-naruto span.vval{
   <button class="install-close" onclick="dismissInstall()" aria-label="Cerrar">×</button>
 </div>
 
-<!-- ══ NEON NOIR BOOT SEQUENCE ══ -->
-<div id="nn-boot"></div>
+<!-- ══ THEME BOOT / INTRO SEQUENCE (all themes) ══ -->
+<div id="theme-boot"></div>
 
 <div id="dash">
   <!-- ══ AMBIENT LAYERS (theme-specific, fixed, pointer-events:none) ══ -->
@@ -3405,6 +3403,7 @@ function openThemePreview(t) {
 function confirmTheme() {
   document.getElementById('tprev').classList.remove('on');
   if (window._pendingTheme) {
+    window._fromSelector = true;
     selectTheme(window._pendingTheme);
     window._pendingTheme = null;
   }
@@ -3467,55 +3466,204 @@ function startBloomAmbient() {
 // ══════════════════════════════════════════════════════════════════
 // NEON NOIR AMBIENT — matrix rain + boot sequence
 // ══════════════════════════════════════════════════════════════════
-var NN_BOOT_LINES_ES = [
-  { t: 'AIRA NEURAL INTERFACE v2.0.77', cls: '' },
-  { t: '────────────────────────────────', cls: 'dim' },
-  { t: '[OK] Enlace neural establecido', cls: 'ok' },
-  { t: '[OK] ICE cargado — integridad 98%', cls: 'ok' },
-  { t: '[OK] Chrome interfaces activos', cls: 'ok' },
-  { t: '[  ] Sincronizando biometría...', cls: '' },
-  { t: '[OK] Biometría vinculada', cls: 'ok' },
-  { t: '────────────────────────────────', cls: 'dim' },
-  { t: 'ACCESO AUTORIZADO. BIENVENIDO/A.', cls: '' }
-];
-var NN_BOOT_LINES_EN = [
-  { t: 'AIRA NEURAL INTERFACE v2.0.77', cls: '' },
-  { t: '────────────────────────────────', cls: 'dim' },
-  { t: '[OK] Neural link established', cls: 'ok' },
-  { t: '[OK] ICE loaded — integrity 98%', cls: 'ok' },
-  { t: '[OK] Chrome interfaces active', cls: 'ok' },
-  { t: '[  ] Syncing biometrics...', cls: '' },
-  { t: '[OK] Biometrics linked', cls: 'ok' },
-  { t: '────────────────────────────────', cls: 'dim' },
-  { t: 'ACCESS GRANTED. WELCOME BACK.', cls: '' }
-];
+// ══════════════════════════════════════════════════════════════════
+// THEME BOOT CONFIGURATIONS  (one per theme, ES + EN)
+// ══════════════════════════════════════════════════════════════════
+var THEME_BOOT_CONFIG = {
 
-function startNNBoot(cb) {
+  // ── BLOOM ──────────────────────────────────────────────────────
+  bloom: {
+    bg: '#0f0709', color: '#e85c8a', okColor: '#c47fb5',
+    dimColor: 'rgba(232,92,138,0.22)', errColor: '#e8a87c',
+    font: "'Nunito',sans-serif", fw: '600', ls: '3px',
+    fs: 'clamp(11px,1.9vw,14px)',
+    cursor: '#e85c8a',
+    lines: {
+      es: [
+        { t: '✦  A · I · R · A  ·  BLOOM WELLNESS', cls: 'title', fs: 'clamp(13px,2.2vw,16px)', fw: '800' },
+        { t: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', cls: 'dim' },
+        { t: '✦  Conectando contigo...', cls: '', delay: 120 },
+        { t: '✦  Ritmo cardíaco en reposo ·····  óptimo', cls: 'ok', delay: 160 },
+        { t: '✦  Análisis de sueño ············  completo', cls: 'ok', delay: 160 },
+        { t: '✦  Nivel de energía ·············  cargando', cls: '', delay: 200 },
+        { t: '✦  Flow state ···················  ACTIVADO ✦', cls: 'ok', delay: 240 },
+        { t: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', cls: 'dim', delay: 180 },
+        { t: '✦  Tu cuerpo te habla. Hoy escúchalo.', cls: 'title', delay: 320, fs: 'clamp(12px,2vw,15px)' }
+      ],
+      en: [
+        { t: '✦  A · I · R · A  ·  BLOOM WELLNESS', cls: 'title', fs: 'clamp(13px,2.2vw,16px)', fw: '800' },
+        { t: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', cls: 'dim' },
+        { t: '✦  Connecting with you...', cls: '', delay: 120 },
+        { t: '✦  Resting heart rate ···········  optimal', cls: 'ok', delay: 160 },
+        { t: '✦  Sleep analysis ···············  complete', cls: 'ok', delay: 160 },
+        { t: '✦  Energy level ·················  loading', cls: '', delay: 200 },
+        { t: '✦  Flow state ···················  ACTIVE ✦', cls: 'ok', delay: 240 },
+        { t: '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', cls: 'dim', delay: 180 },
+        { t: '✦  Your body is speaking. Listen today.', cls: 'title', delay: 320, fs: 'clamp(12px,2vw,15px)' }
+      ]
+    }
+  },
+
+  // ── NEON NOIR ──────────────────────────────────────────────────
+  halo: {
+    bg: '#060010', color: '#ff2d78', okColor: '#39ff14',
+    dimColor: 'rgba(255,45,120,0.28)', errColor: '#ff4500',
+    font: "'IBM Plex Mono',monospace", fw: '400', ls: '2px',
+    fs: 'clamp(11px,1.8vw,13px)',
+    cursor: '#ff2d78',
+    lines: {
+      es: [
+        { t: 'AIRA NEURAL INTERFACE v2.0.77', cls: '', fw: '700' },
+        { t: '────────────────────────────────', cls: 'dim' },
+        { t: '[OK] Enlace neural establecido', cls: 'ok', delay: 120 },
+        { t: '[OK] ICE cargado — integridad 98%', cls: 'ok', delay: 140 },
+        { t: '[OK] Chrome interfaces activos', cls: 'ok', delay: 140 },
+        { t: '[  ] Sincronizando biometría...', cls: '', delay: 200 },
+        { t: '[OK] Biometría vinculada', cls: 'ok', delay: 260 },
+        { t: '────────────────────────────────', cls: 'dim', delay: 140 },
+        { t: 'ACCESO AUTORIZADO. BIENVENIDO/A.', cls: '', delay: 320, fw: '700' }
+      ],
+      en: [
+        { t: 'AIRA NEURAL INTERFACE v2.0.77', cls: '', fw: '700' },
+        { t: '────────────────────────────────', cls: 'dim' },
+        { t: '[OK] Neural link established', cls: 'ok', delay: 120 },
+        { t: '[OK] ICE loaded — integrity 98%', cls: 'ok', delay: 140 },
+        { t: '[OK] Chrome interfaces active', cls: 'ok', delay: 140 },
+        { t: '[  ] Syncing biometrics...', cls: '', delay: 200 },
+        { t: '[OK] Biometrics linked', cls: 'ok', delay: 260 },
+        { t: '────────────────────────────────', cls: 'dim', delay: 140 },
+        { t: 'ACCESS GRANTED. WELCOME BACK.', cls: '', delay: 320, fw: '700' }
+      ]
+    }
+  },
+
+  // ── SHINOBI ────────────────────────────────────────────────────
+  naruto: {
+    bg: '#0c0400', color: '#ff6b00', okColor: '#ffaa00',
+    dimColor: 'rgba(255,107,0,0.25)', errColor: '#ff2200',
+    font: "'IBM Plex Mono',monospace", fw: '400', ls: '2px',
+    fs: 'clamp(11px,1.8vw,13px)',
+    cursor: '#ff6b00',
+    lines: {
+      es: [
+        { t: '忍  SISTEMA SHINOBI  v気.2', cls: 'title', font: "'Permanent Marker',cursive", fs: 'clamp(14px,2.4vw,18px)', fw: '400' },
+        { t: '────────────────────────────────', cls: 'dim' },
+        { t: '気  Canales de chakra ·····  ABIERTOS', cls: 'ok', delay: 130 },
+        { t: '気  Reservas de Ki ·······  ████ LLENAS', cls: 'ok', delay: 150 },
+        { t: '⚡  Stamina ···············  cargando...', cls: '', delay: 180 },
+        { t: '⚡  Stamina ···············  AL 100% ⚡', cls: 'ok', replacesPrev: true, delay: 280 },
+        { t: '🌙  Sello de descanso ····  ACTIVO', cls: 'ok', delay: 150 },
+        { t: '────────────────────────────────', cls: 'dim', delay: 140 },
+        { t: '忍  El ninja siempre se levanta.', cls: 'title', font: "'Permanent Marker',cursive", delay: 340, fs: 'clamp(13px,2.1vw,17px)', fw: '400' }
+      ],
+      en: [
+        { t: '忍  SHINOBI SYSTEM  v気.2', cls: 'title', font: "'Permanent Marker',cursive", fs: 'clamp(14px,2.4vw,18px)', fw: '400' },
+        { t: '────────────────────────────────', cls: 'dim' },
+        { t: '気  Chakra channels ·······  OPEN', cls: 'ok', delay: 130 },
+        { t: '気  Ki reserves ···········  ████ FULL', cls: 'ok', delay: 150 },
+        { t: '⚡  Stamina ···············  loading...', cls: '', delay: 180 },
+        { t: '⚡  Stamina ···············  100% ⚡', cls: 'ok', replacesPrev: true, delay: 280 },
+        { t: '🌙  Rest seal ·············  ACTIVE', cls: 'ok', delay: 150 },
+        { t: '────────────────────────────────', cls: 'dim', delay: 140 },
+        { t: '忍  The ninja always gets back up.', cls: 'title', font: "'Permanent Marker',cursive", delay: 340, fs: 'clamp(13px,2.1vw,17px)', fw: '400' }
+      ]
+    }
+  },
+
+  // ── AETHER ─────────────────────────────────────────────────────
+  fut: {
+    bg: '#020810', color: '#00f5ff', okColor: '#00f5ff',
+    dimColor: 'rgba(0,245,255,0.2)', errColor: '#f59e0b',
+    font: "'IBM Plex Mono',monospace", fw: '400', ls: '1.5px',
+    fs: 'clamp(10px,1.7vw,12px)',
+    cursor: '#00f5ff',
+    lines: {
+      es: [
+        { t: 'AIRA  BIOMETRIC CORE  v2.6', cls: 'title', font: "'Rajdhani',sans-serif", fs: 'clamp(15px,2.5vw,19px)', fw: '700', ls: '5px' },
+        { t: '────────────────────────────────────', cls: 'dim' },
+        { t: '⬡  BIOSENSORES    [████████████] 100%', cls: 'ok', delay: 100 },
+        { t: '⬡  MÓDULO HRV     [███████████░]  94%', cls: 'ok', delay: 120 },
+        { t: '⬡  ANÁLISIS SUEÑO [████████████] 100%', cls: 'ok', delay: 120 },
+        { t: '⬡  ENLACE CUÁNTICO [░░░░░░░░░░░]  ---', cls: '', delay: 160 },
+        { t: '⬡  ENLACE CUÁNTICO [████████████] 100%', cls: 'ok', replacesPrev: true, delay: 380 },
+        { t: '────────────────────────────────────', cls: 'dim', delay: 120 },
+        { t: '◈  TODOS LOS SISTEMAS OPERATIVOS.', cls: 'title', font: "'Rajdhani',sans-serif", delay: 300, fs: 'clamp(13px,2.2vw,16px)', fw: '700', ls: '4px' }
+      ],
+      en: [
+        { t: 'AIRA  BIOMETRIC CORE  v2.6', cls: 'title', font: "'Rajdhani',sans-serif", fs: 'clamp(15px,2.5vw,19px)', fw: '700', ls: '5px' },
+        { t: '────────────────────────────────────', cls: 'dim' },
+        { t: '⬡  BIOSENSORS     [████████████] 100%', cls: 'ok', delay: 100 },
+        { t: '⬡  HRV MODULE     [███████████░]  94%', cls: 'ok', delay: 120 },
+        { t: '⬡  SLEEP ANALYSIS [████████████] 100%', cls: 'ok', delay: 120 },
+        { t: '⬡  QUANTUM LINK   [░░░░░░░░░░░]  ---', cls: '', delay: 160 },
+        { t: '⬡  QUANTUM LINK   [████████████] 100%', cls: 'ok', replacesPrev: true, delay: 380 },
+        { t: '────────────────────────────────────', cls: 'dim', delay: 120 },
+        { t: '◈  ALL SYSTEMS OPERATIONAL.', cls: 'title', font: "'Rajdhani',sans-serif", delay: 300, fs: 'clamp(13px,2.2vw,16px)', fw: '700', ls: '4px' }
+      ]
+    }
+  }
+};
+
+// ── Generic boot runner ───────────────────────────────────────────
+function startThemeBoot(t, cb) {
   var L = typeof lang !== 'undefined' ? lang : 'es';
-  var lines = L === 'en' ? NN_BOOT_LINES_EN : NN_BOOT_LINES_ES;
-  var boot = document.getElementById('nn-boot');
+  var cfg = THEME_BOOT_CONFIG[t];
+  if (!cfg) { if (cb) cb(); return; }
+  var lines = cfg.lines[L] || cfg.lines['es'];
+  var boot = document.getElementById('theme-boot');
   if (!boot) { if (cb) cb(); return; }
+
+  // Style the overlay for this theme
+  boot.style.cssText = 'background:' + cfg.bg + ';font-family:' + cfg.font + ';color:' + cfg.color + ';font-size:' + cfg.fs + ';letter-spacing:' + cfg.ls + ';font-weight:' + (cfg.fw || '400') + ';';
   boot.innerHTML = '';
+
+  // Blinking cursor
   var cursor = document.createElement('span');
-  cursor.id = 'nn-cursor'; boot.appendChild(cursor);
+  cursor.className = 'boot-cursor';
+  cursor.style.cssText = 'background:' + cfg.cursor + ';';
+  boot.appendChild(cursor);
   boot.classList.add('on');
+  boot.classList.remove('boot-out');
+
+  var lastEl = null;
   var idx = 0;
   function showNext() {
     if (idx >= lines.length) {
       setTimeout(function() {
-        boot.classList.remove('on');
-        boot.innerHTML = '';
-        if (cb) cb();
-      }, 400);
+        boot.classList.add('boot-out');
+        setTimeout(function() {
+          boot.classList.remove('on');
+          boot.classList.remove('boot-out');
+          boot.innerHTML = '';
+          boot.style.cssText = '';
+          if (cb) cb();
+        }, 400);
+      }, 600);
       return;
     }
-    var ln = document.createElement('div');
-    ln.className = 'nn-bl ' + (lines[idx].cls || '');
-    ln.textContent = lines[idx].t;
-    boot.insertBefore(ln, cursor);
-    requestAnimationFrame(function() { ln.classList.add('vis'); });
+    var line = lines[idx];
+    var color = line.cls === 'ok' ? cfg.okColor : line.cls === 'dim' ? cfg.dimColor : line.cls === 'err' ? cfg.errColor : cfg.color;
+    var fs = line.fs || cfg.fs;
+    var fw = line.fw || cfg.fw || '400';
+    var ls = line.ls || cfg.ls;
+    var ff = line.font || cfg.font;
+
+    if (line.replacesPrev && lastEl) {
+      // Replace content of previous line (e.g. progress bar completing)
+      lastEl.style.color = color;
+      lastEl.textContent = line.t;
+    } else {
+      var ln = document.createElement('div');
+      ln.className = 'boot-line';
+      ln.style.cssText = 'color:' + color + ';font-size:' + fs + ';font-weight:' + fw + ';letter-spacing:' + ls + ';font-family:' + ff + ';';
+      ln.textContent = line.t;
+      boot.insertBefore(ln, cursor);
+      requestAnimationFrame(function(el) { return function() { el.classList.add('vis'); }; }(ln));
+      lastEl = ln;
+    }
     idx++;
-    setTimeout(showNext, idx < 4 ? 120 : idx < 7 ? 180 : 280);
+    var delay = line.delay || 130;
+    setTimeout(showNext, delay);
   }
   showNext();
 }
@@ -3564,14 +3712,15 @@ function startNNAmbient() {
 // ══════ SELECT THEME ══════
 function selectTheme(t) {
   theme = t; localStorage.setItem('fb_t', t);
-  // For Neon Noir: run boot sequence only when entering from the selector (sel is visible)
-  var selVisible = document.getElementById('sel') && document.getElementById('sel').style.display !== 'none';
-  if (t === 'halo' && selVisible) {
-    document.body.className = 't-halo';
+  // Run boot intro only when entering directly from the selector (confirmTheme sets _fromSelector)
+  if (window._fromSelector && THEME_BOOT_CONFIG[t]) {
+    window._fromSelector = false;
+    document.body.className = 't-' + t;
     document.getElementById('sel').style.display = 'none';
-    startNNBoot(function() { _finishSelectTheme(t); });
+    startThemeBoot(t, function() { _finishSelectTheme(t); });
     return;
   }
+  window._fromSelector = false;
   _finishSelectTheme(t);
 }
 
