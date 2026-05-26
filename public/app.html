@@ -333,6 +333,50 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .cyc-log-row-icon{font-size:14px;line-height:1;}
 .cyc-log-row-edit{font-size:10px;color:var(--txt);opacity:0.35;flex-shrink:0;}
 .cyc-log-empty{font-size:10px;color:var(--txt);opacity:0.6;letter-spacing:0.5px;padding:4px 0;line-height:1.6;}
+/* ── Cycle History Calendar (History view) ────────────────────────── */
+.hv-cyc-cal-nav{display:flex;align-items:center;justify-content:space-between;margin:12px 0 8px;}
+.hv-cyc-cal-nav-btn{background:none;border:1px solid var(--bdr);color:var(--ta);font-family:inherit;font-size:18px;line-height:1;cursor:pointer;padding:1px 12px 3px;border-radius:4px;-webkit-tap-highlight-color:transparent;}
+.hv-cyc-cal-nav-btn:active{background:rgba(255,255,255,0.07);}
+.hv-cyc-cal-month-lbl{font-size:11px;letter-spacing:3px;color:var(--tx);text-transform:uppercase;font-weight:700;text-align:center;flex:1;}
+.hv-cyc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px;}
+.hv-cyc-dow{font-size:8px;text-align:center;padding:3px 0 5px;letter-spacing:0.5px;color:var(--tx);opacity:0.4;text-transform:uppercase;}
+.hv-cyc-day{position:relative;border-radius:50%;aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;font-size:11px;border:1.5px solid transparent;transition:opacity 0.12s;}
+.hv-cyc-day:active{opacity:0.6;}
+.hv-cyc-day.other-month{opacity:0.15;pointer-events:none;}
+.hv-cyc-day.today{border-color:var(--ta);}
+.hv-cyc-day.selected{border-color:var(--ta2);background:rgba(255,255,255,0.08)!important;}
+.hv-cyc-day.phase-menstrual{background:rgba(220,60,60,0.22);}
+.hv-cyc-day.phase-follicular{background:rgba(255,200,60,0.10);}
+.hv-cyc-day.phase-fertile{background:rgba(60,200,100,0.16);}
+.hv-cyc-day.phase-peak{background:rgba(60,230,130,0.30);}
+.hv-cyc-day.phase-ovulation{background:rgba(80,240,150,0.22);}
+.hv-cyc-day.phase-luteal{background:rgba(160,80,220,0.15);}
+.hv-cyc-day-num{line-height:1;}
+.hv-cyc-day-dot{width:4px;height:4px;border-radius:50%;background:var(--ta);position:absolute;bottom:2px;left:50%;transform:translateX(-50%);}
+.hv-cyc-day-ico{font-size:7px;position:absolute;top:1px;right:1px;line-height:1;}
+.hv-cyc-legend{display:flex;flex-wrap:wrap;gap:5px 12px;margin-bottom:14px;}
+.hv-cyc-leg-item{display:flex;align-items:center;gap:5px;font-size:8px;letter-spacing:0.5px;opacity:0.7;}
+.hv-cyc-leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.hv-cyc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.hv-cyc-stat{background:rgba(255,255,255,0.03);border:1px solid var(--bdr);border-radius:6px;padding:8px 10px;text-align:center;}
+.hv-cyc-stat-val{font-size:20px;font-weight:700;color:var(--ta);}
+.hv-cyc-stat-lbl{font-size:7px;letter-spacing:1.5px;opacity:0.5;text-transform:uppercase;margin-top:3px;}
+.hv-cyc-detail{background:rgba(255,255,255,0.03);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px;margin-bottom:14px;}
+.hv-cyc-detail-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;gap:8px;}
+.hv-cyc-detail-date{font-size:10px;letter-spacing:2px;color:var(--ta);text-transform:uppercase;font-weight:700;}
+.hv-cyc-detail-phase{font-size:9px;letter-spacing:1px;opacity:0.6;text-transform:uppercase;margin-top:2px;}
+.hv-cyc-detail-edit{background:none;border:1px solid var(--bdr);color:var(--ta);font-family:inherit;font-size:9px;letter-spacing:1px;padding:3px 9px;cursor:pointer;border-radius:3px;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+.hv-cyc-detail-edit:active{opacity:0.7;}
+.hv-cyc-detail-icons{display:flex;gap:6px;flex-wrap:wrap;font-size:20px;min-height:24px;align-items:center;}
+.hv-cyc-detail-empty{font-size:10px;opacity:0.45;letter-spacing:0.5px;}
+.hv-cyc-logrow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity 0.12s;}
+.hv-cyc-logrow:last-child{border-bottom:none;}
+.hv-cyc-logrow:active{opacity:0.6;}
+.hv-cyc-logrow-date{font-size:10px;letter-spacing:0.5px;min-width:52px;flex-shrink:0;color:var(--tx);}
+.hv-cyc-logrow-date.today{color:var(--ta2);font-weight:700;}
+.hv-cyc-logrow-phase{font-size:8px;letter-spacing:0.5px;opacity:0.5;min-width:64px;text-transform:uppercase;}
+.hv-cyc-logrow-icons{display:flex;gap:4px;flex:1;flex-wrap:wrap;align-items:center;}
+.hv-cyc-logrow-ico{font-size:14px;line-height:1;}
 /* Cycle quick-glance chip on Home */
 .cyc-home-chip{display:none;align-items:center;gap:7px;padding:7px 14px 7px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--ta2);border-radius:20px;font-size:10px;letter-spacing:1.5px;color:var(--ta2);text-transform:uppercase;cursor:pointer;margin-bottom:12px;width:fit-content;max-width:100%;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:opacity 0.15s;overflow:hidden;}
 .cyc-home-chip.on{display:flex;}
@@ -1688,6 +1732,33 @@ body.t-naruto span.vval{
       </div>
       <div id="hv-coach-body"><div class="hv-coach-empty" id="hv-coach-loading">ANALIZANDO...</div></div>
     </div>
+
+    <!-- ── Cycle History Calendar (only rendered when cycle tracking is on) ── -->
+    <div class="card hv-card" id="hv-cyc-card" style="display:none;">
+      <div class="clbl" style="margin-bottom:12px;">
+        <span id="hv-cyc-lbl">// CICLO</span>
+        <button class="cyc-btn ghost" style="font-size:9px;padding:3px 10px;letter-spacing:1.5px;" onclick="openSymModal()">+ <span id="hv-cyc-log-day-btn">REGISTRAR DÍA</span></button>
+      </div>
+      <!-- Cycle stats mini -->
+      <div class="hv-cyc-stats" id="hv-cyc-stats"></div>
+      <!-- Month nav -->
+      <div class="hv-cyc-cal-nav">
+        <button class="hv-cyc-cal-nav-btn" onclick="_calMove(-1)" aria-label="mes anterior">‹</button>
+        <span class="hv-cyc-cal-month-lbl" id="hv-cyc-cal-month"></span>
+        <button class="hv-cyc-cal-nav-btn" onclick="_calMove(1)" aria-label="mes siguiente">›</button>
+      </div>
+      <!-- Calendar grid -->
+      <div class="hv-cyc-grid" id="hv-cyc-grid"></div>
+      <!-- Phase legend -->
+      <div class="hv-cyc-legend" id="hv-cyc-legend"></div>
+      <!-- Selected day detail -->
+      <div class="hv-cyc-detail" id="hv-cyc-detail" style="display:none;"></div>
+      <!-- Full log list -->
+      <div class="cyc-loglist-hd" style="margin-top:4px;">
+        <span class="cyc-loglist-lbl" id="hv-cyc-log-lbl">REGISTRO</span>
+      </div>
+      <div id="hv-cyc-log-list"><div class="cyc-log-empty" id="hv-cyc-log-empty"></div></div>
+    </div>
   </section>
 
   <!-- ══════════════ STATS VIEW ══════════════ -->
@@ -1887,14 +1958,7 @@ body.t-naruto span.vval{
 
       <div class="cyc-disc" id="cyc-disc"></div>
 
-      <!-- Log history -->
-      <div class="cyc-loglist-wrap" id="cyc-loglist-wrap" style="display:none;">
-        <div class="cyc-loglist-hd">
-          <span class="cyc-loglist-lbl" id="cyc-loglist-lbl">REGISTRO</span>
-          <button class="cyc-log-more-btn" id="cyc-log-more-btn" onclick="toggleCycLogMore()" style="display:none;"><span id="cyc-log-more-lbl">VER MÁS</span></button>
-        </div>
-        <div id="cyc-loglist"></div>
-      </div>
+      <!-- Log history moved to History view (#hv-cyc-card) -->
     </div>
   </section>
 
@@ -2331,6 +2395,11 @@ const T = {
     cyc_sym_sx: 'SÍNTOMAS', cyc_sym_cramps: 'Cólicos', cyc_sym_head: 'Dolor de cabeza', cyc_sym_bloat: 'Hinchazón', cyc_sym_fatigue: 'Fatiga', cyc_sym_mood: 'Mal humor', cyc_sym_anxiety: 'Ansiedad', cyc_sym_nausea: 'Náuseas', cyc_sym_acne: 'Acné',
     cyc_sym_save: 'GUARDAR', cyc_sym_saved: '✓ Registrado',
     cyc_log_sec_lbl: 'REGISTRO', cyc_log_empty: 'Aún no hay registros. Usa "Registrar día" para añadir síntomas a cualquier fecha.', cyc_log_more: 'VER MÁS', cyc_log_less: 'VER MENOS',
+    hv_cyc_lbl: '// CICLO', hv_cyc_log_day_btn: 'REGISTRAR DÍA',
+    hv_cyc_stats_tracked: 'DÍAS REG.', hv_cyc_stats_len: 'CICLO', hv_cyc_stats_period: 'REGLA',
+    hv_cyc_log_lbl: 'REGISTRO',
+    hv_cyc_detail_edit: 'EDITAR', hv_cyc_detail_empty: 'Sin registros — toca Editar para añadir.',
+    hv_cyc_log_empty: 'Aún no hay registros. Toca cualquier día del calendario para añadir síntomas.',
     cyc_on_lbl: 'SEGUIMIENTO DE CICLO',
     sv_sleep_lbl: '// SUEÑO', sv_sltotal_lbl: 'TOTAL', sv_sltotal_unit: 'dormido', sv_slscore_lbl: 'CALIDAD',
     sv_hrv_unit: 'ms',
@@ -2540,6 +2609,11 @@ const T = {
     cyc_sym_sx: 'SYMPTOMS', cyc_sym_cramps: 'Cramps', cyc_sym_head: 'Headache', cyc_sym_bloat: 'Bloating', cyc_sym_fatigue: 'Fatigue', cyc_sym_mood: 'Low mood', cyc_sym_anxiety: 'Anxiety', cyc_sym_nausea: 'Nausea', cyc_sym_acne: 'Acne',
     cyc_sym_save: 'SAVE', cyc_sym_saved: '✓ Saved',
     cyc_log_sec_lbl: 'LOG', cyc_log_empty: 'No entries yet. Use "Log day" to add symptoms to any date.', cyc_log_more: 'SEE MORE', cyc_log_less: 'SEE LESS',
+    hv_cyc_lbl: '// CYCLE', hv_cyc_log_day_btn: 'LOG DAY',
+    hv_cyc_stats_tracked: 'DAYS LOGGED', hv_cyc_stats_len: 'CYCLE', hv_cyc_stats_period: 'PERIOD',
+    hv_cyc_log_lbl: 'LOG',
+    hv_cyc_detail_edit: 'EDIT', hv_cyc_detail_empty: 'No entries — tap Edit to add.',
+    hv_cyc_log_empty: 'No entries yet. Tap any calendar day to add symptoms.',
     cyc_on_lbl: 'CYCLE TRACKING',
     sv_sleep_lbl: '// SLEEP', sv_sltotal_lbl: 'TOTAL', sv_sltotal_unit: 'asleep', sv_slscore_lbl: 'QUALITY',
     sv_hrv_unit: 'ms',
@@ -3053,7 +3127,7 @@ function renderCycle() {
     lang === 'es' ? 'es-MX' : 'en-US',
     { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }
   ).toUpperCase());
-  try { renderCycLogList(); } catch(e) { console.error('[cyc] loglist:', e); }
+  // Log list now lives in the History view (renderCycleHistory)
 
   const c = computeCycle();
   if (!c) {
@@ -3356,6 +3430,10 @@ function saveSymModal() {
   localStorage.setItem('fb_cyc_log', JSON.stringify(log));
   closeSymModal();
   renderCycle();
+  // Refresh history calendar if the history view is currently open
+  if (document.body.classList.contains('view-history')) {
+    try { renderCycleHistory(); } catch(e) {}
+  }
   showToast(t.cyc_sym_saved, 'success');
 }
 
@@ -3428,6 +3506,229 @@ function renderCycLogList() {
 function toggleCycLogMore() {
   window._cycLogShowAll = !window._cycLogShowAll;
   renderCycLogList();
+}
+
+// ══════ CYCLE HISTORY CALENDAR (History view) ══════
+var _calYear  = new Date().getFullYear();
+var _calMonth = new Date().getMonth(); // 0-based
+var _calSelDate = null;
+
+function _cycPhaseForDate(dateStr) {
+  const c = _cycData(); if (!c || !c.last) return null;
+  const len    = Math.max(20, Math.min(45, c.len    || 28));
+  const period = Math.max(1,  Math.min(10, c.period || 5));
+  const last   = new Date(c.last + 'T00:00:00');
+  const target = new Date(dateStr + 'T00:00:00');
+  const elapsed = Math.floor((target - last) / 86400000);
+  if (elapsed < 0) return null; // before first logged period
+  const cycDay  = elapsed % len;          // 0-based day within current cycle
+  const ovDay   = len - 14;              // ovulation day (0-based)
+  const fertStart = Math.max(period, ovDay - 5);
+  if (cycDay < period)           return 'menstrual';
+  if (cycDay < fertStart)        return 'follicular';
+  if (cycDay < ovDay - 1)        return 'fertile';
+  if (cycDay === ovDay - 1)      return 'peak';
+  if (cycDay === ovDay)          return 'ovulation';
+  return 'luteal';
+}
+
+function _calMove(delta) {
+  _calMonth += delta;
+  if (_calMonth > 11) { _calMonth = 0; _calYear++; }
+  if (_calMonth < 0)  { _calMonth = 11; _calYear--; }
+  _renderCycCal();
+}
+
+function _renderCycCal() {
+  const grid = document.getElementById('hv-cyc-grid'); if (!grid) return;
+  const monthLbl = document.getElementById('hv-cyc-cal-month');
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const log = _cycLog();
+  const locale = lang === 'es' ? 'es-MX' : 'en-US';
+
+  // Month label
+  const mName = new Date(_calYear, _calMonth, 1)
+    .toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+  if (monthLbl) monthLbl.textContent = mName.toUpperCase();
+
+  // Day-of-week headers (Sun-first)
+  const DOWS = lang === 'es'
+    ? ['D','L','M','X','J','V','S']
+    : ['S','M','T','W','T','F','S'];
+
+  const firstDow   = new Date(_calYear, _calMonth, 1).getDay(); // 0=Sun
+  const daysInMon  = new Date(_calYear, _calMonth + 1, 0).getDate();
+  const daysInPrev = new Date(_calYear, _calMonth, 0).getDate();
+
+  const FLOW_ICO = { spot:'💧', light:'🩸', med:'🩸🩸', heavy:'🩸🩸🩸' };
+
+  let html = DOWS.map(d => `<div class="hv-cyc-dow">${d}</div>`).join('');
+
+  // Prev-month padding
+  for (let i = 0; i < firstDow; i++) {
+    const d = daysInPrev - firstDow + 1 + i;
+    html += `<div class="hv-cyc-day other-month"><span class="hv-cyc-day-num">${d}</span></div>`;
+  }
+
+  // Current month days
+  for (let d = 1; d <= daysInMon; d++) {
+    const mm  = String(_calMonth + 1).padStart(2,'0');
+    const dd  = String(d).padStart(2,'0');
+    const ds  = `${_calYear}-${mm}-${dd}`;
+    const phase = _cycPhaseForDate(ds);
+    const e   = log[ds] || {};
+    const isToday  = ds === todayStr;
+    const isSel    = ds === _calSelDate;
+
+    let cls = 'hv-cyc-day';
+    if (phase)   cls += ` phase-${phase}`;
+    if (isToday) cls += ' today';
+    if (isSel)   cls += ' selected';
+
+    // Period flow icon top-right
+    const flowIco = (e.flow && e.flow !== 'none') ? `<span class="hv-cyc-day-ico">${FLOW_ICO[e.flow]||''}</span>` : '';
+    // Dot for symptoms/activity
+    const hasSym  = (e.sx && e.sx.length) || (e.sex && e.sex !== 'none');
+    const dot     = hasSym ? `<div class="hv-cyc-day-dot"></div>` : '';
+
+    html += `<div class="${cls}" onclick="_calSelectDay('${ds}')">
+      <span class="hv-cyc-day-num">${d}</span>${flowIco}${dot}
+    </div>`;
+  }
+
+  // Next-month padding
+  const total = firstDow + daysInMon;
+  const rem   = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (let i = 1; i <= rem; i++) {
+    html += `<div class="hv-cyc-day other-month"><span class="hv-cyc-day-num">${i}</span></div>`;
+  }
+
+  grid.innerHTML = html;
+  _renderCycLegend();
+}
+
+function _calSelectDay(dateStr) {
+  _calSelDate = dateStr;
+  _renderCycCal();
+  _renderCycDayDetail(dateStr);
+}
+
+function _renderCycDayDetail(dateStr) {
+  const detail = document.getElementById('hv-cyc-detail'); if (!detail) return;
+  const t = T[lang];
+  const e = _cycLog()[dateStr] || {};
+  const phase = _cycPhaseForDate(dateStr);
+  const phaseName = phase ? (t.cyc_phases[phase] || phase) : '';
+  const locale = lang === 'es' ? 'es-MX' : 'en-US';
+  const dateLbl = new Date(dateStr + 'T00:00:00')
+    .toLocaleDateString(locale, { weekday:'long', day:'numeric', month:'long' });
+
+  const icons = [];
+  if (e.flow && FLOW_ICONS_MAP[e.flow]) icons.push(FLOW_ICONS_MAP[e.flow]);
+  if (e.sex  && SEX_ICONS_MAP[e.sex])   icons.push(SEX_ICONS_MAP[e.sex]);
+  (e.sx || []).forEach(s => { if (SX_ICONS_MAP[s]) icons.push(SX_ICONS_MAP[s]); });
+
+  detail.innerHTML = `
+    <div class="hv-cyc-detail-hd">
+      <div>
+        <div class="hv-cyc-detail-date">${dateLbl.toUpperCase()}</div>
+        ${phaseName ? `<div class="hv-cyc-detail-phase">${phaseName}</div>` : ''}
+      </div>
+      <button class="hv-cyc-detail-edit" onclick="openSymModal('${dateStr}')">${t.hv_cyc_detail_edit}</button>
+    </div>
+    <div class="hv-cyc-detail-icons">
+      ${icons.length
+        ? icons.map(i => `<span>${i}</span>`).join('')
+        : `<span class="hv-cyc-detail-empty">${t.hv_cyc_detail_empty}</span>`}
+    </div>`;
+  detail.style.display = 'block';
+}
+
+function _renderCycLegend() {
+  const el = document.getElementById('hv-cyc-legend'); if (!el) return;
+  const t = T[lang];
+  const phases = [
+    { k:'menstrual',  col:'rgba(220,60,60,0.55)'  },
+    { k:'follicular', col:'rgba(255,200,60,0.50)'  },
+    { k:'fertile',    col:'rgba(60,200,100,0.55)'  },
+    { k:'ovulation',  col:'rgba(80,240,150,0.60)'  },
+    { k:'luteal',     col:'rgba(160,80,220,0.50)'  },
+  ];
+  el.innerHTML = phases.map(p =>
+    `<div class="hv-cyc-leg-item">
+      <div class="hv-cyc-leg-dot" style="background:${p.col}"></div>
+      <span>${t.cyc_phases[p.k] || p.k}</span>
+    </div>`
+  ).join('');
+}
+
+function _renderHvCycStats() {
+  const el = document.getElementById('hv-cyc-stats'); if (!el) return;
+  const t = T[lang];
+  const c = _cycData() || {};
+  const tracked = Object.keys(_cycLog()).length;
+  el.innerHTML = `
+    <div class="hv-cyc-stat">
+      <div class="hv-cyc-stat-val">${tracked}</div>
+      <div class="hv-cyc-stat-lbl">${t.hv_cyc_stats_tracked}</div>
+    </div>
+    <div class="hv-cyc-stat">
+      <div class="hv-cyc-stat-val">${c.len||28}d</div>
+      <div class="hv-cyc-stat-lbl">${t.hv_cyc_stats_len}</div>
+    </div>
+    <div class="hv-cyc-stat">
+      <div class="hv-cyc-stat-val">${c.period||5}d</div>
+      <div class="hv-cyc-stat-lbl">${t.hv_cyc_stats_period}</div>
+    </div>`;
+}
+
+function _renderHvCycLogList() {
+  const el = document.getElementById('hv-cyc-log-list'); if (!el) return;
+  const t = T[lang];
+  const log = _cycLog();
+  const dates = Object.keys(log).sort().reverse();
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const locale   = lang === 'es' ? 'es-MX' : 'en-US';
+
+  if (!dates.length) {
+    el.innerHTML = `<div class="cyc-log-empty">${t.hv_cyc_log_empty}</div>`;
+    return;
+  }
+
+  el.innerHTML = dates.map(d => {
+    const e = log[d];
+    const phase = _cycPhaseForDate(d);
+    const phaseName = phase ? (t.cyc_phases[phase] || '') : '';
+    const isToday = d === todayStr;
+    const dateLbl = isToday
+      ? t.cyc_today_log
+      : new Date(d + 'T00:00:00').toLocaleDateString(locale, { day:'2-digit', month:'short' });
+
+    const icons = [];
+    if (e.flow && FLOW_ICONS_MAP[e.flow]) icons.push(FLOW_ICONS_MAP[e.flow]);
+    if (e.sex  && SEX_ICONS_MAP[e.sex])   icons.push(SEX_ICONS_MAP[e.sex]);
+    (e.sx || []).forEach(s => { if (SX_ICONS_MAP[s]) icons.push(SX_ICONS_MAP[s]); });
+
+    return `<div class="hv-cyc-logrow" onclick="_calSelectDay('${d}')">
+      <span class="hv-cyc-logrow-date${isToday ? ' today' : ''}">${dateLbl}</span>
+      <span class="hv-cyc-logrow-phase">${phaseName}</span>
+      <span class="hv-cyc-logrow-icons">${icons.map(i=>`<span class="hv-cyc-logrow-ico">${i}</span>`).join('')}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderCycleHistory() {
+  const card = document.getElementById('hv-cyc-card'); if (!card) return;
+  if (!cycleEnabled() || !_cycData()) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const t = T[lang];
+  setText('hv-cyc-lbl', t.hv_cyc_lbl);
+  setText('hv-cyc-log-day-btn', t.hv_cyc_log_day_btn);
+  setText('hv-cyc-log-lbl', t.hv_cyc_log_lbl);
+  _renderHvCycStats();
+  _renderCycCal();
+  _renderHvCycLogList();
+  if (_calSelDate) _renderCycDayDetail(_calSelDate);
 }
 
 function adjCycModal(field, delta) {
@@ -5488,6 +5789,8 @@ async function renderHistory() {
   _hBindSleepTooltip(slpSvg, 'hv-sleep-tt');
   // Coach analysis
   _hRenderCoachAnalysis(rows);
+  // Cycle history calendar (only shown when cycle tracking is active)
+  try { renderCycleHistory(); } catch(e) { console.warn('[cyc-history]', e); }
 }
 
 // Position a tooltip at SVG coords (cx,cy in viewBox units of `el`), clamping
