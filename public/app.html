@@ -29,24 +29,46 @@ body{width:100%;min-height:100vh;}
 ═══════════════════════════════════════ */
 #sel{
   position:fixed;inset:0;z-index:9999;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:#070707;padding:28px;overflow-y:auto;
+  display:flex;flex-direction:column;align-items:center;
+  padding:24px 20px 28px;overflow-y:auto;
+  gap:0;
+  background-color:#070707;
+  background-image:
+    /* cyan glow at top — like a distant light source */
+    radial-gradient(ellipse 90% 45% at 50% -5%, rgba(0,245,255,0.055) 0%, transparent 70%),
+    /* warm amber accent bottom-right — depth */
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(240,165,0,0.025) 0%, transparent 65%),
+    /* fine dot grid */
+    radial-gradient(circle, rgba(255,255,255,0.09) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 28px 28px;
 }
+/* ── Selector header ── */
+.sel-hd{text-align:center;width:100%;margin-bottom:12px;}
 .sel-eye{
-  font-family:'IBM Plex Mono',monospace;font-size:11px;
-  letter-spacing:5px;color:#2e2e2e;text-align:center;
-  margin-bottom:10px;text-transform:uppercase;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  letter-spacing:4px;color:#242424;text-align:center;
+  margin-bottom:8px;text-transform:uppercase;
 }
 .sel-title{
   font-family:'Rajdhani',sans-serif;font-size:clamp(22px,3vw,34px);
   font-weight:700;letter-spacing:10px;color:#fff;
-  text-align:center;margin-bottom:10px;text-transform:uppercase;
+  text-align:center;margin-bottom:6px;text-transform:uppercase;
 }
 .sel-title em{color:#00f5ff;font-style:normal;}
+.sel-sub{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2.5px;color:#333;text-transform:uppercase;}
+
+/* Stats pill row */
+.sel-stats{
+  display:flex;align-items:center;gap:10px;margin-bottom:18px;
+  font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:2px;color:#2a2a2a;
+}
+.sel-st-free{color:#00c864;font-weight:700;}
+.sel-st-pro{color:#f0a500;font-weight:700;}
+.sel-st-sep{width:3px;height:3px;border-radius:50%;background:#222;display:inline-block;}
 
 /* Language toggle on selector */
 .lang-bar{
-  display:flex;align-items:center;gap:6px;margin-bottom:32px;
+  display:flex;align-items:center;gap:6px;margin-bottom:18px;
   font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;
 }
 .lang-opt{
@@ -57,13 +79,73 @@ body{width:100%;min-height:100vh;}
 .lang-opt.active{border-color:#00f5ff;color:#00f5ff;}
 .lang-sep{color:#2a2a2a;font-size:14px;}
 
-.t-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;max-width:880px;width:100%;}
+/* Grid */
+.t-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:880px;width:100%;}
 .t-card{
   position:relative;cursor:pointer;overflow:hidden;
-  aspect-ratio:16/9;transition:transform 0.2s,box-shadow 0.2s;
+  aspect-ratio:16/9;transition:transform 0.22s,box-shadow 0.22s;
 }
-.t-card:hover{transform:translateY(-5px);}
-.t-card:active{transform:scale(0.98);}
+.t-card:hover{transform:translateY(-4px);}
+.t-card:active{transform:scale(0.97);}
+
+/* Tier badge — top-left corner */
+.t-badge{
+  position:absolute;top:7px;left:7px;z-index:10;
+  font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:1.5px;
+  font-weight:700;padding:2px 6px;border-radius:2px;pointer-events:none;
+}
+.t-badge-free{background:rgba(0,200,100,0.12);color:#00c864;border:1px solid rgba(0,200,100,0.28);}
+.t-badge-pro{background:rgba(240,165,0,0.12);color:#f0a500;border:1px solid rgba(240,165,0,0.28);}
+
+/* Active checkmark — top-right corner */
+.t-check{
+  position:absolute;top:7px;right:7px;z-index:10;
+  width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:#000;font-weight:900;
+  background:#00f5ff;
+  opacity:0;transform:scale(0.5);
+  transition:opacity 0.22s,transform 0.22s;
+  pointer-events:none;
+}
+.t-card.t-active .t-check{opacity:1;transform:scale(1);}
+.t-card.t-active{box-shadow:0 0 0 2px rgba(0,245,255,0.65),0 0 20px rgba(0,245,255,0.12)!important;}
+.t-card.t-active:hover{transform:none;}
+
+/* Lock overlay for upcoming themes */
+.t-card.t-locked{cursor:default;}
+.t-card.t-locked:hover{transform:none!important;}
+.t-lock-ov{
+  position:absolute;inset:0;z-index:5;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
+  background:rgba(0,0,0,0.72);
+  backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+}
+.t-lock-ico{font-size:22px;color:rgba(255,255,255,0.18);line-height:1;}
+.t-lock-nm{
+  font-family:'Rajdhani',sans-serif;font-size:clamp(13px,2.5vw,17px);
+  font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:5px;text-transform:uppercase;
+}
+.t-lock-tag{
+  font-family:'IBM Plex Mono',monospace;font-size:7px;
+  color:#f0a500;letter-spacing:2px;
+  border:1px solid rgba(240,165,0,0.3);padding:2px 8px;border-radius:1px;
+}
+
+/* Cyberpunk preview */
+.tc-cyber{background:#08010f;border:1px solid rgba(200,0,255,0.18);}
+.cyber-pv{width:100%;height:100%;position:relative;background:radial-gradient(ellipse at 50% 110%,#18002a 0%,#08010f 65%);}
+.cyber-pv::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(200,0,255,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(200,0,255,0.07) 1px,transparent 1px);background-size:14px 14px;}
+.cyber-pv::after{content:'2077';position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);font-family:'Rajdhani',sans-serif;font-size:52px;font-weight:900;color:rgba(200,0,255,0.06);letter-spacing:8px;pointer-events:none;}
+
+/* Dragon Ball preview */
+.tc-dbz{background:#090300;border:1px solid rgba(255,150,0,0.18);}
+.dbz-pv{width:100%;height:100%;position:relative;background:radial-gradient(ellipse at 50% 50%,#180900 0%,#090300 70%);}
+.dbz-pv::before{content:'';position:absolute;inset:0;background:conic-gradient(from 0deg at 50% 50%,rgba(255,130,0,0.055) 0deg,transparent 25deg,rgba(255,130,0,0.055) 50deg,transparent 75deg,rgba(255,130,0,0.055) 100deg,transparent 125deg,rgba(255,130,0,0.055) 150deg,transparent 175deg,rgba(255,130,0,0.055) 200deg,transparent 225deg,rgba(255,130,0,0.055) 250deg,transparent 275deg,rgba(255,130,0,0.055) 300deg,transparent 325deg,rgba(255,130,0,0.055) 350deg);}
+.dbz-pv::after{content:'気';position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);font-family:'Noto Serif JP',serif;font-size:68px;color:rgba(255,140,0,0.06);pointer-events:none;}
+
+/* Footer */
+.sel-ft{margin-top:18px;font-family:'IBM Plex Mono',monospace;font-size:7.5px;letter-spacing:2px;color:#1c1c1c;text-align:center;}
 
 /* MC card preview */
 .tc-mc{background:#1a1200;border:3px solid #6a5020;image-rendering:pixelated;}
@@ -605,10 +687,30 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 
 /* Loading overlay — premium skeleton */
 /* ── Offline / No-Connection Waiting Overlay ─────────────────────── */
-.owait{display:none;position:fixed;inset:0;background:var(--bg);z-index:910;flex-direction:column;align-items:center;justify-content:center;gap:20px;opacity:1;transition:opacity 0.38s ease;}
+/* Lock html+body when owait is active — prevents iOS rubber-band entirely */
+html.owait-lock,
+html.owait-lock body{overflow:hidden!important;overscroll-behavior:none!important;touch-action:none!important;height:100%!important;}
+.owait{
+  display:none;
+  position:fixed;
+  top:0;left:0;
+  width:100vw;
+  height:100vh;
+  height:100dvh;
+  z-index:9999;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:var(--bg);
+  opacity:1;
+  overflow:hidden;
+  overscroll-behavior:none;
+  touch-action:none;
+  transition:opacity 0.38s ease;
+}
 .owait.on{display:flex;}
-/* Fade-out before transitioning to splash */
 .owait.owait-exit{opacity:0;pointer-events:none;}
+.owait-inner{display:flex;flex-direction:column;align-items:center;gap:20px;width:100%;}
 .owait-logo{position:relative;width:clamp(96px,28vw,148px);height:clamp(96px,28vw,148px);}
 .owait-logo-svg{width:100%;height:100%;overflow:visible;}
 /* Ghost AIRA geometry — slow breath, matches splash off-state */
@@ -1067,7 +1169,7 @@ body.t-naruto{
   font-family:'Noto Serif JP',serif;
 }
 body.t-naruto::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 75% 75% at 50% 50%,rgba(255,69,0,0.045) 0%,transparent 62%),repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,69,0,0.012) 0deg,transparent 22.5deg,rgba(255,69,0,0.012) 45deg);pointer-events:none;z-index:0;}
-body.t-naruto::after{content:'渦';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Noto Serif JP',serif;font-size:55vw;color:rgba(255,69,0,0.016);pointer-events:none;z-index:0;line-height:1;}
+body.t-naruto::after{content:'気';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Noto Serif JP',serif;font-size:55vw;color:rgba(255,69,0,0.016);pointer-events:none;z-index:0;line-height:1;}
 .t-naruto .db-hdr{background:rgba(12,4,0,0.93);backdrop-filter:blur(12px);border-bottom:2px solid rgba(255,69,0,0.22);}
 /* Titles: Permanent Marker */
 .t-naruto .db-name{font-family:'Permanent Marker',cursive;color:#ff4500;text-shadow:0 0 22px rgba(255,69,0,0.45),2px 2px 0 #000;letter-spacing:2px;}
@@ -1222,8 +1324,13 @@ body.t-naruto span.vval{
 
 <!-- ══════════════ SELECTOR ══════════════ -->
 <div id="sel">
-  <div class="sel-eye" id="sel-eye">// selecciona tu interfaz de monitoreo biométrico</div>
-  <div class="sel-title">AIRA <em>·</em> BIOMETRIC CORE</div>
+
+  <!-- Header -->
+  <div class="sel-hd">
+    <div class="sel-eye" id="sel-eye">// elige tu interfaz de monitoreo biométrico</div>
+    <div class="sel-title">AIRA <em>·</em> BIOMETRIC CORE</div>
+    <div class="sel-sub" id="sel-sub">Elige la experiencia que refleja tu estilo</div>
+  </div>
 
   <!-- Language selector -->
   <div class="lang-bar">
@@ -1232,39 +1339,99 @@ body.t-naruto span.vval{
     <button class="lang-opt" id="lang-en" onclick="setLang('en')">EN</button>
   </div>
 
+  <!-- Stats row -->
+  <div class="sel-stats">
+    <span class="sel-st-free">4</span>&nbsp;<span id="sel-lbl-free">GRATIS</span>
+    <span class="sel-st-sep"></span>
+    <span class="sel-st-pro">2</span>&nbsp;<span id="sel-lbl-soon">PRÓXIMAMENTE</span>
+  </div>
+
+  <!-- Theme grid -->
   <div class="t-grid">
-    <div class="t-card tc-mc" onclick="selectTheme('mc')">
+
+    <!-- ── VOXEL (inspired by block-world aesthetics) ── -->
+    <div class="t-card tc-mc" data-id="mc" onclick="selectTheme('mc')">
       <div class="mc-pg" id="mc-pg"></div>
-      <div class="t-ov mc-ov"><div class="tn mc">MINECRAFT</div><div class="ts mc" id="sel-mc-sub">SURVIVAL HEALTH STATS</div></div>
+      <div class="t-badge t-badge-free" id="tbf-mc">GRATIS</div>
+      <div class="t-check">✓</div>
+      <div class="t-ov mc-ov">
+        <div class="tn mc">VOXEL</div>
+        <div class="ts mc" id="sel-mc-sub">SURVIVAL DATA MONITOR</div>
+      </div>
     </div>
 
-    <div class="t-card tc-halo" onclick="selectTheme('halo')">
+    <!-- ── SENTINEL (military sci-fi HUD aesthetic) ── -->
+    <div class="t-card tc-halo" data-id="halo" onclick="selectTheme('halo')">
       <div class="halo-pv">
         <div class="hr-ring" style="width:170px;height:170px;border-color:rgba(74,184,255,0.12);"></div>
         <div class="hr-ring" style="width:108px;height:108px;border-color:rgba(74,184,255,0.28);"></div>
         <div class="hr-ring" style="width:56px;height:56px;border-color:rgba(74,184,255,0.55);"></div>
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:9px;height:9px;border-radius:50%;background:#4ab8ff;box-shadow:0 0 12px #4ab8ff,0 0 24px rgba(74,184,255,0.4);"></div>
-        <div style="position:absolute;top:11px;left:13px;right:13px;font-family:'Electrolize',sans-serif;font-size:10px;color:rgba(74,184,255,0.38);letter-spacing:2px;text-transform:uppercase;">VISR OS v7.4 — MJOLNIR BIOMONITOR</div>
-        <div style="position:absolute;bottom:10px;right:13px;font-family:'Electrolize',sans-serif;font-size:10px;color:rgba(74,184,255,0.28);letter-spacing:2px;">SHIELDS: 100%</div>
+        <div style="position:absolute;top:11px;left:13px;right:13px;font-family:'Electrolize',sans-serif;font-size:10px;color:rgba(74,184,255,0.38);letter-spacing:2px;text-transform:uppercase;">SENTINEL OS v7.4 — EXOSUIT BIOMONITOR</div>
+        <div style="position:absolute;bottom:10px;right:13px;font-family:'Electrolize',sans-serif;font-size:10px;color:rgba(74,184,255,0.28);letter-spacing:2px;">INTEGRITY: 100%</div>
       </div>
-      <div class="t-ov halo-ov"><div class="tn halo">HALO — VISR</div><div class="ts halo" id="sel-halo-sub">SPARTAN BIOMONITOR</div></div>
+      <div class="t-badge t-badge-free" id="tbf-halo">GRATIS</div>
+      <div class="t-check">✓</div>
+      <div class="t-ov halo-ov">
+        <div class="tn halo">SENTINEL</div>
+        <div class="ts halo" id="sel-halo-sub">EXOSUIT BIOMONITOR</div>
+      </div>
     </div>
 
-    <div class="t-card tc-naruto" onclick="selectTheme('naruto')">
-      <div class="naruto-pv"><div class="nseal">渦</div></div>
-      <div class="t-ov naruto-ov"><div class="tn naruto">NARUTO</div><div class="ts naruto" id="sel-naruto-sub">チャクラ · CHAKRA MONITOR</div></div>
+    <!-- ── SHINOBI (feudal Japan / ki energy aesthetic) ── -->
+    <div class="t-card tc-naruto" data-id="naruto" onclick="selectTheme('naruto')">
+      <div class="naruto-pv"><div class="nseal">気</div></div>
+      <div class="t-badge t-badge-free" id="tbf-naruto">GRATIS</div>
+      <div class="t-check">✓</div>
+      <div class="t-ov naruto-ov">
+        <div class="tn naruto">SHINOBI</div>
+        <div class="ts naruto" id="sel-naruto-sub">気 · MONITOR DE ENERGÍA</div>
+      </div>
     </div>
 
-    <div class="t-card tc-fut" onclick="selectTheme('fut')">
+    <!-- ── AETHER (original futuristic HUD) ── -->
+    <div class="t-card tc-fut" data-id="fut" onclick="selectTheme('fut')">
       <div class="fut-pv">
         <div class="fr" style="width:138px;height:138px;"></div>
         <div class="fr" style="width:84px;height:84px;border-color:rgba(0,245,255,0.4);"></div>
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:7px;height:7px;border-radius:50%;background:#00f5ff;box-shadow:0 0 10px #00f5ff,0 0 20px rgba(0,245,255,0.3);"></div>
         <div style="position:absolute;bottom:10px;left:13px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(0,245,255,0.3);letter-spacing:2px;">HR 68 · SpO2 98% · HRV 48ms · TEMP 36.4°C</div>
       </div>
-      <div class="t-ov fut-ov"><div class="tn fut">FUTURISTIC</div><div class="ts fut" id="sel-fut-sub">BIOMETRIC CORE v2.6</div></div>
+      <div class="t-badge t-badge-free" id="tbf-fut">GRATIS</div>
+      <div class="t-check">✓</div>
+      <div class="t-ov fut-ov">
+        <div class="tn fut">AETHER</div>
+        <div class="ts fut" id="sel-fut-sub">BIOMETRIC CORE v2.6</div>
+      </div>
     </div>
+
+    <!-- ── COMING SOON: Neon Noir (neon dystopia aesthetic) ── -->
+    <div class="t-card tc-cyber t-locked">
+      <div class="cyber-pv"></div>
+      <div class="t-badge t-badge-pro">PRO</div>
+      <div class="t-lock-ov">
+        <div class="t-lock-ico">◎</div>
+        <div class="t-lock-nm">NEON NOIR</div>
+        <div class="t-lock-tag" id="sel-soon1">PRÓXIMAMENTE</div>
+      </div>
+    </div>
+
+    <!-- ── COMING SOON: Ki Surge (martial arts energy aesthetic) ── -->
+    <div class="t-card tc-dbz t-locked">
+      <div class="dbz-pv"></div>
+      <div class="t-badge t-badge-pro">PRO</div>
+      <div class="t-lock-ov">
+        <div class="t-lock-ico">◎</div>
+        <div class="t-lock-nm">KI SURGE</div>
+        <div class="t-lock-tag" id="sel-soon2">PRÓXIMAMENTE</div>
+      </div>
+    </div>
+
   </div>
+
+  <!-- Footer -->
+  <div class="sel-ft" id="sel-ft">AIRA v2.6 · FITBIT WEB API · BIOMETRIC CORE</div>
+
 </div>
 
 <!-- ══════════════ DASHBOARD ══════════════ -->
@@ -1814,8 +1981,8 @@ body.t-naruto span.vval{
       </div>
       <div class="hv-pills" role="tablist">
         <button class="hv-pill on" data-range="7"  onclick="setHistoryRange(7)">7D</button>
+        <button class="hv-pill"    data-range="14" onclick="setHistoryRange(14)">14D</button>
         <button class="hv-pill"    data-range="30" onclick="setHistoryRange(30)">30D</button>
-        <button class="hv-pill"    data-range="90" onclick="setHistoryRange(90)">90D</button>
       </div>
     </div>
 
@@ -1845,14 +2012,6 @@ body.t-naruto span.vval{
       <div class="hv-chart-wrap"><div id="hv-steps-skel" class="hv-skel"></div><svg class="hv-chart" id="hv-steps-svg" style="display:none"></svg><div class="hv-tt" id="hv-steps-tt"></div></div>
     </div>
 
-    <div class="card hv-card">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-        <svg style="width:15px;height:15px;color:var(--ta2);flex-shrink:0;" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 L12 5 L19 19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.4 14 H15.6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="4.4" r="1.8" fill="currentColor"/></svg>
-        <span id="hv-coach-lbl" style="font-size:10px;letter-spacing:3px;font-weight:700;color:var(--ta2);text-transform:uppercase;">ANÁLISIS AIRA</span>
-      </div>
-      <div id="hv-coach-body"><div class="hv-coach-empty" id="hv-coach-loading">ANALIZANDO...</div></div>
-    </div>
-
     <!-- ── Cycle History Calendar (only rendered when cycle tracking is on) ── -->
     <div class="card hv-card" id="hv-cyc-card" style="display:none;">
       <div class="clbl" style="margin-bottom:12px;">
@@ -1878,6 +2037,15 @@ body.t-naruto span.vval{
         <span class="cyc-loglist-lbl" id="hv-cyc-log-lbl">REGISTRO</span>
       </div>
       <div id="hv-cyc-log-list"><div class="cyc-log-empty" id="hv-cyc-log-empty"></div></div>
+    </div>
+
+    <div class="card hv-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <svg style="width:15px;height:15px;color:var(--ta2);flex-shrink:0;" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 L12 5 L19 19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.4 14 H15.6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="4.4" r="1.8" fill="currentColor"/></svg>
+        <span id="hv-coach-lbl" style="font-size:10px;letter-spacing:3px;font-weight:700;color:var(--ta2);text-transform:uppercase;">ANÁLISIS AIRA</span>
+        <span id="hv-coach-range" style="margin-left:auto;font-size:8px;letter-spacing:2px;color:var(--ta);opacity:0.55;font-weight:600;border:1px solid var(--bdr);padding:2px 6px;border-radius:3px;">7 DÍAS</span>
+      </div>
+      <div id="hv-coach-body"><div class="hv-coach-empty" id="hv-coach-loading">ANALIZANDO...</div></div>
     </div>
   </section>
 
@@ -2124,8 +2292,8 @@ body.t-naruto span.vval{
       </div>
       <div class="pv-themes">
         <button class="pv-t-btn" id="pvt-mc" onclick="selectTheme('mc');navigate('profile')">⛏ MC</button>
-        <button class="pv-t-btn" id="pvt-halo" onclick="selectTheme('halo');navigate('profile')">◈ HALO</button>
-        <button class="pv-t-btn" id="pvt-naruto" onclick="selectTheme('naruto');navigate('profile')">🔥 NARUTO</button>
+        <button class="pv-t-btn" id="pvt-halo" onclick="selectTheme('halo');navigate('profile')">◈ SENTINEL</button>
+        <button class="pv-t-btn" id="pvt-naruto" onclick="selectTheme('naruto');navigate('profile')">気 SHINOBI</button>
         <button class="pv-t-btn" id="pvt-fut" onclick="selectTheme('fut');navigate('profile')">⬡ FUT</button>
       </div>
       <div class="pv-row" style="margin-top:8px;">
@@ -2198,29 +2366,6 @@ body.t-naruto span.vval{
     </div>
   </div>
 
-  <!-- Offline / no-connection waiting overlay -->
-  <div class="owait" id="owait" aria-live="polite" aria-label="Esperando conexión">
-    <div class="owait-logo" aria-hidden="true">
-      <svg class="owait-logo-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-        <!-- Ghost AIRA logo — same geometry as splash, barely lit (no crossbar) -->
-        <g class="ow-ghost">
-          <circle cx="256" cy="256" r="180" fill="none" stroke="var(--ta)" stroke-width="20"/>
-          <path d="M188 346 L256 176 L324 346" fill="none" stroke="var(--ta)"
-                stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
-        </g>
-        <!-- 3 ripple rings — sp-pulse effect, looped, staggered -->
-        <circle class="ow-ring ow-r1" cx="256" cy="256" r="180"/>
-        <circle class="ow-ring ow-r2" cx="256" cy="256" r="180"/>
-        <circle class="ow-ring ow-r3" cx="256" cy="256" r="180"/>
-      </svg>
-    </div>
-    <div class="owait-lbl">AIRA</div>
-    <div class="owait-msg" id="owait-msg">ESPERANDO CONEXIÓN</div>
-    <div class="owait-sig">
-      <span class="owait-sig-dot"></span>
-      <span id="owait-sig-lbl">SIN SEÑAL</span>
-    </div>
-  </div>
 
   <!-- Cycle day log / symptom modal -->
   <div class="mov" id="cyc-sym-ov" onclick="if(event.target===this)closeSymModal()">
@@ -2328,6 +2473,30 @@ body.t-naruto span.vval{
   </div>
 </div>
 
+<!-- Offline overlay — outside #dash so position:fixed is always relative to viewport (same reason as #bnav) -->
+<div class="owait" id="owait" aria-live="polite" aria-label="Esperando conexión">
+  <div class="owait-inner">
+    <div class="owait-logo" aria-hidden="true">
+      <svg class="owait-logo-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <g class="ow-ghost">
+          <circle cx="256" cy="256" r="180" fill="none" stroke="var(--ta)" stroke-width="20"/>
+          <path d="M188 346 L256 176 L324 346" fill="none" stroke="var(--ta)"
+                stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <circle class="ow-ring ow-r1" cx="256" cy="256" r="180"/>
+        <circle class="ow-ring ow-r2" cx="256" cy="256" r="180"/>
+        <circle class="ow-ring ow-r3" cx="256" cy="256" r="180"/>
+      </svg>
+    </div>
+    <div class="owait-lbl">AIRA</div>
+    <div class="owait-msg" id="owait-msg">ESPERANDO CONEXIÓN</div>
+    <div class="owait-sig">
+      <span class="owait-sig-dot"></span>
+      <span id="owait-sig-lbl">SIN SEÑAL</span>
+    </div>
+  </div>
+</div>
+
 <!-- Bottom Navigation — outside #dash so position:fixed is always relative to viewport -->
 <nav class="bnav" id="bnav" style="display:none">
   <button class="bnav-btn active" data-tab="home" onclick="navigate('home')">
@@ -2356,10 +2525,14 @@ let hrHist = [62,60,58,57,56,58,60,65,72,78,82,75,68,71,74,70,68,72,69,67,70,69,
 // ══════ TRANSLATIONS ══════
 const T = {
   es: {
-    sel_eye: '// selecciona tu interfaz de monitoreo biométrico',
-    mc_sub: 'ESTADÍSTICAS DE SUPERVIVENCIA',
-    halo_sub: 'BIOMONITOR SPARTAN',
-    naruto_sub: 'チャクラ · MONITOR DE CHAKRA',
+    sel_eye: '// elige tu interfaz de monitoreo biométrico',
+    sel_sub: 'Elige la experiencia que refleja tu estilo',
+    sel_badge_free: 'GRATIS',
+    sel_badge_soon: 'PRÓXIMAMENTE',
+    sel_ft: 'AIRA v2.6 · FITBIT WEB API · BIOMETRIC CORE',
+    mc_sub: 'MONITOR DE DATOS DE SUPERVIVENCIA',
+    halo_sub: 'BIOMONITOR EXOSUIT',
+    naruto_sub: '気 · MONITOR DE ENERGÍA',
     fut_sub: 'NÚCLEO BIOMÉTRICO v2.6',
     back: '← TEMAS',
     connect: 'CONECTAR',
@@ -2371,8 +2544,8 @@ const T = {
     rstat: {
       fut:    { peak:'ÓPTIMO', good:'BUENO', moderate:'MODERADO', low:'BAJO' },
       mc:     { peak:'VIDA COMPLETA', good:'BUENA SALUD', moderate:'HP MEDIO', low:'HP BAJO' },
-      halo:   { peak:'LISTO PARA COMBATE', good:'ESCUDOS NOMINALES', moderate:'ESCUDOS BAJOS', low:'ESCUDO CRÍTICO' },
-      naruto: { peak:'最大 · CHAKRA COMPLETO', good:'CHAKRA ESTABLE', moderate:'CHAKRA MEDIO', low:'CHAKRA BAJO' },
+      halo:   { peak:'LISTO PARA COMBATE', good:'ARMADURA NOMINAL', moderate:'ARMADURA BAJA', low:'ARMADURA CRÍTICA' },
+      naruto: { peak:'最大 · KI COMPLETO', good:'KI ESTABLE', moderate:'KI MEDIO', low:'KI BAJO' },
     },
     lbl_hr: '// FREC. CARDÍACA',
     u_hr: 'BPM — REPOSO',
@@ -2443,7 +2616,7 @@ const T = {
     },
     tour: [
       { ttl:'¡Bienvenido!', bd:'Esta es tu interfaz biométrica personal. Mide HRV, sueño, recovery y mucho más en tiempo real desde Google Health.' },
-      { ttl:'Cuatro mundos visuales', bd:'Elegiste un tema arriba. Cada uno tiene su propia identidad: Minecraft pixelado, Halo militar, Naruto chakra, o Futuristic minimal.' },
+      { ttl:'Cuatro mundos visuales', bd:'Elegiste un tema arriba. Cada uno tiene su propia identidad: Voxel pixelado, Sentinel militar, Shinobi energético, o Aether minimal.' },
       { ttl:'Tap en el <strong>?</strong>', bd:'Junto a cada métrica importante verás un botón <strong>?</strong>. Tócalo para entender qué significa: Recovery, HRV, Strain, etc.' },
       { ttl:'Conecta con Google', bd:'Al pulsar <strong>CONECTAR</strong> abrirás Google OAuth. Tus datos viajan directo del dispositivo al navegador — no pasan por ningún servidor nuestro.' },
     ],
@@ -2494,15 +2667,15 @@ const T = {
     sync_lbl: 'PRÓX. SYNC', sync_lbl2: 'SYNC',
     logo_s_fut: 'NÚCLEO BIOMÉTRICO v2.6',
     logo_s_mc: 'HEALTH MOD v2.6',
-    logo_s_halo: 'UNSC MJOLNIR BIOMONITOR',
-    logo_s_naruto: '木ノ葉隠れの里 · KONOHA',
+    logo_s_halo: 'SENTINEL OS — EXOSUIT BIOMONITOR',
+    logo_s_naruto: '忍 · SISTEMA DE ENERGÍA KI',
     // Theme overrides
     mc_eye: '> ESTADÍSTICAS DE JUGADOR',
     mc_pfx: 'JUGADOR: ', mc_rl: '> BARRA DE VIDA',
-    halo_eye: '// VISR OS — BIOMONITOR SPARTAN — CLASIFICADO UNSC',
-    halo_pfx: 'SPARTAN ', halo_rl: '// PREPARACIÓN DE COMBATE',
-    naruto_eye: '木ノ葉の里 — SISTEMA SHINOBI KONOHA',
-    naruto_pfx: '忍者: ', naruto_rl: '// チャクラ PREPARACIÓN',
+    halo_eye: '// SENTINEL OS — EXOSUIT BIOMONITOR — CLASIFICADO',
+    halo_pfx: 'SENTINEL ', halo_rl: '// PREPARACIÓN DE COMBATE',
+    naruto_eye: '忍の道 — SISTEMA DE ENERGÍA SHINOBI',
+    naruto_pfx: '忍者: ', naruto_rl: '// 気 · PREPARACIÓN',
     connected: '◆ GOOGLE CONECTADO', live: 'EN VIVO',
     sync_toast: (t) => `◆ SYNC ${t}`,
     // Stats view
@@ -2572,10 +2745,14 @@ const T = {
     owait_msg: 'ESPERANDO CONEXIÓN', owait_sig: 'SIN SEÑAL',
   },
   en: {
-    sel_eye: '// select your biometric monitoring interface',
-    mc_sub: 'SURVIVAL HEALTH STATS',
-    halo_sub: 'SPARTAN BIOMONITOR',
-    naruto_sub: 'チャクラ · CHAKRA MONITOR',
+    sel_eye: '// choose your biometric monitoring interface',
+    sel_sub: 'Choose the interface that reflects your style',
+    sel_badge_free: 'FREE',
+    sel_badge_soon: 'COMING SOON',
+    sel_ft: 'AIRA v2.6 · FITBIT WEB API · BIOMETRIC CORE',
+    mc_sub: 'SURVIVAL DATA MONITOR',
+    halo_sub: 'EXOSUIT BIOMONITOR',
+    naruto_sub: '気 · KI ENERGY MONITOR',
     fut_sub: 'BIOMETRIC CORE v2.6',
     back: '← THEMES',
     connect: 'CONNECT',
@@ -2587,8 +2764,8 @@ const T = {
     rstat: {
       fut:    { peak:'OPTIMAL', good:'GOOD', moderate:'MODERATE', low:'LOW' },
       mc:     { peak:'FULL HP', good:'HEALTHY', moderate:'HALF HP', low:'LOW HP' },
-      halo:   { peak:'COMBAT READY', good:'SHIELDS NOMINAL', moderate:'SHIELDS LOW', low:'SHIELD CRITICAL' },
-      naruto: { peak:'最大 · CHAKRA FULL', good:'CHAKRA STABLE', moderate:'CHAKRA MID', low:'CHAKRA LOW' },
+      halo:   { peak:'COMBAT READY', good:'ARMOR NOMINAL', moderate:'ARMOR LOW', low:'ARMOR CRITICAL' },
+      naruto: { peak:'最大 · KI FULL', good:'KI STABLE', moderate:'KI MID', low:'KI LOW' },
     },
     lbl_hr: '// HEART RATE',
     u_hr: 'BPM — RESTING',
@@ -2659,7 +2836,7 @@ const T = {
     },
     tour: [
       { ttl:'Welcome!', bd:'This is your personal biometric interface. Tracks HRV, sleep, recovery and more in real-time from Google Health.' },
-      { ttl:'Four visual worlds', bd:'You picked a theme above. Each has its own identity: pixelated Minecraft, military Halo, chakra Naruto, or minimal Futuristic.' },
+      { ttl:'Four visual worlds', bd:'You picked a theme above. Each has its own identity: pixelated Voxel, military Sentinel, energy Shinobi, or minimal Aether.' },
       { ttl:'Tap the <strong>?</strong>', bd:'Next to each key metric you\\u2019ll see a <strong>?</strong> button. Tap it to understand what it means: Recovery, HRV, Strain, etc.' },
       { ttl:'Connect with Google', bd:'When you press <strong>CONNECT</strong> you\\u2019ll open Google OAuth. Your data flows straight from the device to the browser — no server of ours sees it.' },
     ],
@@ -2710,14 +2887,14 @@ const T = {
     sync_lbl: 'NEXT SYNC', sync_lbl2: 'SYNC',
     logo_s_fut: 'BIOMETRIC CORE v2.6',
     logo_s_mc: 'HEALTH MOD v2.6',
-    logo_s_halo: 'UNSC MJOLNIR BIOMONITOR',
-    logo_s_naruto: '木ノ葉隠れの里 · KONOHA',
+    logo_s_halo: 'SENTINEL OS — EXOSUIT BIOMONITOR',
+    logo_s_naruto: '忍 · SISTEMA DE ENERGÍA KI',
     mc_eye: '> PLAYER STATS LOADED',
     mc_pfx: 'PLAYER: ', mc_rl: '> HEALTH BAR',
-    halo_eye: '// VISR OS — SPARTAN BIOMONITOR — UNSC CLASSIFIED',
-    halo_pfx: 'SPARTAN ', halo_rl: '// COMBAT READINESS',
-    naruto_eye: '木ノ葉の里 — KONOHA SHINOBI SYSTEM',
-    naruto_pfx: '忍者: ', naruto_rl: '// チャクラ READINESS',
+    halo_eye: '// SENTINEL OS — EXOSUIT BIOMONITOR — CLASSIFIED',
+    halo_pfx: 'SENTINEL ', halo_rl: '// COMBAT READINESS',
+    naruto_eye: '忍の道 — SHINOBI ENERGY SYSTEM',
+    naruto_pfx: '忍者: ', naruto_rl: '// 気 · KI READINESS',
     connected: '◆ GOOGLE CONNECTED', live: 'LIVE',
     sync_toast: (t) => `◆ SYNC ${t}`,
     // Stats view
@@ -2803,10 +2980,18 @@ function setLang(l) {
   const t = T[l];
   // selector screen
   setText('sel-eye', t.sel_eye);
+  setText('sel-sub', t.sel_sub);
   setText('sel-mc-sub', t.mc_sub);
   setText('sel-halo-sub', t.halo_sub);
   setText('sel-naruto-sub', t.naruto_sub);
   setText('sel-fut-sub', t.fut_sub);
+  // selector badges + stats
+  ['tbf-mc','tbf-halo','tbf-naruto','tbf-fut'].forEach(function(id){ setText(id, t.sel_badge_free); });
+  setText('sel-lbl-free', t.sel_badge_free);
+  setText('sel-lbl-soon', t.sel_badge_soon);
+  setText('sel-soon1', t.sel_badge_soon);
+  setText('sel-soon2', t.sel_badge_soon);
+  setText('sel-ft', t.sel_ft);
   // header
   setText('btn-back', t.back);
   setText('btn-connect', t.connect);
@@ -2917,6 +3102,13 @@ function selectTheme(t) {
   initSwipeNav();
 }
 
+function markActiveTheme() {
+  var cur = localStorage.getItem('fb_t');
+  document.querySelectorAll('.t-card[data-id]').forEach(function(c) {
+    c.classList.toggle('t-active', c.dataset.id === cur);
+  });
+}
+
 function goBack() {
   document.getElementById('dash').style.display = 'none';
   document.getElementById('bnav').style.display = 'none';
@@ -2924,6 +3116,7 @@ function goBack() {
   document.body.className = '';
   clearInterval(ptmr); clearInterval(cdtmr);
   document.querySelectorAll('.nring').forEach(e => e.remove());
+  markActiveTheme();
 }
 
 function applyTheme(t) {
@@ -2943,9 +3136,9 @@ function applyTheme(t) {
   if (t === 'mc') {
     mc.innerHTML = `<div class="mc-bars"><div class="mc-blbl">❤ HEALTH</div><div class="mc-btr"><div class="mc-bfi mc-hp" style="width:80%"></div></div><div class="mc-blbl" style="margin-top:6px">✦ XP BAR</div><div class="mc-btr"><div class="mc-bfi mc-xp" style="width:60%"></div></div></div>`;
   } else if (t === 'halo') {
-    mc.innerHTML = `<div class="halo-bars"><div class="halo-blbl">◈ SHIELDS</div><div class="halo-btr"><div class="halo-bfi halo-shields" style="width:85%"></div></div><div class="halo-blbl" style="margin-top:6px">⬥ AMMO</div><div class="halo-btr"><div class="halo-bfi halo-ammo" style="width:72%"></div></div></div>`;
+    mc.innerHTML = `<div class="halo-bars"><div class="halo-blbl">◈ ARMOR</div><div class="halo-btr"><div class="halo-bfi halo-shields" style="width:85%"></div></div><div class="halo-blbl" style="margin-top:6px">⬥ AMMO</div><div class="halo-btr"><div class="halo-bfi halo-ammo" style="width:72%"></div></div></div>`;
   } else if (t === 'naruto') {
-    mc.innerHTML = `<div class="naruto-bars"><div class="naruto-blbl">🔥 CHAKRA</div><div class="naruto-btr"><div class="naruto-bfi naruto-chakra" style="width:88%"></div></div><div class="naruto-blbl" style="margin-top:6px">⚡ STAMINA</div><div class="naruto-btr"><div class="naruto-bfi naruto-stamina" style="width:76%"></div></div></div>`;
+    mc.innerHTML = `<div class="naruto-bars"><div class="naruto-blbl">気 KI</div><div class="naruto-btr"><div class="naruto-bfi naruto-chakra" style="width:88%"></div></div><div class="naruto-blbl" style="margin-top:6px">⚡ STAMINA</div><div class="naruto-btr"><div class="naruto-bfi naruto-stamina" style="width:76%"></div></div></div>`;
   } else if (t === 'fut') {
     mc.innerHTML = `<div class="fut-bars"><div class="fut-blbl">⚡ ENERGY</div><div class="fut-btr"><div class="fut-bfi fut-energy" style="width:82%"></div></div><div class="fut-blbl" style="margin-top:6px">⬢ PROCESSOR</div><div class="fut-btr"><div class="fut-bfi fut-processor" style="width:68%"></div></div></div>`;
   }
@@ -4345,8 +4538,8 @@ function updateOnlineStatus() {
         }
       }
 
-      _hideOwait();
-      _connInited = true; // from now on owait won't show again mid-session
+      _connInited = true; // mark connection as established BEFORE hiding owait
+      _hideOwait();       // guard inside checks _connInited — must be true first
 
       // Resume polling — but cap retries if the connection is very flappy
       if (_connFlaps < 4) {
@@ -5355,26 +5548,61 @@ function renderHypnogram(main) {
   const axis = document.getElementById('hypno-axis');
   if (axis) axis.innerHTML = ticks;
 }
+// ── iOS-safe scroll lock ───────────────────────────────────────────
+// overflow:hidden on body does NOT stop momentum scroll on iOS Safari.
+// The only reliable technique: fix the body at the current scroll offset.
+function _lockScroll() {
+  var sy = window.scrollY || window.pageYOffset || 0;
+  document.body.style.position = 'fixed';
+  document.body.style.top      = '-' + sy + 'px';
+  document.body.style.left     = '0';
+  document.body.style.right    = '0';
+  document.body.style.width    = '100%';
+  document.body.dataset.scrollLock = sy;
+}
+function _unlockScroll() {
+  var sy = parseInt(document.body.dataset.scrollLock || '0', 10);
+  document.body.style.position = '';
+  document.body.style.top      = '';
+  document.body.style.left     = '';
+  document.body.style.right    = '';
+  document.body.style.width    = '';
+  delete document.body.dataset.scrollLock;
+  window.scrollTo(0, sy);
+}
+
 // ── Offline wait overlay helpers ──────────────────────────────────
+// iOS rubber-band needs THREE layers of prevention:
+//   1. html.owait-lock CSS freezes html+body scroll
+//   2. touchstart blocked (rubber-band starts on touchstart, not touchmove)
+//   3. touchmove blocked (belt & suspenders)
+function _owTouchBlock(e) { e.preventDefault(); e.stopPropagation(); }
+
 function _showOwait() {
-  const el = document.getElementById('owait'); if (!el) return;
-  const t = T[lang] || T['es'];
+  var el = document.getElementById('owait'); if (!el) return;
+  var t = T[lang] || T['es'];
   setText('owait-msg',     t.owait_msg || 'ESPERANDO CONEXIÓN');
   setText('owait-sig-lbl', t.owait_sig || 'SIN SEÑAL');
-  document.getElementById('lov')?.classList.remove('on'); // hide regular loader
+  document.getElementById('lov')?.classList.remove('on');
   el.classList.add('on');
+  document.documentElement.classList.add('owait-lock');
+  document.addEventListener('touchstart', _owTouchBlock, { passive: false });
+  document.addEventListener('touchmove',  _owTouchBlock, { passive: false });
 }
 function _hideOwait() {
   var el = document.getElementById('owait');
   if (!el) return;
-  // If this is the very first connection restore (was showing the "waiting" screen),
-  // fade out smoothly and then play the splash "online" animation.
-  var isFirstRestore = el.classList.contains('on') && !_connInited;
+  // Guard: block ANY dismissal until a real network request has succeeded.
+  if (!_connInited) return;
+  document.documentElement.classList.remove('owait-lock');
+  document.removeEventListener('touchstart', _owTouchBlock);
+  document.removeEventListener('touchmove',  _owTouchBlock);
+  var isFirstRestore = el.classList.contains('on');
   if (isFirstRestore) {
-    el.classList.add('owait-exit');        // start opacity → 0
+    el.classList.add('owait-exit');
     setTimeout(function() {
       el.classList.remove('on', 'owait-exit');
-      showSplash();                        // celebrate — "you're online!"
+      showSplash();
     }, 400);
   } else {
     el.classList.remove('on');
@@ -5389,7 +5617,9 @@ function showLoad() {
     if (!_connInited) _showOwait();
     return;
   }
-  _connInited = true; // first successful online load — disable owait from now on
+  // NOTE: do NOT set _connInited here — navigator.onLine=true doesn't prove
+  // real internet (WiFi without internet returns true). _connInited is only
+  // set after an actual fetch succeeds (updateOnlineStatus or real fetch).
   document.getElementById('lov').classList.add('on');
 }
 function hideLoad() {
@@ -5798,13 +6028,18 @@ function _hRenderLineSVG(svg, plot, cls) {
   const idx = _hTickIdx(pts.length, 4);
   let xax = '';
   idx.forEach(i => { const p=pts[i]; if(!p) return; xax += `<text class="axlbl" x="${p.x.toFixed(1)}" y="${(h-8).toFixed(1)}" text-anchor="middle">${_hFmtTick(p.date)}</text>`; });
-  // dots: subtle on all (if not too dense) + transparent hit targets + highlighted last
+  // dots: always visible, size scales with density; halo lifts them off the line
   const last = pts[pts.length-1];
-  let dots = '';
-  if (pts.length <= 10) dots += pts.map(p => `<circle class="pt-dot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.4" style="fill:${col};opacity:0.5"/>`).join('');
-  const lastDot = `<circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="4.5" style="fill:${col};filter:url(#hgl-${cls});opacity:0.9"/>`
-    + `<circle class="pt-last-ring" cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="5" style="stroke:${col}"/>`
-    + `<circle class="pt-last-core" cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="2.3"/>`;
+  const dotR  = pts.length > 20 ? 2.8 : pts.length > 10 ? 3.2 : 3.8;
+  const haloR = dotR + 2;
+  const dots = pts.map(p =>
+    // dark halo behind the dot so it reads clearly against the line and area fill
+    `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${haloR.toFixed(1)}" style="fill:var(--bg);opacity:0.55"/>`
+    + `<circle class="pt-dot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${dotR.toFixed(1)}" style="fill:${col};opacity:0.92"/>`
+  ).join('');
+  const lastDot = `<circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="${(dotR+2).toFixed(1)}" style="fill:${col};filter:url(#hgl-${cls});opacity:0.9"/>`
+    + `<circle class="pt-last-ring" cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="${(dotR+2.5).toFixed(1)}" style="stroke:${col}"/>`
+    + `<circle class="pt-last-core" cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="${(dotR-0.5).toFixed(1)}"/>`;
   const hits = pts.map(p => `<circle class="pt" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="13" fill="transparent" data-v="${p.v}" data-d="${p.date}" style="cursor:pointer"/>`).join('');
   svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
   svg.innerHTML = `${defs}${zoneSvg}${grid}${refSvg}`
@@ -5932,6 +6167,9 @@ function _hTrend(rows, key, lowerBetter) {
 
 function _hCoachAnalysis(rows) {
   const t = T[lang];
+  // Range context — reads the currently selected history range (7 / 14 / 30 days)
+  const days = window._histRange || rows.length || 7;
+  const rangeSuffix = lang === 'es' ? ` en los últimos <strong>${days} días</strong>` : ` over the last <strong>${days} days</strong>`;
   const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
   const halfTrend = vals => {
     if (vals.length < 4) return 0;
@@ -5955,34 +6193,74 @@ function _hCoachAnalysis(rows) {
   if (avgRec != null) {
     const r = Math.round(avgRec);
     let text = avgRec >= 67 ? fill(t.hv_ca_rec_peak, r) : avgRec >= 50 ? fill(t.hv_ca_rec_good, r) : fill(t.hv_ca_rec_low, r);
+    text += rangeSuffix + '.';
     if (recTrend > 3) text += t.hv_ca_rec_up;
     else if (recTrend < -3) text += t.hv_ca_rec_dn;
-    insights.push({ icon: avgRec >= 67 ? '✦' : avgRec >= 50 ? '◈' : '◇', label: t.hv_ca_rec_lbl, text });
+    insights.push({ icon: '◆', label: t.hv_ca_rec_lbl, text });
   }
   if (avgRhr != null) {
     const r = Math.round(avgRhr);
     let text = avgRhr < 55 ? fill(t.hv_ca_rhr_peak, r) : avgRhr < 65 ? fill(t.hv_ca_rhr_good, r) : avgRhr < 75 ? fill(t.hv_ca_rhr_ok, r) : fill(t.hv_ca_rhr_high, r);
+    text += rangeSuffix + '.';
     if (rhrTrend < -1.5) text += t.hv_ca_rhr_dn;
     else if (rhrTrend > 1.5) text += t.hv_ca_rhr_up;
-    insights.push({ icon: avgRhr < 65 ? '♥' : '◈', label: t.hv_ca_rhr_lbl, text });
+    insights.push({ icon: '♥', label: t.hv_ca_rhr_lbl, text });
   }
   if (avgSlp != null) {
     const hrs = (avgSlp/60).toFixed(1);
     let text = avgSlp/60 >= 7.5 ? fill(t.hv_ca_slp_peak, hrs) : avgSlp/60 >= 6.5 ? fill(t.hv_ca_slp_ok, hrs) : fill(t.hv_ca_slp_low, hrs);
+    text += rangeSuffix + '.';
     if (avgDeep != null && avgRem != null && avgSlp > 0) {
       const qp = Math.round(((avgDeep+avgRem)/avgSlp)*100);
       text += qp >= 45 ? fill(t.hv_ca_slp_hi_qual, qp) : qp >= 30 ? fill(t.hv_ca_slp_mid_qual, qp) : fill(t.hv_ca_slp_lo_qual, qp);
     }
-    insights.push({ icon: avgSlp/60 >= 7.5 ? '◉' : '◈', label: t.hv_ca_slp_lbl, text });
+    insights.push({ icon: '◑', label: t.hv_ca_slp_lbl, text });
   }
   if (avgStp != null) {
     const k = (Math.round(avgStp/100)/10).toFixed(1);
     const daysGoal = stpVals.filter(v=>v>=10000).length;
     let text = avgStp >= 10000 ? fill(t.hv_ca_stp_peak, k) : avgStp >= 7000 ? fill(t.hv_ca_stp_good, k) : fill(t.hv_ca_stp_low, k);
+    text += rangeSuffix + '.';
     if (daysGoal > 0) text += fill(t.hv_ca_stp_days, daysGoal);
     if (stpTrend > 600) text += t.hv_ca_stp_up;
     else if (stpTrend < -600) text += t.hv_ca_stp_dn;
-    insights.push({ icon: avgStp >= 10000 ? '✦' : avgStp >= 7000 ? '◈' : '◇', label: t.hv_ca_stp_lbl, text });
+    insights.push({ icon: '◉', label: t.hv_ca_stp_lbl, text });
+  }
+  // Cycle insight — only for users with cycle tracking enabled (female profile)
+  if (typeof cycleEnabled === 'function' && cycleEnabled()) {
+    const cyc = typeof _cycData === 'function' ? _cycData() : null;
+    const cycLabel = lang === 'es' ? 'CICLO' : 'CYCLE';
+    if (!cyc || !cyc.last) {
+      // Tracking on but no period date entered yet
+      const text = lang === 'es'
+        ? 'Registra tu última menstruación en el calendario del ciclo para ver el análisis de fase.'
+        : 'Log your last period in the cycle calendar to unlock phase analysis.';
+      insights.push({ icon: '◎', label: cycLabel, text });
+    } else {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const phase = typeof _cycPhaseForDate === 'function' ? _cycPhaseForDate(todayStr) : null;
+      const cycLen = cyc.len || 28;
+      const lastDate = new Date(cyc.last + 'T00:00:00');
+      const todayDate = new Date(todayStr + 'T00:00:00');
+      const elapsed = Math.floor((todayDate - lastDate) / 86400000);
+      const cycDay = (elapsed % cycLen) + 1; // 1-based day in current cycle
+      const loggedDays = typeof _cycLog === 'function' ? Object.keys(_cycLog()).length : 0;
+      const phaseAdvice = {
+        menstrual:  lang === 'es' ? 'Recuperación más lenta, prioriza el descanso.' : 'Slower recovery — prioritize rest.',
+        follicular: lang === 'es' ? 'Energía en ascenso, buen momento para entrenar.' : 'Energy rising — great time to train.',
+        fertile:    lang === 'es' ? 'Ventana fértil activa, pico de vitalidad.' : 'Fertile window active — vitality peak.',
+        peak:       lang === 'es' ? 'Pico de fertilidad, máxima energía disponible.' : 'Peak fertility — maximum energy available.',
+        ovulation:  lang === 'es' ? 'Día de ovulación, rendimiento en su punto más alto.' : 'Ovulation day — performance at its highest.',
+        luteal:     lang === 'es' ? 'Energía bajando gradualmente, mantén actividad moderada.' : 'Energy gradually declining — keep activity moderate.',
+      };
+      const phaseName = (phase && t.cyc_phases && t.cyc_phases[phase]) || (phase || '');
+      const dayLabel  = lang === 'es' ? `Día ${cycDay} de ${cycLen}` : `Day ${cycDay} of ${cycLen}`;
+      const logLabel  = loggedDays > 0 ? (lang === 'es' ? ` ${loggedDays} días registrados.` : ` ${loggedDays} days logged.`) : '';
+      const advice    = phase ? (phaseAdvice[phase] || '') : '';
+      const phaseStr  = phaseName ? ` — ${phaseName.toLowerCase()}.` : '.';
+      const text = `${dayLabel}${phaseStr} ${advice}${logLabel}`.trim();
+      insights.push({ icon: '◎', label: cycLabel, text });
+    }
   }
 
   let overallText = '';
@@ -6001,6 +6279,10 @@ function _hRenderCoachAnalysis(rows) {
   const body = document.getElementById('hv-coach-body');
   if (!body) return;
   setText('hv-coach-lbl', t.hv_coach_lbl || 'ANÁLISIS AIRA');
+  // Show selected range pill next to the title
+  const _days = window._histRange || 7;
+  const _rangePill = document.getElementById('hv-coach-range');
+  if (_rangePill) _rangePill.textContent = lang === 'es' ? `${_days} DÍAS` : `${_days} DAYS`;
   const { insights, overallText } = _hCoachAnalysis(rows);
   if (!insights.length) {
     body.innerHTML = `<div class="hv-coach-empty">${t.hv_empty}</div>`;
@@ -6178,8 +6460,22 @@ function showSplash() {
 // you can now safely use `let`/`const` again as long as it's declared
 // above this line.
 // ══════════════════════════════════════════════════════════════════════
-if (theme) showSplash();   // ← boot animation for returning users
-if (theme) selectTheme(theme);
+if (theme) {
+  if (navigator.onLine) {
+    // Online boot: play splash first, then apply theme after 2 animation frames so
+    // the splash overlay renders (display:flex) BEFORE the theme DOM changes paint.
+    // This fixes the mobile flash where the theme appeared for a frame before the
+    // splash covered it.
+    showSplash();
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() { selectTheme(theme); });
+    });
+  } else {
+    // Offline boot: skip the welcome splash — the owait overlay IS the first screen.
+    // The splash will play when connection is restored (_hideOwait → showSplash).
+    selectTheme(theme);
+  }
+}
 initCapacitor();
 
 // ── Nav touch fix for iOS ─────────────────────────────────────────────
