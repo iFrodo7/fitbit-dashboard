@@ -604,6 +604,25 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .sbfi{height:100%;width:0%;background:var(--ta);transition:width 0.4s;}
 
 /* Loading overlay — premium skeleton */
+/* ── Offline / No-Connection Waiting Overlay ─────────────────────── */
+.owait{display:none;position:fixed;inset:0;background:var(--bg);z-index:910;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
+.owait.on{display:flex;}
+.owait-logo{position:relative;width:clamp(96px,28vw,148px);height:clamp(96px,28vw,148px);}
+.owait-logo-svg{width:100%;height:100%;overflow:visible;}
+/* Ghost AIRA geometry — slow breath, matches splash off-state */
+.ow-ghost{animation:owBreathe 2.7s ease-in-out infinite;}
+@keyframes owBreathe{0%,100%{opacity:0.09;}50%{opacity:0.22;}}
+/* 3 sonar ripple rings — same geometry as the sp-pulse, but looping */
+.ow-ring{transform-box:fill-box;transform-origin:50% 50%;opacity:0;fill:none;stroke:var(--ta);}
+.ow-r1{animation:owRipple 2.7s ease-out infinite;}
+.ow-r2{animation:owRipple 2.7s 0.9s ease-out infinite;}
+.ow-r3{animation:owRipple 2.7s 1.8s ease-out infinite;}
+@keyframes owRipple{0%{transform:scale(0.82);opacity:0.72;stroke-width:4;}100%{transform:scale(2.7);opacity:0;stroke-width:1;}}
+/* Text */
+.owait-lbl{font-size:clamp(26px,5.5vw,36px);font-weight:700;letter-spacing:10px;padding-left:10px;color:var(--ta);animation:owBreathe 2.7s ease-in-out infinite;animation-direction:alternate;}
+.owait-msg{font-size:10px;letter-spacing:3px;color:var(--ta);opacity:0.65;text-transform:uppercase;text-align:center;}
+.owait-sig{display:flex;align-items:center;gap:7px;font-size:9px;letter-spacing:2px;color:var(--tneg);opacity:0.75;text-transform:uppercase;margin-top:4px;}
+.owait-sig-dot{width:6px;height:6px;border-radius:50%;background:var(--tneg);flex-shrink:0;animation:blink 1.1s infinite;}
 .lov{display:none;position:fixed;inset:0;background:var(--bg);z-index:900;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:30px 20px;}
 .lov.on{display:flex;}
 .ltxt{font-size:13px;letter-spacing:4px;color:var(--ta);animation:blink 1s infinite;text-align:center;}
@@ -2078,6 +2097,32 @@ body.t-naruto span.vval{
     </div>
   </div>
 
+  <!-- Offline / no-connection waiting overlay -->
+  <div class="owait" id="owait" aria-live="polite" aria-label="Esperando conexión">
+    <div class="owait-logo" aria-hidden="true">
+      <svg class="owait-logo-svg" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+        <!-- Ghost AIRA logo — same geometry as splash, barely lit -->
+        <g class="ow-ghost">
+          <circle cx="256" cy="256" r="180" fill="none" stroke="var(--ta)" stroke-width="20"/>
+          <path d="M188 346 L256 176 L324 346" fill="none" stroke="var(--ta)"
+                stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M214 290 H298" fill="none" stroke="var(--ta)"
+                stroke-width="22" stroke-linecap="round"/>
+        </g>
+        <!-- 3 ripple rings — sp-pulse effect, looped, staggered -->
+        <circle class="ow-ring ow-r1" cx="256" cy="256" r="180"/>
+        <circle class="ow-ring ow-r2" cx="256" cy="256" r="180"/>
+        <circle class="ow-ring ow-r3" cx="256" cy="256" r="180"/>
+      </svg>
+    </div>
+    <div class="owait-lbl">AIRA</div>
+    <div class="owait-msg" id="owait-msg">ESPERANDO CONEXIÓN</div>
+    <div class="owait-sig">
+      <span class="owait-sig-dot"></span>
+      <span id="owait-sig-lbl">SIN SEÑAL</span>
+    </div>
+  </div>
+
   <!-- Cycle day log / symptom modal -->
   <div class="mov" id="cyc-sym-ov" onclick="if(event.target===this)closeSymModal()">
     <div class="mbox" style="max-width:400px;">
@@ -2425,6 +2470,7 @@ const T = {
     pv_export_empty: 'No hay historial para exportar',
     pv_status_demo: 'MODO DEMO',
     pv_status_live: '◆ EN VIVO',
+    owait_msg: 'ESPERANDO CONEXIÓN', owait_sig: 'SIN SEÑAL',
   },
   en: {
     sel_eye: '// select your biometric monitoring interface',
@@ -2639,6 +2685,7 @@ const T = {
     pv_export_empty: 'No history to export',
     pv_status_demo: 'DEMO MODE',
     pv_status_live: '◆ LIVE',
+    owait_msg: 'WAITING FOR CONNECTION', owait_sig: 'NO SIGNAL',
   }
 };
 
@@ -4104,7 +4151,12 @@ function updateOnlineStatus() {
   if (badge) badge.style.display = offline ? 'flex' : 'none';
   if (offline) {
     showToast(lang === 'es' ? 'Sin conexión — datos en caché' : 'Offline — cached data', 'warning');
+    // If the regular sync loader is showing, swap it for the offline wait screen
+    if (document.getElementById('lov')?.classList.contains('on')) {
+      _showOwait();
+    }
   } else if (document.body.dataset.wasOffline === '1') {
+    _hideOwait(); // dismiss offline overlay
     showToast(lang === 'es' ? 'Conexión restaurada' : 'Connection restored', 'success');
     const _pf = (typeof HS!=='undefined'&&HS.id==='google') ? pollFastGoogle : pollFast;
     if (typeof _pf === 'function') _pf();
@@ -5103,8 +5155,25 @@ function renderHypnogram(main) {
   const axis = document.getElementById('hypno-axis');
   if (axis) axis.innerHTML = ticks;
 }
-function showLoad() { document.getElementById('lov').classList.add('on'); }
-function hideLoad() { document.getElementById('lov').classList.remove('on'); }
+// ── Offline wait overlay helpers ──────────────────────────────────
+function _showOwait() {
+  const el = document.getElementById('owait'); if (!el) return;
+  const t = T[lang] || T['es'];
+  setText('owait-msg',     t.owait_msg || 'ESPERANDO CONEXIÓN');
+  setText('owait-sig-lbl', t.owait_sig || 'SIN SEÑAL');
+  document.getElementById('lov')?.classList.remove('on'); // hide regular loader
+  el.classList.add('on');
+}
+function _hideOwait() { document.getElementById('owait')?.classList.remove('on'); }
+
+function showLoad() {
+  if (!navigator.onLine) { _showOwait(); return; }
+  document.getElementById('lov').classList.add('on');
+}
+function hideLoad() {
+  document.getElementById('lov').classList.remove('on');
+  _hideOwait();
+}
 
 // ══════ ONBOARDING — metric tooltips ══════
 function showOnb(key) {
