@@ -910,6 +910,9 @@ body.t-fut::after{content:'';position:fixed;inset:0;background:repeating-linear-
 #hud-rfil{fill:none;stroke:#00f5ff;stroke-width:7;stroke-linecap:round;stroke-dasharray:439.8;stroke-dashoffset:88;transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 0 6px #00f5ff);}
 #hud-spfil{fill:none;stroke:#a855f7;stroke-width:5;stroke-linecap:round;stroke-dasharray:345.6;stroke-dashoffset:35;transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1) .2s;filter:drop-shadow(0 0 4px #a855f7);}
 #hud-sfil{fill:none;stroke:#f59e0b;stroke-width:4;stroke-linecap:round;stroke-dasharray:251.3;stroke-dashoffset:151;transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1) .4s;filter:drop-shadow(0 0 4px #f59e0b);}
+/* Futuristic ring: percentage number layout */
+.hud-pct-row{display:flex;align-items:baseline;line-height:1;}
+.hud-pct-sym{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;color:#00f5ff;opacity:0.75;margin-left:1px;text-shadow:0 0 10px rgba(0,245,255,0.5);}
 
 /* ═══════════════════════════════════════
    THEME: MINECRAFT
@@ -1355,13 +1358,12 @@ body.t-naruto span.vval{
             <circle class="hud-fan" cx="80" cy="80" r="35" fill="none" stroke="rgba(0,245,255,0.18)" stroke-width="5" stroke-dasharray="4 5"/>
             <!-- Backdrop oscuro: aísla el número del reactor -->
             <circle cx="80" cy="80" r="31" fill="rgba(4,6,20,0.9)"/>
-            <!-- Centro pulsante -->
-            <circle class="hud-blnk" cx="80" cy="80" r="11" fill="none" stroke="rgba(0,245,255,0.55)" stroke-width="1"/>
-            <circle class="hud-blnk2" cx="80" cy="80" r="5" fill="rgba(0,245,255,0.85)"/>
           </svg>
           <div class="ri">
-            <div class="rnum" id="hud-rscore">80</div>
-            <div class="rdenom">/ 100</div>
+            <div class="hud-pct-row">
+              <div class="rnum" id="hud-rscore">80</div>
+              <span class="hud-pct-sym">%</span>
+            </div>
           </div>
         </div>
         <!-- Leyenda de anillos (futuristic only) -->
