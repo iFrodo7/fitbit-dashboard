@@ -4169,6 +4169,8 @@ var _connFlaps     = 0;      // rapid on→off events in current window
 var _connFlapReset = null;   // timer to clear _connFlaps
 var _connOffSince  = 0;      // timestamp when we first went offline this cycle
 var _connLastToast = 0;      // timestamp of last offline toast
+var _connInited    = false;  // true after first successful online load — prevents
+                             // owait from showing on mid-session disconnections
 
 function _setConnBadge(mode) { // 'offline' | 'unstable' | 'online'
   var badge = document.getElementById('offline-badge');
@@ -4213,8 +4215,9 @@ function updateOnlineStatus() {
         _connLastToast = Date.now();
       }
 
-      // Swap sync loader for offline overlay if it was open
-      if (document.getElementById('lov')?.classList.contains('on')) _showOwait();
+      // Don't show the full owait overlay on mid-session disconnections —
+      // the badge + toast are enough. owait is only for the initial no-data load.
+      document.getElementById('lov')?.classList.remove('on'); // close any pending loader
     }, 2500);
 
   } else {
@@ -4250,6 +4253,7 @@ function updateOnlineStatus() {
       }
 
       _hideOwait();
+      _connInited = true; // from now on owait won't show again mid-session
 
       // Resume polling — but cap retries if the connection is very flappy
       if (_connFlaps < 4) {
@@ -5266,7 +5270,14 @@ function _showOwait() {
 function _hideOwait() { document.getElementById('owait')?.classList.remove('on'); }
 
 function showLoad() {
-  if (!navigator.onLine) { _showOwait(); return; }
+  if (!navigator.onLine) {
+    // Show the waiting overlay only on the very first load attempt (app just opened,
+    // account exists, no connection yet). After that, the badge is enough — we don't
+    // want the animation popping up on every poll cycle.
+    if (!_connInited) _showOwait();
+    return;
+  }
+  _connInited = true; // first successful online load — disable owait from now on
   document.getElementById('lov').classList.add('on');
 }
 function hideLoad() {
