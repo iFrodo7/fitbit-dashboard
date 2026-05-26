@@ -1146,6 +1146,46 @@ body.t-mc::before{content:'';position:fixed;inset:0;background-image:repeating-l
 .nrt-pct-sym{font-family:'Permanent Marker',cursive;font-size:20px;color:#ff4500;
   opacity:0.75;margin-left:1px;text-shadow:0 0 10px rgba(255,69,0,0.5);}
 
+/* ── NEON NOIR: Circuit Chip Ring ──
+   PCB IC chip at center with 4 right-angle parallel-trace arms,
+   animated current dots flowing outward, terminal nodes at corners. */
+.nn-rc{display:none;position:relative;width:220px;height:220px;}
+.nn-rsvg{width:100%;height:100%;overflow:visible;}
+/* Decorative inner arc (r=14, circ≈88) */
+#nn-rfil{fill:none;stroke:#ff2d78;stroke-width:5;stroke-linecap:round;
+  stroke-dasharray:88;stroke-dashoffset:17.6;
+  transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1);}
+/* Hide center score overlay — scores shown inside SVG nodes */
+.nn-rc .ri{display:none;}
+/* Chip body pulse glow */
+@keyframes nnChipGlow{
+  0%,100%{filter:drop-shadow(0 0 3px rgba(255,45,120,0.9)) drop-shadow(0 0 8px rgba(189,0,255,0.4));}
+  50%    {filter:drop-shadow(0 0 8px rgba(255,45,120,1))   drop-shadow(0 0 20px rgba(189,0,255,0.7));}}
+#nn-chip-body{animation:nnChipGlow 2.8s ease-in-out infinite;}
+/* Score % symbol */
+.nn-pct-sym{font-family:'IBM Plex Mono',monospace;font-size:18px;color:#ff2d78;
+  opacity:0.8;margin-left:2px;text-shadow:0 0 10px rgba(255,45,120,0.6);}
+
+/* ── BLOOM: Sakura Ring ──
+   Cherry blossom center (5 petals + clefts + stamen) around a recovery arc.
+   3 petals orbit the ring using animateMotion with rotate="auto". */
+.blm-rc{display:none;position:relative;width:220px;height:220px;}
+.blm-rsvg{width:100%;height:100%;overflow:visible;}
+/* Recovery arc (r=58, circ≈364 — identical to Naruto ring) */
+#blm-rfil{fill:none;stroke:#e85c8a;stroke-width:9;stroke-linecap:round;
+  stroke-dasharray:364;stroke-dashoffset:73;
+  transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1);
+  animation:blmArcGlow 3.5s ease-in-out infinite;}
+@keyframes blmArcGlow{
+  0%,100%{filter:drop-shadow(0 0 4px rgba(232,92,138,0.85)) drop-shadow(0 0 14px rgba(196,127,181,0.3));}
+  50%    {filter:drop-shadow(0 0 9px rgba(232,92,138,1)) drop-shadow(0 0 28px rgba(196,127,181,0.65));}}
+/* Blossom gentle breath */
+@keyframes blmBreath{0%,100%{opacity:0.88;}50%{opacity:1;}}
+#blm-blossom{animation:blmBreath 4s ease-in-out infinite;}
+/* Score % symbol */
+.blm-pct-sym{font-family:'Nunito',sans-serif;font-size:20px;font-weight:700;color:#e85c8a;
+  opacity:0.8;margin-left:2px;text-shadow:0 0 10px rgba(232,92,138,0.5);}
+
 /* ── FUTURISTIC: ENERGY & PROCESSOR ── */
 .fut-bars{margin-top:10px;width:100%;}
 .fut-blbl{font-size:11px;letter-spacing:2px;color:#00f5ff;text-shadow:0 0 8px rgba(0,245,255,0.5);margin-bottom:4px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;}
@@ -1190,6 +1230,8 @@ body.t-halo::after{content:'';position:fixed;inset:0;background:repeating-linear
 /* Glitch flicker on activity type labels */
 @keyframes nn-glitch{0%,96%,100%{transform:none;opacity:1;}97%{transform:translateX(2px) skewX(1deg);opacity:0.8;}98%{transform:translateX(-1px);opacity:0.9;}}
 .t-halo .typ{animation:nn-glitch 5s ease-in-out infinite;}
+.t-halo .rc{display:none;}
+.t-halo .nn-rc{display:block;}
 
 /* ═══════════════════════════════════════
    THEME: BLOOM
@@ -1224,6 +1266,8 @@ body.t-bloom::after{content:'';position:fixed;bottom:0;left:0;right:0;height:35v
 .t-bloom .card::before{content:'';position:absolute;top:0;left:0;width:22px;height:2px;background:linear-gradient(90deg,rgba(232,92,138,0.7),transparent);border-radius:0 0 2px 0;}
 /* Rounded cards feel softer */
 .t-bloom .card,.t-bloom .vc{border-radius:8px;}
+.t-bloom .rc{display:none;}
+.t-bloom .blm-rc{display:block;}
 
 /* ═══════════════════════════════════════
    THEME: NARUTO
@@ -1892,6 +1936,350 @@ body.t-naruto span.vval{
             <div class="nrt-pct-row">
               <div class="rnum" id="nrt-rscore">80</div>
               <span class="nrt-pct-sym">%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Neon Noir Circuit Chip Ring (t-halo only) ── -->
+        <div class="nn-rc">
+          <svg class="nn-rsvg" viewBox="0 0 160 160">
+            <defs>
+              <!-- Glow filter for current dots and chip -->
+              <filter id="nn-glow-f" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="2.2" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <!-- Glow filter for ribbon trace cables -->
+              <filter id="nn-trace-glow" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="1.8" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <!-- Center-line paths for animated current dots (3 traces) -->
+              <path id="nn-path1" d="M 80,46 L 80,32"/>
+              <path id="nn-path2" d="M 46,80 L 18,80 L 18,120"/>
+              <path id="nn-path3" d="M 80,114 L 80,130 L 120,130"/>
+            </defs>
+
+            <!-- ══ RECOVERY NETWORK — 3-wire parallel bus (pink) ══ -->
+            <g fill="none" stroke-linejoin="miter" stroke-linecap="butt" filter="url(#nn-trace-glow)">
+              <!-- BACKBONE vertical (x=77,80,83) -->
+              <line x1="77" y1="46" x2="77" y2="32" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <line x1="80" y1="46" x2="80" y2="32" stroke="#ff2d78" stroke-width="1.6"/>
+              <line x1="83" y1="46" x2="83" y2="32" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <!-- LEFT ARM (LEFT→UP, corner at 60,42) — 3 parallel paths -->
+              <path d="M 80,39 L 57,39 L 57,26" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <path d="M 80,42 L 60,42 L 60,26" stroke="#ff2d78" stroke-width="1.6"/>
+              <path d="M 80,45 L 63,45 L 63,26" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <circle cx="57" cy="26" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+              <circle cx="60" cy="26" r="4" stroke="#ff2d78" stroke-width="1.4"/>
+              <circle cx="63" cy="26" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+              <!-- LEFT SUB-BRANCH (H left, T off left arm V at y≈35) -->
+              <line x1="57" y1="32" x2="44" y2="32" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <line x1="60" y1="35" x2="44" y2="35" stroke="#ff2d78" stroke-width="1.6"/>
+              <line x1="63" y1="38" x2="44" y2="38" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <circle cx="44" cy="32" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+              <circle cx="44" cy="35" r="4" stroke="#ff2d78" stroke-width="1.4"/>
+              <circle cx="44" cy="38" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+              <!-- RIGHT ARM (RIGHT→UP, corner at 104,38) — 3 parallel paths -->
+              <path d="M 80,41 L 101,41 L 101,22" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <path d="M 80,38 L 104,38 L 104,22" stroke="#ff2d78" stroke-width="1.6"/>
+              <path d="M 80,35 L 107,35 L 107,22" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <!-- RIGHT CONTINUATION (RIGHT→UP, corner at 116,22) from right arm endpoints -->
+              <path d="M 101,25 L 113,25 L 113,8" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <path d="M 104,22 L 116,22 L 116,8" stroke="#ff2d78" stroke-width="1.6"/>
+              <path d="M 107,19 L 119,19 L 119,8" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <circle cx="113" cy="8" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+              <circle cx="116" cy="8" r="4" stroke="#ff2d78" stroke-width="1.4"/>
+              <circle cx="119" cy="8" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+              <!-- RIGHT SUB-BRANCH (H right, T off right arm V at y≈30) -->
+              <line x1="101" y1="27" x2="118" y2="27" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <line x1="104" y1="30" x2="118" y2="30" stroke="#ff2d78" stroke-width="1.6"/>
+              <line x1="107" y1="33" x2="118" y2="33" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <circle cx="118" cy="27" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+              <circle cx="118" cy="30" r="4" stroke="#ff2d78" stroke-width="1.4"/>
+              <circle cx="118" cy="33" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+            </g>
+
+            <!-- ══ SLEEP NETWORK — 3-wire parallel bus (purple) ══ -->
+            <g fill="none" stroke-linejoin="miter" stroke-linecap="butt" filter="url(#nn-trace-glow)">
+              <!-- BACKBONE L (LEFT→DOWN, corner at 18,80) — 3 parallel paths -->
+              <path d="M 46,77 L 21,77 L 21,120" stroke="rgba(189,0,255,0.6)" stroke-width="1.3"/>
+              <path d="M 46,80 L 18,80 L 18,120" stroke="#bd00ff" stroke-width="1.6"/>
+              <path d="M 46,83 L 15,83 L 15,120" stroke="rgba(189,0,255,0.6)" stroke-width="1.3"/>
+              <!-- BRANCH 1 (UP→RIGHT, T at x=36 off H-backbone y=77,80,83) -->
+              <path d="M 33,77 L 33,57 L 50,57" stroke="rgba(189,0,255,0.6)" stroke-width="1.3"/>
+              <path d="M 36,80 L 36,60 L 50,60" stroke="#bd00ff" stroke-width="1.6"/>
+              <path d="M 39,83 L 39,63 L 50,63" stroke="rgba(189,0,255,0.6)" stroke-width="1.3"/>
+              <circle cx="50" cy="57" r="3" stroke="rgba(189,0,255,0.6)" stroke-width="1.2"/>
+              <circle cx="50" cy="60" r="4" stroke="#bd00ff" stroke-width="1.4"/>
+              <circle cx="50" cy="63" r="3" stroke="rgba(189,0,255,0.6)" stroke-width="1.2"/>
+              <!-- BRANCH 1 SUB (H left, T off branch1 V at y≈70) -->
+              <line x1="33" y1="67" x2="20" y2="67" stroke="rgba(189,0,255,0.6)" stroke-width="1.3"/>
+              <line x1="36" y1="70" x2="20" y2="70" stroke="#bd00ff" stroke-width="1.6"/>
+              <line x1="39" y1="73" x2="20" y2="73" stroke="rgba(189,0,255,0.6)" stroke-width="1.3"/>
+              <circle cx="20" cy="67" r="3" stroke="rgba(189,0,255,0.6)" stroke-width="1.2"/>
+              <circle cx="20" cy="70" r="4" stroke="#bd00ff" stroke-width="1.4"/>
+              <circle cx="20" cy="73" r="3" stroke="rgba(189,0,255,0.6)" stroke-width="1.2"/>
+              <!-- BRANCH 2 (pure UP, T at x=26 off H-backbone) -->
+              <line x1="23" y1="77" x2="23" y2="62" stroke="rgba(189,0,255,0.6)" stroke-width="1.3"/>
+              <line x1="26" y1="80" x2="26" y2="65" stroke="#bd00ff" stroke-width="1.6"/>
+              <line x1="29" y1="83" x2="29" y2="68" stroke="rgba(189,0,255,0.6)" stroke-width="1.3"/>
+              <circle cx="23" cy="62" r="3" stroke="rgba(189,0,255,0.6)" stroke-width="1.2"/>
+              <circle cx="26" cy="65" r="4" stroke="#bd00ff" stroke-width="1.4"/>
+              <circle cx="29" cy="68" r="3" stroke="rgba(189,0,255,0.6)" stroke-width="1.2"/>
+              <!-- BRANCH 3 (RIGHT→DOWN, T at y=96 off V-backbone x=15,18,21) -->
+              <path d="M 21,93 L 39,93 L 39,108" stroke="rgba(189,0,255,0.6)" stroke-width="1.3"/>
+              <path d="M 18,96 L 36,96 L 36,108" stroke="#bd00ff" stroke-width="1.6"/>
+              <path d="M 15,99 L 33,99 L 33,108" stroke="rgba(189,0,255,0.6)" stroke-width="1.3"/>
+              <circle cx="39" cy="108" r="3" stroke="rgba(189,0,255,0.6)" stroke-width="1.2"/>
+              <circle cx="36" cy="108" r="4" stroke="#bd00ff" stroke-width="1.4"/>
+              <circle cx="33" cy="108" r="3" stroke="rgba(189,0,255,0.6)" stroke-width="1.2"/>
+              <!-- BRANCH 4 (H right, T at y=112 off V-backbone) -->
+              <line x1="21" y1="109" x2="30" y2="109" stroke="rgba(189,0,255,0.6)" stroke-width="1.3"/>
+              <line x1="18" y1="112" x2="30" y2="112" stroke="#bd00ff" stroke-width="1.6"/>
+              <line x1="15" y1="115" x2="30" y2="115" stroke="rgba(189,0,255,0.6)" stroke-width="1.3"/>
+              <circle cx="30" cy="109" r="3" stroke="rgba(189,0,255,0.6)" stroke-width="1.2"/>
+              <circle cx="30" cy="112" r="4" stroke="#bd00ff" stroke-width="1.4"/>
+              <circle cx="30" cy="115" r="3" stroke="rgba(189,0,255,0.6)" stroke-width="1.2"/>
+            </g>
+
+            <!-- ══ STRAIN NETWORK — 3-wire parallel bus (pink) ══ -->
+            <g fill="none" stroke-linejoin="miter" stroke-linecap="butt" filter="url(#nn-trace-glow)">
+              <!-- BACKBONE (DOWN→RIGHT, corner at 80,130) — 3 parallel paths -->
+              <path d="M 83,114 L 83,127 L 120,127" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <path d="M 80,114 L 80,130 L 120,130" stroke="#ff2d78" stroke-width="1.6"/>
+              <path d="M 77,114 L 77,133 L 120,133" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <!-- V-BRANCH 1 (LEFT→DOWN, T at y=120 off V-backbone x=77,80,83) -->
+              <path d="M 77,117 L 65,117 L 65,138" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <path d="M 80,120 L 62,120 L 62,138" stroke="#ff2d78" stroke-width="1.6"/>
+              <path d="M 83,123 L 59,123 L 59,138" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <circle cx="65" cy="138" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+              <circle cx="62" cy="138" r="4" stroke="#ff2d78" stroke-width="1.4"/>
+              <circle cx="59" cy="138" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+              <!-- V-BRANCH 1 SUB (LEFT→DOWN, T off vbranch1 V at y=128) -->
+              <path d="M 65,125 L 53,125 L 53,144" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <path d="M 62,128 L 50,128 L 50,144" stroke="#ff2d78" stroke-width="1.6"/>
+              <path d="M 59,131 L 47,131 L 47,144" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <circle cx="53" cy="144" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+              <circle cx="50" cy="144" r="4" stroke="#ff2d78" stroke-width="1.4"/>
+              <circle cx="47" cy="144" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+              <!-- H-BRANCH 1 (pure UP, T at x=94 off H-backbone y=127,130,133) -->
+              <line x1="91" y1="127" x2="91" y2="112" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <line x1="94" y1="130" x2="94" y2="114" stroke="#ff2d78" stroke-width="1.6"/>
+              <line x1="97" y1="133" x2="97" y2="116" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <circle cx="91" cy="112" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+              <circle cx="94" cy="114" r="4" stroke="#ff2d78" stroke-width="1.4"/>
+              <circle cx="97" cy="116" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+              <!-- H-BRANCH 1 SUB (H right, T off hbranch1 V at y≈122) -->
+              <line x1="91" y1="119" x2="108" y2="119" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <line x1="94" y1="122" x2="108" y2="122" stroke="#ff2d78" stroke-width="1.6"/>
+              <line x1="97" y1="125" x2="108" y2="125" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <circle cx="108" cy="119" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+              <circle cx="108" cy="122" r="4" stroke="#ff2d78" stroke-width="1.4"/>
+              <circle cx="108" cy="125" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+              <!-- H-BRANCH 2 (DOWN, T at x=108 off H-backbone, then short H right) -->
+              <line x1="105" y1="127" x2="105" y2="148" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <line x1="108" y1="130" x2="108" y2="148" stroke="#ff2d78" stroke-width="1.6"/>
+              <line x1="111" y1="133" x2="111" y2="148" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <line x1="105" y1="148" x2="118" y2="148" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <line x1="108" y1="148" x2="118" y2="148" stroke="#ff2d78" stroke-width="1.6"/>
+              <line x1="111" y1="148" x2="118" y2="148" stroke="rgba(255,45,120,0.6)" stroke-width="1.3"/>
+              <circle cx="118" cy="145" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+              <circle cx="118" cy="148" r="4" stroke="#ff2d78" stroke-width="1.4"/>
+              <circle cx="118" cy="151" r="3" stroke="rgba(255,45,120,0.6)" stroke-width="1.2"/>
+            </g>
+
+            <!-- ══ DECORATIVE FLOATING TRACES — 3-wire buses (dimmer) ══ -->
+            <!-- D1: top-right cluster (pink) -->
+            <g fill="none" stroke-linejoin="miter" stroke-linecap="butt" filter="url(#nn-trace-glow)">
+              <!-- Route: RIGHT→UP→LEFT with 3 parallel paths -->
+              <path d="M 122,52 L 122,28 L 148,28 L 148,16 L 136,16" stroke="rgba(255,45,120,0.38)" stroke-width="1.3"/>
+              <path d="M 125,52 L 125,26 L 150,26 L 150,14 L 136,14" stroke="rgba(255,45,120,0.52)" stroke-width="1.5"/>
+              <path d="M 128,52 L 128,24 L 152,24 L 152,12 L 136,12" stroke="rgba(255,45,120,0.38)" stroke-width="1.3"/>
+              <circle cx="136" cy="16" r="3" stroke="rgba(255,45,120,0.38)" stroke-width="1.2"/>
+              <circle cx="136" cy="14" r="3.5" stroke="rgba(255,45,120,0.52)" stroke-width="1.3"/>
+              <circle cx="136" cy="12" r="3" stroke="rgba(255,45,120,0.38)" stroke-width="1.2"/>
+              <!-- sub: short V branch down from x≈135 -->
+              <line x1="132" y1="26" x2="132" y2="40" stroke="rgba(255,45,120,0.32)" stroke-width="1.2"/>
+              <line x1="135" y1="26" x2="135" y2="42" stroke="rgba(255,45,120,0.45)" stroke-width="1.4"/>
+              <line x1="138" y1="26" x2="138" y2="40" stroke="rgba(255,45,120,0.32)" stroke-width="1.2"/>
+              <circle cx="132" cy="40" r="2.5" stroke="rgba(255,45,120,0.32)" stroke-width="1.1"/>
+              <circle cx="135" cy="42" r="3" stroke="rgba(255,45,120,0.45)" stroke-width="1.2"/>
+              <circle cx="138" cy="40" r="2.5" stroke="rgba(255,45,120,0.32)" stroke-width="1.1"/>
+            </g>
+            <!-- D2: right-mid cluster (purple) -->
+            <g fill="none" stroke-linejoin="miter" stroke-linecap="butt" filter="url(#nn-trace-glow)">
+              <path d="M 128,87 L 150,87 L 150,68 L 137,68" stroke="rgba(189,0,255,0.38)" stroke-width="1.3"/>
+              <path d="M 128,90 L 152,90 L 152,70 L 138,70" stroke="rgba(189,0,255,0.52)" stroke-width="1.5"/>
+              <path d="M 128,93 L 150,93 L 150,72 L 137,72" stroke="rgba(189,0,255,0.38)" stroke-width="1.3"/>
+              <circle cx="137" cy="68" r="3" stroke="rgba(189,0,255,0.38)" stroke-width="1.2"/>
+              <circle cx="138" cy="70" r="3.5" stroke="rgba(189,0,255,0.52)" stroke-width="1.3"/>
+              <circle cx="137" cy="72" r="3" stroke="rgba(189,0,255,0.38)" stroke-width="1.2"/>
+              <!-- sub: short H branch left from x≈150 area -->
+              <line x1="148" y1="78" x2="138" y2="78" stroke="rgba(189,0,255,0.32)" stroke-width="1.2"/>
+              <line x1="150" y1="81" x2="138" y2="81" stroke="rgba(189,0,255,0.45)" stroke-width="1.4"/>
+              <line x1="148" y1="84" x2="138" y2="84" stroke="rgba(189,0,255,0.32)" stroke-width="1.2"/>
+              <circle cx="138" cy="78" r="2.5" stroke="rgba(189,0,255,0.32)" stroke-width="1.1"/>
+              <circle cx="138" cy="81" r="3" stroke="rgba(189,0,255,0.45)" stroke-width="1.2"/>
+              <circle cx="138" cy="84" r="2.5" stroke="rgba(189,0,255,0.32)" stroke-width="1.1"/>
+            </g>
+
+            <!-- ══ CENTRAL IC CHIP DIAMOND ══ -->
+            <polygon points="80,46 114,80 80,114 46,80" fill="rgba(255,45,120,0.06)" filter="url(#nn-glow-f)"/>
+            <polygon id="nn-chip-body" points="80,46 114,80 80,114 46,80"
+              fill="rgba(4,0,14,0.97)" stroke="#ff2d78" stroke-width="1.8"/>
+            <polygon points="80,60 100,80 80,100 60,80"
+              fill="none" stroke="rgba(255,45,120,0.15)" stroke-width="0.8"/>
+            <!-- Connection pads (top, left, bottom — PCB circle pads) -->
+            <circle cx="80" cy="46" r="4" fill="rgba(4,0,14,0.95)" stroke="#ff2d78" stroke-width="1.5"/>
+            <circle cx="46" cy="80" r="4" fill="rgba(4,0,14,0.95)" stroke="#bd00ff" stroke-width="1.5"/>
+            <circle cx="80" cy="114" r="4" fill="rgba(4,0,14,0.95)" stroke="#ff2d78" stroke-width="1.5"/>
+            <!-- IC internal grid -->
+            <line x1="68" y1="80" x2="92" y2="80" stroke="rgba(255,45,120,0.12)" stroke-width="0.7"/>
+            <line x1="80" y1="68" x2="80" y2="92" stroke="rgba(255,45,120,0.12)" stroke-width="0.7"/>
+            <!-- Decorative inner arc (r=14, C≈88) — pulse indicator -->
+            <circle cx="80" cy="80" r="14" fill="none" stroke="rgba(255,45,120,0.07)" stroke-width="5"/>
+            <circle id="nn-rfil" cx="80" cy="80" r="14"
+              fill="none" stroke="#ff2d78" stroke-width="5" stroke-linecap="round"
+              stroke-dasharray="88" stroke-dashoffset="17.6"
+              transform="rotate(-90 80 80)"/>
+
+            <!-- ══ NODE 1 — RECOVERY (top, pink) ══ -->
+            <rect x="58" y="2" width="44" height="30" rx="3" fill="rgba(4,0,14,0.96)" stroke="#ff2d78" stroke-width="1.5"/>
+            <rect x="62" y="5" width="36" height="24" rx="2" fill="rgba(255,45,120,0.05)" stroke="rgba(255,45,120,0.28)" stroke-width="0.7"/>
+            <text x="80" y="13" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="5.5" letter-spacing="1.5" fill="rgba(255,45,120,0.6)">RECOV</text>
+            <text x="80" y="25" text-anchor="middle" font-family="'IBM Plex Mono',monospace" fill="#ff2d78">
+              <tspan id="nn-nv-rec" font-size="11" font-weight="bold">80</tspan><tspan font-size="6" dx="1" dy="-2">%</tspan>
+            </text>
+
+            <!-- ══ NODE 2 — SLEEP (bottom-left, purple) ══ -->
+            <rect x="2" y="120" width="34" height="30" rx="3" fill="rgba(4,0,14,0.96)" stroke="#bd00ff" stroke-width="1.5"/>
+            <rect x="5" y="123" width="28" height="24" rx="2" fill="rgba(189,0,255,0.05)" stroke="rgba(189,0,255,0.28)" stroke-width="0.7"/>
+            <text x="19" y="131" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="5.5" letter-spacing="1" fill="rgba(189,0,255,0.6)">SLEEP</text>
+            <text x="19" y="142" text-anchor="middle" font-family="'IBM Plex Mono',monospace" fill="#bd00ff">
+              <tspan id="nn-nv-slp" font-size="11" font-weight="bold">84</tspan><tspan font-size="6" dx="1" dy="-2">%</tspan>
+            </text>
+
+            <!-- ══ NODE 3 — STRAIN (bottom-right, pink) ══ -->
+            <rect x="120" y="118" width="38" height="32" rx="3" fill="rgba(4,0,14,0.96)" stroke="#ff2d78" stroke-width="1.5"/>
+            <rect x="123" y="121" width="32" height="26" rx="2" fill="rgba(255,45,120,0.05)" stroke="rgba(255,45,120,0.28)" stroke-width="0.7"/>
+            <text x="139" y="130" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="5.5" letter-spacing="1" fill="rgba(255,45,120,0.6)">STRAIN</text>
+            <text x="139" y="141" text-anchor="middle" font-family="'IBM Plex Mono',monospace" fill="#ff2d78">
+              <tspan id="nn-nv-str" font-size="11" font-weight="bold">62</tspan><tspan font-size="6" dx="1" dy="-2">%</tspan>
+            </text>
+
+            <!-- ══ ANIMATED CURRENT DOTS (1 per trace) ══ -->
+            <circle r="3" fill="#ff2d78" filter="url(#nn-glow-f)">
+              <animateMotion dur="1.6s" repeatCount="indefinite" begin="0s"><mpath href="#nn-path1"/></animateMotion>
+            </circle>
+            <circle r="3" fill="#bd00ff" filter="url(#nn-glow-f)">
+              <animateMotion dur="2.3s" repeatCount="indefinite" begin="0.5s"><mpath href="#nn-path2"/></animateMotion>
+            </circle>
+            <circle r="3" fill="#ff2d78" filter="url(#nn-glow-f)">
+              <animateMotion dur="2.0s" repeatCount="indefinite" begin="1.0s"><mpath href="#nn-path3"/></animateMotion>
+            </circle>
+          </svg>
+          <div class="ri">
+            <div style="display:flex;align-items:baseline;line-height:1;">
+              <div class="rnum" id="nn-rscore">80</div>
+              <span class="nn-pct-sym">%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Bloom Sakura Ring (t-bloom only) ── -->
+        <div class="blm-rc">
+          <svg class="blm-rsvg" viewBox="0 0 160 160">
+            <defs>
+              <!-- Soft blossom glow -->
+              <filter id="blm-glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="2.5" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <!-- Full circle orbit path at r=65, center (80,80) — for drifting petals -->
+              <path id="blm-orbit" d="M 145,80 A 65,65 0 1,0 15,80 A 65,65 0 1,0 145,80" fill="none"/>
+            </defs>
+
+            <!-- Recovery arc track -->
+            <circle cx="80" cy="80" r="58" fill="none" stroke="rgba(232,92,138,0.07)" stroke-width="9"/>
+
+            <!-- ── 8 sakura blossom marks at compass points (r=66) ── -->
+            <g fill="rgba(232,92,138,0.28)">
+              <g transform="rotate(0   80 80)"><circle cx="80" cy="14" r="2.2"/><circle cx="77.5" cy="14" r="1" opacity=".5"/><circle cx="82.5" cy="14" r="1" opacity=".5"/></g>
+              <g transform="rotate(45  80 80)"><circle cx="80" cy="14" r="2.2"/><circle cx="77.5" cy="14" r="1" opacity=".5"/><circle cx="82.5" cy="14" r="1" opacity=".5"/></g>
+              <g transform="rotate(90  80 80)"><circle cx="80" cy="14" r="2.2"/><circle cx="77.5" cy="14" r="1" opacity=".5"/><circle cx="82.5" cy="14" r="1" opacity=".5"/></g>
+              <g transform="rotate(135 80 80)"><circle cx="80" cy="14" r="2.2"/><circle cx="77.5" cy="14" r="1" opacity=".5"/><circle cx="82.5" cy="14" r="1" opacity=".5"/></g>
+              <g transform="rotate(180 80 80)"><circle cx="80" cy="14" r="2.2"/><circle cx="77.5" cy="14" r="1" opacity=".5"/><circle cx="82.5" cy="14" r="1" opacity=".5"/></g>
+              <g transform="rotate(225 80 80)"><circle cx="80" cy="14" r="2.2"/><circle cx="77.5" cy="14" r="1" opacity=".5"/><circle cx="82.5" cy="14" r="1" opacity=".5"/></g>
+              <g transform="rotate(270 80 80)"><circle cx="80" cy="14" r="2.2"/><circle cx="77.5" cy="14" r="1" opacity=".5"/><circle cx="82.5" cy="14" r="1" opacity=".5"/></g>
+              <g transform="rotate(315 80 80)"><circle cx="80" cy="14" r="2.2"/><circle cx="77.5" cy="14" r="1" opacity=".5"/><circle cx="82.5" cy="14" r="1" opacity=".5"/></g>
+            </g>
+
+            <!-- Recovery arc fill — updated by updateScores() -->
+            <circle id="blm-rfil" cx="80" cy="80" r="58"
+              fill="none" stroke="#e85c8a" stroke-width="9" stroke-linecap="round"
+              stroke-dasharray="364" stroke-dashoffset="73"
+              transform="rotate(-90 80 80)"/>
+
+            <!-- Inner decorative rings -->
+            <circle cx="80" cy="80" r="44" fill="none" stroke="rgba(232,92,138,0.09)" stroke-width="0.8"/>
+            <circle cx="80" cy="80" r="39" fill="none" stroke="rgba(196,127,181,0.07)" stroke-width="0.5" stroke-dasharray="3 5"/>
+
+            <!-- ── 3 Drifting sakura petals orbiting at r=65 ── -->
+            <!-- rotate="auto" aligns petal with orbit tangent → natural tumbling effect -->
+            <g opacity="0.58" filter="url(#blm-glow)">
+              <animateMotion dur="18s" repeatCount="indefinite" begin="0s" rotate="auto">
+                <mpath href="#blm-orbit"/>
+              </animateMotion>
+              <path d="M0,-5.5 C-3.5,-2 -3.5,2 0,5.5 C3.5,2 3.5,-2 0,-5.5" fill="#e85c8a"/>
+            </g>
+            <g opacity="0.45" filter="url(#blm-glow)">
+              <animateMotion dur="25s" repeatCount="indefinite" begin="7s" rotate="auto">
+                <mpath href="#blm-orbit"/>
+              </animateMotion>
+              <path d="M0,-5 C-3,-1.8 -3,1.8 0,5 C3,1.8 3,-1.8 0,-5" fill="#c47fb5"/>
+            </g>
+            <g opacity="0.52" filter="url(#blm-glow)">
+              <animateMotion dur="21s" repeatCount="indefinite" begin="14s" rotate="auto">
+                <mpath href="#blm-orbit"/>
+              </animateMotion>
+              <path d="M0,-6 C-3.8,-2 -3.8,2 0,6 C3.8,2 3.8,-2 0,-6" fill="#e85c8a"/>
+            </g>
+
+            <!-- Center dark backdrop -->
+            <circle cx="80" cy="80" r="35" fill="rgba(15,7,9,0.93)"/>
+
+            <!-- ── Sakura blossom center ── -->
+            <g id="blm-blossom">
+              <!-- 5 petals (alternating pink / soft mauve) -->
+              <ellipse cx="80" cy="63" rx="5.5" ry="10.5" fill="#e85c8a"  opacity="0.9"  transform="rotate(0   80 80)"/>
+              <ellipse cx="80" cy="63" rx="5.5" ry="10.5" fill="#e07fb5"  opacity="0.88" transform="rotate(72  80 80)"/>
+              <ellipse cx="80" cy="63" rx="5.5" ry="10.5" fill="#e85c8a"  opacity="0.9"  transform="rotate(144 80 80)"/>
+              <ellipse cx="80" cy="63" rx="5.5" ry="10.5" fill="#e07fb5"  opacity="0.88" transform="rotate(216 80 80)"/>
+              <ellipse cx="80" cy="63" rx="5.5" ry="10.5" fill="#e85c8a"  opacity="0.9"  transform="rotate(288 80 80)"/>
+              <!-- Petal cleft notch at each tip (classic sakura heart shape) -->
+              <ellipse cx="80" cy="52.5" rx="2.2" ry="2.8" fill="rgba(15,7,9,0.75)" transform="rotate(0   80 80)"/>
+              <ellipse cx="80" cy="52.5" rx="2.2" ry="2.8" fill="rgba(15,7,9,0.75)" transform="rotate(72  80 80)"/>
+              <ellipse cx="80" cy="52.5" rx="2.2" ry="2.8" fill="rgba(15,7,9,0.75)" transform="rotate(144 80 80)"/>
+              <ellipse cx="80" cy="52.5" rx="2.2" ry="2.8" fill="rgba(15,7,9,0.75)" transform="rotate(216 80 80)"/>
+              <ellipse cx="80" cy="52.5" rx="2.2" ry="2.8" fill="rgba(15,7,9,0.75)" transform="rotate(288 80 80)"/>
+              <!-- Stamen center (3 concentric layers) -->
+              <circle cx="80" cy="80" r="9.5" fill="#f5a0c0"/>
+              <circle cx="80" cy="80" r="6.5" fill="#f8c0d8"/>
+              <circle cx="80" cy="80" r="3.5" fill="#e85c8a" filter="url(#blm-glow)"/>
+              <!-- Stamen tips (6 white dots at r=12) -->
+              <circle cx="80" cy="68" r="1.6" fill="rgba(255,255,255,0.85)" transform="rotate(0   80 80)"/>
+              <circle cx="80" cy="68" r="1.6" fill="rgba(255,255,255,0.85)" transform="rotate(60  80 80)"/>
+              <circle cx="80" cy="68" r="1.6" fill="rgba(255,255,255,0.85)" transform="rotate(120 80 80)"/>
+              <circle cx="80" cy="68" r="1.6" fill="rgba(255,255,255,0.85)" transform="rotate(180 80 80)"/>
+              <circle cx="80" cy="68" r="1.6" fill="rgba(255,255,255,0.85)" transform="rotate(240 80 80)"/>
+              <circle cx="80" cy="68" r="1.6" fill="rgba(255,255,255,0.85)" transform="rotate(300 80 80)"/>
+            </g>
+          </svg>
+          <div class="ri">
+            <div style="display:flex;align-items:baseline;line-height:1;">
+              <div class="rnum" id="blm-rscore">80</div>
+              <span class="blm-pct-sym">%</span>
             </div>
           </div>
         </div>
@@ -5489,6 +5877,16 @@ function updateScores({ rec, strain, sleepPct }) {
   const nrf = document.getElementById('nrt-rfil');
   if (nrf) nrf.style.strokeDashoffset = (364*(1-rec/100)).toFixed(1);
   animN('nrt-rscore', 0, rec, 1200);
+  // Neon Noir 3-node ring — decorative arc (r=14, C≈88) + 3 category chips
+  const nnrf = document.getElementById('nn-rfil');
+  if (nnrf) nnrf.style.strokeDashoffset = (88*(1-rec/100)).toFixed(1);
+  animN('nn-nv-rec', 0, rec, 1200);
+  animN('nn-nv-slp', 0, sleepPct, 1200);
+  animN('nn-nv-str', 0, strain, 1200);
+  // Bloom sakura ring (r=58, circumference=364 — same as Naruto)
+  const blmrf = document.getElementById('blm-rfil');
+  if (blmrf) blmrf.style.strokeDashoffset = (364*(1-rec/100)).toFixed(1);
+  animN('blm-rscore', 0, rec, 1200);
   // Strain
   const sb = document.getElementById('strain-bar');
   if (sb) setTimeout(()=>{ sb.style.width=(strain/21*100).toFixed(1)+'%'; },100);
