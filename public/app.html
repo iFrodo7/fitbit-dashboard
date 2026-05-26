@@ -14,7 +14,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png?v=10">
 <link rel="icon" type="image/svg+xml" href="/icons/icon.svg?v=10">
 <title>AIRA — BIOMETRIC DASHBOARD</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=IBM+Plex+Mono:wght@400;700&family=VT323&family=Silkscreen:wght@400;700&family=Oxanium:wght@400;600;700;800&family=Electrolize&family=Noto+Serif+JP:wght@400;700;900&family=Permanent+Marker&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=IBM+Plex+Mono:wght@400;700&family=VT323&family=Silkscreen:wght@400;700&family=Oxanium:wght@400;600;700;800&family=Electrolize&family=Noto+Serif+JP:wght@400;700;900&family=Permanent+Marker&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* === RESET === */
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -156,13 +156,24 @@ body{width:100%;min-height:100vh;}
 .mc-ov .tn{font-family:'VT323',monospace;font-size:clamp(28px,5vw,42px);color:#6aff3a;text-shadow:3px 3px 0 #003800,0 0 18px rgba(106,255,58,0.4);letter-spacing:3px;line-height:1;}
 .mc-ov .ts{font-family:'Silkscreen',monospace;font-size:10px;color:#4aaa2a;letter-spacing:3px;margin-top:6px;}
 
-/* Halo card preview */
-.tc-halo{background:#03080f;border:1px solid rgba(74,184,255,0.3);}
-.halo-pv{width:100%;height:100%;position:relative;background:radial-gradient(ellipse at 40% 70%,#0a2035 0%,#020810 65%);}
-.halo-pv::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 10px,rgba(74,184,255,0.02) 10px,rgba(74,184,255,0.02) 11px);}
+/* Bloom card preview */
+.tc-bloom{background:#110610;border:1px solid rgba(232,92,138,0.3);}
+.bloom-pv{width:100%;height:100%;position:relative;background:radial-gradient(ellipse at 50% 115%,#2a0e1a 0%,#110610 60%);}
+.bloom-pv::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(232,92,138,0.09) 1px,transparent 1px);background-size:20px 20px;}
+.bloom-pv::after{content:'✦';position:absolute;top:50%;left:50%;transform:translate(-50%,-54%);font-size:60px;color:rgba(232,92,138,0.05);pointer-events:none;}
+@keyframes bloom-pulse{0%,100%{opacity:0.7;}50%{opacity:1;}}
+.bloom-ov .tn{font-family:'Nunito',sans-serif;font-size:clamp(22px,3.8vw,30px);font-weight:800;color:#e85c8a;letter-spacing:5px;text-shadow:0 0 20px rgba(232,92,138,0.7),0 0 40px rgba(232,92,138,0.25);}
+.bloom-ov .ts{font-family:'Nunito',sans-serif;font-size:10px;font-weight:600;color:#6a2a40;letter-spacing:3px;margin-top:5px;}
+
+/* Neon Noir card preview */
+.tc-halo{background:#060010;border:1px solid rgba(255,45,120,0.35);}
+.halo-pv{width:100%;height:100%;position:relative;background:radial-gradient(ellipse at 50% 120%,#1e0035 0%,#060010 60%);}
+.halo-pv::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(175deg,transparent 0px,transparent 18px,rgba(255,45,120,0.07) 18px,rgba(255,45,120,0.07) 19px),linear-gradient(rgba(255,45,120,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,45,120,0.025) 1px,transparent 1px);background-size:100% 100%,28px 28px,28px 28px;animation:nn-prevrain 4s linear infinite;}
+.halo-pv::after{content:'';position:absolute;bottom:0;left:0;right:0;height:45px;background:linear-gradient(0deg,rgba(255,45,120,0.14) 0%,transparent 100%);pointer-events:none;}
+@keyframes nn-prevrain{from{background-position:0 0,0 0,0 0;}to{background-position:-25px 100px,0 0,0 0;}}
 .hr-ring{position:absolute;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);border:1px solid;}
-.halo-ov .tn{font-family:'Oxanium',sans-serif;font-size:clamp(20px,3.5vw,28px);font-weight:800;color:#4ab8ff;letter-spacing:7px;text-shadow:0 0 22px rgba(74,184,255,0.65);}
-.halo-ov .ts{font-family:'Electrolize',sans-serif;font-size:11px;color:#2a6a9a;letter-spacing:4px;margin-top:5px;}
+.halo-ov .tn{font-family:'Rajdhani',sans-serif;font-size:clamp(20px,3.5vw,28px);font-weight:800;color:#ff2d78;letter-spacing:7px;text-shadow:0 0 22px rgba(255,45,120,0.85),0 0 44px rgba(255,45,120,0.3);}
+.halo-ov .ts{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5a0028;letter-spacing:3px;margin-top:5px;}
 
 /* Naruto card preview */
 .tc-naruto{background:#0c0400;border:1px solid rgba(255,69,0,0.4);}
@@ -237,10 +248,10 @@ body{width:100%;min-height:100vh;}
 
 /* Per-theme glow on key numbers */
 .t-fut .vval,.t-fut .rnum,.t-fut .snum{text-shadow:0 0 20px rgba(0,245,255,0.6),0 0 40px rgba(0,245,255,0.3);}
-.t-halo .vval,.t-halo .rnum,.t-halo .snum{text-shadow:0 0 20px rgba(74,184,255,0.6),0 0 40px rgba(74,184,255,0.3);}
+.t-halo .vval,.t-halo .rnum,.t-halo .snum{text-shadow:0 0 20px rgba(255,45,120,0.7),0 0 40px rgba(255,45,120,0.3),0 0 60px rgba(189,0,255,0.15);}
 .t-naruto .vval,.t-naruto .rnum,.t-naruto .snum{text-shadow:0 0 20px rgba(255,69,0,0.6),0 0 40px rgba(255,69,0,0.25);}
 .t-fut .wsn,.t-fut .snum{text-shadow:0 0 16px rgba(0,245,255,0.7),0 0 32px rgba(0,245,255,0.4);}
-.t-halo .wsn{text-shadow:0 0 16px rgba(74,184,255,0.7),0 0 32px rgba(74,184,255,0.4);}
+.t-halo .wsn{text-shadow:0 0 16px rgba(255,45,120,0.8),0 0 32px rgba(255,45,120,0.4);}
 .t-naruto .wsn{text-shadow:0 0 16px rgba(255,69,0,0.6),0 0 32px rgba(255,69,0,0.3);}
 
 /* Steps */
@@ -605,6 +616,15 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
    FASE 4: THEME-SPECIFIC VISUAL DIFFERENTIATION
 ═══════════════════════════════════════ */
 
+/* BLOOM: Soft shimmer & warmth effects */
+.t-bloom .iitm{background:rgba(232,92,138,0.035);border-color:rgba(232,92,138,0.13);}
+.t-bloom .iitm::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(232,92,138,0.04) 0%,transparent 60%);pointer-events:none;}
+.t-bloom .vc::before{content:'';position:absolute;top:0;left:0;width:100%;height:1px;background:linear-gradient(90deg,rgba(232,92,138,0.5),rgba(196,127,181,0.3),transparent);}
+.t-bloom .card:hover,.t-bloom .vc:hover{border-color:rgba(232,92,138,0.4);box-shadow:0 4px 20px rgba(232,92,138,0.1),0 0 0 1px rgba(232,92,138,0.08);}
+.t-bloom .bnav{border-top:1px solid rgba(232,92,138,0.2);background:rgba(15,7,9,0.97);}
+.t-bloom .vval,.t-bloom .rnum,.t-bloom .snum{text-shadow:0 0 18px rgba(232,92,138,0.55),0 0 36px rgba(232,92,138,0.2);}
+.t-bloom .wsn{text-shadow:0 0 14px rgba(232,92,138,0.5),0 0 28px rgba(232,92,138,0.25);}
+
 /* FUTURISTIC: Data stream effects */
 .t-fut .iitm{background:rgba(0,245,255,0.05);border-color:rgba(0,245,255,0.12);}
 .t-fut .iitm::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,245,255,0.6),transparent);animation:fut-data 3s ease-in-out infinite;}
@@ -612,12 +632,12 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .t-fut .vc::before{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,245,255,0.5),transparent);opacity:0;animation:fut-scan 2.5s ease-in-out infinite;}
 @keyframes fut-scan{0%{opacity:0;}50%{opacity:1;}100%{opacity:0;}}
 
-/* HALO: Tactical scanning and HUD effects */
-.t-halo .iitm{background:rgba(74,184,255,0.04);border-color:rgba(74,184,255,0.15);}
-.t-halo .iitm::after{content:'◈';position:absolute;top:-8px;right:-8px;font-size:48px;color:rgba(74,184,255,0.08);animation:halo-scan 4s linear infinite;pointer-events:none;}
-@keyframes halo-scan{0%{transform:rotate(0deg) scale(1);opacity:0.3;}50%{opacity:0.15;}100%{transform:rotate(360deg) scale(1);opacity:0.3;}}
-.t-halo .vc::before{content:'';position:absolute;top:0;right:0;width:40px;height:40px;border:1px solid rgba(74,184,255,0.2);border-left:none;border-bottom:none;animation:halo-corner 3s ease-in-out infinite;}
-@keyframes halo-corner{0%,100%{opacity:0.2;}50%{opacity:0.7;}}
+/* NEON NOIR: Glitch scan & neon bleed effects */
+.t-halo .iitm{background:rgba(255,45,120,0.04);border-color:rgba(255,45,120,0.14);}
+.t-halo .iitm::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,45,120,0.7),transparent);animation:nn-scanline 6s ease-in-out infinite;pointer-events:none;}
+@keyframes nn-scanline{0%,100%{transform:translateY(0);opacity:0;}40%{opacity:0;}50%{transform:translateY(200%);opacity:0.8;}60%{opacity:0;}}
+.t-halo .vc::before{content:'';position:absolute;top:0;left:0;width:14px;height:2px;background:rgba(255,45,120,0.7);box-shadow:0 0 6px rgba(255,45,120,0.5);}
+.t-halo .vc::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,rgba(255,45,120,0.6),rgba(189,0,255,0.3),transparent);}
 
 /* NARUTO: Chakra ripple and glow effects */
 .t-naruto .iitm{background:rgba(255,69,0,0.05);border-color:rgba(255,69,0,0.2);}
@@ -635,7 +655,7 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 
 /* Enhanced card hover states for all themes */
 .t-fut .card:hover,.t-fut .vc:hover{border-color:rgba(0,245,255,0.4);box-shadow:0 0 16px rgba(0,245,255,0.15);}
-.t-halo .card:hover,.t-halo .vc:hover{border-color:rgba(74,184,255,0.4);box-shadow:0 0 16px rgba(74,184,255,0.15);}
+.t-halo .card:hover,.t-halo .vc:hover{border-color:rgba(255,45,120,0.5);box-shadow:0 0 18px rgba(255,45,120,0.15),0 0 4px rgba(189,0,255,0.1);}
 .t-naruto .card:hover,.t-naruto .vc:hover{border-color:rgba(255,69,0,0.4);box-shadow:0 0 16px rgba(255,69,0,0.15);}
 .t-mc .card:hover,.t-mc .vc:hover{border-color:rgba(106,255,58,0.4);box-shadow:0 0 16px rgba(106,255,58,0.15);}
 
@@ -967,7 +987,7 @@ body.is-offline .dstrip, body.is-unstable .dstrip{display:none;}
 .bnav-lbl{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
 .t-mc .bnav{background:#1e1600;border-top:3px solid #6a5020;}
 .t-mc .bnav-btn.active{color:#6aff3a;}
-.t-halo .bnav{border-top:1px solid rgba(74,184,255,0.25);}
+.t-halo .bnav{border-top:1px solid rgba(255,45,120,0.28);background:rgba(6,0,16,0.97);}
 .t-naruto .bnav{border-top:2px solid rgba(255,69,0,0.3);background:rgba(12,4,0,0.95);}
 
 /* ═══════════════════════════════════════
@@ -1069,13 +1089,23 @@ body.t-mc::before{content:'';position:fixed;inset:0;background-image:repeating-l
    THEME-SPECIFIC BARS: Health/Experience
 ═══════════════════════════════════════ */
 
-/* ── HALO: SHIELDS & AMMO ── */
+/* ── BLOOM: VITALIDAD & FLOW ── */
+.bloom-bars{margin-top:10px;width:100%;}
+.bloom-blbl{font-size:11px;letter-spacing:2px;color:#e85c8a;text-shadow:0 0 8px rgba(232,92,138,0.4);margin-bottom:4px;font-family:'Nunito',sans-serif;font-weight:700;text-transform:uppercase;}
+.bloom-btr{width:100%;height:7px;background:rgba(15,7,9,0.9);border:1px solid rgba(232,92,138,0.18);border-radius:4px;overflow:hidden;}
+.bloom-bfi{height:100%;border-radius:4px;transition:width 0.5s cubic-bezier(.4,0,.2,1);}
+.bloom-vita{background:linear-gradient(90deg,#e85c8a 0%,#c47fb5 100%);box-shadow:0 0 10px rgba(232,92,138,0.7),inset 0 1px 2px rgba(255,150,180,0.3);}
+.bloom-flow{background:linear-gradient(90deg,#e8a87c 0%,#d4637a 100%);box-shadow:0 0 10px rgba(232,168,124,0.6),inset 0 1px 2px rgba(212,99,122,0.2);}
+.t-bloom .bloom-bars{display:block;}
+.t-bloom .mc-bars,.halo-bars,.naruto-bars,.fut-bars{display:none;}
+
+/* ── NEON NOIR: NEURAL LINK & CHROME ── */
 .halo-bars{margin-top:10px;width:100%;}
-.halo-blbl{font-size:12px;letter-spacing:2px;color:#4ab8ff;text-shadow:0 0 8px rgba(74,184,255,0.3);margin-bottom:4px;font-family:'Oxanium',sans-serif;}
-.halo-btr{width:100%;height:8px;background:rgba(3,7,14,0.8);border:1px solid rgba(74,184,255,0.25);box-shadow:inset 0 0 4px rgba(0,0,0,0.6),0 0 6px rgba(74,184,255,0.1);}
+.halo-blbl{font-size:11px;letter-spacing:2px;color:#ff2d78;text-shadow:0 0 8px rgba(255,45,120,0.55);margin-bottom:4px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;}
+.halo-btr{width:100%;height:8px;background:rgba(6,0,16,0.9);border:1px solid rgba(255,45,120,0.2);box-shadow:inset 0 0 4px rgba(0,0,0,0.8),0 0 8px rgba(255,45,120,0.1);}
 .halo-bfi{height:100%;transition:width 0.5s cubic-bezier(.4,0,.2,1);}
-.halo-shields{background:linear-gradient(90deg,#4ab8ff 0%,#00e5c8 100%);box-shadow:0 0 8px rgba(74,184,255,0.6),inset 0 1px 0 rgba(255,255,255,0.2);}
-.halo-ammo{background:linear-gradient(90deg,#ff6b6b 0%,#ff4444 100%);box-shadow:0 0 8px rgba(255,68,68,0.6),inset 0 1px 0 rgba(255,255,255,0.1);}
+.halo-shields{background:linear-gradient(90deg,#ff2d78 0%,#bd00ff 100%);box-shadow:0 0 10px rgba(255,45,120,0.8),inset 0 1px 2px rgba(189,0,255,0.3);}
+.halo-ammo{background:linear-gradient(90deg,#00f5ff 0%,#0066ff 100%);box-shadow:0 0 10px rgba(0,245,255,0.6),inset 0 1px 2px rgba(0,102,255,0.2);}
 .t-halo .halo-bars{display:block;}
 .t-halo .mc-bars,.t-naruto-bars,.t-fut-bars{display:none;}
 
@@ -1127,32 +1157,73 @@ body.t-mc::before{content:'';position:fixed;inset:0;background-image:repeating-l
 .t-fut .mc-bars,.halo-bars,.naruto-bars{display:none;}
 
 /* ═══════════════════════════════════════
-   THEME: HALO VISR
-   Oxanium (display militar) + Electrolize (datos tácticos)
+   THEME: NEON NOIR
+   Cyberpunk dystopia — Rajdhani (display) + IBM Plex Mono (terminal)
+   Palette: hot pink #ff2d78 · electric violet #bd00ff · neon green #39ff14
 ═══════════════════════════════════════ */
 body.t-halo{
-  --ta:#4ab8ff;--ta2:#00e5c8;--tpos:#00e5c8;--tneg:#ff4444;
-  --bg:#03070e;--bg2:#071020;--bdr:rgba(74,184,255,0.22);
-  --sub:rgba(74,184,255,0.08);--cbg:rgba(74,184,255,0.03);
-  --cbdr:1px solid rgba(74,184,255,0.15);--rbg:rgba(74,184,255,0.06);--txt:#88b0cc;
-  background:var(--bg);color:var(--txt);
-  font-family:'Electrolize',sans-serif;
+  --ta:#ff2d78;--ta2:#bd00ff;--tpos:#39ff14;--tneg:#ff2d78;
+  --bg:#060010;--bg2:#0e0020;--bdr:rgba(255,45,120,0.18);
+  --sub:rgba(255,45,120,0.07);--cbg:rgba(255,45,120,0.025);
+  --cbdr:1px solid rgba(255,45,120,0.13);--rbg:rgba(255,45,120,0.06);--txt:#c8a0e8;
+  background:var(--bg);color:var(--txt);cursor:crosshair;
+  font-family:'IBM Plex Mono',monospace;
 }
-body.t-halo::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 55% at 12% 88%,rgba(74,184,255,0.04) 0%,transparent 50%),radial-gradient(ellipse 55% 35% at 88% 12%,rgba(0,229,200,0.03) 0%,transparent 45%);pointer-events:none;z-index:0;}
-body.t-halo::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 6px,rgba(74,184,255,0.012) 6px,rgba(74,184,255,0.012) 7px);pointer-events:none;z-index:0;}
-.t-halo .db-hdr{background:rgba(3,7,14,0.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(74,184,255,0.12);}
-.t-halo .db-name{font-family:'Oxanium',sans-serif;font-weight:800;letter-spacing:12px;}
-.t-halo .rnum{font-family:'Oxanium',sans-serif;font-weight:800;font-size:44px;}
-.t-halo .snum{font-family:'Oxanium',sans-serif;font-weight:700;}
-.t-halo .vval{font-family:'Oxanium',sans-serif;font-weight:700;font-size:34px;}
-.t-halo .clbl,.t-halo .vlbl,.t-halo .vunit{font-family:'Electrolize',sans-serif;}
-.t-halo #logo-t{font-family:'Oxanium',sans-serif;font-weight:800;letter-spacing:6px;}
-.t-halo .cbtn{font-family:'Oxanium',sans-serif;font-weight:700;letter-spacing:3px;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);}
-.t-halo .card{clip-path:polygon(10px 0%,100% 0%,100% calc(100% - 10px),calc(100% - 10px) 100%,0% 100%,0% 10px);}
-.t-halo .vc{clip-path:polygon(7px 0%,100% 0%,100% calc(100% - 7px),calc(100% - 7px) 100%,0% 100%,0% 7px);}
-.t-halo .vc::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(74,184,255,0.7),transparent);}
-.t-halo .rfil{filter:drop-shadow(0 0 5px #4ab8ff);}
-.t-halo .card::before{content:'◈';position:absolute;bottom:8px;right:10px;font-size:12px;color:rgba(74,184,255,0.15);font-family:'Electrolize',sans-serif;}
+/* Animated rain streaks + faint grid */
+@keyframes nn-rain{from{background-position:0 0,0 0,0 0;}to{background-position:-30px 120px,0 0,0 0;}}
+body.t-halo::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(175deg,transparent 0px,transparent 22px,rgba(255,45,120,0.038) 22px,rgba(255,45,120,0.038) 23px),linear-gradient(rgba(255,45,120,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,45,120,0.018) 1px,transparent 1px);background-size:100% 100%,38px 38px,38px 38px;animation:nn-rain 10s linear infinite;pointer-events:none;z-index:0;}
+/* CRT scanlines */
+body.t-halo::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.055) 2px,rgba(0,0,0,0.055) 4px);pointer-events:none;z-index:999;}
+.t-halo .db-hdr{background:rgba(6,0,16,0.95);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,45,120,0.14);}
+.t-halo .db-name,.t-halo .rnum,.t-halo .snum,.t-halo .vval{font-family:'Rajdhani',sans-serif;font-weight:700;}
+.t-halo .db-name{letter-spacing:10px;}
+.t-halo .vval{font-size:34px;}
+.t-halo .rnum{font-size:44px;}
+.t-halo #logo-t{font-family:'Rajdhani',sans-serif;font-weight:800;letter-spacing:5px;}
+.t-halo .cbtn{font-family:'IBM Plex Mono',monospace;letter-spacing:2px;}
+/* Left neon stripe on vitals */
+.t-halo .vc::after{content:'';position:absolute;top:0;left:0;width:2px;height:100%;background:linear-gradient(180deg,var(--ta),var(--ta2));opacity:0.7;}
+/* Corner cut on readiness card */
+.t-halo .rfil{filter:drop-shadow(0 0 6px #ff2d78) drop-shadow(0 0 12px rgba(189,0,255,0.4));}
+/* Neon top-left corner mark on cards */
+.t-halo .card::before{content:'';position:absolute;top:0;left:0;width:18px;height:2px;background:rgba(255,45,120,0.65);box-shadow:0 0 6px rgba(255,45,120,0.4);}
+/* Glitch flicker on activity type labels */
+@keyframes nn-glitch{0%,96%,100%{transform:none;opacity:1;}97%{transform:translateX(2px) skewX(1deg);opacity:0.8;}98%{transform:translateX(-1px);opacity:0.9;}}
+.t-halo .typ{animation:nn-glitch 5s ease-in-out infinite;}
+
+/* ═══════════════════════════════════════
+   THEME: BLOOM
+   Nunito (rounded, modern, welcoming) — wellness · fitness · 18-28
+   Palette: deep rose #e85c8a · mauve #c47fb5 · amber #e8a87c · dark #0f0709
+═══════════════════════════════════════ */
+body.t-bloom{
+  --ta:#e85c8a;--ta2:#c47fb5;--tpos:#e8a87c;--tneg:#e85c8a;
+  --bg:#0f0709;--bg2:#1c0c12;--bdr:rgba(232,92,138,0.16);
+  --sub:rgba(232,92,138,0.07);--cbg:rgba(232,92,138,0.022);
+  --cbdr:1px solid rgba(232,92,138,0.12);--rbg:rgba(232,92,138,0.055);--txt:#f0dde4;
+  background:radial-gradient(ellipse 130% 45% at 50% 110%,#280d18 0%,#0f0709 55%);
+  color:var(--txt);font-family:'Nunito',sans-serif;
+}
+/* Soft dot-grid background */
+body.t-bloom::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(232,92,138,0.07) 1px,transparent 1px);background-size:22px 22px;pointer-events:none;z-index:0;}
+/* Warm rose vignette bloom from bottom */
+body.t-bloom::after{content:'';position:fixed;bottom:0;left:0;right:0;height:35vh;background:radial-gradient(ellipse 80% 100% at 50% 100%,rgba(232,92,138,0.06) 0%,transparent 70%);pointer-events:none;z-index:0;}
+.t-bloom .db-hdr{background:rgba(15,7,9,0.94);backdrop-filter:blur(18px);border-bottom:1px solid rgba(232,92,138,0.12);}
+.t-bloom .db-name,.t-bloom .rnum,.t-bloom .snum,.t-bloom .vval{font-family:'Nunito',sans-serif;font-weight:800;}
+.t-bloom .db-name{letter-spacing:4px;}
+.t-bloom .vval{font-size:34px;}
+.t-bloom .rnum{font-size:44px;}
+.t-bloom .clbl,.t-bloom .vlbl,.t-bloom .vunit{font-family:'Nunito',sans-serif;font-weight:600;}
+.t-bloom #logo-t{font-family:'Nunito',sans-serif;font-weight:800;letter-spacing:4px;}
+.t-bloom .cbtn{font-family:'Nunito',sans-serif;font-weight:700;letter-spacing:2px;border-radius:24px;}
+/* Soft top gradient on vitals */
+.t-bloom .vc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--ta),var(--ta2),transparent);opacity:0.6;}
+/* Readiness ring glow */
+.t-bloom .rfil{filter:drop-shadow(0 0 6px #e85c8a) drop-shadow(0 0 14px rgba(196,127,181,0.35));}
+/* Soft rose corner accent on cards */
+.t-bloom .card::before{content:'';position:absolute;top:0;left:0;width:22px;height:2px;background:linear-gradient(90deg,rgba(232,92,138,0.7),transparent);border-radius:0 0 2px 0;}
+/* Rounded cards feel softer */
+.t-bloom .card,.t-bloom .vc{border-radius:8px;}
 
 /* ═══════════════════════════════════════
    THEME: NARUTO
@@ -1343,38 +1414,42 @@ body.t-naruto span.vval{
   <div class="sel-stats">
     <span class="sel-st-free">4</span>&nbsp;<span id="sel-lbl-free">GRATIS</span>
     <span class="sel-st-sep"></span>
-    <span class="sel-st-pro">2</span>&nbsp;<span id="sel-lbl-soon">PRÓXIMAMENTE</span>
+    <span class="sel-st-pro">1</span>&nbsp;<span id="sel-lbl-soon">PRÓXIMAMENTE</span>
   </div>
 
   <!-- Theme grid -->
   <div class="t-grid">
 
-    <!-- ── VOXEL (inspired by block-world aesthetics) ── -->
-    <div class="t-card tc-mc" data-id="mc" onclick="selectTheme('mc')">
-      <div class="mc-pg" id="mc-pg"></div>
-      <div class="t-badge t-badge-free" id="tbf-mc">GRATIS</div>
+    <!-- ── BLOOM (wellness · fitness — girlie editorial aesthetic) ── -->
+    <div class="t-card tc-bloom" data-id="bloom" onclick="selectTheme('bloom')">
+      <div class="bloom-pv">
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:120px;height:120px;border-radius:50%;border:1px solid rgba(232,92,138,0.15);animation:bloom-pulse 4s ease-in-out infinite;"></div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;border:1px solid rgba(232,92,138,0.32);box-shadow:0 0 22px rgba(232,92,138,0.12);animation:bloom-pulse 4s ease-in-out infinite;animation-delay:-2s;"></div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:9px;height:9px;border-radius:50%;background:#e85c8a;box-shadow:0 0 12px #e85c8a,0 0 26px rgba(232,92,138,0.45);"></div>
+        <div style="position:absolute;bottom:10px;left:13px;font-family:'Nunito',sans-serif;font-size:9px;font-weight:700;color:rgba(232,92,138,0.38);letter-spacing:2px;text-transform:uppercase;">✦ WELLNESS · FITNESS · FLOW</div>
+      </div>
+      <div class="t-badge t-badge-free" id="tbf-bloom">GRATIS</div>
       <div class="t-check">✓</div>
-      <div class="t-ov mc-ov">
-        <div class="tn mc">VOXEL</div>
-        <div class="ts mc" id="sel-mc-sub">SURVIVAL DATA MONITOR</div>
+      <div class="t-ov bloom-ov">
+        <div class="tn bloom">BLOOM</div>
+        <div class="ts bloom" id="sel-bloom-sub">WELLNESS · RENDIMIENTO</div>
       </div>
     </div>
 
-    <!-- ── SENTINEL (military sci-fi HUD aesthetic) ── -->
+    <!-- ── NEON NOIR (cyberpunk dystopia aesthetic) ── -->
     <div class="t-card tc-halo" data-id="halo" onclick="selectTheme('halo')">
       <div class="halo-pv">
-        <div class="hr-ring" style="width:170px;height:170px;border-color:rgba(74,184,255,0.12);"></div>
-        <div class="hr-ring" style="width:108px;height:108px;border-color:rgba(74,184,255,0.28);"></div>
-        <div class="hr-ring" style="width:56px;height:56px;border-color:rgba(74,184,255,0.55);"></div>
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:9px;height:9px;border-radius:50%;background:#4ab8ff;box-shadow:0 0 12px #4ab8ff,0 0 24px rgba(74,184,255,0.4);"></div>
-        <div style="position:absolute;top:11px;left:13px;right:13px;font-family:'Electrolize',sans-serif;font-size:10px;color:rgba(74,184,255,0.38);letter-spacing:2px;text-transform:uppercase;">SENTINEL OS v7.4 — EXOSUIT BIOMONITOR</div>
-        <div style="position:absolute;bottom:10px;right:13px;font-family:'Electrolize',sans-serif;font-size:10px;color:rgba(74,184,255,0.28);letter-spacing:2px;">INTEGRITY: 100%</div>
+        <div style="position:absolute;top:11px;left:13px;right:13px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,45,120,0.45);letter-spacing:2px;text-transform:uppercase;">NIGHT CITY UPLINK — NEURAL NET v2.0.77</div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,45,120,0.45);box-shadow:0 0 14px rgba(255,45,120,0.3),inset 0 0 14px rgba(189,0,255,0.1);"></div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:50%;border:1px solid rgba(189,0,255,0.6);box-shadow:0 0 8px rgba(189,0,255,0.5);"></div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:7px;height:7px;border-radius:50%;background:#ff2d78;box-shadow:0 0 10px #ff2d78,0 0 22px rgba(255,45,120,0.5);"></div>
+        <div style="position:absolute;bottom:10px;left:13px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,45,120,0.32);letter-spacing:2px;">HR 68 · ICE 98% · HRV 48ms</div>
       </div>
       <div class="t-badge t-badge-free" id="tbf-halo">GRATIS</div>
       <div class="t-check">✓</div>
       <div class="t-ov halo-ov">
-        <div class="tn halo">SENTINEL</div>
-        <div class="ts halo" id="sel-halo-sub">EXOSUIT BIOMONITOR</div>
+        <div class="tn halo">NEON NOIR</div>
+        <div class="ts halo" id="sel-halo-sub">NIGHT CITY UPLINK</div>
       </div>
     </div>
 
@@ -1405,25 +1480,14 @@ body.t-naruto span.vval{
       </div>
     </div>
 
-    <!-- ── COMING SOON: Neon Noir (neon dystopia aesthetic) ── -->
-    <div class="t-card tc-cyber t-locked">
-      <div class="cyber-pv"></div>
+    <!-- ── VOXEL PRO (block-world aesthetics — PRO tier) ── -->
+    <div class="t-card tc-mc t-locked">
+      <div class="mc-pg" id="mc-pg"></div>
       <div class="t-badge t-badge-pro">PRO</div>
       <div class="t-lock-ov">
-        <div class="t-lock-ico">◎</div>
-        <div class="t-lock-nm">NEON NOIR</div>
-        <div class="t-lock-tag" id="sel-soon1">PRÓXIMAMENTE</div>
-      </div>
-    </div>
-
-    <!-- ── COMING SOON: Ki Surge (martial arts energy aesthetic) ── -->
-    <div class="t-card tc-dbz t-locked">
-      <div class="dbz-pv"></div>
-      <div class="t-badge t-badge-pro">PRO</div>
-      <div class="t-lock-ov">
-        <div class="t-lock-ico">◎</div>
-        <div class="t-lock-nm">KI SURGE</div>
-        <div class="t-lock-tag" id="sel-soon2">PRÓXIMAMENTE</div>
+        <div class="t-lock-ico">⛏</div>
+        <div class="t-lock-nm">VOXEL</div>
+        <div class="t-lock-tag">PRO</div>
       </div>
     </div>
 
@@ -2291,8 +2355,8 @@ body.t-naruto span.vval{
         <div class="pv-rlbl" id="pv-theme-lbl">TEMA</div>
       </div>
       <div class="pv-themes">
-        <button class="pv-t-btn" id="pvt-mc" onclick="selectTheme('mc');navigate('profile')">⛏ MC</button>
-        <button class="pv-t-btn" id="pvt-halo" onclick="selectTheme('halo');navigate('profile')">◈ SENTINEL</button>
+        <button class="pv-t-btn" id="pvt-bloom" onclick="selectTheme('bloom');navigate('profile')">✦ BLOOM</button>
+        <button class="pv-t-btn" id="pvt-halo" onclick="selectTheme('halo');navigate('profile')">▲ N·NOIR</button>
         <button class="pv-t-btn" id="pvt-naruto" onclick="selectTheme('naruto');navigate('profile')">気 SHINOBI</button>
         <button class="pv-t-btn" id="pvt-fut" onclick="selectTheme('fut');navigate('profile')">⬡ FUT</button>
       </div>
@@ -2530,8 +2594,9 @@ const T = {
     sel_badge_free: 'GRATIS',
     sel_badge_soon: 'PRÓXIMAMENTE',
     sel_ft: 'AIRA v2.6 · FITBIT WEB API · BIOMETRIC CORE',
+    bloom_sub: 'BIENESTAR · RENDIMIENTO',
     mc_sub: 'MONITOR DE DATOS DE SUPERVIVENCIA',
-    halo_sub: 'BIOMONITOR EXOSUIT',
+    halo_sub: 'NIGHT CITY UPLINK',
     naruto_sub: '気 · MONITOR DE ENERGÍA',
     fut_sub: 'NÚCLEO BIOMÉTRICO v2.6',
     back: '← TEMAS',
@@ -2544,7 +2609,8 @@ const T = {
     rstat: {
       fut:    { peak:'ÓPTIMO', good:'BUENO', moderate:'MODERADO', low:'BAJO' },
       mc:     { peak:'VIDA COMPLETA', good:'BUENA SALUD', moderate:'HP MEDIO', low:'HP BAJO' },
-      halo:   { peak:'LISTO PARA COMBATE', good:'ARMADURA NOMINAL', moderate:'ARMADURA BAJA', low:'ARMADURA CRÍTICA' },
+      bloom:  { peak:'RADIANTE', good:'EN FLUJO', moderate:'RECUPERANDO', low:'RECARGA' },
+      halo:   { peak:'NETRUNNER LISTO', good:'ENLACE ESTABLE', moderate:'SISTEMA DEGRADADO', low:'FLATLINED' },
       naruto: { peak:'最大 · KI COMPLETO', good:'KI ESTABLE', moderate:'KI MEDIO', low:'KI BAJO' },
     },
     lbl_hr: '// FREC. CARDÍACA',
@@ -2616,7 +2682,7 @@ const T = {
     },
     tour: [
       { ttl:'¡Bienvenido!', bd:'Esta es tu interfaz biométrica personal. Mide HRV, sueño, recovery y mucho más en tiempo real desde Google Health.' },
-      { ttl:'Cuatro mundos visuales', bd:'Elegiste un tema arriba. Cada uno tiene su propia identidad: Voxel pixelado, Sentinel militar, Shinobi energético, o Aether minimal.' },
+      { ttl:'Cuatro mundos visuales', bd:'Elegiste un tema arriba. Cada uno tiene su propia identidad: Bloom wellness, Neon Noir cyberpunk, Shinobi energético, o Aether minimal.' },
       { ttl:'Tap en el <strong>?</strong>', bd:'Junto a cada métrica importante verás un botón <strong>?</strong>. Tócalo para entender qué significa: Recovery, HRV, Strain, etc.' },
       { ttl:'Conecta con Google', bd:'Al pulsar <strong>CONECTAR</strong> abrirás Google OAuth. Tus datos viajan directo del dispositivo al navegador — no pasan por ningún servidor nuestro.' },
     ],
@@ -2665,15 +2731,18 @@ const T = {
     m_btn: 'AUTORIZAR CON FITBIT →',
     m_note: 'Se abrirá Fitbit para autorizar con tu cuenta Google.<br>Tus datos nunca salen de tu dispositivo.',
     sync_lbl: 'PRÓX. SYNC', sync_lbl2: 'SYNC',
+    logo_s_bloom: 'BLOOM · WELLNESS & RENDIMIENTO',
     logo_s_fut: 'NÚCLEO BIOMÉTRICO v2.6',
     logo_s_mc: 'HEALTH MOD v2.6',
-    logo_s_halo: 'SENTINEL OS — EXOSUIT BIOMONITOR',
+    logo_s_halo: 'NIGHT CITY UPLINK v2.0.77',
     logo_s_naruto: '忍 · SISTEMA DE ENERGÍA KI',
     // Theme overrides
+    bloom_eye: '✦ BLOOM — BIENESTAR EN MOVIMIENTO',
+    bloom_pfx: '¡Hola, ', bloom_rl: '✦ ESTADO DE BIENESTAR',
     mc_eye: '> ESTADÍSTICAS DE JUGADOR',
     mc_pfx: 'JUGADOR: ', mc_rl: '> BARRA DE VIDA',
-    halo_eye: '// SENTINEL OS — EXOSUIT BIOMONITOR — CLASIFICADO',
-    halo_pfx: 'SENTINEL ', halo_rl: '// PREPARACIÓN DE COMBATE',
+    halo_eye: '// NEON NOIR — NIGHT CITY UPLINK — ACCESO AUTORIZADO',
+    halo_pfx: 'CHOOMBATTA: ', halo_rl: '// ESTADO NEURAL',
     naruto_eye: '忍の道 — SISTEMA DE ENERGÍA SHINOBI',
     naruto_pfx: '忍者: ', naruto_rl: '// 気 · PREPARACIÓN',
     connected: '◆ GOOGLE CONECTADO', live: 'EN VIVO',
@@ -2750,8 +2819,9 @@ const T = {
     sel_badge_free: 'FREE',
     sel_badge_soon: 'COMING SOON',
     sel_ft: 'AIRA v2.6 · FITBIT WEB API · BIOMETRIC CORE',
+    bloom_sub: 'WELLNESS · PERFORMANCE',
     mc_sub: 'SURVIVAL DATA MONITOR',
-    halo_sub: 'EXOSUIT BIOMONITOR',
+    halo_sub: 'NIGHT CITY UPLINK',
     naruto_sub: '気 · KI ENERGY MONITOR',
     fut_sub: 'BIOMETRIC CORE v2.6',
     back: '← THEMES',
@@ -2764,7 +2834,8 @@ const T = {
     rstat: {
       fut:    { peak:'OPTIMAL', good:'GOOD', moderate:'MODERATE', low:'LOW' },
       mc:     { peak:'FULL HP', good:'HEALTHY', moderate:'HALF HP', low:'LOW HP' },
-      halo:   { peak:'COMBAT READY', good:'ARMOR NOMINAL', moderate:'ARMOR LOW', low:'ARMOR CRITICAL' },
+      bloom:  { peak:'RADIANT', good:'IN FLOW', moderate:'RECOVERING', low:'RECHARGE' },
+      halo:   { peak:'NETRUNNER READY', good:'LINK STABLE', moderate:'SYSTEM DEGRADED', low:'FLATLINED' },
       naruto: { peak:'最大 · KI FULL', good:'KI STABLE', moderate:'KI MID', low:'KI LOW' },
     },
     lbl_hr: '// HEART RATE',
@@ -2836,7 +2907,7 @@ const T = {
     },
     tour: [
       { ttl:'Welcome!', bd:'This is your personal biometric interface. Tracks HRV, sleep, recovery and more in real-time from Google Health.' },
-      { ttl:'Four visual worlds', bd:'You picked a theme above. Each has its own identity: pixelated Voxel, military Sentinel, energy Shinobi, or minimal Aether.' },
+      { ttl:'Four visual worlds', bd:'You picked a theme above. Each has its own identity: Bloom wellness, cyberpunk Neon Noir, energy Shinobi, or minimal Aether.' },
       { ttl:'Tap the <strong>?</strong>', bd:'Next to each key metric you\\u2019ll see a <strong>?</strong> button. Tap it to understand what it means: Recovery, HRV, Strain, etc.' },
       { ttl:'Connect with Google', bd:'When you press <strong>CONNECT</strong> you\\u2019ll open Google OAuth. Your data flows straight from the device to the browser — no server of ours sees it.' },
     ],
@@ -2885,14 +2956,17 @@ const T = {
     m_btn: 'AUTHORIZE WITH FITBIT →',
     m_note: 'Fitbit will open to authorize with your Google account.<br>Your data never leaves your device.',
     sync_lbl: 'NEXT SYNC', sync_lbl2: 'SYNC',
+    logo_s_bloom: 'BLOOM · WELLNESS & PERFORMANCE',
     logo_s_fut: 'BIOMETRIC CORE v2.6',
     logo_s_mc: 'HEALTH MOD v2.6',
-    logo_s_halo: 'SENTINEL OS — EXOSUIT BIOMONITOR',
+    logo_s_halo: 'NIGHT CITY UPLINK v2.0.77',
     logo_s_naruto: '忍 · SISTEMA DE ENERGÍA KI',
+    bloom_eye: '✦ BLOOM — WELLNESS IN MOTION',
+    bloom_pfx: 'Hey, ', bloom_rl: '✦ WELLNESS STATUS',
     mc_eye: '> PLAYER STATS LOADED',
     mc_pfx: 'PLAYER: ', mc_rl: '> HEALTH BAR',
-    halo_eye: '// SENTINEL OS — EXOSUIT BIOMONITOR — CLASSIFIED',
-    halo_pfx: 'SENTINEL ', halo_rl: '// COMBAT READINESS',
+    halo_eye: '// NEON NOIR — NIGHT CITY UPLINK — ACCESS GRANTED',
+    halo_pfx: 'CHOOMBATTA: ', halo_rl: '// NEURAL STATUS',
     naruto_eye: '忍の道 — SHINOBI ENERGY SYSTEM',
     naruto_pfx: '忍者: ', naruto_rl: '// 気 · KI READINESS',
     connected: '◆ GOOGLE CONNECTED', live: 'LIVE',
@@ -2981,16 +3055,14 @@ function setLang(l) {
   // selector screen
   setText('sel-eye', t.sel_eye);
   setText('sel-sub', t.sel_sub);
-  setText('sel-mc-sub', t.mc_sub);
+  setText('sel-bloom-sub', t.bloom_sub);
   setText('sel-halo-sub', t.halo_sub);
   setText('sel-naruto-sub', t.naruto_sub);
   setText('sel-fut-sub', t.fut_sub);
   // selector badges + stats
-  ['tbf-mc','tbf-halo','tbf-naruto','tbf-fut'].forEach(function(id){ setText(id, t.sel_badge_free); });
+  ['tbf-bloom','tbf-halo','tbf-naruto','tbf-fut'].forEach(function(id){ setText(id, t.sel_badge_free); });
   setText('sel-lbl-free', t.sel_badge_free);
   setText('sel-lbl-soon', t.sel_badge_soon);
-  setText('sel-soon1', t.sel_badge_soon);
-  setText('sel-soon2', t.sel_badge_soon);
   setText('sel-ft', t.sel_ft);
   // header
   setText('btn-back', t.back);
@@ -3133,25 +3205,28 @@ function applyTheme(t) {
   }
   // Theme-specific bars
   const mc = document.getElementById('mcex');
-  if (t === 'mc') {
+  if (t === 'bloom') {
+    mc.innerHTML = `<div class="bloom-bars"><div class="bloom-blbl">✦ VITALIDAD</div><div class="bloom-btr"><div class="bloom-bfi bloom-vita" style="width:82%"></div></div><div class="bloom-blbl" style="margin-top:6px">✦ FLOW</div><div class="bloom-btr"><div class="bloom-bfi bloom-flow" style="width:71%"></div></div></div>`;
+  } else if (t === 'mc') {
     mc.innerHTML = `<div class="mc-bars"><div class="mc-blbl">❤ HEALTH</div><div class="mc-btr"><div class="mc-bfi mc-hp" style="width:80%"></div></div><div class="mc-blbl" style="margin-top:6px">✦ XP BAR</div><div class="mc-btr"><div class="mc-bfi mc-xp" style="width:60%"></div></div></div>`;
   } else if (t === 'halo') {
-    mc.innerHTML = `<div class="halo-bars"><div class="halo-blbl">◈ ARMOR</div><div class="halo-btr"><div class="halo-bfi halo-shields" style="width:85%"></div></div><div class="halo-blbl" style="margin-top:6px">⬥ AMMO</div><div class="halo-btr"><div class="halo-bfi halo-ammo" style="width:72%"></div></div></div>`;
+    mc.innerHTML = `<div class="halo-bars"><div class="halo-blbl">▲ NEURAL LINK</div><div class="halo-btr"><div class="halo-bfi halo-shields" style="width:82%"></div></div><div class="halo-blbl" style="margin-top:6px">◆ CHROME</div><div class="halo-btr"><div class="halo-bfi halo-ammo" style="width:68%"></div></div></div>`;
   } else if (t === 'naruto') {
     mc.innerHTML = `<div class="naruto-bars"><div class="naruto-blbl">気 KI</div><div class="naruto-btr"><div class="naruto-bfi naruto-chakra" style="width:88%"></div></div><div class="naruto-blbl" style="margin-top:6px">⚡ STAMINA</div><div class="naruto-btr"><div class="naruto-bfi naruto-stamina" style="width:76%"></div></div></div>`;
   } else if (t === 'fut') {
     mc.innerHTML = `<div class="fut-bars"><div class="fut-blbl">⚡ ENERGY</div><div class="fut-btr"><div class="fut-bfi fut-energy" style="width:82%"></div></div><div class="fut-blbl" style="margin-top:6px">⬢ PROCESSOR</div><div class="fut-btr"><div class="fut-bfi fut-processor" style="width:68%"></div></div></div>`;
   }
   const ls = T[lang];
-  const logoSubMap = { fut: ls.logo_s_fut, mc: ls.logo_s_mc, halo: ls.logo_s_halo, naruto: ls.logo_s_naruto };
+  const logoSubMap = { bloom: ls.logo_s_bloom, fut: ls.logo_s_fut, mc: ls.logo_s_mc, halo: ls.logo_s_halo, naruto: ls.logo_s_naruto };
   setText('logo-s', logoSubMap[t]);
 }
 
 function applyThemeText(t) {
   const ls = T[lang];
   const map = {
+    bloom:  { 'g-eye': ls.bloom_eye, 'g-pfx': ls.bloom_pfx, rl: ls.bloom_rl, i1t: '✦ ' + (lang==='es'?'VITALIDAD':'VITALITY'), i2t: '✦ ' + (lang==='es'?'DESCANSO':'REST & RESTORE'), i3t: '✦ ' + (lang==='es'?'MOVIMIENTO':'MOVEMENT'), i1x: lang==='es'?'HRV +6ms. Tu cuerpo está respondiendo genial. Hoy es un buen día para esforzarte un poco más.':'HRV +6ms. Your body is responding beautifully. Today is a great day to push a little harder.', i2x: lang==='es'?'Sueño profundo +12%. Tu recuperación está en punto. Sigue priorizando el descanso — se nota.':'Deep sleep +12%. Your recovery is on point. Keep prioritizing rest — it shows.', i3x: lang==='es'?'Racha de 4 días. 78% de tu meta de pasos. Cada movimiento cuenta — sigue así.':'4-day streak. 78% of your step goal. Every move counts — keep going.' },
     mc:     { 'g-eye': ls.mc_eye, 'g-pfx': ls.mc_pfx, rl: ls.mc_rl, i1t: ls.i1t.replace('RECUPERACIÓN','RECOVERY').replace('RECOVERY','[!] RECOVERY'), i2t: '[!] ' + (lang==='es'?'SUEÑO':'SLEEP'), i3t: '[!] ' + (lang==='es'?'ACTIVIDAD':'ACTIVITY'), i1x: lang==='es'?'HRV +6ms. Recuperación completa. Listo para grind. Dificultad: Alta recomendada.':'HRV +6ms. Recovery full. Ready to grind. Difficulty: Hard recommended.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Buff: Bien descansado activo.':'Deep sleep +12% this week. Buff: Well Rested active.', i3x: lang==='es'?'Racha de 4 días. Logro: Marathon Runner si terminas hoy.':'4-day streak. Achievement: Marathon Runner incoming if today complete.' },
-    halo:   { 'g-eye': ls.halo_eye, 'g-pfx': ls.halo_pfx, rl: ls.halo_rl, i1t: '◈ ' + (lang==='es'?'ESCUDOS':'SHIELDS'), i2t: '◈ ' + (lang==='es'?'CICLO DE DESCANSO':'REST CYCLE'), i3t: '◈ ' + (lang==='es'?'REGISTRO DE MISIÓN':'MISSION LOG'), i1x: lang==='es'?'Recarga de escudo nominal. HRV +6ms. Combate de alta intensidad recomendado. Aumentaciones al 98%.':'Shield recharge nominal. HRV +6ms. High-intensity engagement recommended. Augmentations at 98%.', i2x: lang==='es'?'Protocolo de sueño profundo +12%. Recuperación neural óptima. Aumentaciones Spartan-IV al máximo.':'Deep sleep protocol +12%. Neural recovery optimal. Spartan-IV augmentations at peak.', i3x: lang==='es'?'Racha de misión de 4 días activa. Objetivo de pasos 78%. Aumentar radio de patrulla.':'4-day mission streak active. Step objective 78%. Increase patrol radius to complete.' },
+    halo:   { 'g-eye': ls.halo_eye, 'g-pfx': ls.halo_pfx, rl: ls.halo_rl, i1t: '▲ ' + (lang==='es'?'ENLACE NEURAL':'NEURAL LINK'), i2t: '◆ ' + (lang==='es'?'CICLO DE SUEÑO':'SLEEP CYCLE'), i3t: '◈ ' + (lang==='es'?'LOG DE ACTIVIDAD':'ACTIVITY LOG'), i1x: lang==='es'?'Enlace neural estable. HRV +6ms. Implantes al 98%. Sistema listo para zona roja.':'Neural link stable. HRV +6ms. Implants at 98%. Ready for the red zone.', i2x: lang==='es'?'Sueño profundo +12%. ICE restablecido. Recuperación de chrome óptima. Sistema primed.':'Deep sleep +12%. ICE restored. Chrome recovery optimal. System primed.', i3x: lang==='es'?'Racha de 4 días activa. Pasos 78%. Aumenta el randar — la calle recompensa la consistencia.':'4-day streak active. Steps 78%. Push harder — the street rewards consistency.' },
     naruto: { 'g-eye': ls.naruto_eye, 'g-pfx': ls.naruto_pfx, rl: ls.naruto_rl, i1t: '🔥 ' + (lang==='es'?'RECUPERACIÓN DE CHAKRA':'CHAKRA RECOVERY'), i2t: '🌙 ' + (lang==='es'?'JUTSU DE DESCANSO':'REST JUTSU'), i3t: '⚡ ' + (lang==='es'?'ARCO DE ENTRENAMIENTO':'TRAINING ARC'), i1x: lang==='es'?'Flujo de chakra +6ms. Bobinas a plena capacidad. Lista para misión S. Modo Sabio disponible.':'Chakra flow +6ms. Coils at full capacity. Ready for S-rank mission. Sage Mode available.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Reservas de chakra restauradas. Descanso nivel Bijuu.':'Deep sleep +12% this week. Chakra pools restored. Bijuu-level rest achieved. Dattebayo!', i3x: lang==='es'?'Racha de entrenamiento de 4 días. Completar hoy desbloquea: "El Camino del Ninja". ¡Dattebayo!':'4-day training arc streak. Complete today: "Ninja Way" achievement unlocked. Believe it!' },
     fut:    {}
   };
@@ -4337,11 +4412,11 @@ function renderProfile() {
   renderProUI();
 
   // Avatar emoji by theme
-  const avatars = { mc: '⛏', halo: '⚔', naruto: '🔥', fut: '◉' };
+  const avatars = { bloom: '✦', mc: '⛏', halo: '▲', naruto: '🔥', fut: '◉' };
   document.getElementById('pv-avatar').textContent = avatars[theme] || '◉';
 
   // Theme buttons
-  ['mc','halo','naruto','fut'].forEach(id => {
+  ['bloom','halo','naruto','fut'].forEach(id => {
     document.getElementById('pvt-' + id)?.classList.toggle('active', theme === id);
   });
 
@@ -4587,7 +4662,7 @@ if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.
   document.body.setAttribute('data-pwa', 'installed');
 }
 // Sync theme-color meta with active theme for status bar
-const THEME_COLORS = { mc: '#1a1200', halo: '#03070e', naruto: '#0c0400', fut: '#020810' };
+const THEME_COLORS = { bloom: '#0f0709', mc: '#1a1200', halo: '#060010', naruto: '#0c0400', fut: '#020810' };
 function updateThemeColor(t) {
   const meta = document.getElementById('theme-color-meta');
   if (meta && THEME_COLORS[t]) meta.setAttribute('content', THEME_COLORS[t]);
