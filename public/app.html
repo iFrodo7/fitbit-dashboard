@@ -1355,6 +1355,80 @@ body.t-naruto span.vval{
   to  {opacity:0;transform:scale(1.045);}
 }
 #sp.sp-off{animation:sp-out .42s cubic-bezier(.4,0,1,1) forwards;}
+
+/* ══════════════════════════════════════════════════════════════════
+   THEME PREVIEW CONFIRMATION OVERLAY
+   ══════════════════════════════════════════════════════════════════ */
+#tprev{display:none;position:fixed;inset:0;z-index:10000;overflow:hidden;flex-direction:column;align-items:center;justify-content:flex-end;}
+#tprev.on{display:flex;}
+.tprev-bg{position:absolute;inset:0;transition:background 0.4s;}
+@keyframes tprev-in{from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);}}
+.tprev-sheet{position:relative;z-index:1;width:100%;max-width:500px;border-radius:20px 20px 0 0;padding:0 0 max(28px,env(safe-area-inset-bottom)) 0;animation:tprev-in 0.38s cubic-bezier(.16,1,.3,1) both;}
+.tprev-canvas{width:100%;height:220px;position:relative;overflow:hidden;border-radius:20px 20px 0 0;}
+.tprev-info{padding:20px 24px 0;}
+.tprev-name{font-size:clamp(24px,5vw,34px);font-weight:800;letter-spacing:6px;text-transform:uppercase;line-height:1;}
+.tprev-sub{font-size:10px;letter-spacing:4px;opacity:0.5;margin-top:5px;margin-bottom:18px;text-transform:uppercase;}
+.tprev-feats{display:flex;flex-direction:column;gap:7px;margin-bottom:22px;}
+.tprev-feat{font-size:11px;letter-spacing:2px;padding:9px 14px;border-left:2px solid;opacity:0.8;text-transform:uppercase;}
+.tprev-btns{display:flex;gap:10px;padding:0 24px;}
+.tprev-confirm{flex:1;padding:15px;font-size:12px;font-weight:700;letter-spacing:4px;border:none;cursor:pointer;font-family:inherit;text-transform:uppercase;border-radius:4px;transition:filter 0.15s;}
+.tprev-confirm:hover{filter:brightness(1.12);}
+.tprev-back{padding:15px 20px;font-size:11px;letter-spacing:3px;background:transparent;cursor:pointer;font-family:inherit;text-transform:uppercase;border-radius:4px;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.45);transition:border-color 0.15s;}
+.tprev-back:hover{border-color:rgba(255,255,255,0.3);}
+/* BLOOM preview canvas */
+.tprev-bloom-bg{width:100%;height:100%;background:radial-gradient(ellipse at 50% 120%,#2a0e1a 0%,#0f0709 65%);position:relative;overflow:hidden;}
+.tprev-bloom-bg::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(232,92,138,0.08) 1px,transparent 1px);background-size:22px 22px;}
+@keyframes tpb-ring{0%,100%{opacity:0.4;transform:translate(-50%,-50%) scale(1);}50%{opacity:0.9;transform:translate(-50%,-50%) scale(1.05);}}
+/* NEON NOIR preview canvas */
+.tprev-halo-bg{width:100%;height:100%;background:radial-gradient(ellipse at 50% 120%,#1e0035 0%,#060010 65%);position:relative;overflow:hidden;}
+@keyframes tph-scan{0%{transform:translateY(-100%);}100%{transform:translateY(100vh);}}
+.tprev-halo-bg::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(255,45,120,0.4),transparent);animation:tph-scan 3s linear infinite;}
+/* SHINOBI preview canvas */
+.tprev-naruto-bg{width:100%;height:100%;background:radial-gradient(ellipse at 50% 120%,#1a0800 0%,#0c0400 65%);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+/* AETHER preview canvas */
+.tprev-fut-bg{width:100%;height:100%;background:radial-gradient(ellipse at 50% 120%,#001428 0%,#020810 65%);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+
+/* ══════════════════════════════════════════════════════════════════
+   BLOOM AMBIENT LAYER — home screen personality
+   ══════════════════════════════════════════════════════════════════ */
+#bloom-ambient{display:none;position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.t-bloom #bloom-ambient{display:block;}
+@keyframes b-spark-rise{0%{transform:translateY(0) rotate(0deg) scale(0.8);opacity:0;}10%{opacity:1;}80%{opacity:0.6;}100%{transform:translateY(-85vh) rotate(540deg) scale(1.2);opacity:0;}}
+.b-spark{position:absolute;color:rgba(232,92,138,0.4);animation:b-spark-rise linear infinite;}
+@keyframes b-orb-drift{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(18px,-22px) scale(1.08);}66%{transform:translate(-12px,10px) scale(0.95);}}
+.b-orb{position:absolute;border-radius:50%;filter:blur(30px);animation:b-orb-drift ease-in-out infinite;}
+/* BLOOM daily affirmation */
+#bloom-aff{display:none;font-family:'Nunito',sans-serif;font-size:10px;letter-spacing:3.5px;color:rgba(232,92,138,0.5);margin-top:3px;font-weight:700;text-transform:uppercase;min-height:14px;overflow:hidden;white-space:nowrap;}
+.t-bloom #bloom-aff{display:block;}
+@keyframes bloom-aff-in{from{opacity:0;letter-spacing:6px;}to{opacity:1;letter-spacing:3.5px;}}
+#bloom-aff.aff-on{animation:bloom-aff-in 0.8s ease both;}
+/* BLOOM ring card soft glow aura */
+.t-bloom .card.rw{box-shadow:0 0 60px rgba(232,92,138,0.08),0 0 120px rgba(232,92,138,0.04);}
+
+/* ══════════════════════════════════════════════════════════════════
+   NEON NOIR AMBIENT LAYER — home screen personality
+   ══════════════════════════════════════════════════════════════════ */
+#nn-ambient{display:none;position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.t-halo #nn-ambient{display:block;}
+@keyframes nn-col-fall{0%{transform:translateY(-120%);opacity:0;}5%{opacity:1;}90%{opacity:0.65;}100%{transform:translateY(110vh);opacity:0;}}
+.nn-col{position:absolute;top:0;display:flex;flex-direction:column;gap:3px;font-family:'IBM Plex Mono',monospace;font-size:10px;line-height:1.3;color:rgba(255,45,120,0.22);animation:nn-col-fall linear infinite;pointer-events:none;}
+/* NN HUD brackets on ring card */
+.t-halo .card.rw{position:relative;}
+.t-halo .card.rw::before,.t-halo .card.rw::after{content:'';position:absolute;width:16px;height:16px;pointer-events:none;}
+.t-halo .card.rw::before{top:7px;left:7px;border-top:1px solid rgba(255,45,120,0.6);border-left:1px solid rgba(255,45,120,0.6);}
+.t-halo .card.rw::after{bottom:7px;right:7px;border-bottom:1px solid rgba(189,0,255,0.5);border-right:1px solid rgba(189,0,255,0.5);}
+/* NN Boot sequence overlay */
+#nn-boot{display:none;position:fixed;inset:0;background:#060010;z-index:1999;flex-direction:column;justify-content:center;align-items:flex-start;padding:clamp(28px,6vw,60px);}
+#nn-boot.on{display:flex;}
+.nn-bl{font-family:'IBM Plex Mono',monospace;font-size:clamp(11px,1.8vw,13px);letter-spacing:2px;line-height:2;opacity:0;transition:opacity 0.08s;}
+.nn-bl.vis{opacity:1;}
+.nn-bl.dim{color:rgba(255,45,120,0.3);}
+.nn-bl.ok{color:#39ff14;}
+.nn-bl.err{color:#ff4500;}
+#nn-cursor{display:inline-block;width:8px;height:13px;background:#ff2d78;animation:blink 0.7s step-end infinite;vertical-align:middle;margin-left:4px;}
+/* NN scan sweep on ring card (periodic) */
+@keyframes nn-sweep{0%{top:-4px;opacity:0.7;}100%{top:105%;opacity:0;}}
+.nn-sweep{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(255,45,120,0.5),rgba(189,0,255,0.3),transparent);pointer-events:none;animation:nn-sweep 3.5s ease-in infinite;z-index:2;}
 </style>
 </head>
 <body>
@@ -1421,7 +1495,7 @@ body.t-naruto span.vval{
   <div class="t-grid">
 
     <!-- ── BLOOM (wellness · fitness — girlie editorial aesthetic) ── -->
-    <div class="t-card tc-bloom" data-id="bloom" onclick="selectTheme('bloom')">
+    <div class="t-card tc-bloom" data-id="bloom" onclick="openThemePreview('bloom')">
       <div class="bloom-pv">
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:120px;height:120px;border-radius:50%;border:1px solid rgba(232,92,138,0.15);animation:bloom-pulse 4s ease-in-out infinite;"></div>
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;border:1px solid rgba(232,92,138,0.32);box-shadow:0 0 22px rgba(232,92,138,0.12);animation:bloom-pulse 4s ease-in-out infinite;animation-delay:-2s;"></div>
@@ -1437,7 +1511,7 @@ body.t-naruto span.vval{
     </div>
 
     <!-- ── NEON NOIR (cyberpunk dystopia aesthetic) ── -->
-    <div class="t-card tc-halo" data-id="halo" onclick="selectTheme('halo')">
+    <div class="t-card tc-halo" data-id="halo" onclick="openThemePreview('halo')">
       <div class="halo-pv">
         <div style="position:absolute;top:11px;left:13px;right:13px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,45,120,0.45);letter-spacing:2px;text-transform:uppercase;">NIGHT CITY UPLINK — NEURAL NET v2.0.77</div>
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,45,120,0.45);box-shadow:0 0 14px rgba(255,45,120,0.3),inset 0 0 14px rgba(189,0,255,0.1);"></div>
@@ -1454,7 +1528,7 @@ body.t-naruto span.vval{
     </div>
 
     <!-- ── SHINOBI (feudal Japan / ki energy aesthetic) ── -->
-    <div class="t-card tc-naruto" data-id="naruto" onclick="selectTheme('naruto')">
+    <div class="t-card tc-naruto" data-id="naruto" onclick="openThemePreview('naruto')">
       <div class="naruto-pv"><div class="nseal">気</div></div>
       <div class="t-badge t-badge-free" id="tbf-naruto">GRATIS</div>
       <div class="t-check">✓</div>
@@ -1465,7 +1539,7 @@ body.t-naruto span.vval{
     </div>
 
     <!-- ── AETHER (original futuristic HUD) ── -->
-    <div class="t-card tc-fut" data-id="fut" onclick="selectTheme('fut')">
+    <div class="t-card tc-fut" data-id="fut" onclick="openThemePreview('fut')">
       <div class="fut-pv">
         <div class="fr" style="width:138px;height:138px;"></div>
         <div class="fr" style="width:84px;height:84px;border-color:rgba(0,245,255,0.4);"></div>
@@ -1498,6 +1572,23 @@ body.t-naruto span.vval{
 
 </div>
 
+<!-- ══════════════ THEME PREVIEW MODAL ══════════════ -->
+<div id="tprev" onclick="if(event.target===this)closeThemePreview()">
+  <div class="tprev-bg" id="tprev-bg"></div>
+  <div class="tprev-sheet" id="tprev-sheet">
+    <div class="tprev-canvas" id="tprev-canvas"></div>
+    <div class="tprev-info">
+      <div class="tprev-name" id="tprev-name"></div>
+      <div class="tprev-sub" id="tprev-sub"></div>
+      <div class="tprev-feats" id="tprev-feats"></div>
+    </div>
+    <div class="tprev-btns">
+      <button class="tprev-confirm" id="tprev-confirm" onclick="confirmTheme()"></button>
+      <button class="tprev-back" onclick="closeThemePreview()" id="tprev-back">← VOLVER</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════ DASHBOARD ══════════════ -->
 <!-- PWA Install Banner (sticky at top) -->
 <div class="install-banner" id="install-banner" style="display:none;">
@@ -1510,7 +1601,14 @@ body.t-naruto span.vval{
   <button class="install-close" onclick="dismissInstall()" aria-label="Cerrar">×</button>
 </div>
 
+<!-- ══ NEON NOIR BOOT SEQUENCE ══ -->
+<div id="nn-boot"></div>
+
 <div id="dash">
+  <!-- ══ AMBIENT LAYERS (theme-specific, fixed, pointer-events:none) ══ -->
+  <div id="bloom-ambient"></div>
+  <div id="nn-ambient"></div>
+
   <div class="sbar"><div class="sbfi" id="sbfi"></div></div>
   <div class="toast" id="toast"></div>
 
@@ -1560,6 +1658,8 @@ body.t-naruto span.vval{
       <div>
         <div class="db-eye" id="g-eye">// ANÁLISIS BIOMÉTRICO ACTIVO</div>
         <div class="db-name"><span id="g-pfx">BUEN DÍA, </span><span id="uname" class="db-ac">USUARIO</span></div>
+        <!-- BLOOM: daily affirmation (hidden on other themes via CSS) -->
+        <div id="bloom-aff"></div>
       </div>
       <div class="db-date" id="clock" style="margin-top:0;align-self:flex-end;padding-bottom:4px;"></div>
     </div>
@@ -3150,7 +3250,310 @@ function setLang(l) {
 function setText(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
 function setHTML(id, v) { const e = document.getElementById(id); if (e) e.innerHTML = v; }
 
-// ══════ MC GRID ══════
+// ══════════════════════════════════════════════════════════════════
+// THEME PREVIEW CONFIRMATION
+// ══════════════════════════════════════════════════════════════════
+var TPREV_DATA = {
+  bloom: {
+    bg: 'radial-gradient(ellipse at 50% 130%, #2a0e1a 0%, #0f0709 65%)',
+    sheetBg: '#110610',
+    color: '#e85c8a',
+    color2: '#c47fb5',
+    nameFont: "'Nunito',sans-serif",
+    confirmBg: '#e85c8a',
+    confirmColor: '#0f0709',
+    confirmLabel: { es: '✦ ACTIVAR BLOOM', en: '✦ ACTIVATE BLOOM' },
+    feats: {
+      es: ['✦ Bienestar en movimiento · tracking de vitalidad', '✦ Flow state · métricas de rendimiento diario', '✦ Estética wellness editorial · paleta rose & mauve'],
+      en: ['✦ Wellness in motion · vitality tracking', '✦ Flow state · daily performance metrics', '✦ Editorial wellness aesthetic · rose & mauve palette']
+    },
+    canvas: function() {
+      return '<div class="tprev-bloom-bg">' +
+        '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:160px;height:160px;border-radius:50%;border:1px solid rgba(232,92,138,0.18);animation:tpb-ring 3s ease-in-out infinite;"></div>' +
+        '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:108px;height:108px;border-radius:50%;border:1px solid rgba(232,92,138,0.35);box-shadow:0 0 30px rgba(232,92,138,0.15);animation:tpb-ring 3s ease-in-out infinite;animation-delay:-1.5s;"></div>' +
+        '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60px;height:60px;border-radius:50%;border:1.5px solid rgba(232,92,138,0.6);box-shadow:0 0 18px rgba(232,92,138,0.25),inset 0 0 18px rgba(232,92,138,0.07);animation:tpb-ring 3s ease-in-out infinite;animation-delay:-0.5s;"></div>' +
+        '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:#e85c8a;box-shadow:0 0 20px #e85c8a,0 0 40px rgba(232,92,138,0.5);"></div>' +
+        '<div style="position:absolute;top:16px;left:20px;font-family:\'Nunito\',sans-serif;font-size:10px;font-weight:700;color:rgba(232,92,138,0.4);letter-spacing:3px;text-transform:uppercase;">✦ WELLNESS · FITNESS · FLOW</div>' +
+        '<div style="position:absolute;bottom:14px;right:20px;font-family:\'Nunito\',sans-serif;font-size:9px;color:rgba(196,127,181,0.35);letter-spacing:2px;">AIRA · BLOOM</div>' +
+        '</div>';
+    }
+  },
+  halo: {
+    bg: 'radial-gradient(ellipse at 50% 130%, #1e0035 0%, #060010 65%)',
+    sheetBg: '#080014',
+    color: '#ff2d78',
+    color2: '#bd00ff',
+    nameFont: "'IBM Plex Mono',monospace",
+    confirmBg: '#ff2d78',
+    confirmColor: '#060010',
+    confirmLabel: { es: '// JACK IN', en: '// JACK IN' },
+    feats: {
+      es: ['▲ Neural link · HRV + biometría en tiempo real', '◆ Chrome tracking · integridad de sistemas ICE', '◈ Night City uplink · estética cyberpunk distópica'],
+      en: ['▲ Neural link · real-time HRV + biometrics', '◆ Chrome tracking · ICE system integrity', '◈ Night City uplink · dystopian cyberpunk aesthetic']
+    },
+    canvas: function() {
+      return '<div class="tprev-halo-bg">' +
+        '<div style="position:absolute;top:10px;left:16px;right:16px;font-family:\'IBM Plex Mono\',monospace;font-size:9px;color:rgba(255,45,120,0.4);letter-spacing:2px;">// NIGHT CITY UPLINK — NEURAL NET v2.0.77</div>' +
+        '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:120px;height:120px;border-radius:50%;border:1px solid rgba(255,45,120,0.3);box-shadow:0 0 30px rgba(255,45,120,0.15);"></div>' +
+        '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;border-radius:50%;border:1px solid rgba(189,0,255,0.4);box-shadow:0 0 20px rgba(189,0,255,0.2);"></div>' +
+        '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(255,45,120,0.6);box-shadow:0 0 14px rgba(255,45,120,0.4);"></div>' +
+        '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:8px;height:8px;border-radius:50%;background:#ff2d78;box-shadow:0 0 14px #ff2d78,0 0 30px rgba(255,45,120,0.5);"></div>' +
+        '<div style="position:absolute;bottom:14px;left:16px;font-family:\'IBM Plex Mono\',monospace;font-size:9px;color:rgba(255,45,120,0.35);letter-spacing:2px;">IMPLANTS: 98% · ICE: OK · HEAT: LOW</div>' +
+        '<div style="position:absolute;top:8px;right:12px;width:14px;height:14px;border-top:1px solid rgba(255,45,120,0.5);border-right:1px solid rgba(255,45,120,0.5);"></div>' +
+        '<div style="position:absolute;bottom:8px;left:12px;width:14px;height:14px;border-bottom:1px solid rgba(189,0,255,0.4);border-left:1px solid rgba(189,0,255,0.4);"></div>' +
+        '</div>';
+    }
+  },
+  naruto: {
+    bg: 'radial-gradient(ellipse at 50% 130%, #1a0800 0%, #0c0400 65%)',
+    sheetBg: '#100500',
+    color: '#ff6b00',
+    color2: '#ffaa00',
+    nameFont: "'Permanent Marker',cursive",
+    confirmBg: 'linear-gradient(135deg,#ff6b00,#ff4500)',
+    confirmColor: '#0c0400',
+    confirmLabel: { es: '気 ACTIVAR JUTSU', en: '気 ACTIVATE JUTSU' },
+    feats: {
+      es: ['気 Flujo de Ki · reservas de chakra en tiempo real', '⚡ Stamina tracker · arco de entrenamiento ninja', '🌙 Sello de descanso · sueño restaurador de chakra'],
+      en: ['気 Ki flow · real-time chakra reserves', '⚡ Stamina tracker · ninja training arc', '🌙 Rest seal · chakra-restoring sleep tracking']
+    },
+    canvas: function() {
+      return '<div class="tprev-naruto-bg">' +
+        '<div style="font-size:120px;color:rgba(255,107,0,0.12);font-family:\'Noto Serif JP\',serif;user-select:none;line-height:1;animation:b-orb-drift 4s ease-in-out infinite;">渦</div>' +
+        '<div style="position:absolute;font-size:48px;color:rgba(255,170,0,0.35);font-family:\'Noto Serif JP\',serif;top:50%;left:50%;transform:translate(-50%,-50%);text-shadow:0 0 30px rgba(255,107,0,0.4);">気</div>' +
+        '<div style="position:absolute;top:10px;left:16px;font-family:\'IBM Plex Mono\',monospace;font-size:9px;color:rgba(255,107,0,0.35);letter-spacing:2px;">封印 · 木ノ葉 · 忍道</div>' +
+        '<div style="position:absolute;bottom:14px;right:16px;font-family:\'IBM Plex Mono\',monospace;font-size:9px;color:rgba(255,170,0,0.3);letter-spacing:2px;">SHINOBI v気.2</div>' +
+        '</div>';
+    }
+  },
+  fut: {
+    bg: 'radial-gradient(ellipse at 50% 130%, #001428 0%, #020810 65%)',
+    sheetBg: '#030d1a',
+    color: '#00f5ff',
+    color2: '#a855f7',
+    nameFont: "'Rajdhani',sans-serif",
+    confirmBg: '#00f5ff',
+    confirmColor: '#020810',
+    confirmLabel: { es: '⬡ INICIALIZAR', en: '⬡ INITIALIZE' },
+    feats: {
+      es: ['⬡ Multi-ring HUD · recuperación + sueño + estrés', '⬢ Biometric core · 6 métricas simultáneas en tiempo real', '◈ Ticker HUD · live stream de datos de actividad'],
+      en: ['⬡ Multi-ring HUD · recovery + sleep + stress', '⬢ Biometric core · 6 real-time metrics simultaneously', '◈ Activity ticker HUD · live data stream']
+    },
+    canvas: function() {
+      return '<div class="tprev-fut-bg">' +
+        '<svg width="200" height="200" viewBox="0 0 200 200" style="overflow:visible">' +
+        '<circle cx="100" cy="100" r="88" fill="none" stroke="rgba(0,245,255,0.12)" stroke-width="2" stroke-dasharray="10 7"/>' +
+        '<circle cx="100" cy="100" r="70" fill="none" stroke="rgba(0,245,255,0.2)" stroke-width="3"/>' +
+        '<circle cx="100" cy="100" r="52" fill="none" stroke="rgba(168,85,247,0.25)" stroke-width="2"/>' +
+        '<circle cx="100" cy="100" r="34" fill="none" stroke="rgba(245,158,11,0.2)" stroke-width="1.5"/>' +
+        '<circle cx="100" cy="100" r="8" fill="rgba(0,245,255,0.15)" stroke="#00f5ff" stroke-width="1.5"/>' +
+        '<line x1="100" y1="12" x2="100" y2="30" stroke="rgba(0,245,255,0.4)" stroke-width="1.5"/>' +
+        '<line x1="188" y1="100" x2="170" y2="100" stroke="rgba(0,245,255,0.4)" stroke-width="1.5"/>' +
+        '<line x1="100" y1="188" x2="100" y2="170" stroke="rgba(0,245,255,0.25)" stroke-width="1"/>' +
+        '<line x1="12" y1="100" x2="30" y2="100" stroke="rgba(0,245,255,0.25)" stroke-width="1"/>' +
+        '<path d="M12 22 L12 12 L22 12" fill="none" stroke="rgba(0,245,255,0.4)" stroke-width="1.5"/>' +
+        '<path d="M188 22 L188 12 L178 12" fill="none" stroke="rgba(0,245,255,0.4)" stroke-width="1.5"/>' +
+        '<path d="M12 178 L12 188 L22 188" fill="none" stroke="rgba(0,245,255,0.25)" stroke-width="1.5"/>' +
+        '<path d="M188 178 L188 188 L178 188" fill="none" stroke="rgba(0,245,255,0.25)" stroke-width="1.5"/>' +
+        '</svg>' +
+        '<div style="position:absolute;bottom:14px;left:16px;font-family:\'IBM Plex Mono\',monospace;font-size:9px;color:rgba(0,245,255,0.3);letter-spacing:2px;">AETHER · BIOMETRIC CORE v2.6</div>' +
+        '</div>';
+    }
+  }
+};
+
+function openThemePreview(t) {
+  var d = TPREV_DATA[t]; if (!d) { selectTheme(t); return; }
+  window._pendingTheme = t;
+  var L = typeof lang !== 'undefined' ? lang : 'es';
+  // Background
+  var bg = document.getElementById('tprev-bg');
+  bg.style.background = d.bg;
+  // Sheet
+  var sh = document.getElementById('tprev-sheet');
+  sh.style.background = d.sheetBg;
+  sh.style.borderTop = '1px solid ' + d.color + '22';
+  // Canvas
+  document.getElementById('tprev-canvas').innerHTML = d.canvas();
+  // Name & sub
+  var nameEl = document.getElementById('tprev-name');
+  nameEl.textContent = t === 'bloom' ? 'BLOOM' : t === 'halo' ? 'NEON NOIR' : t === 'naruto' ? 'SHINOBI' : 'AETHER';
+  nameEl.style.color = d.color;
+  nameEl.style.fontFamily = d.nameFont;
+  var subEl = document.getElementById('tprev-sub');
+  subEl.textContent = t === 'bloom' ? 'WELLNESS · RENDIMIENTO' : t === 'halo' ? 'NIGHT CITY UPLINK' : t === 'naruto' ? '気 · MONITOR DE ENERGÍA' : 'BIOMETRIC CORE v2.6';
+  subEl.style.color = d.color;
+  // Features
+  var feats = d.feats[L] || d.feats['es'];
+  var fEl = document.getElementById('tprev-feats');
+  fEl.innerHTML = feats.map(function(f) {
+    return '<div class="tprev-feat" style="border-color:' + d.color + '55;color:' + d.color + 'cc;background:' + d.color + '08;">' + f + '</div>';
+  }).join('');
+  // Confirm button
+  var cb = document.getElementById('tprev-confirm');
+  cb.textContent = (d.confirmLabel[L] || d.confirmLabel['es']);
+  cb.style.background = d.confirmBg;
+  cb.style.color = d.confirmColor;
+  cb.style.fontFamily = d.nameFont;
+  // Back button
+  var bb = document.getElementById('tprev-back');
+  bb.textContent = L === 'en' ? '← BACK' : '← VOLVER';
+  // Show
+  document.getElementById('tprev').classList.add('on');
+}
+
+function confirmTheme() {
+  document.getElementById('tprev').classList.remove('on');
+  if (window._pendingTheme) {
+    selectTheme(window._pendingTheme);
+    window._pendingTheme = null;
+  }
+}
+
+function closeThemePreview() {
+  document.getElementById('tprev').classList.remove('on');
+  window._pendingTheme = null;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// BLOOM AMBIENT — floating sparkles + daily affirmation
+// ══════════════════════════════════════════════════════════════════
+var BLOOM_AFFS_ES = ['Tu cuerpo es tu templo ✦','Cada movimiento suma ✦','Descansa. Recupérate. Brilla ✦','Hoy es un gran día ✦','Fluye a tu ritmo ✦','Mereces sentirte bien ✦','Pequeños pasos, grandes cambios ✦'];
+var BLOOM_AFFS_EN = ['Your body is your temple ✦','Every move counts ✦','Rest. Recover. Radiate ✦','Today is a great day ✦','Flow at your own pace ✦','You deserve to feel good ✦','Small steps, big changes ✦'];
+
+function startBloomAmbient() {
+  var amb = document.getElementById('bloom-ambient');
+  if (!amb) return;
+  amb.innerHTML = '';
+  // 6 floating sparkles
+  var sx = [8,20,45,60,78,88], sy = [70,85,60,90,65,80];
+  var sizes = [12,9,14,10,11,13];
+  var durs = [18,24,20,16,22,19];
+  var dels = [0,4,8,2,12,6];
+  for (var i = 0; i < 6; i++) {
+    var s = document.createElement('div');
+    s.className = 'b-spark';
+    s.textContent = i % 2 === 0 ? '✦' : '✧';
+    s.style.cssText = 'left:' + sx[i] + '%;top:' + sy[i] + '%;font-size:' + sizes[i] + 'px;animation-duration:' + durs[i] + 's;animation-delay:-' + dels[i] + 's;';
+    amb.appendChild(s);
+  }
+  // 2 soft orbs
+  var orbs = [{l:'-5%',t:'30%',w:'280px',c:'rgba(232,92,138,0.08)',dur:'12s',del:'0s'},{l:'70%',t:'50%',w:'220px',c:'rgba(196,127,181,0.06)',dur:'16s',del:'-4s'}];
+  orbs.forEach(function(o) {
+    var el = document.createElement('div');
+    el.className = 'b-orb';
+    el.style.cssText = 'left:' + o.l + ';top:' + o.t + ';width:' + o.w + ';height:' + o.w + ';background:radial-gradient(circle,' + o.c + ' 0%,transparent 70%);animation-duration:' + o.dur + ';animation-delay:' + o.del + ';';
+    amb.appendChild(el);
+  });
+  // Daily affirmation typewriter
+  var affEl = document.getElementById('bloom-aff');
+  if (affEl) {
+    var L = typeof lang !== 'undefined' ? lang : 'es';
+    var affs = L === 'en' ? BLOOM_AFFS_EN : BLOOM_AFFS_ES;
+    var aff = affs[Math.floor(Math.random() * affs.length)];
+    affEl.textContent = '';
+    affEl.classList.remove('aff-on');
+    var i2 = 0;
+    var timer = setInterval(function() {
+      affEl.textContent += aff[i2++];
+      if (i2 >= aff.length) {
+        clearInterval(timer);
+        affEl.classList.add('aff-on');
+      }
+    }, 55);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// NEON NOIR AMBIENT — matrix rain + boot sequence
+// ══════════════════════════════════════════════════════════════════
+var NN_BOOT_LINES_ES = [
+  { t: 'AIRA NEURAL INTERFACE v2.0.77', cls: '' },
+  { t: '────────────────────────────────', cls: 'dim' },
+  { t: '[OK] Enlace neural establecido', cls: 'ok' },
+  { t: '[OK] ICE cargado — integridad 98%', cls: 'ok' },
+  { t: '[OK] Chrome interfaces activos', cls: 'ok' },
+  { t: '[  ] Sincronizando biometría...', cls: '' },
+  { t: '[OK] Biometría vinculada', cls: 'ok' },
+  { t: '────────────────────────────────', cls: 'dim' },
+  { t: 'ACCESO AUTORIZADO. BIENVENIDO/A.', cls: '' }
+];
+var NN_BOOT_LINES_EN = [
+  { t: 'AIRA NEURAL INTERFACE v2.0.77', cls: '' },
+  { t: '────────────────────────────────', cls: 'dim' },
+  { t: '[OK] Neural link established', cls: 'ok' },
+  { t: '[OK] ICE loaded — integrity 98%', cls: 'ok' },
+  { t: '[OK] Chrome interfaces active', cls: 'ok' },
+  { t: '[  ] Syncing biometrics...', cls: '' },
+  { t: '[OK] Biometrics linked', cls: 'ok' },
+  { t: '────────────────────────────────', cls: 'dim' },
+  { t: 'ACCESS GRANTED. WELCOME BACK.', cls: '' }
+];
+
+function startNNBoot(cb) {
+  var L = typeof lang !== 'undefined' ? lang : 'es';
+  var lines = L === 'en' ? NN_BOOT_LINES_EN : NN_BOOT_LINES_ES;
+  var boot = document.getElementById('nn-boot');
+  if (!boot) { if (cb) cb(); return; }
+  boot.innerHTML = '';
+  var cursor = document.createElement('span');
+  cursor.id = 'nn-cursor'; boot.appendChild(cursor);
+  boot.classList.add('on');
+  var idx = 0;
+  function showNext() {
+    if (idx >= lines.length) {
+      setTimeout(function() {
+        boot.classList.remove('on');
+        boot.innerHTML = '';
+        if (cb) cb();
+      }, 400);
+      return;
+    }
+    var ln = document.createElement('div');
+    ln.className = 'nn-bl ' + (lines[idx].cls || '');
+    ln.textContent = lines[idx].t;
+    boot.insertBefore(ln, cursor);
+    requestAnimationFrame(function() { ln.classList.add('vis'); });
+    idx++;
+    setTimeout(showNext, idx < 4 ? 120 : idx < 7 ? 180 : 280);
+  }
+  showNext();
+}
+
+function startNNAmbient() {
+  var amb = document.getElementById('nn-ambient');
+  if (!amb) return;
+  amb.innerHTML = '';
+  var chars = '01アイウエオカキクケコ▲◆◈//\\\\::%%##**';
+  var cols = 6;
+  var positions = [3,12,22,70,80,92];
+  for (var i = 0; i < cols; i++) {
+    var col = document.createElement('div');
+    col.className = 'nn-col';
+    col.style.left = positions[i] + '%';
+    var len = 8 + Math.floor(Math.random() * 6);
+    var html = '';
+    for (var j = 0; j < len; j++) {
+      html += '<span style="opacity:' + (0.3 + Math.random() * 0.7).toFixed(2) + '">' + chars[Math.floor(Math.random() * chars.length)] + '</span>';
+    }
+    col.innerHTML = html;
+    var dur = (14 + Math.random() * 12).toFixed(1);
+    var del = -(Math.random() * 14).toFixed(1);
+    col.style.animationDuration = dur + 's';
+    col.style.animationDelay = del + 's';
+    amb.appendChild(col);
+  }
+  // Add sweep to ring card
+  var rw = document.querySelector('.card.rw');
+  if (rw && !rw.querySelector('.nn-sweep')) {
+    var sw = document.createElement('div');
+    sw.className = 'nn-sweep';
+    rw.appendChild(sw);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// MC GRID ══════
 (function() {
   const g = document.getElementById('mc-pg'); if (!g) return;
   const p = [0,0,0,1,1,8,8,8,8,8,8,8,8,8,8,5,5,5,5,5,9,0,0,0,1,1,8,8,3,3,3,3,3,3,3,3,5,5,5,5,1,1,0,0,0,1,8,8,3,3,3,3,3,3,3,3,5,5,5,5,2,2,2,2,2,2,2,2,3,3,3,2,2,2,2,3,6,6,6,6,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,6,6,6,6,4,4,4,4,3,3,3,4,4,4,4,4,4,4,4,4,7,7,7,7,5,5,5,5,3,3,3,5,5,5,5,5,5,5,5,5,7,7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,7,7,7,7,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5];
@@ -3161,13 +3564,29 @@ function setHTML(id, v) { const e = document.getElementById(id); if (e) e.innerH
 // ══════ SELECT THEME ══════
 function selectTheme(t) {
   theme = t; localStorage.setItem('fb_t', t);
+  // For Neon Noir: run boot sequence only when entering from the selector (sel is visible)
+  var selVisible = document.getElementById('sel') && document.getElementById('sel').style.display !== 'none';
+  if (t === 'halo' && selVisible) {
+    document.body.className = 't-halo';
+    document.getElementById('sel').style.display = 'none';
+    startNNBoot(function() { _finishSelectTheme(t); });
+    return;
+  }
+  _finishSelectTheme(t);
+}
+
+function _finishSelectTheme(t) {
+  theme = t;
   document.body.className = 't-' + t;
   document.getElementById('sel').style.display = 'none';
   document.getElementById('dash').style.display = 'block';
   document.getElementById('bnav').style.display = 'flex';
   applyTheme(t);
-  setLang(lang); // apply current language
+  setLang(lang);
   if (typeof updateThemeColor === 'function') updateThemeColor(t);
+  // Start theme-specific ambient
+  if (t === 'bloom') { requestAnimationFrame(startBloomAmbient); }
+  if (t === 'halo')  { requestAnimationFrame(startNNAmbient); }
   initDash();
   maybeAutoTour();
   refreshBell();
@@ -3188,6 +3607,9 @@ function goBack() {
   document.body.className = '';
   clearInterval(ptmr); clearInterval(cdtmr);
   document.querySelectorAll('.nring').forEach(e => e.remove());
+  // Clear ambient layers
+  var ba = document.getElementById('bloom-ambient'); if (ba) ba.innerHTML = '';
+  var na = document.getElementById('nn-ambient');    if (na) na.innerHTML = '';
   markActiveTheme();
 }
 
