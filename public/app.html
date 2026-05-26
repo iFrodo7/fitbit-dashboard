@@ -796,15 +796,21 @@ body[data-pwa="installed"] .install-banner{display:none!important;}
   font-size:10px;letter-spacing:2px;color:#ff6666;
   font-weight:700;
   animation:offlinePulse 2s ease-in-out infinite;
+  transition:background 0.4s,border-color 0.4s,color 0.4s;
 }
+/* Unstable (flapping) — amber instead of red */
+.offline-badge.unstable{background:rgba(255,170,0,0.13);border-color:#ffaa00;color:#ffcc44;}
 .offline-dot{
   width:6px;height:6px;border-radius:50%;background:#ff4444;
-  box-shadow:0 0 6px #ff4444;
+  box-shadow:0 0 6px #ff4444;flex-shrink:0;
   animation:offlinePulse 1.2s ease-in-out infinite;
+  transition:background 0.4s,box-shadow 0.4s;
 }
+.offline-badge.unstable .offline-dot{background:#ffaa00;box-shadow:0 0 6px #ffaa00;}
 @keyframes offlinePulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
 body.is-offline{filter:saturate(0.85);}
-body.is-offline .dstrip{display:none;}
+body.is-unstable{filter:saturate(0.93);}
+body.is-offline .dstrip, body.is-unstable .dstrip{display:none;}
 @media(max-width:640px){.offline-badge{top:calc(env(safe-area-inset-top,0px) + 8px);}}
 
 /* ═══════════════════════════════════════
@@ -4144,28 +4150,121 @@ if ('serviceWorker' in navigator) {
 }
 
 // ══════ ONLINE / OFFLINE DETECTION ══════
-function updateOnlineStatus() {
-  const offline = !navigator.onLine;
-  document.body.classList.toggle('is-offline', offline);
-  const badge = document.getElementById('offline-badge');
-  if (badge) badge.style.display = offline ? 'flex' : 'none';
-  if (offline) {
-    showToast(lang === 'es' ? 'Sin conexión — datos en caché' : 'Offline — cached data', 'warning');
-    // If the regular sync loader is showing, swap it for the offline wait screen
-    if (document.getElementById('lov')?.classList.contains('on')) {
-      _showOwait();
-    }
-  } else if (document.body.dataset.wasOffline === '1') {
-    _hideOwait(); // dismiss offline overlay
-    showToast(lang === 'es' ? 'Conexión restaurada' : 'Connection restored', 'success');
-    const _pf = (typeof HS!=='undefined'&&HS.id==='google') ? pollFastGoogle : pollFast;
-    if (typeof _pf === 'function') _pf();
+// Debounced + flap-aware connection manager.
+//
+// States:
+//   online   — stable connection (badge hidden, full color)
+//   unstable — rapid on/off flapping ≥2 events in 30s (amber badge, slight desaturate)
+//   offline  — no connection for >2.5s (red badge, owait overlay if loader was open)
+//
+// Debounce delays:
+//   offline confirm  2.5 s  (ignore brief TCP blips)
+//   online  confirm  1.5 s  (ignore immediate re-drop)
+//   flap window     30   s  (flap counter resets after 30 s of stable connection)
+//   toast throttle  15   s  (don't spam the same offline toast)
+
+var _connOffTimer  = null;   // pending "go offline" timer
+var _connOnTimer   = null;   // pending "go online" timer
+var _connFlaps     = 0;      // rapid on→off events in current window
+var _connFlapReset = null;   // timer to clear _connFlaps
+var _connOffSince  = 0;      // timestamp when we first went offline this cycle
+var _connLastToast = 0;      // timestamp of last offline toast
+
+function _setConnBadge(mode) { // 'offline' | 'unstable' | 'online'
+  var badge = document.getElementById('offline-badge');
+  var txt   = document.getElementById('offline-txt');
+  if (!badge) return;
+  if (mode === 'online') {
+    badge.style.display = 'none';
+    badge.classList.remove('unstable');
+    document.body.classList.remove('is-unstable');
+    return;
   }
+  badge.style.display = 'flex';
+  if (mode === 'unstable') {
+    badge.classList.add('unstable');
+    document.body.classList.add('is-unstable');
+    if (txt) txt.textContent = lang === 'es' ? 'INESTABLE' : 'UNSTABLE';
+  } else {
+    badge.classList.remove('unstable');
+    document.body.classList.remove('is-unstable');
+    if (txt) txt.textContent = lang === 'es' ? 'SIN CONEXIÓN' : 'OFFLINE';
+  }
+}
+
+function updateOnlineStatus() {
+  var offline = !navigator.onLine;
+  clearTimeout(_connOffTimer);
+  clearTimeout(_connOnTimer);
+
+  if (offline) {
+    // Record the moment we first lost signal (don't overwrite if already counting)
+    if (!_connOffSince) _connOffSince = Date.now();
+
+    // Confirm offline after 2.5 s (ignores sub-second blips)
+    _connOffTimer = setTimeout(function() {
+      if (navigator.onLine) return; // back already — discard
+      document.body.classList.add('is-offline');
+      _setConnBadge(_connFlaps >= 2 ? 'unstable' : 'offline');
+
+      // Toast — throttled to once per 15 s
+      if (Date.now() - _connLastToast > 15000) {
+        showToast(lang === 'es' ? 'Sin conexión — datos en caché' : 'Offline — cached data', 'warning');
+        _connLastToast = Date.now();
+      }
+
+      // Swap sync loader for offline overlay if it was open
+      if (document.getElementById('lov')?.classList.contains('on')) _showOwait();
+    }, 2500);
+
+  } else {
+    // Confirm stable connection after 1.5 s
+    _connOnTimer = setTimeout(function() {
+      if (!navigator.onLine) return; // dropped again — discard
+
+      var duration = _connOffSince ? Date.now() - _connOffSince : 0;
+
+      // Count this as a flap if we actually were offline
+      if (_connOffSince > 0) {
+        _connFlaps++;
+        _connOffSince = 0;
+        // Reset flap counter after 30 s of stable connectivity
+        clearTimeout(_connFlapReset);
+        _connFlapReset = setTimeout(function() {
+          _connFlaps = 0;
+          document.body.classList.remove('is-unstable');
+          if (!document.body.classList.contains('is-offline')) _setConnBadge('online');
+        }, 30000);
+      }
+
+      document.body.classList.remove('is-offline');
+
+      if (_connFlaps >= 2) {
+        // Still flapping — show amber unstable badge, suppress the "restored" toast
+        _setConnBadge('unstable');
+      } else {
+        _setConnBadge('online');
+        if (duration > 3000) {
+          showToast(lang === 'es' ? 'Conexión restaurada' : 'Connection restored', 'success');
+        }
+      }
+
+      _hideOwait();
+
+      // Resume polling — but cap retries if the connection is very flappy
+      if (_connFlaps < 4) {
+        var _pf = (typeof HS !== 'undefined' && HS.id === 'google') ? pollFastGoogle : pollFast;
+        if (typeof _pf === 'function') _pf();
+      }
+    }, 1500);
+  }
+
   document.body.dataset.wasOffline = offline ? '1' : '0';
 }
-window.addEventListener('online', updateOnlineStatus);
+
+window.addEventListener('online',  updateOnlineStatus);
 window.addEventListener('offline', updateOnlineStatus);
-// Initial check
+// Initial check — defer 500 ms so app state is ready
 setTimeout(updateOnlineStatus, 500);
 
 // ══════ PWA: Install Prompt ══════
