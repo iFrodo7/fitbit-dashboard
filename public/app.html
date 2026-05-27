@@ -2034,13 +2034,7 @@ body.t-naruto span.vval{
               <circle cx="39" cy="108" r="3" stroke="rgba(189,0,255,0.6)" stroke-width="1.2"/>
               <circle cx="36" cy="108" r="4" stroke="#bd00ff" stroke-width="1.4"/>
               <circle cx="33" cy="108" r="3" stroke="rgba(189,0,255,0.6)" stroke-width="1.2"/>
-              <!-- BRANCH 4 (H right, T at y=112 off V-backbone) -->
-              <line x1="21" y1="109" x2="30" y2="109" stroke="rgba(189,0,255,0.6)" stroke-width="1.3"/>
-              <line x1="18" y1="112" x2="30" y2="112" stroke="#bd00ff" stroke-width="1.6"/>
-              <line x1="15" y1="115" x2="30" y2="115" stroke="rgba(189,0,255,0.6)" stroke-width="1.3"/>
-              <circle cx="30" cy="109" r="3" stroke="rgba(189,0,255,0.6)" stroke-width="1.2"/>
-              <circle cx="30" cy="112" r="4" stroke="#bd00ff" stroke-width="1.4"/>
-              <circle cx="30" cy="115" r="3" stroke="rgba(189,0,255,0.6)" stroke-width="1.2"/>
+              <!-- branch 4 removed — was visually disconnected from node -->
             </g>
 
             <!-- ══ STRAIN NETWORK — 3-wire parallel bus (pink) ══ -->
@@ -2137,12 +2131,13 @@ body.t-naruto span.vval{
             <!-- IC internal grid -->
             <line x1="68" y1="80" x2="92" y2="80" stroke="rgba(255,45,120,0.12)" stroke-width="0.7"/>
             <line x1="80" y1="68" x2="80" y2="92" stroke="rgba(255,45,120,0.12)" stroke-width="0.7"/>
-            <!-- Decorative inner arc (r=14, C≈88) — pulse indicator -->
-            <circle cx="80" cy="80" r="14" fill="none" stroke="rgba(255,45,120,0.07)" stroke-width="5"/>
-            <circle id="nn-rfil" cx="80" cy="80" r="14"
-              fill="none" stroke="#ff2d78" stroke-width="5" stroke-linecap="round"
-              stroke-dasharray="88" stroke-dashoffset="17.6"
-              transform="rotate(-90 80 80)"/>
+            <!-- Central composite score: Math.round((rec + sleepPct + strain) / 3) -->
+            <text x="80" y="77" text-anchor="middle" font-family="'IBM Plex Mono',monospace"
+              font-size="5" letter-spacing="2" fill="rgba(255,45,120,0.45)">SCORE</text>
+            <text x="80" y="90" text-anchor="middle" font-family="'IBM Plex Mono',monospace"
+              font-size="15" font-weight="bold" fill="#ff2d78" filter="url(#nn-glow-f)">
+              <tspan id="nn-nv-avg">80</tspan><tspan font-size="7" dx="1" dy="-3">%</tspan>
+            </text>
 
             <!-- ══ NODE 1 — RECOVERY (top, pink) ══ -->
             <rect x="58" y="2" width="44" height="30" rx="3" fill="rgba(4,0,14,0.96)" stroke="#ff2d78" stroke-width="1.5"/>
@@ -5877,12 +5872,11 @@ function updateScores({ rec, strain, sleepPct }) {
   const nrf = document.getElementById('nrt-rfil');
   if (nrf) nrf.style.strokeDashoffset = (364*(1-rec/100)).toFixed(1);
   animN('nrt-rscore', 0, rec, 1200);
-  // Neon Noir 3-node ring — decorative arc (r=14, C≈88) + 3 category chips
-  const nnrf = document.getElementById('nn-rfil');
-  if (nnrf) nnrf.style.strokeDashoffset = (88*(1-rec/100)).toFixed(1);
+  // Neon Noir 3-node ring — 3 category chips + center composite score
   animN('nn-nv-rec', 0, rec, 1200);
   animN('nn-nv-slp', 0, sleepPct, 1200);
   animN('nn-nv-str', 0, strain, 1200);
+  animN('nn-nv-avg', 0, Math.round((rec + sleepPct + strain) / 3), 1200);
   // Bloom sakura ring (r=58, circumference=364 — same as Naruto)
   const blmrf = document.getElementById('blm-rfil');
   if (blmrf) blmrf.style.strokeDashoffset = (364*(1-rec/100)).toFixed(1);
