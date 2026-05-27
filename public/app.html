@@ -1960,131 +1960,131 @@ body.t-naruto span.vval{
               <path id="nn-path3" d="M 80,114 L 80,130 L 120,130"/>
             </defs>
 
-            <!-- ══ RECOVERY NETWORK — 3-wire parallel bus (pink) ══ -->
+            <!-- ══ RECOVERY NETWORK — 3-wire cable (pink), Q-bezier corners ══ -->
             <g fill="none" stroke-linejoin="round" stroke-linecap="round" filter="url(#nn-trace-glow)">
-              <!-- BACKBONE vertical (x=77,80,83) -->
-              <line x1="77" y1="46" x2="77" y2="32" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
+              <!-- BACKBONE vertical x=79,80,81 -->
+              <line x1="79" y1="46" x2="79" y2="32" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
               <line x1="80" y1="46" x2="80" y2="32" stroke="#ff2d78" stroke-width="1.0"/>
-              <line x1="83" y1="46" x2="83" y2="32" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <!-- LEFT ARM (LEFT→UP, corner at 60,42) — 3 parallel paths -->
-              <path d="M 80,39 L 57,39 L 57,26" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <path d="M 80,42 L 60,42 L 60,26" stroke="#ff2d78" stroke-width="1.0"/>
-              <path d="M 80,45 L 63,45 L 63,26" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <circle cx="57" cy="26" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <circle cx="60" cy="26" r="3"   fill="none" stroke="#ff2d78"              stroke-width="1.0"/>
-              <circle cx="63" cy="26" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <!-- LEFT SUB-BRANCH (H left, T off left arm V at y≈35) -->
-              <line x1="57" y1="32" x2="44" y2="32" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <line x1="60" y1="35" x2="44" y2="35" stroke="#ff2d78" stroke-width="1.0"/>
-              <line x1="63" y1="38" x2="44" y2="38" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <circle cx="44" cy="32" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <circle cx="44" cy="35" r="3"   fill="none" stroke="#ff2d78"              stroke-width="1.0"/>
-              <circle cx="44" cy="38" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <!-- RIGHT ARM (RIGHT→UP, corner at 104,38) — 3 parallel paths -->
-              <path d="M 80,41 L 101,41 L 101,22" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <path d="M 80,38 L 104,38 L 104,22" stroke="#ff2d78" stroke-width="1.0"/>
-              <path d="M 80,35 L 107,35 L 107,22" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <!-- RIGHT CONTINUATION (RIGHT→UP, corner at 116,22) from right arm endpoints -->
-              <path d="M 101,25 L 113,25 L 113,8" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <path d="M 104,22 L 116,22 L 116,8" stroke="#ff2d78" stroke-width="1.0"/>
-              <path d="M 107,19 L 119,19 L 119,8" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <circle cx="113" cy="8" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <circle cx="116" cy="8" r="3"   fill="none" stroke="#ff2d78"              stroke-width="1.0"/>
-              <circle cx="119" cy="8" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <!-- RIGHT SUB-BRANCH (H right, T off right arm V at y≈30) -->
-              <line x1="101" y1="27" x2="118" y2="27" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
+              <line x1="81" y1="46" x2="81" y2="32" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <!-- LEFT ARM: Q-bezier corner at (60,42) — cables curve organically -->
+              <path d="M 80,41 Q 59,41 59,26" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <path d="M 80,42 Q 60,42 60,26" stroke="#ff2d78" stroke-width="1.0"/>
+              <path d="M 80,43 Q 61,43 61,26" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <circle cx="59" cy="26" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <circle cx="60" cy="26" r="1.8" fill="none" stroke="#ff2d78"               stroke-width="1.0"/>
+              <circle cx="61" cy="26" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <!-- LEFT SUB-BRANCH horizontal y=34,35,36 -->
+              <line x1="59" y1="34" x2="46" y2="34" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <line x1="60" y1="35" x2="46" y2="35" stroke="#ff2d78" stroke-width="1.0"/>
+              <line x1="61" y1="36" x2="46" y2="36" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <circle cx="46" cy="34" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <circle cx="46" cy="35" r="1.8" fill="none" stroke="#ff2d78"               stroke-width="1.0"/>
+              <circle cx="46" cy="36" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <!-- RIGHT ARM: Q-bezier corner at (104,38) -->
+              <path d="M 80,39 Q 103,39 103,22" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <path d="M 80,38 Q 104,38 104,22" stroke="#ff2d78" stroke-width="1.0"/>
+              <path d="M 80,37 Q 105,37 105,22" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <!-- RIGHT CONTINUATION: Q-bezier corner at (116,22) -->
+              <path d="M 103,23 Q 115,23 115,8" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <path d="M 104,22 Q 116,22 116,8" stroke="#ff2d78" stroke-width="1.0"/>
+              <path d="M 105,21 Q 117,21 117,8" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <circle cx="115" cy="8" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <circle cx="116" cy="8" r="1.8" fill="none" stroke="#ff2d78"               stroke-width="1.0"/>
+              <circle cx="117" cy="8" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <!-- RIGHT SUB-BRANCH horizontal y=29,30,31 -->
+              <line x1="103" y1="29" x2="118" y2="29" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
               <line x1="104" y1="30" x2="118" y2="30" stroke="#ff2d78" stroke-width="1.0"/>
-              <line x1="107" y1="33" x2="118" y2="33" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <circle cx="118" cy="27" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <circle cx="118" cy="30" r="3"   fill="none" stroke="#ff2d78"              stroke-width="1.0"/>
-              <circle cx="118" cy="33" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
+              <line x1="105" y1="31" x2="118" y2="31" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <circle cx="118" cy="29" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <circle cx="118" cy="30" r="1.8" fill="none" stroke="#ff2d78"               stroke-width="1.0"/>
+              <circle cx="118" cy="31" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
             </g>
 
-            <!-- ══ SLEEP NETWORK — 3-wire parallel bus (purple) ══ -->
+            <!-- ══ SLEEP NETWORK — 3-wire cable (purple), Q-bezier corners ══ -->
             <g fill="none" stroke-linejoin="round" stroke-linecap="round" filter="url(#nn-trace-glow)">
-              <!-- BACKBONE L (LEFT→DOWN, corner at 18,80) — 3 parallel paths -->
-              <path d="M 46,77 L 21,77 L 21,120" stroke="rgba(189,0,255,0.6)" stroke-width="0.7"/>
-              <path d="M 46,80 L 18,80 L 18,120" stroke="#bd00ff" stroke-width="1.0"/>
-              <path d="M 46,83 L 15,83 L 15,120" stroke="rgba(189,0,255,0.6)" stroke-width="0.7"/>
-              <!-- BRANCH 1 (UP→RIGHT, T at x=36 off H-backbone y=77,80,83) -->
-              <path d="M 33,77 L 33,57 L 50,57" stroke="rgba(189,0,255,0.6)" stroke-width="0.7"/>
-              <path d="M 36,80 L 36,60 L 50,60" stroke="#bd00ff" stroke-width="1.0"/>
-              <path d="M 39,83 L 39,63 L 50,63" stroke="rgba(189,0,255,0.6)" stroke-width="0.7"/>
-              <circle cx="50" cy="57" r="2.5" fill="none" stroke="rgba(189,0,255,0.6)" stroke-width="0.8"/>
-              <circle cx="50" cy="60" r="3"   fill="none" stroke="#bd00ff"              stroke-width="1.0"/>
-              <circle cx="50" cy="63" r="2.5" fill="none" stroke="rgba(189,0,255,0.6)" stroke-width="0.8"/>
-              <!-- BRANCH 3 (RIGHT→DOWN, T at y=96 off V-backbone x=15,18,21) -->
-              <path d="M 21,93 L 39,93 L 39,108" stroke="rgba(189,0,255,0.6)" stroke-width="0.7"/>
-              <path d="M 18,96 L 36,96 L 36,108" stroke="#bd00ff" stroke-width="1.0"/>
-              <path d="M 15,99 L 33,99 L 33,108" stroke="rgba(189,0,255,0.6)" stroke-width="0.7"/>
-              <circle cx="39" cy="108" r="2.5" fill="none" stroke="rgba(189,0,255,0.6)" stroke-width="0.8"/>
-              <circle cx="36" cy="108" r="3"   fill="none" stroke="#bd00ff"              stroke-width="1.0"/>
-              <circle cx="33" cy="108" r="2.5" fill="none" stroke="rgba(189,0,255,0.6)" stroke-width="0.8"/>
+              <!-- BACKBONE: Q-bezier corner at (18,80) -->
+              <path d="M 46,79 Q 17,79 17,120" stroke="rgba(189,0,255,0.55)" stroke-width="0.7"/>
+              <path d="M 46,80 Q 18,80 18,120" stroke="#bd00ff" stroke-width="1.0"/>
+              <path d="M 46,81 Q 19,81 19,120" stroke="rgba(189,0,255,0.55)" stroke-width="0.7"/>
+              <!-- BRANCH 1: Q-bezier corner at (36,60) -->
+              <path d="M 35,79 Q 35,59 50,59" stroke="rgba(189,0,255,0.55)" stroke-width="0.7"/>
+              <path d="M 36,80 Q 36,60 50,60" stroke="#bd00ff" stroke-width="1.0"/>
+              <path d="M 37,81 Q 37,61 50,61" stroke="rgba(189,0,255,0.55)" stroke-width="0.7"/>
+              <circle cx="50" cy="59" r="1.4" fill="none" stroke="rgba(189,0,255,0.55)" stroke-width="0.8"/>
+              <circle cx="50" cy="60" r="1.8" fill="none" stroke="#bd00ff"               stroke-width="1.0"/>
+              <circle cx="50" cy="61" r="1.4" fill="none" stroke="rgba(189,0,255,0.55)" stroke-width="0.8"/>
+              <!-- BRANCH 3: Q-bezier corner at (36,96) -->
+              <path d="M 17,95 Q 35,95 35,108" stroke="rgba(189,0,255,0.55)" stroke-width="0.7"/>
+              <path d="M 18,96 Q 36,96 36,108" stroke="#bd00ff" stroke-width="1.0"/>
+              <path d="M 19,97 Q 37,97 37,108" stroke="rgba(189,0,255,0.55)" stroke-width="0.7"/>
+              <circle cx="35" cy="108" r="1.4" fill="none" stroke="rgba(189,0,255,0.55)" stroke-width="0.8"/>
+              <circle cx="36" cy="108" r="1.8" fill="none" stroke="#bd00ff"               stroke-width="1.0"/>
+              <circle cx="37" cy="108" r="1.4" fill="none" stroke="rgba(189,0,255,0.55)" stroke-width="0.8"/>
             </g>
 
-            <!-- ══ STRAIN NETWORK — 3-wire parallel bus (pink) ══ -->
+            <!-- ══ STRAIN NETWORK — 3-wire cable (pink), Q-bezier corners ══ -->
             <g fill="none" stroke-linejoin="round" stroke-linecap="round" filter="url(#nn-trace-glow)">
-              <!-- BACKBONE (DOWN→RIGHT, corner at 80,130) — 3 parallel paths -->
-              <path d="M 83,114 L 83,127 L 120,127" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <path d="M 80,114 L 80,130 L 120,130" stroke="#ff2d78" stroke-width="1.0"/>
-              <path d="M 77,114 L 77,133 L 120,133" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <!-- V-BRANCH 1 (LEFT→DOWN, T at y=120 off V-backbone x=77,80,83) -->
-              <path d="M 77,117 L 65,117 L 65,138" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <path d="M 80,120 L 62,120 L 62,138" stroke="#ff2d78" stroke-width="1.0"/>
-              <path d="M 83,123 L 59,123 L 59,138" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <circle cx="65" cy="138" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <circle cx="62" cy="138" r="3"   fill="none" stroke="#ff2d78"              stroke-width="1.0"/>
-              <circle cx="59" cy="138" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <!-- H-BRANCH 1 (pure UP, T at x=94 off H-backbone y=127,130,133) -->
-              <line x1="91" y1="127" x2="91" y2="112" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
+              <!-- BACKBONE: Q-bezier corner at (80,130) -->
+              <path d="M 79,114 Q 79,129 120,129" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <path d="M 80,114 Q 80,130 120,130" stroke="#ff2d78" stroke-width="1.0"/>
+              <path d="M 81,114 Q 81,131 120,131" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <!-- V-BRANCH 1: Q-bezier corner at (62,120) -->
+              <path d="M 79,119 Q 61,119 61,138" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <path d="M 80,120 Q 62,120 62,138" stroke="#ff2d78" stroke-width="1.0"/>
+              <path d="M 81,121 Q 63,121 63,138" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <circle cx="61" cy="138" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <circle cx="62" cy="138" r="1.8" fill="none" stroke="#ff2d78"               stroke-width="1.0"/>
+              <circle cx="63" cy="138" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <!-- H-BRANCH 1 vertical x=93,94,95 -->
+              <line x1="93" y1="129" x2="93" y2="114" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
               <line x1="94" y1="130" x2="94" y2="114" stroke="#ff2d78" stroke-width="1.0"/>
-              <line x1="97" y1="133" x2="97" y2="116" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <circle cx="91" cy="112" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <circle cx="94" cy="114" r="3"   fill="none" stroke="#ff2d78"              stroke-width="1.0"/>
-              <circle cx="97" cy="116" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <!-- H-BRANCH 1 SUB (H right, T off hbranch1 V at y≈122) -->
-              <line x1="91" y1="119" x2="108" y2="119" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
+              <line x1="95" y1="131" x2="95" y2="115" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <circle cx="93" cy="114" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <circle cx="94" cy="114" r="1.8" fill="none" stroke="#ff2d78"               stroke-width="1.0"/>
+              <circle cx="95" cy="115" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <!-- H-BRANCH 1 SUB horizontal y=121,122,123 -->
+              <line x1="93" y1="121" x2="108" y2="121" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
               <line x1="94" y1="122" x2="108" y2="122" stroke="#ff2d78" stroke-width="1.0"/>
-              <line x1="97" y1="125" x2="108" y2="125" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <circle cx="108" cy="119" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <circle cx="108" cy="122" r="3"   fill="none" stroke="#ff2d78"              stroke-width="1.0"/>
-              <circle cx="108" cy="125" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <!-- H-BRANCH 2 (DOWN, T at x=108 off H-backbone, then short H right) -->
-              <line x1="105" y1="127" x2="105" y2="148" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
+              <line x1="95" y1="123" x2="108" y2="123" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <circle cx="108" cy="121" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <circle cx="108" cy="122" r="1.8" fill="none" stroke="#ff2d78"               stroke-width="1.0"/>
+              <circle cx="108" cy="123" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <!-- H-BRANCH 2 vertical x=107,108,109 + short H right y=148 -->
+              <line x1="107" y1="129" x2="107" y2="148" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
               <line x1="108" y1="130" x2="108" y2="148" stroke="#ff2d78" stroke-width="1.0"/>
-              <line x1="111" y1="133" x2="111" y2="148" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <line x1="105" y1="148" x2="118" y2="148" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <line x1="108" y1="148" x2="118" y2="148" stroke="#ff2d78" stroke-width="1.0"/>
-              <line x1="111" y1="148" x2="118" y2="148" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
-              <circle cx="118" cy="145" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <circle cx="118" cy="148" r="3"   fill="none" stroke="#ff2d78"              stroke-width="1.0"/>
-              <circle cx="118" cy="151" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
+              <line x1="109" y1="131" x2="109" y2="148" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <line x1="107" y1="148" x2="120" y2="148" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <line x1="108" y1="148" x2="120" y2="148" stroke="#ff2d78" stroke-width="1.0"/>
+              <line x1="109" y1="148" x2="120" y2="148" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <circle cx="120" cy="147" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <circle cx="120" cy="148" r="1.8" fill="none" stroke="#ff2d78"               stroke-width="1.0"/>
+              <circle cx="120" cy="149" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
             </g>
 
 
-            <!-- ══ EAST NETWORK — cables from right diamond vertex into empty right field ══ -->
+            <!-- ══ EAST NETWORK — cables from right diamond vertex, Q-bezier corners ══ -->
             <g fill="none" stroke-linejoin="round" stroke-linecap="round" filter="url(#nn-trace-glow)">
-              <!-- BACKBONE: → RIGHT from (114,80), 3 wires at y=78,80,82 -->
-              <line x1="114" y1="78" x2="152" y2="78" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <line x1="114" y1="80" x2="154" y2="80" stroke="#ff2d78"              stroke-width="1.2"/>
-              <line x1="114" y1="82" x2="152" y2="82" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <circle cx="152" cy="78" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <circle cx="154" cy="80" r="3"   fill="none" stroke="#ff2d78"              stroke-width="1.0"/>
-              <circle cx="152" cy="82" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <!-- BRANCH UP: from backbone turn UP at x≈132 → to y=46 then small right stub -->
-              <path d="M 130,78 L 130,50 L 144,50" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <path d="M 132,80 L 132,48 L 146,48" stroke="#ff2d78"              stroke-width="1.2"/>
-              <path d="M 134,82 L 134,46 L 144,46" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <circle cx="144" cy="50" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <circle cx="146" cy="48" r="3"   fill="none" stroke="#ff2d78"              stroke-width="1.0"/>
-              <circle cx="144" cy="46" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <!-- BRANCH DOWN: from backbone turn DOWN at x≈142 → to y=112 -->
-              <path d="M 140,78 L 140,60 L 154,60" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <path d="M 142,80 L 142,62 L 156,62" stroke="#ff2d78"              stroke-width="1.2"/>
-              <path d="M 144,82 L 144,64 L 154,64" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <circle cx="154" cy="60" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
-              <circle cx="156" cy="62" r="3"   fill="none" stroke="#ff2d78"              stroke-width="1.0"/>
-              <circle cx="154" cy="64" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
+              <!-- BACKBONE → RIGHT at y=79,80,81 -->
+              <line x1="114" y1="79" x2="152" y2="79" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <line x1="114" y1="80" x2="154" y2="80" stroke="#ff2d78"               stroke-width="1.0"/>
+              <line x1="114" y1="81" x2="152" y2="81" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <circle cx="152" cy="79" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <circle cx="154" cy="80" r="1.8" fill="none" stroke="#ff2d78"               stroke-width="1.0"/>
+              <circle cx="152" cy="81" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <!-- BRANCH UP: Q-bezier → UP then RIGHT at y=48 -->
+              <path d="M 131,79 Q 131,47 146,47" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <path d="M 132,80 Q 132,48 146,48" stroke="#ff2d78"               stroke-width="1.0"/>
+              <path d="M 133,81 Q 133,49 146,49" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <circle cx="146" cy="47" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <circle cx="146" cy="48" r="1.8" fill="none" stroke="#ff2d78"               stroke-width="1.0"/>
+              <circle cx="146" cy="49" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <!-- BRANCH SIDE: Q-bezier → UP then RIGHT at y=62 -->
+              <path d="M 141,79 Q 141,61 156,61" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <path d="M 142,80 Q 142,62 156,62" stroke="#ff2d78"               stroke-width="1.0"/>
+              <path d="M 143,81 Q 143,63 156,63" stroke="rgba(255,45,120,0.55)" stroke-width="0.7"/>
+              <circle cx="156" cy="61" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
+              <circle cx="156" cy="62" r="1.8" fill="none" stroke="#ff2d78"               stroke-width="1.0"/>
+              <circle cx="156" cy="63" r="1.4" fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.8"/>
             </g>
 
             <!-- ══ CENTRAL IC CHIP DIAMOND ══ -->
