@@ -1961,7 +1961,7 @@ body.t-naruto span.vval{
             </defs>
 
             <!-- ══ RECOVERY NETWORK — 3-wire parallel bus (pink) ══ -->
-            <g fill="none" stroke-linejoin="miter" stroke-linecap="butt" filter="url(#nn-trace-glow)">
+            <g fill="none" stroke-linejoin="round" stroke-linecap="round" filter="url(#nn-trace-glow)">
               <!-- BACKBONE vertical (x=77,80,83) -->
               <line x1="77" y1="46" x2="77" y2="32" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
               <line x1="80" y1="46" x2="80" y2="32" stroke="#ff2d78" stroke-width="1.0"/>
@@ -2001,7 +2001,7 @@ body.t-naruto span.vval{
             </g>
 
             <!-- ══ SLEEP NETWORK — 3-wire parallel bus (purple) ══ -->
-            <g fill="none" stroke-linejoin="miter" stroke-linecap="butt" filter="url(#nn-trace-glow)">
+            <g fill="none" stroke-linejoin="round" stroke-linecap="round" filter="url(#nn-trace-glow)">
               <!-- BACKBONE L (LEFT→DOWN, corner at 18,80) — 3 parallel paths -->
               <path d="M 46,77 L 21,77 L 21,120" stroke="rgba(189,0,255,0.6)" stroke-width="0.7"/>
               <path d="M 46,80 L 18,80 L 18,120" stroke="#bd00ff" stroke-width="1.0"/>
@@ -2023,7 +2023,7 @@ body.t-naruto span.vval{
             </g>
 
             <!-- ══ STRAIN NETWORK — 3-wire parallel bus (pink) ══ -->
-            <g fill="none" stroke-linejoin="miter" stroke-linecap="butt" filter="url(#nn-trace-glow)">
+            <g fill="none" stroke-linejoin="round" stroke-linecap="round" filter="url(#nn-trace-glow)">
               <!-- BACKBONE (DOWN→RIGHT, corner at 80,130) — 3 parallel paths -->
               <path d="M 83,114 L 83,127 L 120,127" stroke="rgba(255,45,120,0.6)" stroke-width="0.7"/>
               <path d="M 80,114 L 80,130 L 120,130" stroke="#ff2d78" stroke-width="1.0"/>
@@ -2062,16 +2062,42 @@ body.t-naruto span.vval{
             </g>
 
 
+            <!-- ══ EAST NETWORK — cables from right diamond vertex into empty right field ══ -->
+            <g fill="none" stroke-linejoin="round" stroke-linecap="round" filter="url(#nn-trace-glow)">
+              <!-- BACKBONE: → RIGHT from (114,80), 3 wires at y=78,80,82 -->
+              <line x1="114" y1="78" x2="152" y2="78" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
+              <line x1="114" y1="80" x2="154" y2="80" stroke="#ff2d78"              stroke-width="1.2"/>
+              <line x1="114" y1="82" x2="152" y2="82" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
+              <circle cx="152" cy="78" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
+              <circle cx="154" cy="80" r="3"   fill="none" stroke="#ff2d78"              stroke-width="1.0"/>
+              <circle cx="152" cy="82" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
+              <!-- BRANCH UP: from backbone turn UP at x≈132 → to y=46 then small right stub -->
+              <path d="M 130,78 L 130,50 L 144,50" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
+              <path d="M 132,80 L 132,48 L 146,48" stroke="#ff2d78"              stroke-width="1.2"/>
+              <path d="M 134,82 L 134,46 L 144,46" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
+              <circle cx="144" cy="50" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
+              <circle cx="146" cy="48" r="3"   fill="none" stroke="#ff2d78"              stroke-width="1.0"/>
+              <circle cx="144" cy="46" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
+              <!-- BRANCH DOWN: from backbone turn DOWN at x≈142 → to y=112 -->
+              <path d="M 140,78 L 140,60 L 154,60" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
+              <path d="M 142,80 L 142,62 L 156,62" stroke="#ff2d78"              stroke-width="1.2"/>
+              <path d="M 144,82 L 144,64 L 154,64" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
+              <circle cx="154" cy="60" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
+              <circle cx="156" cy="62" r="3"   fill="none" stroke="#ff2d78"              stroke-width="1.0"/>
+              <circle cx="154" cy="64" r="2.5" fill="none" stroke="rgba(255,45,120,0.6)" stroke-width="0.8"/>
+            </g>
+
             <!-- ══ CENTRAL IC CHIP DIAMOND ══ -->
             <polygon points="80,46 114,80 80,114 46,80" fill="rgba(255,45,120,0.06)" filter="url(#nn-glow-f)"/>
             <polygon id="nn-chip-body" points="80,46 114,80 80,114 46,80"
               fill="rgba(4,0,14,0.97)" stroke="#ff2d78" stroke-width="1.8"/>
             <polygon points="80,60 100,80 80,100 60,80"
               fill="none" stroke="rgba(255,45,120,0.15)" stroke-width="0.8"/>
-            <!-- Connection pads (top, left, bottom — PCB circle pads) -->
-            <circle cx="80" cy="46" r="4" fill="rgba(4,0,14,0.95)" stroke="#ff2d78" stroke-width="1.5"/>
-            <circle cx="46" cy="80" r="4" fill="rgba(4,0,14,0.95)" stroke="#bd00ff" stroke-width="1.5"/>
-            <circle cx="80" cy="114" r="4" fill="rgba(4,0,14,0.95)" stroke="#ff2d78" stroke-width="1.5"/>
+            <!-- Connection pads (top, right, left, bottom — PCB circle pads) -->
+            <circle cx="80"  cy="46"  r="4" fill="rgba(4,0,14,0.95)" stroke="#ff2d78" stroke-width="1.5"/>
+            <circle cx="114" cy="80"  r="4" fill="rgba(4,0,14,0.95)" stroke="#ff2d78" stroke-width="1.5"/>
+            <circle cx="46"  cy="80"  r="4" fill="rgba(4,0,14,0.95)" stroke="#bd00ff" stroke-width="1.5"/>
+            <circle cx="80"  cy="114" r="4" fill="rgba(4,0,14,0.95)" stroke="#ff2d78" stroke-width="1.5"/>
             <!-- IC internal grid -->
             <line x1="68" y1="80" x2="92" y2="80" stroke="rgba(255,45,120,0.12)" stroke-width="0.7"/>
             <line x1="80" y1="68" x2="80" y2="92" stroke="rgba(255,45,120,0.12)" stroke-width="0.7"/>
