@@ -2328,270 +2328,97 @@ body.t-naruto span.vval{
         <div class="blm-rc">
           <svg class="blm-rsvg" viewBox="0 0 160 160">
             <defs>
-              <!-- Soft bloom glow (blossoms + petal edges) -->
+              <!-- Soft petal glow -->
               <filter id="blm-glow" x="-60%" y="-60%" width="220%" height="220%">
-                <feGaussianBlur stdDeviation="2.5" result="blur"/>
+                <feGaussianBlur stdDeviation="2.2" result="blur"/>
                 <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
               </filter>
-              <!-- Root/signal trace glow -->
+              <!-- Subtle stem/center glow -->
               <filter id="blm-root-glow" x="-40%" y="-40%" width="180%" height="180%">
-                <feGaussianBlur stdDeviation="1.8" result="blur"/>
+                <feGaussianBlur stdDeviation="1.6" result="blur"/>
                 <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
               </filter>
-              <!-- Warm earth radial gradient at the base -->
-              <radialGradient id="blm-earth" cx="50%" cy="100%" r="70%">
-                <stop offset="0%"   stop-color="rgba(52,18,30,0.7)"/>
-                <stop offset="100%" stop-color="rgba(17,6,16,0)"/>
+              <!-- Halo glow (high-score radiance) -->
+              <filter id="blm-halo-glow" x="-80%" y="-80%" width="360%" height="360%">
+                <feGaussianBlur stdDeviation="4" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <!-- Center gradient for flower core -->
+              <radialGradient id="blm-ctr-grad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%"   stop-color="#5a1830"/>
+                <stop offset="100%" stop-color="#1a0614"/>
               </radialGradient>
-              <!-- Root animated paths (for energy pulse animateMotion) -->
-              <path id="blm-path1" d="M 80,108 C 74,98 86,82 78,68 C 80,56 78,42 80,30"/>
-              <path id="blm-path2" d="M 80,108 C 62,112 42,115 24,117"/>
-              <path id="blm-path3" d="M 80,108 C 98,112 118,115 136,117"/>
+              <!-- Stem pulse animated paths (flower center → chip nodes) -->
+              <path id="blm-path1" d="M 80,62 L 80,30"/>
+              <path id="blm-path2" d="M 80,80 C 70,98 50,114 40,132"/>
+              <path id="blm-path3" d="M 80,80 C 90,98 110,114 120,132"/>
             </defs>
 
-            <!-- Warm earth glow at bottom -->
-            <rect x="0" y="0" width="160" height="160" fill="url(#blm-earth)"/>
+            <!-- ── Outer ring hint ── -->
+            <circle cx="80" cy="80" r="50" fill="none" stroke="rgba(232,92,138,0.06)" stroke-width="1"/>
 
-            <!-- ══ TREE BRANCHES (bark — gnarled zigzag like real sakura) ══ -->
-            <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <!-- Main trunk — S-curve lean (3 depth layers) -->
-              <path d="M 80,108 C 74,98 86,82 78,68" stroke="#2e1018" stroke-width="11"/>
-              <path d="M 80,108 C 74,98 86,82 78,68" stroke="#7a3548" stroke-width="7.5"/>
-              <path d="M 80,108 C 74,98 86,82 78,68" stroke="#a35870" stroke-width="4" opacity="0.35"/>
-              <!-- Trunk lenticels (horizontal bark marks) -->
-              <line x1="74" y1="98"  x2="83" y2="97"  stroke="#3d1a24" stroke-width="0.7" opacity="0.7"/>
-              <line x1="76" y1="88"  x2="85" y2="89"  stroke="#3d1a24" stroke-width="0.7" opacity="0.7"/>
-              <line x1="78" y1="78"  x2="86" y2="78"  stroke="#3d1a24" stroke-width="0.7" opacity="0.7"/>
-              <line x1="76" y1="103" x2="84" y2="104" stroke="#3d1a24" stroke-width="0.7" opacity="0.6"/>
+            <!-- ── Radiant halo (JS-driven: appears at high scores) ── -->
+            <circle id="blm-halo" cx="80" cy="80" r="52" fill="none" stroke="#f472b6" stroke-width="3.5" opacity="0" filter="url(#blm-halo-glow)"/>
 
-              <!-- Left main branch — gnarled with 2 knuckles -->
-              <path d="M 78,68 C 73,67 70,68 67,64 C 63,59 64,56 60,53 C 55,48 50,44 44,38" stroke="#2e1018" stroke-width="7"/>
-              <path d="M 78,68 C 73,67 70,68 67,64 C 63,59 64,56 60,53 C 55,48 50,44 44,38" stroke="#7a3548" stroke-width="4.5"/>
-              <!-- Right main branch — gnarled with 2 knuckles -->
-              <path d="M 78,68 C 84,68 87,67 90,64 C 94,59 93,56 97,54 C 103,49 109,44 116,40" stroke="#2e1018" stroke-width="7"/>
-              <path d="M 78,68 C 84,68 87,67 90,64 C 94,59 93,56 97,54 C 103,49 109,44 116,40" stroke="#7a3548" stroke-width="4.5"/>
-
-              <!-- Left outer branch — zigzag tip flicks up -->
-              <path d="M 44,38 C 39,33 36,31 32,26 C 28,22 24,19 20,14" stroke="#3d1a24" stroke-width="4.5"/>
-              <path d="M 44,38 C 39,33 36,31 32,26 C 28,22 24,19 20,14" stroke="#9b5468" stroke-width="2.8"/>
-              <!-- Right outer branch — zigzag tip flicks up -->
-              <path d="M 116,40 C 121,35 124,33 128,28 C 132,24 136,19 140,14" stroke="#3d1a24" stroke-width="4.5"/>
-              <path d="M 116,40 C 121,35 124,33 128,28 C 132,24 136,19 140,14" stroke="#9b5468" stroke-width="2.8"/>
-
-              <!-- Center-left branch — knot at midpoint -->
-              <path d="M 78,68 C 75,62 71,58 68,54 C 65,49 63,42 62,36" stroke="#3d1a24" stroke-width="3.8"/>
-              <path d="M 78,68 C 75,62 71,58 68,54 C 65,49 63,42 62,36" stroke="#9b5468" stroke-width="2.2"/>
-              <!-- Center-right branch — knot at midpoint -->
-              <path d="M 78,68 C 82,62 86,58 90,54 C 94,49 97,42 98,38" stroke="#3d1a24" stroke-width="3.8"/>
-              <path d="M 78,68 C 82,62 86,58 90,54 C 94,49 97,42 98,38" stroke="#9b5468" stroke-width="2.2"/>
-
-              <!-- Sub-branches (also zigzag) -->
-              <path d="M 44,38 C 40,33 35,29 32,26 C 30,24 29,23 28,22" stroke="#4a2030" stroke-width="2.8"/>
-              <path d="M 116,40 C 120,34 124,30 128,27 C 130,25 131,24 132,24" stroke="#4a2030" stroke-width="2.8"/>
-
-              <!-- Twig ends (fine, slightly curved upward at tips) -->
-              <path d="M 20,14 C 16,11 12,9 9,5"    stroke="#4a2030" stroke-width="1.8" opacity="0.8"/>
-              <path d="M 20,14 C 18,9 18,5 20,2"    stroke="#4a2030" stroke-width="1.4" opacity="0.7"/>
-              <path d="M 140,14 C 144,11 148,9 151,5" stroke="#4a2030" stroke-width="1.8" opacity="0.8"/>
-              <path d="M 140,14 C 142,9 142,5 140,2"  stroke="#4a2030" stroke-width="1.4" opacity="0.7"/>
-              <path d="M 62,36 C 60,30 55,24 52,18"  stroke="#4a2030" stroke-width="1.8" opacity="0.75"/>
-              <path d="M 98,38 C 100,32 105,26 108,20" stroke="#4a2030" stroke-width="1.8" opacity="0.75"/>
-              <!-- Extra fine twigs for organic density -->
-              <path d="M 67,64 C 64,60 61,56 58,52"  stroke="#4a2030" stroke-width="1.3" opacity="0.55"/>
-              <path d="M 90,64 C 93,60 96,56 99,52"  stroke="#4a2030" stroke-width="1.3" opacity="0.55"/>
-              <path d="M 32,26 C 26,24 22,22 18,22"  stroke="#4a2030" stroke-width="1.2" opacity="0.5"/>
-              <path d="M 128,28 C 134,26 138,24 142,24" stroke="#4a2030" stroke-width="1.2" opacity="0.5"/>
-            </g>
-
-            <!-- ══ ROOTS — nebari spread (multiple tendrils per side) ══ -->
-            <g fill="none" stroke-linecap="round">
-              <!-- RECOV root: trunk continues upward to chip (with subtle waver) -->
-              <path d="M 78,68 C 80,56 78,42 80,30" stroke="#2e1018" stroke-width="8"/>
-              <path d="M 78,68 C 80,56 78,42 80,30" stroke="#7a3548" stroke-width="5.5"/>
-              <!-- RECOV trunk lenticels -->
-              <line x1="76" y1="58" x2="84" y2="57" stroke="#3d1a24" stroke-width="0.7" opacity="0.7"/>
-              <line x1="76" y1="46" x2="83" y2="46" stroke="#3d1a24" stroke-width="0.7" opacity="0.65"/>
-              <line x1="77" y1="38" x2="84" y2="37" stroke="#3d1a24" stroke-width="0.7" opacity="0.6"/>
-
-              <!-- ── SLEEP root system (left nebari — 4 tendrils) ── -->
-              <!-- Tendril A: upper, gentle arch -->
-              <path d="M 80,108 C 66,108 50,109 32,110" stroke="#2e1018" stroke-width="5"/>
-              <path d="M 80,108 C 66,108 50,109 32,110" stroke="#7a3548" stroke-width="3"/>
-              <!-- Tendril B: MAIN (signal path goes here — matches blm-path2) -->
-              <path d="M 80,108 C 62,112 42,115 24,117" stroke="#2e1018" stroke-width="8"/>
-              <path d="M 80,108 C 62,112 42,115 24,117" stroke="#7a3548" stroke-width="5.5"/>
-              <!-- Tendril C: middle, dives slightly -->
-              <path d="M 80,108 C 64,116 50,120 38,124" stroke="#2e1018" stroke-width="4.5"/>
-              <path d="M 80,108 C 64,116 50,120 38,124" stroke="#7a3548" stroke-width="2.8"/>
-              <!-- Tendril D: lower, dives deeper -->
-              <path d="M 80,108 C 66,120 52,128 40,134" stroke="#2e1018" stroke-width="3.8"/>
-              <path d="M 80,108 C 66,120 52,128 40,134" stroke="#7a3548" stroke-width="2.2"/>
-              <!-- Fine sub-tendrils branching off -->
-              <path d="M 50,120 C 40,124 30,128 20,134" stroke="#4a2030" stroke-width="1.8" opacity="0.55"/>
-              <path d="M 40,134 C 30,140 22,148 18,156" stroke="#4a2030" stroke-width="1.5" opacity="0.5"/>
-              <path d="M 32,110 C 22,112 14,114 6,116" stroke="#4a2030" stroke-width="1.4" opacity="0.5"/>
-              <path d="M 38,124 C 28,130 20,140 16,152" stroke="#4a2030" stroke-width="1.2" opacity="0.4"/>
-
-              <!-- ── STRAIN root system (right nebari — 4 tendrils) ── -->
-              <!-- Tendril A: upper, gentle arch -->
-              <path d="M 80,108 C 94,108 110,109 128,110" stroke="#2e1018" stroke-width="5"/>
-              <path d="M 80,108 C 94,108 110,109 128,110" stroke="#7a3548" stroke-width="3"/>
-              <!-- Tendril B: MAIN (signal path goes here — matches blm-path3) -->
-              <path d="M 80,108 C 98,112 118,115 136,117" stroke="#2e1018" stroke-width="8"/>
-              <path d="M 80,108 C 98,112 118,115 136,117" stroke="#7a3548" stroke-width="5.5"/>
-              <!-- Tendril C: middle, dives slightly -->
-              <path d="M 80,108 C 96,116 110,120 122,124" stroke="#2e1018" stroke-width="4.5"/>
-              <path d="M 80,108 C 96,116 110,120 122,124" stroke="#7a3548" stroke-width="2.8"/>
-              <!-- Tendril D: lower, dives deeper -->
-              <path d="M 80,108 C 94,120 108,128 120,134" stroke="#2e1018" stroke-width="3.8"/>
-              <path d="M 80,108 C 94,120 108,128 120,134" stroke="#7a3548" stroke-width="2.2"/>
-              <!-- Fine sub-tendrils branching off -->
-              <path d="M 110,120 C 120,124 130,128 140,134" stroke="#4a2030" stroke-width="1.8" opacity="0.55"/>
-              <path d="M 120,134 C 130,140 138,148 142,156" stroke="#4a2030" stroke-width="1.5" opacity="0.5"/>
-              <path d="M 128,110 C 138,112 146,114 154,116" stroke="#4a2030" stroke-width="1.4" opacity="0.5"/>
-              <path d="M 122,124 C 132,130 140,140 144,152" stroke="#4a2030" stroke-width="1.2" opacity="0.4"/>
-            </g>
-
-            <!-- ══ TRUNK BASE FLARE (nebari junction — masks root convergence) ══ -->
-            <ellipse cx="80" cy="108" rx="15" ry="5" fill="#2e1018"/>
-            <ellipse cx="80" cy="108" rx="12" ry="3.5" fill="#7a3548" opacity="0.9"/>
-            <ellipse cx="80" cy="107" rx="9" ry="2.2" fill="#a35870" opacity="0.4"/>
-
-            <!-- ══ ROOT SIGNAL OVERLAY (glowing pink — the data "flows") ══ -->
+            <!-- ── Thin stems connecting flower to chip nodes ── -->
             <g fill="none" stroke-linecap="round" filter="url(#blm-root-glow)">
-              <!-- Trunk body glow (ambient life-force flows up through S-curve) -->
-              <path d="M 80,108 C 74,98 86,82 78,68" stroke="rgba(232,92,138,0.28)" stroke-width="3.5"/>
-              <!-- 3 active root signals (RECOV up, SLEEP left tendril B, STRAIN right tendril B) -->
-              <path d="M 78,68 C 80,56 78,42 80,30" stroke="#e85c8a" stroke-width="1.5"/>
-              <path d="M 80,108 C 62,113 42,116 24,117" stroke="#e85c8a" stroke-width="1.5"/>
-              <path d="M 80,108 C 98,113 118,116 136,117" stroke="#e85c8a" stroke-width="1.5"/>
+              <path d="M 80,62 L 80,30"                          stroke="rgba(232,92,138,0.35)" stroke-width="1.2"/>
+              <path d="M 80,80 C 70,98 50,114 40,132"            stroke="rgba(196,127,181,0.35)" stroke-width="1.2"/>
+              <path d="M 80,80 C 90,98 110,114 120,132"          stroke="rgba(232,92,138,0.35)" stroke-width="1.2"/>
             </g>
 
-            <!-- ══ CHERRY BLOSSOMS AT BRANCH TIPS ══ -->
-            <g filter="url(#blm-glow)">
-              <!-- Large — left outer (20,14) -->
-              <g transform="translate(20,14)">
-                <ellipse cx="0" cy="-5.5" rx="3"   ry="5.5" fill="#ffb7c5" opacity="0.92" transform="rotate(0)"/>
-                <ellipse cx="0" cy="-5.5" rx="3"   ry="5.5" fill="#f9a8d4" opacity="0.87" transform="rotate(72)"/>
-                <ellipse cx="0" cy="-5.5" rx="3"   ry="5.5" fill="#ffb7c5" opacity="0.92" transform="rotate(144)"/>
-                <ellipse cx="0" cy="-5.5" rx="3"   ry="5.5" fill="#f472b6" opacity="0.82" transform="rotate(216)"/>
-                <ellipse cx="0" cy="-5.5" rx="3"   ry="5.5" fill="#f9a8d4" opacity="0.87" transform="rotate(288)"/>
-                <circle r="2.8" fill="#fce7f3"/><circle r="1.3" fill="#e85c8a" opacity="0.75"/>
-              </g>
-              <!-- Large — right outer (140,14) -->
-              <g transform="translate(140,14)">
-                <ellipse cx="0" cy="-5.5" rx="3"   ry="5.5" fill="#f9a8d4" opacity="0.92" transform="rotate(0)"/>
-                <ellipse cx="0" cy="-5.5" rx="3"   ry="5.5" fill="#ffb7c5" opacity="0.87" transform="rotate(72)"/>
-                <ellipse cx="0" cy="-5.5" rx="3"   ry="5.5" fill="#f472b6" opacity="0.82" transform="rotate(144)"/>
-                <ellipse cx="0" cy="-5.5" rx="3"   ry="5.5" fill="#ffb7c5" opacity="0.92" transform="rotate(216)"/>
-                <ellipse cx="0" cy="-5.5" rx="3"   ry="5.5" fill="#f9a8d4" opacity="0.87" transform="rotate(288)"/>
-                <circle r="2.8" fill="#fce7f3"/><circle r="1.3" fill="#e85c8a" opacity="0.75"/>
-              </g>
-              <!-- Medium — left sub (28,22) -->
-              <g transform="translate(28,22)">
-                <ellipse cx="0" cy="-4.5" rx="2.5" ry="4.5" fill="#ffb7c5" opacity="0.88" transform="rotate(0)"/>
-                <ellipse cx="0" cy="-4.5" rx="2.5" ry="4.5" fill="#f9a8d4" opacity="0.83" transform="rotate(72)"/>
-                <ellipse cx="0" cy="-4.5" rx="2.5" ry="4.5" fill="#e85c8a" opacity="0.8"  transform="rotate(144)"/>
-                <ellipse cx="0" cy="-4.5" rx="2.5" ry="4.5" fill="#f9a8d4" opacity="0.83" transform="rotate(216)"/>
-                <ellipse cx="0" cy="-4.5" rx="2.5" ry="4.5" fill="#ffb7c5" opacity="0.88" transform="rotate(288)"/>
-                <circle r="2.2" fill="#fce7f3"/>
-              </g>
-              <!-- Medium — right sub (132,24) -->
-              <g transform="translate(132,24)">
-                <ellipse cx="0" cy="-4.5" rx="2.5" ry="4.5" fill="#f9a8d4" opacity="0.88" transform="rotate(0)"/>
-                <ellipse cx="0" cy="-4.5" rx="2.5" ry="4.5" fill="#ffb7c5" opacity="0.83" transform="rotate(72)"/>
-                <ellipse cx="0" cy="-4.5" rx="2.5" ry="4.5" fill="#f472b6" opacity="0.78" transform="rotate(144)"/>
-                <ellipse cx="0" cy="-4.5" rx="2.5" ry="4.5" fill="#ffb7c5" opacity="0.88" transform="rotate(216)"/>
-                <ellipse cx="0" cy="-4.5" rx="2.5" ry="4.5" fill="#f9a8d4" opacity="0.83" transform="rotate(288)"/>
-                <circle r="2.2" fill="#fce7f3"/>
-              </g>
-              <!-- Small — center-left (62,36) -->
-              <g transform="translate(62,36)">
-                <ellipse cx="0" cy="-4" rx="2.2" ry="4" fill="#ffb7c5" opacity="0.82" transform="rotate(0)"/>
-                <ellipse cx="0" cy="-4" rx="2.2" ry="4" fill="#e85c8a" opacity="0.78" transform="rotate(72)"/>
-                <ellipse cx="0" cy="-4" rx="2.2" ry="4" fill="#f9a8d4" opacity="0.82" transform="rotate(144)"/>
-                <ellipse cx="0" cy="-4" rx="2.2" ry="4" fill="#ffb7c5" opacity="0.78" transform="rotate(216)"/>
-                <ellipse cx="0" cy="-4" rx="2.2" ry="4" fill="#e85c8a" opacity="0.82" transform="rotate(288)"/>
-                <circle r="1.8" fill="#fce7f3"/>
-              </g>
-              <!-- Small — center-right (98,38) -->
-              <g transform="translate(98,38)">
-                <ellipse cx="0" cy="-4" rx="2.2" ry="4" fill="#f9a8d4" opacity="0.82" transform="rotate(0)"/>
-                <ellipse cx="0" cy="-4" rx="2.2" ry="4" fill="#ffb7c5" opacity="0.78" transform="rotate(72)"/>
-                <ellipse cx="0" cy="-4" rx="2.2" ry="4" fill="#f472b6" opacity="0.82" transform="rotate(144)"/>
-                <ellipse cx="0" cy="-4" rx="2.2" ry="4" fill="#ffb7c5" opacity="0.78" transform="rotate(216)"/>
-                <ellipse cx="0" cy="-4" rx="2.2" ry="4" fill="#f9a8d4" opacity="0.82" transform="rotate(288)"/>
-                <circle r="1.8" fill="#fce7f3"/>
-              </g>
-              <!-- Small — mid-branches (44,38) and (116,40) -->
-              <g transform="translate(44,38)">
-                <ellipse cx="0" cy="-3.5" rx="2" ry="3.5" fill="#ffb7c5" opacity="0.78" transform="rotate(0)"/>
-                <ellipse cx="0" cy="-3.5" rx="2" ry="3.5" fill="#f9a8d4" opacity="0.73" transform="rotate(72)"/>
-                <ellipse cx="0" cy="-3.5" rx="2" ry="3.5" fill="#e85c8a" opacity="0.78" transform="rotate(144)"/>
-                <ellipse cx="0" cy="-3.5" rx="2" ry="3.5" fill="#f9a8d4" opacity="0.73" transform="rotate(216)"/>
-                <ellipse cx="0" cy="-3.5" rx="2" ry="3.5" fill="#ffb7c5" opacity="0.78" transform="rotate(288)"/>
-                <circle r="1.5" fill="#fce7f3"/>
-              </g>
-              <g transform="translate(116,40)">
-                <ellipse cx="0" cy="-3.5" rx="2" ry="3.5" fill="#f9a8d4" opacity="0.78" transform="rotate(0)"/>
-                <ellipse cx="0" cy="-3.5" rx="2" ry="3.5" fill="#ffb7c5" opacity="0.73" transform="rotate(72)"/>
-                <ellipse cx="0" cy="-3.5" rx="2" ry="3.5" fill="#f472b6" opacity="0.73" transform="rotate(144)"/>
-                <ellipse cx="0" cy="-3.5" rx="2" ry="3.5" fill="#ffb7c5" opacity="0.78" transform="rotate(216)"/>
-                <ellipse cx="0" cy="-3.5" rx="2" ry="3.5" fill="#f9a8d4" opacity="0.73" transform="rotate(288)"/>
-                <circle r="1.5" fill="#fce7f3"/>
-              </g>
-              <!-- Tiny — twig ends (9,5) and (151,5) -->
-              <g transform="translate(9,5)">
-                <ellipse cx="0" cy="-3" rx="1.8" ry="3" fill="#ffb7c5" opacity="0.68" transform="rotate(0)"/>
-                <ellipse cx="0" cy="-3" rx="1.8" ry="3" fill="#f9a8d4" opacity="0.63" transform="rotate(72)"/>
-                <ellipse cx="0" cy="-3" rx="1.8" ry="3" fill="#ffb7c5" opacity="0.68" transform="rotate(144)"/>
-                <ellipse cx="0" cy="-3" rx="1.8" ry="3" fill="#f9a8d4" opacity="0.63" transform="rotate(216)"/>
-                <ellipse cx="0" cy="-3" rx="1.8" ry="3" fill="#ffb7c5" opacity="0.68" transform="rotate(288)"/>
-                <circle r="1.2" fill="#fce7f3"/>
-              </g>
-              <g transform="translate(151,5)">
-                <ellipse cx="0" cy="-3" rx="1.8" ry="3" fill="#f9a8d4" opacity="0.68" transform="rotate(0)"/>
-                <ellipse cx="0" cy="-3" rx="1.8" ry="3" fill="#ffb7c5" opacity="0.63" transform="rotate(72)"/>
-                <ellipse cx="0" cy="-3" rx="1.8" ry="3" fill="#f472b6" opacity="0.58" transform="rotate(144)"/>
-                <ellipse cx="0" cy="-3" rx="1.8" ry="3" fill="#ffb7c5" opacity="0.68" transform="rotate(216)"/>
-                <ellipse cx="0" cy="-3" rx="1.8" ry="3" fill="#f9a8d4" opacity="0.63" transform="rotate(288)"/>
-                <circle r="1.2" fill="#fce7f3"/>
-              </g>
-              <!-- Extra twig blossoms (52,18) and (108,20) -->
-              <g transform="translate(52,18)">
-                <ellipse cx="0" cy="-3.2" rx="1.8" ry="3.2" fill="#ffb7c5" opacity="0.7" transform="rotate(0)"/>
-                <ellipse cx="0" cy="-3.2" rx="1.8" ry="3.2" fill="#f9a8d4" opacity="0.65" transform="rotate(72)"/>
-                <ellipse cx="0" cy="-3.2" rx="1.8" ry="3.2" fill="#e85c8a" opacity="0.7" transform="rotate(144)"/>
-                <ellipse cx="0" cy="-3.2" rx="1.8" ry="3.2" fill="#f9a8d4" opacity="0.65" transform="rotate(216)"/>
-                <ellipse cx="0" cy="-3.2" rx="1.8" ry="3.2" fill="#ffb7c5" opacity="0.7" transform="rotate(288)"/>
-                <circle r="1.3" fill="#fce7f3"/>
-              </g>
-              <g transform="translate(108,20)">
-                <ellipse cx="0" cy="-3.2" rx="1.8" ry="3.2" fill="#f9a8d4" opacity="0.7" transform="rotate(0)"/>
-                <ellipse cx="0" cy="-3.2" rx="1.8" ry="3.2" fill="#ffb7c5" opacity="0.65" transform="rotate(72)"/>
-                <ellipse cx="0" cy="-3.2" rx="1.8" ry="3.2" fill="#f472b6" opacity="0.65" transform="rotate(144)"/>
-                <ellipse cx="0" cy="-3.2" rx="1.8" ry="3.2" fill="#ffb7c5" opacity="0.7" transform="rotate(216)"/>
-                <ellipse cx="0" cy="-3.2" rx="1.8" ry="3.2" fill="#f9a8d4" opacity="0.65" transform="rotate(288)"/>
-                <circle r="1.3" fill="#fce7f3"/>
-              </g>
-            </g>
+            <!-- ══ 12 RING PETALS (JS sets opacity: ~0.9 alive / ~0.07 wilted) ══ -->
+            <!-- Local-space petal: M 0,-20 C -8,-23 -8,-34 0,-42 C 8,-34 8,-23 0,-20 -->
+            <g id="blm-p0"  transform="translate(80,80) rotate(0)"   opacity="0.9" filter="url(#blm-glow)"><path d="M 0,-20 C -8,-23 -8,-34 0,-42 C 8,-34 8,-23 0,-20" fill="#f9a8d4"/></g>
+            <g id="blm-p1"  transform="translate(80,80) rotate(30)"  opacity="0.9" filter="url(#blm-glow)"><path d="M 0,-20 C -8,-23 -8,-34 0,-42 C 8,-34 8,-23 0,-20" fill="#f472b6"/></g>
+            <g id="blm-p2"  transform="translate(80,80) rotate(60)"  opacity="0.9" filter="url(#blm-glow)"><path d="M 0,-20 C -8,-23 -8,-34 0,-42 C 8,-34 8,-23 0,-20" fill="#e85c8a"/></g>
+            <g id="blm-p3"  transform="translate(80,80) rotate(90)"  opacity="0.9" filter="url(#blm-glow)"><path d="M 0,-20 C -8,-23 -8,-34 0,-42 C 8,-34 8,-23 0,-20" fill="#f9a8d4"/></g>
+            <g id="blm-p4"  transform="translate(80,80) rotate(120)" opacity="0.9" filter="url(#blm-glow)"><path d="M 0,-20 C -8,-23 -8,-34 0,-42 C 8,-34 8,-23 0,-20" fill="#f472b6"/></g>
+            <g id="blm-p5"  transform="translate(80,80) rotate(150)" opacity="0.9" filter="url(#blm-glow)"><path d="M 0,-20 C -8,-23 -8,-34 0,-42 C 8,-34 8,-23 0,-20" fill="#e85c8a"/></g>
+            <g id="blm-p6"  transform="translate(80,80) rotate(180)" opacity="0.9" filter="url(#blm-glow)"><path d="M 0,-20 C -8,-23 -8,-34 0,-42 C 8,-34 8,-23 0,-20" fill="#f9a8d4"/></g>
+            <g id="blm-p7"  transform="translate(80,80) rotate(210)" opacity="0.9" filter="url(#blm-glow)"><path d="M 0,-20 C -8,-23 -8,-34 0,-42 C 8,-34 8,-23 0,-20" fill="#f472b6"/></g>
+            <g id="blm-p8"  transform="translate(80,80) rotate(240)" opacity="0.9" filter="url(#blm-glow)"><path d="M 0,-20 C -8,-23 -8,-34 0,-42 C 8,-34 8,-23 0,-20" fill="#e85c8a"/></g>
+            <g id="blm-p9"  transform="translate(80,80) rotate(270)" opacity="0.9" filter="url(#blm-glow)"><path d="M 0,-20 C -8,-23 -8,-34 0,-42 C 8,-34 8,-23 0,-20" fill="#f9a8d4"/></g>
+            <g id="blm-p10" transform="translate(80,80) rotate(300)" opacity="0.9" filter="url(#blm-glow)"><path d="M 0,-20 C -8,-23 -8,-34 0,-42 C 8,-34 8,-23 0,-20" fill="#f472b6"/></g>
+            <g id="blm-p11" transform="translate(80,80) rotate(330)" opacity="0.9" filter="url(#blm-glow)"><path d="M 0,-20 C -8,-23 -8,-34 0,-42 C 8,-34 8,-23 0,-20" fill="#e85c8a"/></g>
+
+            <!-- ══ GROUND PETALS (caídos — JS-driven, appear at low scores) ══ -->
+            <g id="blm-gp0" opacity="0"><path transform="translate(50,134) rotate(22)"  d="M 0,-4 C -5,-5 -5,-11 0,-15 C 5,-11 5,-5 0,-4" fill="#ffb7c5"/></g>
+            <g id="blm-gp1" opacity="0"><path transform="translate(68,140) rotate(-18)" d="M 0,-4 C -5,-5 -5,-11 0,-15 C 5,-11 5,-5 0,-4" fill="#f9a8d4"/></g>
+            <g id="blm-gp2" opacity="0"><path transform="translate(80,135) rotate(6)"   d="M 0,-4 C -5,-5 -5,-11 0,-15 C 5,-11 5,-5 0,-4" fill="#fce7f3"/></g>
+            <g id="blm-gp3" opacity="0"><path transform="translate(92,141) rotate(-12)" d="M 0,-4 C -5,-5 -5,-11 0,-15 C 5,-11 5,-5 0,-4" fill="#f472b6"/></g>
+            <g id="blm-gp4" opacity="0"><path transform="translate(60,143) rotate(28)"  d="M 0,-4 C -5,-5 -5,-11 0,-15 C 5,-11 5,-5 0,-4" fill="#ffb7c5"/></g>
+            <g id="blm-gp5" opacity="0"><path transform="translate(75,148) rotate(-5)"  d="M 0,-4 C -5,-5 -5,-11 0,-15 C 5,-11 5,-5 0,-4" fill="#f9a8d4"/></g>
+
+            <!-- ══ FLOWER CENTER (over petals) ══ -->
+            <circle cx="80" cy="80" r="19" fill="#1a0614" stroke="rgba(232,92,138,0.5)" stroke-width="1.3"/>
+            <circle cx="80" cy="80" r="17" fill="url(#blm-ctr-grad)"/>
+            <circle cx="80" cy="80" r="3.5" fill="#e85c8a" opacity="0.9" filter="url(#blm-glow)"/>
+            <circle cx="80" cy="75" r="1.2" fill="#ffb7c5" opacity="0.8"/>
+            <circle cx="84" cy="83" r="1.0" fill="#ffb7c5" opacity="0.7"/>
+            <circle cx="76" cy="82" r="1.0" fill="#ffb7c5" opacity="0.7"/>
+
+            <!-- ══ CENTRAL SCORE ══ -->
+            <text x="80" y="75" text-anchor="middle" font-family="'Nunito',sans-serif"
+              font-size="4.2" letter-spacing="1.8" fill="rgba(232,92,138,0.5)">BLOOM</text>
+            <text x="80" y="88" text-anchor="middle" font-family="'Nunito',sans-serif"
+              font-size="14" font-weight="800" fill="#e85c8a" filter="url(#blm-glow)">
+              <tspan id="blm-nv-avg">80</tspan><tspan font-size="6" dx="1" dy="-3">%</tspan>
+            </text>
 
             <!-- ══ CHIP NODE BOXES ══ -->
-            <!-- RECOV — top center -->
             <rect x="56" y="2"  width="48" height="28" rx="5" fill="rgba(17,6,16,0.96)" stroke="#e85c8a" stroke-width="1.4"/>
             <rect x="60" y="5"  width="40" height="22" rx="3" fill="rgba(232,92,138,0.04)" stroke="rgba(232,92,138,0.22)" stroke-width="0.6"/>
-            <text x="80" y="13"  text-anchor="middle" font-family="'Nunito',sans-serif" font-size="4.8" letter-spacing="1.5" fill="rgba(232,92,138,0.6)">RECOV</text>
-            <text x="80" y="25"  text-anchor="middle" font-family="'Nunito',sans-serif" fill="#e85c8a">
+            <text x="80" y="13" text-anchor="middle" font-family="'Nunito',sans-serif" font-size="4.8" letter-spacing="1.5" fill="rgba(232,92,138,0.6)">RECOV</text>
+            <text x="80" y="25" text-anchor="middle" font-family="'Nunito',sans-serif" fill="#e85c8a">
               <tspan id="blm-nv-rec" font-size="11" font-weight="800">80</tspan><tspan font-size="5.5" dx="1" dy="-2">%</tspan>
             </text>
-            <!-- SLEEP — bottom left -->
             <rect x="2"  y="117" width="38" height="30" rx="5" fill="rgba(17,6,16,0.96)" stroke="#c47fb5" stroke-width="1.4"/>
             <rect x="5"  y="120" width="32" height="24" rx="3" fill="rgba(196,127,181,0.04)" stroke="rgba(196,127,181,0.22)" stroke-width="0.6"/>
             <text x="21" y="129.5" text-anchor="middle" font-family="'Nunito',sans-serif" font-size="4.8" letter-spacing="1.5" fill="rgba(196,127,181,0.62)">SLEEP</text>
             <text x="21" y="141.5" text-anchor="middle" font-family="'Nunito',sans-serif" fill="#c47fb5">
               <tspan id="blm-nv-slp" font-size="11" font-weight="800">84</tspan><tspan font-size="5.5" dx="1" dy="-2">%</tspan>
             </text>
-            <!-- STRAIN — bottom right -->
             <rect x="120" y="117" width="38" height="30" rx="5" fill="rgba(17,6,16,0.96)" stroke="#e85c8a" stroke-width="1.4"/>
             <rect x="123" y="120" width="32" height="24" rx="3" fill="rgba(232,92,138,0.04)" stroke="rgba(232,92,138,0.22)" stroke-width="0.6"/>
             <text x="139" y="129.5" text-anchor="middle" font-family="'Nunito',sans-serif" font-size="4.8" letter-spacing="1.5" fill="rgba(232,92,138,0.6)">STRAIN</text>
@@ -2599,53 +2426,17 @@ body.t-naruto span.vval{
               <tspan id="blm-nv-str" font-size="11" font-weight="800">62</tspan><tspan font-size="5.5" dx="1" dy="-2">%</tspan>
             </text>
 
-            <!-- ══ CENTRAL TRUNK SCORE DISPLAY ══ -->
-            <ellipse cx="80" cy="82" rx="20" ry="24" fill="rgba(17,6,16,0.93)" stroke="rgba(232,92,138,0.22)" stroke-width="0.8"/>
-            <text x="80" y="76"  text-anchor="middle" font-family="'Nunito',sans-serif"
-              font-size="4.5" letter-spacing="2" fill="rgba(232,92,138,0.48)">BLOOM</text>
-            <text x="80" y="92"  text-anchor="middle" font-family="'Nunito',sans-serif"
-              font-size="17" font-weight="800" fill="#e85c8a" filter="url(#blm-glow)">
-              <tspan id="blm-nv-avg">80</tspan><tspan font-size="7" dx="1" dy="-3">%</tspan>
-            </text>
-
-            <!-- ══ ANIMATED ENERGY PULSES (one per root) ══ -->
-            <circle r="2.8" fill="#e85c8a" filter="url(#blm-glow)" opacity="0.85">
-              <animateMotion dur="2.5s" repeatCount="indefinite" begin="0s"><mpath href="#blm-path1"/></animateMotion>
+            <!-- ══ ANIMATED ENERGY PULSES ══ -->
+            <circle r="2.5" fill="#e85c8a" filter="url(#blm-glow)" opacity="0.85">
+              <animateMotion dur="2.2s" repeatCount="indefinite" begin="0s"><mpath href="#blm-path1"/></animateMotion>
             </circle>
-            <circle r="2.8" fill="#c47fb5" filter="url(#blm-glow)" opacity="0.78">
-              <animateMotion dur="3.2s" repeatCount="indefinite" begin="0.9s"><mpath href="#blm-path2"/></animateMotion>
+            <circle r="2.5" fill="#c47fb5" filter="url(#blm-glow)" opacity="0.78">
+              <animateMotion dur="3s" repeatCount="indefinite" begin="0.8s"><mpath href="#blm-path2"/></animateMotion>
             </circle>
-            <circle r="2.8" fill="#e85c8a" filter="url(#blm-glow)" opacity="0.78">
-              <animateMotion dur="2.9s" repeatCount="indefinite" begin="1.7s"><mpath href="#blm-path3"/></animateMotion>
+            <circle r="2.5" fill="#e85c8a" filter="url(#blm-glow)" opacity="0.78">
+              <animateMotion dur="2.7s" repeatCount="indefinite" begin="1.5s"><mpath href="#blm-path3"/></animateMotion>
             </circle>
-
-            <!-- ══ FALLING SAKURA PETALS (4 petals, gentle drift) ══ -->
-            <!-- Petal 1 — left zone, blush pink -->
-            <g opacity="0" filter="url(#blm-glow)">
-              <path d="M0,-5 C-3.5,-1.5 -3.5,1.5 0,5 C3.5,1.5 3.5,-1.5 0,-5" fill="#ffb7c5"/>
-              <animateMotion path="M 55,12 C 50,36 62,58 58,82 C 54,104 48,132 44,160" dur="7s" repeatCount="indefinite" begin="0s" rotate="auto"/>
-              <animate attributeName="opacity" values="0;0.65;0.55;0.42;0" dur="7s" repeatCount="indefinite" keyTimes="0;0.08;0.5;0.9;1"/>
-            </g>
-            <!-- Petal 2 — right zone, soft mauve -->
-            <g opacity="0" filter="url(#blm-glow)">
-              <path d="M0,-4.5 C-3,-1.5 -3,1.5 0,4.5 C3,1.5 3,-1.5 0,-4.5" fill="#f9a8d4"/>
-              <animateMotion path="M 100,8 C 108,30 96,55 104,78 C 110,100 118,130 114,160" dur="9s" repeatCount="indefinite" begin="3s" rotate="auto"/>
-              <animate attributeName="opacity" values="0;0.55;0.5;0.38;0" dur="9s" repeatCount="indefinite" keyTimes="0;0.08;0.5;0.9;1" begin="3s"/>
-            </g>
-            <!-- Petal 3 — center-left, deep pink -->
-            <g opacity="0" filter="url(#blm-glow)">
-              <path d="M0,-4.2 C-2.8,-1.2 -2.8,1.2 0,4.2 C2.8,1.2 2.8,-1.2 0,-4.2" fill="#e85c8a"/>
-              <animateMotion path="M 74,6 C 68,28 76,52 72,76 C 68,100 64,126 68,154" dur="8s" repeatCount="indefinite" begin="5s" rotate="auto"/>
-              <animate attributeName="opacity" values="0;0.6;0.5;0.38;0" dur="8s" repeatCount="indefinite" keyTimes="0;0.08;0.5;0.9;1" begin="5s"/>
-            </g>
-            <!-- Petal 4 — right-center, near-white -->
-            <g opacity="0" filter="url(#blm-glow)">
-              <path d="M0,-5.2 C-3.6,-2 -3.6,2 0,5.2 C3.6,2 3.6,-2 0,-5.2" fill="#fce7f3"/>
-              <animateMotion path="M 90,10 C 98,32 84,58 92,80 C 100,104 108,132 104,160" dur="10.5s" repeatCount="indefinite" begin="1.5s" rotate="auto"/>
-              <animate attributeName="opacity" values="0;0.45;0.4;0.28;0" dur="10.5s" repeatCount="indefinite" keyTimes="0;0.08;0.5;0.9;1" begin="1.5s"/>
-            </g>
           </svg>
-        </div>
 
         <div class="rstatus" id="rstatus">ÓPTIMO</div>
         <div id="mcex"></div>
@@ -6245,11 +6036,13 @@ function updateScores({ rec, strain, sleepPct }) {
   animN('nn-nv-slp', 0, sleepPct, 1200);
   animN('nn-nv-str', 0, strain, 1200);
   animN('nn-nv-avg', 0, Math.round((rec + sleepPct + strain) / 3), 1200);
-  // Bloom sakura tree — 3 category chip nodes + center composite score
+  // Bloom flower ring — 3 category chip nodes + center composite score + petal count
   animN('blm-nv-rec', 0, rec, 1200);
   animN('blm-nv-slp', 0, sleepPct, 1200);
   animN('blm-nv-str', 0, strain, 1200);
-  animN('blm-nv-avg', 0, Math.round((rec + sleepPct + strain) / 3), 1200);
+  const blmAvg = Math.round((rec + sleepPct + strain) / 3);
+  animN('blm-nv-avg', 0, blmAvg, 1200);
+  if (window.updateBloomFlower) window.updateBloomFlower(blmAvg);
   // Strain
   const sb = document.getElementById('strain-bar');
   if (sb) setTimeout(()=>{ sb.style.width=(strain/21*100).toFixed(1)+'%'; },100);
@@ -6263,6 +6056,23 @@ function updateScores({ rec, strain, sleepPct }) {
   setText('wrec', recTextFor(rec));
   updateStatusLabel();
 }
+// ── Bloom petal ring: alive petals = Math.round(score/100*12) ──────────────
+// Call after data loads to update the flower state.
+// score 0-100 → 0-12 petals visible; ground petals appear when score < 50.
+window.updateBloomFlower = function(score) {
+  var alive = Math.round(Math.min(100, Math.max(0, score)) / 100 * 12);
+  for (var i = 0; i < 12; i++) {
+    var p = document.getElementById('blm-p' + i);
+    if (p) p.setAttribute('opacity', i < alive ? '0.9' : '0.07');
+  }
+  var groundCount = Math.max(0, Math.round((1 - score / 100) * 6));
+  for (var j = 0; j < 6; j++) {
+    var gp = document.getElementById('blm-gp' + j);
+    if (gp) gp.setAttribute('opacity', j < groundCount ? '0.45' : '0');
+  }
+  var halo = document.getElementById('blm-halo');
+  if (halo) halo.setAttribute('opacity', score > 80 ? ((score - 80) / 20 * 0.55).toFixed(2) : '0');
+};
 function recTextFor(rec) {
   return rec>=67 ? (lang==='es'?'Listo para entrenar al máximo':'Ready for peak training') :
          rec>=50 ? (lang==='es'?'Entrenamiento moderado-alto recomendado':'Moderate-high training recommended') :
