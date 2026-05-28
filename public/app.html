@@ -848,11 +848,11 @@ body.t-fut .db-hdr{padding-top:14px;}
 
 /* Responsive */
 @media(max-width:1400px){
-  .mg{grid-template-columns:220px 1fr;gap:14px;}
-  .rcs{grid-column:1/-1;margin-top:8px;display:grid;grid-template-columns:repeat(2,1fr);}
-}
-@media(max-width:1200px){
-  .rcs{grid-template-columns:1fr;}
+  .mg{grid-template-columns:260px 1fr;gap:14px;align-items:stretch;}
+  .card.rw{justify-content:space-between;}
+  .rcs{grid-column:1/-1;margin-top:8px;}
+  #hr-card{grid-column:1/-1;}
+  #cal-card{grid-column:1/-1;}
 }
 @media(max-width:900px){
   .mg{grid-template-columns:1fr;}
@@ -2612,8 +2612,8 @@ body.t-naruto span.vval{
       </div><!-- /vg -->
 
       <!-- Col 3: HR chart + Sleep apilados -->
-      <div class="rcs">
-        <div class="card">
+      <div class="rcs" id="rcs">
+        <div class="card" id="hr-chart-card">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
             <div><span class="clbl" id="lbl-hrchart" style="margin-bottom:2px;">// FREC. CARDÍACA 24H</span><div style="font-size:10px;letter-spacing:2px;opacity:0.3;" id="lbl-last24">ÚLTIMAS 24 HORAS</div></div>
             <div style="display:flex;align-items:baseline;gap:3px;"><span id="hrlive" style="font-size:24px;font-weight:700;color:var(--tneg);">68</span><span style="font-size:10px;opacity:0.35;letter-spacing:1px;"> BPM</span></div>
@@ -2623,7 +2623,7 @@ body.t-naruto span.vval{
             <span style="font-size:9px;opacity:0.28;">00:00</span><span style="font-size:9px;opacity:0.28;">06:00</span><span style="font-size:9px;opacity:0.28;">12:00</span><span style="font-size:9px;opacity:0.28;">18:00</span><span style="font-size:9px;color:var(--ta)" id="lbl-now">AHORA</span>
           </div>
         </div>
-        <div class="card">
+        <div class="card" id="sleep-card">
           <span class="clbl" id="lbl-sleep">// ANÁLISIS DE SUEÑO</span><button class="onb-q" onclick="showOnb('sleep')" aria-label="info">?</button>
           <div class="hypno">
             <div class="hypno-grid">
@@ -5981,27 +5981,32 @@ function drawMiniSparkline(pts) {
 
 // ══════ WIDGET MANAGER ══════
 var WM_WIDGETS = [
-  { id:'hr-card',     label:'Frecuencia Cardíaca', labelEn:'Heart Rate',      desc:'BPM · Reposo · Zonas',           descEn:'BPM · Resting · Zones',         icon:'♥' },
-  { id:'hrv-card',    label:'HRV',                 labelEn:'HRV',             desc:'Variabilidad cardíaca nocturna',  descEn:'Overnight heart rate variability',icon:'〜' },
-  { id:'spo2-card',   label:'Saturación O₂',       labelEn:'O₂ Saturation',   desc:'SpO2 · Oxígeno en sangre',       descEn:'SpO2 · Blood oxygen',           icon:'○' },
-  { id:'temp-card',   label:'Temperatura',          labelEn:'Temperature',      desc:'Temperatura corporal',           descEn:'Body temperature',              icon:'◈' },
-  { id:'stress-card', label:'Nivel de Estrés',      labelEn:'Stress Level',    desc:'Carga · HRV · Respiración',      descEn:'Load · HRV · Breathing',        icon:'⚡' },
-  { id:'cal-card',    label:'Calorías',             labelEn:'Calories',         desc:'Activas · Basal · Intensidad',   descEn:'Active · Basal · Intensity',    icon:'◆' },
-  { id:'rcs',         label:'Gráficas',             labelEn:'Charts',           desc:'FC 24h · Análisis de sueño',     descEn:'HR 24h · Sleep analysis',       icon:'▓' },
-  { id:'scard',       label:'Pasos',                labelEn:'Steps',            desc:'Actividad diaria · Objetivo',    descEn:'Daily activity · Goal',         icon:'▶' },
-  { id:'bot',         label:'Actividades & Coach',  labelEn:'Activities & Coach',desc:'Entrenamientos · AIRA',         descEn:'Workouts · AIRA',               icon:'✦' },
+  { id:'hr-card',       on:true,  label:'Frecuencia Cardíaca', labelEn:'Heart Rate',       desc:'BPM · Reposo · Zonas',          descEn:'BPM · Resting · Zones',          icon:'♥' },
+  { id:'hrv-card',      on:true,  label:'HRV',                 labelEn:'HRV',              desc:'Variabilidad cardíaca nocturna', descEn:'Overnight heart rate variability',icon:'〜' },
+  { id:'spo2-card',     on:true,  label:'Saturación O₂',       labelEn:'O₂ Saturation',    desc:'SpO2 · Oxígeno en sangre',      descEn:'SpO2 · Blood oxygen',            icon:'○' },
+  { id:'temp-card',     on:true,  label:'Temperatura',          labelEn:'Temperature',      desc:'Temperatura corporal',           descEn:'Body temperature',               icon:'◈' },
+  { id:'stress-card',   on:true,  label:'Nivel de Estrés',      labelEn:'Stress Level',     desc:'Carga · HRV · Respiración',     descEn:'Load · HRV · Breathing',         icon:'⚡' },
+  { id:'cal-card',      on:true,  label:'Calorías',             labelEn:'Calories',         desc:'Activas · Basal · Intensidad',  descEn:'Active · Basal · Intensity',     icon:'◆' },
+  { id:'hr-chart-card', on:false, label:'Gráfica FC 24H',       labelEn:'HR Chart 24H',     desc:'Historial FC del día completo',  descEn:'Full-day heart rate history',    icon:'〰' },
+  { id:'sleep-card',    on:true,  label:'Análisis de Sueño',    labelEn:'Sleep Analysis',   desc:'Etapas · Duración · Score',     descEn:'Stages · Duration · Score',      icon:'◑' },
+  { id:'scard',         on:true,  label:'Pasos',                labelEn:'Steps',            desc:'Actividad diaria · Objetivo',   descEn:'Daily activity · Goal',          icon:'▶' },
+  { id:'bot',           on:true,  label:'Actividades & Coach',  labelEn:'Activities & Coach',desc:'Entrenamientos · AIRA',        descEn:'Workouts · AIRA',                icon:'✦' },
 ];
+
+function wmIsOn(w) {
+  var state = loadWMState();
+  return (w.id in state) ? state[w.id] : (w.on !== false);
+}
 
 function openWM() {
   var ov = document.getElementById('wm-overlay');
   var dr = document.getElementById('wm-drawer');
   var list = document.getElementById('wm-list');
   if (!ov || !dr || !list) return;
-  var state = loadWMState();
   var isEs = (typeof lang !== 'undefined' ? lang : 'es') === 'es';
   list.scrollTop = 0;
   list.innerHTML = WM_WIDGETS.map(function(w) {
-    var on = state[w.id] !== false;
+    var on = wmIsOn(w);
     return '<label class="wm-item">'
       + '<div class="wm-item-icon">' + w.icon + '</div>'
       + '<div class="wm-item-info"><div class="wm-item-label">' + (isEs ? w.label : w.labelEn) + '</div>'
@@ -6045,10 +6050,9 @@ function saveWMState(s) {
 }
 
 function applyWMState() {
-  var state = loadWMState();
   WM_WIDGETS.forEach(function(w) {
     var el = document.getElementById(w.id);
-    if (el) el.classList.toggle('wm-widget-hidden', state[w.id] === false);
+    if (el) el.classList.toggle('wm-widget-hidden', !wmIsOn(w));
   });
 }
 
