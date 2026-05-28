@@ -1964,79 +1964,184 @@ body.t-naruto span.vval{
               </pattern>
             </defs>
 
-            <!-- ══ PCB SUBSTRATE — board texture, fiducials, connectors & silkscreen ══ -->
+            <!-- ══ PCB SUBSTRATE — seamless board texture ══ -->
             <g id="nn-bg">
-              <!-- Dot-matrix grid fills entire board -->
+              <!-- Overall dot-matrix grid + very faint copper tint -->
               <rect x="0" y="0" width="160" height="160" fill="url(#nn-pcb-grid)"/>
+              <rect x="1.5" y="1.5" width="157" height="157" rx="3" fill="rgba(255,45,120,0.018)"/>
               <!-- Board edge outline -->
               <rect x="1.5" y="1.5" width="157" height="157" rx="3"
-                    fill="none" stroke="rgba(255,45,120,0.09)" stroke-width="0.6"/>
-              <!-- Subtle copper-pour tints in safe corners -->
-              <polygon points="1.5,1.5 36,1.5 1.5,36"       fill="rgba(255,45,120,0.04)"/>
-              <polygon points="158.5,1.5 158.5,36 123.5,1.5" fill="rgba(255,45,120,0.04)"/>
-              <polygon points="158.5,158.5 158.5,122 123.5,158.5" fill="rgba(255,45,120,0.04)"/>
+                    fill="none" stroke="rgba(255,45,120,0.10)" stroke-width="0.6"/>
+
+              <!-- Copper pour fills — all 4 corners + thin side strips -->
+              <polygon points="1.5,1.5 40,1.5 1.5,40"         fill="rgba(255,45,120,0.045)"/>
+              <polygon points="158.5,1.5 158.5,40 119.5,1.5"   fill="rgba(255,45,120,0.045)"/>
+              <polygon points="1.5,158.5 1.5,120 40,158.5"     fill="rgba(255,45,120,0.035)"/>
+              <polygon points="158.5,158.5 158.5,120 119.5,158.5" fill="rgba(255,45,120,0.045)"/>
 
               <!-- Fiducial alignment marks — 4 corners -->
-              <g fill="none" stroke="rgba(255,45,120,0.17)" stroke-width="0.5">
+              <g fill="none" stroke="rgba(255,45,120,0.18)" stroke-width="0.5">
                 <circle cx="9"   cy="9"   r="2.5"/>
-                <line x1="5.5" y1="9"   x2="12.5" y2="9"/>   <line x1="9"   y1="5.5" x2="9"   y2="12.5"/>
+                <line x1="5.5" y1="9"    x2="12.5" y2="9"/>    <line x1="9"   y1="5.5"  x2="9"   y2="12.5"/>
                 <circle cx="151" cy="9"   r="2.5"/>
-                <line x1="147.5" y1="9"   x2="154.5" y2="9"/>  <line x1="151" y1="5.5" x2="151" y2="12.5"/>
+                <line x1="147.5" y1="9"   x2="154.5" y2="9"/>   <line x1="151" y1="5.5"  x2="151" y2="12.5"/>
                 <circle cx="9"   cy="151" r="2.5"/>
-                <line x1="5.5" y1="151" x2="12.5" y2="151"/>  <line x1="9"   y1="147.5" x2="9"   y2="154.5"/>
+                <line x1="5.5" y1="151"  x2="12.5" y2="151"/>   <line x1="9"   y1="147.5" x2="9"   y2="154.5"/>
                 <circle cx="151" cy="151" r="2.5"/>
-                <line x1="147.5" y1="151" x2="154.5" y2="151"/> <line x1="151" y1="147.5" x2="151" y2="154.5"/>
+                <line x1="147.5" y1="151" x2="154.5" y2="151"/>  <line x1="151" y1="147.5" x2="151" y2="154.5"/>
               </g>
 
-              <!-- Edge connector pads — top right (right of RECOV chip) -->
-              <g fill="none" stroke="rgba(255,45,120,0.16)" stroke-width="2.4" stroke-linecap="butt">
-                <line x1="125" y1="1.5" x2="125" y2="7.5"/> <line x1="130" y1="1.5" x2="130" y2="7.5"/>
-                <line x1="135" y1="1.5" x2="135" y2="7.5"/> <line x1="140" y1="1.5" x2="140" y2="7.5"/>
-                <line x1="145" y1="1.5" x2="145" y2="7.5"/>
-              </g>
-              <!-- Edge connector pads — bottom center -->
-              <g fill="none" stroke="rgba(255,45,120,0.12)" stroke-width="2.4" stroke-linecap="butt">
-                <line x1="60" y1="152.5" x2="60" y2="158.5"/> <line x1="66" y1="152.5" x2="66" y2="158.5"/>
-                <line x1="72" y1="152.5" x2="72" y2="158.5"/> <line x1="78" y1="152.5" x2="78" y2="158.5"/>
-                <line x1="84" y1="152.5" x2="84" y2="158.5"/> <line x1="90" y1="152.5" x2="90" y2="158.5"/>
-              </g>
-              <!-- Edge connector pads — right side (below EAST network) -->
-              <g fill="none" stroke="rgba(255,45,120,0.12)" stroke-width="2.4" stroke-linecap="butt">
-                <line x1="152.5" y1="112" x2="158.5" y2="112"/> <line x1="152.5" y1="118" x2="158.5" y2="118"/>
-                <line x1="152.5" y1="124" x2="158.5" y2="124"/> <line x1="152.5" y1="130" x2="158.5" y2="130"/>
-              </g>
-              <!-- Edge connector pads — left side (level with SLEEP spine branches) -->
-              <g fill="none" stroke="rgba(255,45,120,0.12)" stroke-width="2.4" stroke-linecap="butt">
-                <line x1="1.5" y1="90"  x2="7"   y2="90"/>  <line x1="1.5" y1="96"  x2="7"   y2="96"/>
-                <line x1="1.5" y1="102" x2="7"   y2="102"/> <line x1="1.5" y1="108" x2="7"   y2="108"/>
+              <!-- ── EDGE CONNECTOR PADS (all 4 edges) ── -->
+              <g fill="none" stroke-linecap="butt">
+                <!-- Top — right group (right of RECOV chip) -->
+                <g stroke="rgba(255,45,120,0.17)" stroke-width="2.4">
+                  <line x1="125" y1="1.5" x2="125" y2="7.5"/> <line x1="130" y1="1.5" x2="130" y2="7.5"/>
+                  <line x1="135" y1="1.5" x2="135" y2="7.5"/> <line x1="140" y1="1.5" x2="140" y2="7.5"/>
+                  <line x1="145" y1="1.5" x2="145" y2="7.5"/>
+                </g>
+                <!-- Top — left group (left of RECOV chip) -->
+                <g stroke="rgba(255,45,120,0.13)" stroke-width="2.4">
+                  <line x1="16" y1="1.5" x2="16" y2="7.5"/> <line x1="22" y1="1.5" x2="22" y2="7.5"/>
+                  <line x1="28" y1="1.5" x2="28" y2="7.5"/> <line x1="34" y1="1.5" x2="34" y2="7.5"/>
+                  <line x1="40" y1="1.5" x2="40" y2="7.5"/> <line x1="46" y1="1.5" x2="46" y2="7.5"/>
+                </g>
+                <!-- Bottom -->
+                <g stroke="rgba(255,45,120,0.13)" stroke-width="2.4">
+                  <line x1="60" y1="152.5" x2="60" y2="158.5"/> <line x1="66" y1="152.5" x2="66" y2="158.5"/>
+                  <line x1="72" y1="152.5" x2="72" y2="158.5"/> <line x1="78" y1="152.5" x2="78" y2="158.5"/>
+                  <line x1="84" y1="152.5" x2="84" y2="158.5"/> <line x1="90" y1="152.5" x2="90" y2="158.5"/>
+                </g>
+                <!-- Right edge -->
+                <g stroke="rgba(255,45,120,0.13)" stroke-width="2.4">
+                  <line x1="152.5" y1="112" x2="158.5" y2="112"/> <line x1="152.5" y1="118" x2="158.5" y2="118"/>
+                  <line x1="152.5" y1="124" x2="158.5" y2="124"/> <line x1="152.5" y1="130" x2="158.5" y2="130"/>
+                </g>
+                <!-- Left edge -->
+                <g stroke="rgba(255,45,120,0.13)" stroke-width="2.4">
+                  <line x1="1.5" y1="90"  x2="7" y2="90"/>  <line x1="1.5" y1="96"  x2="7" y2="96"/>
+                  <line x1="1.5" y1="102" x2="7" y2="102"/> <line x1="1.5" y1="108" x2="7" y2="108"/>
+                </g>
               </g>
 
-              <!-- SMD silkscreen — top-left zone -->
-              <!-- C1: bypass capacitor (two horizontal pads) -->
-              <line x1="13" y1="20" x2="21" y2="20" fill="none" stroke="rgba(255,45,120,0.22)" stroke-width="0.9" stroke-linecap="round"/>
-              <line x1="13" y1="24" x2="21" y2="24" fill="none" stroke="rgba(255,45,120,0.22)" stroke-width="0.9" stroke-linecap="round"/>
-              <text x="23" y="24" font-family="'IBM Plex Mono',monospace" font-size="3.5" fill="rgba(255,45,120,0.26)">C1</text>
-              <!-- R1: SMD resistor (rectangular body + end land pads) -->
-              <rect x="7" y="30.5" width="13" height="5" rx="0.8" fill="none" stroke="rgba(255,45,120,0.17)" stroke-width="0.5"/>
+              <!-- ── LONG BOARD-SPANNING BUS TRACES ── these cross zones, making the board feel continuous -->
+              <g fill="none" stroke="rgba(255,45,120,0.055)" stroke-width="0.5" stroke-linecap="butt">
+                <!-- Horizontal power bus near top — left half -->
+                <path d="M 8,17 L 44,17"/>
+                <!-- Horizontal power bus near top — right half -->
+                <path d="M 116,17 L 152,17"/>
+                <!-- Horizontal bus near bottom — left -->
+                <path d="M 8,143 L 38,143 L 40,141 L 44,141"/>
+                <!-- Horizontal bus near bottom — right -->
+                <path d="M 116,143 L 128,143 L 130,141 L 152,141"/>
+                <!-- Vertical bus left column (top to SLEEP zone) -->
+                <path d="M 20,8 L 20,18 L 22,20 L 22,30"/>
+                <!-- Vertical bus left column (SLEEP zone to bottom) -->
+                <path d="M 20,70 L 20,112 L 18,114 L 18,142"/>
+                <!-- Vertical bus right column (top to EAST zone) -->
+                <path d="M 140,8 L 140,18 L 138,20 L 138,30"/>
+                <!-- Vertical bus right column (EAST zone to bottom) -->
+                <path d="M 140,70 L 140,112 L 142,114 L 142,142"/>
+              </g>
+
+              <!-- ── DENSE HAIRLINE ROUTING NETWORK ── fills all empty zones -->
+              <g fill="none" stroke="rgba(255,45,120,0.07)" stroke-width="0.5" stroke-linecap="butt">
+                <!-- Top-left zone -->
+                <path d="M 8,14 L 8,19 L 14,19"/>
+                <path d="M 26,7  L 26,12 L 30,12 L 32,10 L 44,10"/>
+                <path d="M 14,17 L 14,26 L 16,28 L 16,35"/>
+                <path d="M 22,22 L 22,28 L 26,28"/>
+                <!-- Top-right zone -->
+                <path d="M 146,14 L 146,20 L 142,24 L 128,24"/>
+                <path d="M 152,20 L 152,28 L 150,30 L 142,30"/>
+                <path d="M 134,10 L 130,10 L 128,12 L 120,12"/>
+                <path d="M 138,22 L 138,28 L 136,30"/>
+                <!-- Left-mid zone (between U2 and SLEEP vertex) -->
+                <path d="M 18,44 L 18,50 L 20,52"/>
+                <path d="M 14,46 L 14,50 L 16,52 L 16,60"/>
+                <!-- Right-mid zone (between TR corner and EAST start) -->
+                <path d="M 142,44 L 142,50 L 144,52 L 144,60"/>
+                <path d="M 146,46 L 146,58 L 144,60"/>
+                <!-- Bottom-left zone -->
+                <path d="M 8,120 L 8,126 L 12,126 L 14,124 L 26,124"/>
+                <path d="M 8,132 L 8,138 L 14,138 L 16,136 L 28,136"/>
+                <path d="M 8,140 L 8,144 L 16,144 L 18,142 L 26,142"/>
+                <path d="M 14,144 L 14,152 L 18,152 L 20,150 L 34,150"/>
+                <!-- Bottom-right zone -->
+                <path d="M 128,140 L 132,140 L 134,138 L 148,138"/>
+                <path d="M 128,154 L 132,154 L 134,152 L 148,152"/>
+                <path d="M 136,144 L 136,150 L 140,150 L 142,148 L 152,148"/>
+                <!-- Right-edge mini traces (above/below connector pads) -->
+                <path d="M 154,85 L 158.5,85"/> <path d="M 154,89 L 158.5,89"/> <path d="M 154,93 L 158.5,93"/>
+                <path d="M 154,136 L 158.5,136"/> <path d="M 154,140 L 158.5,140"/>
+              </g>
+
+              <!-- ── SMD COMPONENT SILKSCREEN (distributed across all zones) ── -->
+              <!-- C1 — top-left -->
+              <line x1="13" y1="20" x2="21" y2="20" fill="none" stroke="rgba(255,45,120,0.23)" stroke-width="0.9" stroke-linecap="round"/>
+              <line x1="13" y1="24" x2="21" y2="24" fill="none" stroke="rgba(255,45,120,0.23)" stroke-width="0.9" stroke-linecap="round"/>
+              <text x="23" y="24" font-family="'IBM Plex Mono',monospace" font-size="3.5" fill="rgba(255,45,120,0.27)">C1</text>
+              <!-- R1 — top-left -->
+              <rect x="7" y="30.5" width="13" height="5" rx="0.8" fill="none" stroke="rgba(255,45,120,0.18)" stroke-width="0.5"/>
               <rect x="4.5" y="32"  width="2.5" height="2" fill="rgba(255,45,120,0.10)"/>
               <rect x="20"  y="32"  width="2.5" height="2" fill="rgba(255,45,120,0.10)"/>
-              <text x="23" y="36.5" font-family="'IBM Plex Mono',monospace" font-size="3.5" fill="rgba(255,45,120,0.22)">R1</text>
-
-              <!-- U2: small IC footprint (SOT-23 style) — left mid zone -->
-              <rect x="3" y="52" width="11" height="14" rx="1" fill="none" stroke="rgba(255,45,120,0.15)" stroke-width="0.5"/>
+              <text x="23" y="36.5" font-family="'IBM Plex Mono',monospace" font-size="3.5" fill="rgba(255,45,120,0.23)">R1</text>
+              <!-- C3 — top-right -->
+              <line x1="138" y1="20" x2="146" y2="20" fill="none" stroke="rgba(255,45,120,0.21)" stroke-width="0.9" stroke-linecap="round"/>
+              <line x1="138" y1="24" x2="146" y2="24" fill="none" stroke="rgba(255,45,120,0.21)" stroke-width="0.9" stroke-linecap="round"/>
+              <text x="148" y="24" font-family="'IBM Plex Mono',monospace" font-size="3.5" fill="rgba(255,45,120,0.25)">C3</text>
+              <!-- R3 — top-right -->
+              <rect x="128" y="30.5" width="13" height="5" rx="0.8" fill="none" stroke="rgba(255,45,120,0.17)" stroke-width="0.5"/>
+              <rect x="125.5" y="32" width="2.5" height="2" fill="rgba(255,45,120,0.09)"/>
+              <rect x="141"   y="32" width="2.5" height="2" fill="rgba(255,45,120,0.09)"/>
+              <text x="145" y="36.5" font-family="'IBM Plex Mono',monospace" font-size="3.5" fill="rgba(255,45,120,0.21)">R3</text>
+              <!-- U2 — left-mid (SOT-23 IC) -->
+              <rect x="3" y="52" width="11" height="14" rx="1" fill="none" stroke="rgba(255,45,120,0.16)" stroke-width="0.5"/>
               <rect x="0.8" y="54"   width="2.2" height="2" fill="rgba(255,45,120,0.10)"/>
               <rect x="0.8" y="58.5" width="2.2" height="2" fill="rgba(255,45,120,0.10)"/>
               <rect x="0.8" y="63"   width="2.2" height="2" fill="rgba(255,45,120,0.10)"/>
               <rect x="14"  y="56.5" width="2.2" height="2" fill="rgba(255,45,120,0.10)"/>
               <rect x="14"  y="61.5" width="2.2" height="2" fill="rgba(255,45,120,0.10)"/>
               <text x="4.5" y="63.5" font-family="'IBM Plex Mono',monospace" font-size="3" fill="rgba(255,45,120,0.22)">U2</text>
+              <!-- L1 — right-mid (inductor) -->
+              <rect x="146" y="66" width="12" height="8" rx="1" fill="none" stroke="rgba(255,45,120,0.16)" stroke-width="0.5"/>
+              <rect x="144" y="68" width="2"   height="4" fill="rgba(255,45,120,0.09)"/>
+              <rect x="158" y="68" width="2"   height="4" fill="rgba(255,45,120,0.09)"/>
+              <text x="148" y="73" font-family="'IBM Plex Mono',monospace" font-size="3" fill="rgba(255,45,120,0.21)">L1</text>
+              <!-- R2 — bottom-left -->
+              <rect x="7" y="136" width="13" height="5" rx="0.8" fill="none" stroke="rgba(255,45,120,0.16)" stroke-width="0.5"/>
+              <rect x="4.5" y="137.5" width="2.5" height="2" fill="rgba(255,45,120,0.09)"/>
+              <rect x="20"  y="137.5" width="2.5" height="2" fill="rgba(255,45,120,0.09)"/>
+              <text x="23" y="142" font-family="'IBM Plex Mono',monospace" font-size="3.5" fill="rgba(255,45,120,0.20)">R2</text>
+              <!-- C2 — bottom-right -->
+              <line x1="130" y1="146" x2="138" y2="146" fill="none" stroke="rgba(255,45,120,0.22)" stroke-width="0.9" stroke-linecap="round"/>
+              <line x1="130" y1="150" x2="138" y2="150" fill="none" stroke="rgba(255,45,120,0.22)" stroke-width="0.9" stroke-linecap="round"/>
+              <text x="140" y="150" font-family="'IBM Plex Mono',monospace" font-size="3.5" fill="rgba(255,45,120,0.26)">C2</text>
 
-              <!-- C2: bypass cap — bottom-right zone (below STRAIN chip) -->
-              <line x1="130" y1="146" x2="138" y2="146" fill="none" stroke="rgba(255,45,120,0.21)" stroke-width="0.9" stroke-linecap="round"/>
-              <line x1="130" y1="150" x2="138" y2="150" fill="none" stroke="rgba(255,45,120,0.21)" stroke-width="0.9" stroke-linecap="round"/>
-              <text x="140" y="150" font-family="'IBM Plex Mono',monospace" font-size="3.5" fill="rgba(255,45,120,0.25)">C2</text>
-
-              <!-- PTH via pad row — bottom center (plated through-hole test points) -->
+              <!-- ── VIA CLUSTERS (distributed across all zones) ── -->
+              <!-- Top-left cluster -->
+              <g stroke="rgba(255,45,120,0.09)" stroke-width="0.4">
+                <circle cx="28" cy="12" r="1.2" fill="rgba(255,45,120,0.12)"/><circle cx="28" cy="12" r="2.0" fill="none"/>
+                <circle cx="34" cy="12" r="1.2" fill="rgba(255,45,120,0.12)"/><circle cx="34" cy="12" r="2.0" fill="none"/>
+                <circle cx="40" cy="12" r="1.2" fill="rgba(255,45,120,0.12)"/><circle cx="40" cy="12" r="2.0" fill="none"/>
+              </g>
+              <!-- Top-right cluster -->
+              <g stroke="rgba(255,45,120,0.09)" stroke-width="0.4">
+                <circle cx="120" cy="12" r="1.2" fill="rgba(255,45,120,0.11)"/><circle cx="120" cy="12" r="2.0" fill="none"/>
+                <circle cx="114" cy="12" r="1.2" fill="rgba(255,45,120,0.11)"/><circle cx="114" cy="12" r="2.0" fill="none"/>
+                <circle cx="108" cy="12" r="1.2" fill="rgba(255,45,120,0.11)"/><circle cx="108" cy="12" r="2.0" fill="none"/>
+              </g>
+              <!-- Bottom-left cluster -->
+              <g stroke="rgba(255,45,120,0.09)" stroke-width="0.4">
+                <circle cx="12" cy="148" r="1.2" fill="rgba(255,45,120,0.11)"/><circle cx="12" cy="148" r="2.0" fill="none"/>
+                <circle cx="18" cy="148" r="1.2" fill="rgba(255,45,120,0.11)"/><circle cx="18" cy="148" r="2.0" fill="none"/>
+                <circle cx="24" cy="148" r="1.2" fill="rgba(255,45,120,0.11)"/><circle cx="24" cy="148" r="2.0" fill="none"/>
+              </g>
+              <!-- Bottom-right cluster -->
+              <g stroke="rgba(255,45,120,0.09)" stroke-width="0.4">
+                <circle cx="148" cy="148" r="1.2" fill="rgba(255,45,120,0.11)"/><circle cx="148" cy="148" r="2.0" fill="none"/>
+                <circle cx="154" cy="148" r="1.2" fill="rgba(255,45,120,0.11)"/><circle cx="154" cy="148" r="2.0" fill="none"/>
+              </g>
+              <!-- PTH via row — bottom center -->
               <g stroke="rgba(255,45,120,0.09)" stroke-width="0.45">
                 <circle cx="62" cy="152" r="1.4" fill="rgba(255,45,120,0.14)"/><circle cx="62" cy="152" r="2.5" fill="none"/>
                 <circle cx="68" cy="152" r="1.4" fill="rgba(255,45,120,0.14)"/><circle cx="68" cy="152" r="2.5" fill="none"/>
@@ -2046,16 +2151,9 @@ body.t-naruto span.vval{
                 <circle cx="92" cy="152" r="1.4" fill="rgba(255,45,120,0.14)"/><circle cx="92" cy="152" r="2.5" fill="none"/>
               </g>
 
-              <!-- Hairline background routing traces — faint decorative PCB traces -->
-              <g fill="none" stroke="rgba(255,45,120,0.07)" stroke-width="0.5" stroke-linecap="butt">
-                <path d="M 8,14 L 8,18 L 13,18"/>
-                <path d="M 28,7  L 28,12 L 32,12 L 34,10 L 44,10"/>
-                <path d="M 8,140 L 8,144 L 16,144 L 18,142 L 26,142"/>
-                <path d="M 128,154 L 132,154 L 134,152 L 148,152"/>
-                <path d="M 154,85  L 158.5,85"/>
-                <path d="M 154,89  L 158.5,89"/>
-                <path d="M 154,93  L 158.5,93"/>
-              </g>
+              <!-- ── PCB SILKSCREEN TEXT ── -->
+              <text x="42"  y="158" font-family="'IBM Plex Mono',monospace" font-size="3" letter-spacing="1"  fill="rgba(255,45,120,0.14)">REV 2.1</text>
+              <text x="158" y="10"  font-family="'IBM Plex Mono',monospace" font-size="2.8" text-anchor="end" fill="rgba(255,45,120,0.12)">NNR-PCB</text>
             </g>
 
             <!-- ══ RECOVERY NETWORK — authentic PCB style: single traces, 45° chamfered corners, solid vias ══ -->
