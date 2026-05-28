@@ -2344,7 +2344,7 @@ body.t-naruto span.vval{
                 <stop offset="100%" stop-color="rgba(17,6,16,0)"/>
               </radialGradient>
               <!-- Root animated paths (for energy pulse animateMotion) -->
-              <path id="blm-path1" d="M 80,108 C 80,90 80,70 80,30"/>
+              <path id="blm-path1" d="M 80,108 C 74,98 86,82 78,68 C 80,56 78,42 80,30"/>
               <path id="blm-path2" d="M 80,108 C 62,112 42,115 24,117"/>
               <path id="blm-path3" d="M 80,108 C 98,112 118,115 136,117"/>
             </defs>
@@ -2352,69 +2352,117 @@ body.t-naruto span.vval{
             <!-- Warm earth glow at bottom -->
             <rect x="0" y="0" width="160" height="160" fill="url(#blm-earth)"/>
 
-            <!-- ══ TREE BRANCHES (bark — dark layered strokes) ══ -->
+            <!-- ══ TREE BRANCHES (bark — gnarled zigzag like real sakura) ══ -->
             <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <!-- Main trunk (3 depth layers) -->
-              <path d="M 80,108 C 79,92 81,76 80,60" stroke="#2e1018" stroke-width="11"/>
-              <path d="M 80,108 C 79,92 81,76 80,60" stroke="#7a3548" stroke-width="7.5"/>
-              <path d="M 80,108 C 79,92 81,76 80,60" stroke="#a35870" stroke-width="4" opacity="0.35"/>
-              <!-- Left main branch -->
-              <path d="M 80,68 C 70,60 56,50 44,38" stroke="#2e1018" stroke-width="7"/>
-              <path d="M 80,68 C 70,60 56,50 44,38" stroke="#7a3548" stroke-width="4.5"/>
-              <!-- Right main branch -->
-              <path d="M 80,70 C 90,62 104,52 116,40" stroke="#2e1018" stroke-width="7"/>
-              <path d="M 80,70 C 90,62 104,52 116,40" stroke="#7a3548" stroke-width="4.5"/>
-              <!-- Left outer branch -->
-              <path d="M 44,38 C 36,30 26,22 20,14" stroke="#3d1a24" stroke-width="4.5"/>
-              <path d="M 44,38 C 36,30 26,22 20,14" stroke="#9b5468" stroke-width="2.8"/>
-              <!-- Right outer branch -->
-              <path d="M 116,40 C 124,32 134,24 140,14" stroke="#3d1a24" stroke-width="4.5"/>
-              <path d="M 116,40 C 124,32 134,24 140,14" stroke="#9b5468" stroke-width="2.8"/>
-              <!-- Center-left branch -->
-              <path d="M 80,65 C 74,55 68,46 62,36" stroke="#3d1a24" stroke-width="3.8"/>
-              <path d="M 80,65 C 74,55 68,46 62,36" stroke="#9b5468" stroke-width="2.2"/>
-              <!-- Center-right branch -->
-              <path d="M 80,67 C 86,57 92,48 98,38" stroke="#3d1a24" stroke-width="3.8"/>
-              <path d="M 80,67 C 86,57 92,48 98,38" stroke="#9b5468" stroke-width="2.2"/>
-              <!-- Sub-branches -->
-              <path d="M 44,38 C 40,32 34,27 28,22" stroke="#4a2030" stroke-width="2.8"/>
-              <path d="M 116,40 C 120,34 126,28 132,24" stroke="#4a2030" stroke-width="2.8"/>
-              <!-- Twig ends (bark only) -->
-              <path d="M 20,14 C 16,10 11,8 9,5"   stroke="#4a2030" stroke-width="1.8" opacity="0.8"/>
-              <path d="M 20,14 C 18,8 18,4 20,2"   stroke="#4a2030" stroke-width="1.4" opacity="0.7"/>
-              <path d="M 140,14 C 144,10 149,8 151,5" stroke="#4a2030" stroke-width="1.8" opacity="0.8"/>
-              <path d="M 140,14 C 142,8 142,4 140,2"  stroke="#4a2030" stroke-width="1.4" opacity="0.7"/>
-              <path d="M 62,36 C 58,30 54,24 52,18"  stroke="#4a2030" stroke-width="1.8" opacity="0.75"/>
-              <path d="M 98,38 C 102,32 106,26 108,20" stroke="#4a2030" stroke-width="1.8" opacity="0.75"/>
+              <!-- Main trunk — S-curve lean (3 depth layers) -->
+              <path d="M 80,108 C 74,98 86,82 78,68" stroke="#2e1018" stroke-width="11"/>
+              <path d="M 80,108 C 74,98 86,82 78,68" stroke="#7a3548" stroke-width="7.5"/>
+              <path d="M 80,108 C 74,98 86,82 78,68" stroke="#a35870" stroke-width="4" opacity="0.35"/>
+              <!-- Trunk lenticels (horizontal bark marks) -->
+              <line x1="74" y1="98"  x2="83" y2="97"  stroke="#3d1a24" stroke-width="0.7" opacity="0.7"/>
+              <line x1="76" y1="88"  x2="85" y2="89"  stroke="#3d1a24" stroke-width="0.7" opacity="0.7"/>
+              <line x1="78" y1="78"  x2="86" y2="78"  stroke="#3d1a24" stroke-width="0.7" opacity="0.7"/>
+              <line x1="76" y1="103" x2="84" y2="104" stroke="#3d1a24" stroke-width="0.7" opacity="0.6"/>
+
+              <!-- Left main branch — gnarled with 2 knuckles -->
+              <path d="M 78,68 C 73,67 70,68 67,64 C 63,59 64,56 60,53 C 55,48 50,44 44,38" stroke="#2e1018" stroke-width="7"/>
+              <path d="M 78,68 C 73,67 70,68 67,64 C 63,59 64,56 60,53 C 55,48 50,44 44,38" stroke="#7a3548" stroke-width="4.5"/>
+              <!-- Right main branch — gnarled with 2 knuckles -->
+              <path d="M 78,68 C 84,68 87,67 90,64 C 94,59 93,56 97,54 C 103,49 109,44 116,40" stroke="#2e1018" stroke-width="7"/>
+              <path d="M 78,68 C 84,68 87,67 90,64 C 94,59 93,56 97,54 C 103,49 109,44 116,40" stroke="#7a3548" stroke-width="4.5"/>
+
+              <!-- Left outer branch — zigzag tip flicks up -->
+              <path d="M 44,38 C 39,33 36,31 32,26 C 28,22 24,19 20,14" stroke="#3d1a24" stroke-width="4.5"/>
+              <path d="M 44,38 C 39,33 36,31 32,26 C 28,22 24,19 20,14" stroke="#9b5468" stroke-width="2.8"/>
+              <!-- Right outer branch — zigzag tip flicks up -->
+              <path d="M 116,40 C 121,35 124,33 128,28 C 132,24 136,19 140,14" stroke="#3d1a24" stroke-width="4.5"/>
+              <path d="M 116,40 C 121,35 124,33 128,28 C 132,24 136,19 140,14" stroke="#9b5468" stroke-width="2.8"/>
+
+              <!-- Center-left branch — knot at midpoint -->
+              <path d="M 78,68 C 75,62 71,58 68,54 C 65,49 63,42 62,36" stroke="#3d1a24" stroke-width="3.8"/>
+              <path d="M 78,68 C 75,62 71,58 68,54 C 65,49 63,42 62,36" stroke="#9b5468" stroke-width="2.2"/>
+              <!-- Center-right branch — knot at midpoint -->
+              <path d="M 78,68 C 82,62 86,58 90,54 C 94,49 97,42 98,38" stroke="#3d1a24" stroke-width="3.8"/>
+              <path d="M 78,68 C 82,62 86,58 90,54 C 94,49 97,42 98,38" stroke="#9b5468" stroke-width="2.2"/>
+
+              <!-- Sub-branches (also zigzag) -->
+              <path d="M 44,38 C 40,33 35,29 32,26 C 30,24 29,23 28,22" stroke="#4a2030" stroke-width="2.8"/>
+              <path d="M 116,40 C 120,34 124,30 128,27 C 130,25 131,24 132,24" stroke="#4a2030" stroke-width="2.8"/>
+
+              <!-- Twig ends (fine, slightly curved upward at tips) -->
+              <path d="M 20,14 C 16,11 12,9 9,5"    stroke="#4a2030" stroke-width="1.8" opacity="0.8"/>
+              <path d="M 20,14 C 18,9 18,5 20,2"    stroke="#4a2030" stroke-width="1.4" opacity="0.7"/>
+              <path d="M 140,14 C 144,11 148,9 151,5" stroke="#4a2030" stroke-width="1.8" opacity="0.8"/>
+              <path d="M 140,14 C 142,9 142,5 140,2"  stroke="#4a2030" stroke-width="1.4" opacity="0.7"/>
+              <path d="M 62,36 C 60,30 55,24 52,18"  stroke="#4a2030" stroke-width="1.8" opacity="0.75"/>
+              <path d="M 98,38 C 100,32 105,26 108,20" stroke="#4a2030" stroke-width="1.8" opacity="0.75"/>
+              <!-- Extra fine twigs for organic density -->
+              <path d="M 67,64 C 64,60 61,56 58,52"  stroke="#4a2030" stroke-width="1.3" opacity="0.55"/>
+              <path d="M 90,64 C 93,60 96,56 99,52"  stroke="#4a2030" stroke-width="1.3" opacity="0.55"/>
+              <path d="M 32,26 C 26,24 22,22 18,22"  stroke="#4a2030" stroke-width="1.2" opacity="0.5"/>
+              <path d="M 128,28 C 134,26 138,24 142,24" stroke="#4a2030" stroke-width="1.2" opacity="0.5"/>
             </g>
 
-            <!-- ══ ROOTS — bark layer (trunk extends + organic spread) ══ -->
+            <!-- ══ ROOTS — nebari spread (multiple tendrils per side) ══ -->
             <g fill="none" stroke-linecap="round">
-              <!-- RECOV root: trunk top continues upward to chip -->
-              <path d="M 80,60 C 80,50 80,42 80,30" stroke="#2e1018" stroke-width="8"/>
-              <path d="M 80,60 C 80,50 80,42 80,30" stroke="#7a3548" stroke-width="5.5"/>
-              <!-- SLEEP root: organic left curve -->
-              <path d="M 80,108 C 62,113 42,116 24,117" stroke="#2e1018" stroke-width="8"/>
-              <path d="M 80,108 C 62,113 42,116 24,117" stroke="#7a3548" stroke-width="5.5"/>
-              <!-- STRAIN root: organic right curve -->
-              <path d="M 80,108 C 98,113 118,116 136,117" stroke="#2e1018" stroke-width="8"/>
-              <path d="M 80,108 C 98,113 118,116 136,117" stroke="#7a3548" stroke-width="5.5"/>
-              <!-- Sub-root tangles near SLEEP -->
-              <path d="M 24,117 C 16,124 10,131 8,140"  stroke="#4a2030" stroke-width="2.8" opacity="0.55"/>
-              <path d="M 24,117 C 18,125 14,134 10,144" stroke="#4a2030" stroke-width="2"   opacity="0.42"/>
-              <path d="M 24,117 C 22,126 20,136 22,146" stroke="#4a2030" stroke-width="1.5" opacity="0.35"/>
-              <!-- Sub-root tangles near STRAIN -->
-              <path d="M 136,117 C 144,124 150,131 152,140" stroke="#4a2030" stroke-width="2.8" opacity="0.55"/>
-              <path d="M 136,117 C 142,125 146,134 150,144" stroke="#4a2030" stroke-width="2"   opacity="0.42"/>
-              <path d="M 136,117 C 138,126 140,136 138,146" stroke="#4a2030" stroke-width="1.5" opacity="0.35"/>
+              <!-- RECOV root: trunk continues upward to chip (with subtle waver) -->
+              <path d="M 78,68 C 80,56 78,42 80,30" stroke="#2e1018" stroke-width="8"/>
+              <path d="M 78,68 C 80,56 78,42 80,30" stroke="#7a3548" stroke-width="5.5"/>
+              <!-- RECOV trunk lenticels -->
+              <line x1="76" y1="58" x2="84" y2="57" stroke="#3d1a24" stroke-width="0.7" opacity="0.7"/>
+              <line x1="76" y1="46" x2="83" y2="46" stroke="#3d1a24" stroke-width="0.7" opacity="0.65"/>
+              <line x1="77" y1="38" x2="84" y2="37" stroke="#3d1a24" stroke-width="0.7" opacity="0.6"/>
+
+              <!-- ── SLEEP root system (left nebari — 4 tendrils) ── -->
+              <!-- Tendril A: upper, gentle arch -->
+              <path d="M 80,108 C 66,108 50,109 32,110" stroke="#2e1018" stroke-width="5"/>
+              <path d="M 80,108 C 66,108 50,109 32,110" stroke="#7a3548" stroke-width="3"/>
+              <!-- Tendril B: MAIN (signal path goes here — matches blm-path2) -->
+              <path d="M 80,108 C 62,112 42,115 24,117" stroke="#2e1018" stroke-width="8"/>
+              <path d="M 80,108 C 62,112 42,115 24,117" stroke="#7a3548" stroke-width="5.5"/>
+              <!-- Tendril C: middle, dives slightly -->
+              <path d="M 80,108 C 64,116 50,120 38,124" stroke="#2e1018" stroke-width="4.5"/>
+              <path d="M 80,108 C 64,116 50,120 38,124" stroke="#7a3548" stroke-width="2.8"/>
+              <!-- Tendril D: lower, dives deeper -->
+              <path d="M 80,108 C 66,120 52,128 40,134" stroke="#2e1018" stroke-width="3.8"/>
+              <path d="M 80,108 C 66,120 52,128 40,134" stroke="#7a3548" stroke-width="2.2"/>
+              <!-- Fine sub-tendrils branching off -->
+              <path d="M 50,120 C 40,124 30,128 20,134" stroke="#4a2030" stroke-width="1.8" opacity="0.55"/>
+              <path d="M 40,134 C 30,140 22,148 18,156" stroke="#4a2030" stroke-width="1.5" opacity="0.5"/>
+              <path d="M 32,110 C 22,112 14,114 6,116" stroke="#4a2030" stroke-width="1.4" opacity="0.5"/>
+              <path d="M 38,124 C 28,130 20,140 16,152" stroke="#4a2030" stroke-width="1.2" opacity="0.4"/>
+
+              <!-- ── STRAIN root system (right nebari — 4 tendrils) ── -->
+              <!-- Tendril A: upper, gentle arch -->
+              <path d="M 80,108 C 94,108 110,109 128,110" stroke="#2e1018" stroke-width="5"/>
+              <path d="M 80,108 C 94,108 110,109 128,110" stroke="#7a3548" stroke-width="3"/>
+              <!-- Tendril B: MAIN (signal path goes here — matches blm-path3) -->
+              <path d="M 80,108 C 98,112 118,115 136,117" stroke="#2e1018" stroke-width="8"/>
+              <path d="M 80,108 C 98,112 118,115 136,117" stroke="#7a3548" stroke-width="5.5"/>
+              <!-- Tendril C: middle, dives slightly -->
+              <path d="M 80,108 C 96,116 110,120 122,124" stroke="#2e1018" stroke-width="4.5"/>
+              <path d="M 80,108 C 96,116 110,120 122,124" stroke="#7a3548" stroke-width="2.8"/>
+              <!-- Tendril D: lower, dives deeper -->
+              <path d="M 80,108 C 94,120 108,128 120,134" stroke="#2e1018" stroke-width="3.8"/>
+              <path d="M 80,108 C 94,120 108,128 120,134" stroke="#7a3548" stroke-width="2.2"/>
+              <!-- Fine sub-tendrils branching off -->
+              <path d="M 110,120 C 120,124 130,128 140,134" stroke="#4a2030" stroke-width="1.8" opacity="0.55"/>
+              <path d="M 120,134 C 130,140 138,148 142,156" stroke="#4a2030" stroke-width="1.5" opacity="0.5"/>
+              <path d="M 128,110 C 138,112 146,114 154,116" stroke="#4a2030" stroke-width="1.4" opacity="0.5"/>
+              <path d="M 122,124 C 132,130 140,140 144,152" stroke="#4a2030" stroke-width="1.2" opacity="0.4"/>
             </g>
+
+            <!-- ══ TRUNK BASE FLARE (nebari junction — masks root convergence) ══ -->
+            <ellipse cx="80" cy="108" rx="15" ry="5" fill="#2e1018"/>
+            <ellipse cx="80" cy="108" rx="12" ry="3.5" fill="#7a3548" opacity="0.9"/>
+            <ellipse cx="80" cy="107" rx="9" ry="2.2" fill="#a35870" opacity="0.4"/>
 
             <!-- ══ ROOT SIGNAL OVERLAY (glowing pink — the data "flows") ══ -->
             <g fill="none" stroke-linecap="round" filter="url(#blm-root-glow)">
-              <!-- Trunk body glow (ambient life-force in the bark) -->
-              <path d="M 80,108 C 79,90 81,74 80,60" stroke="rgba(232,92,138,0.28)" stroke-width="3.5"/>
-              <!-- 3 active root signals -->
-              <path d="M 80,60 C 80,50 80,42 80,30" stroke="#e85c8a" stroke-width="1.5"/>
+              <!-- Trunk body glow (ambient life-force flows up through S-curve) -->
+              <path d="M 80,108 C 74,98 86,82 78,68" stroke="rgba(232,92,138,0.28)" stroke-width="3.5"/>
+              <!-- 3 active root signals (RECOV up, SLEEP left tendril B, STRAIN right tendril B) -->
+              <path d="M 78,68 C 80,56 78,42 80,30" stroke="#e85c8a" stroke-width="1.5"/>
               <path d="M 80,108 C 62,113 42,116 24,117" stroke="#e85c8a" stroke-width="1.5"/>
               <path d="M 80,108 C 98,113 118,116 136,117" stroke="#e85c8a" stroke-width="1.5"/>
             </g>
