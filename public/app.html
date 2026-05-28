@@ -1337,6 +1337,48 @@ body.t-naruto span.vval{
 /* Dropdown expandido — crece dentro del card */
 .vc-xpnd{max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(.4,0,.2,1),padding 0.35s cubic-bezier(.4,0,.2,1),opacity 0.25s;opacity:0;margin-top:0;}
 .vc.open .vc-xpnd{max-height:140px;padding:10px 0;opacity:1;margin-top:10px;}
+
+/* ── Compact HR Card ── */
+.vc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;}
+.vc-bpm-row{display:flex;align-items:baseline;gap:6px;margin:4px 0 0;}
+.vc-bpm{font-size:38px;font-weight:700;line-height:1;color:var(--ta);}
+.vc-bpm-unit{font-size:11px;letter-spacing:2px;opacity:0.4;}
+.vc-pulse{width:7px;height:7px;border-radius:50%;background:var(--tneg);flex-shrink:0;animation:vc-pulse 0.88s ease-in-out infinite;}
+@keyframes vc-pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(0.5);opacity:0.35;}}
+.vc-spark{margin:8px 0 0;}
+.vc-spark svg{width:100%;height:26px;overflow:visible;display:block;}
+.vc-pills{display:flex;gap:6px;margin-top:8px;}
+.vc-pill{flex:1;background:var(--rbg);padding:7px 8px;}
+.vc-pill-lbl{font-size:9px;letter-spacing:2px;opacity:0.35;text-transform:uppercase;}
+.vc-pill-val{font-size:17px;font-weight:700;color:var(--ta);line-height:1;margin-top:2px;}
+.vc-pill-unit{font-size:9px;opacity:0.28;letter-spacing:1px;margin-top:2px;}
+
+/* ── Widget Manager ── */
+#wm-btn{background:none;border:1px solid var(--bdr);color:var(--tx);font-family:inherit;font-size:9px;letter-spacing:2px;padding:4px 10px;cursor:pointer;opacity:0.45;transition:opacity 0.2s,border-color 0.2s;white-space:nowrap;}
+#wm-btn:hover{opacity:1;border-color:var(--ta);color:var(--ta);}
+#wm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:8000;display:none;transition:background 0.3s;}
+#wm-overlay.wm-open{background:rgba(0,0,0,0.72);}
+#wm-drawer{position:fixed;bottom:0;left:0;right:0;z-index:8001;background:var(--bg);border-top:1px solid var(--bdr);transform:translateY(110%);transition:transform 0.42s cubic-bezier(0.34,1.56,0.64,1);padding-bottom:env(safe-area-inset-bottom,16px);}
+#wm-drawer.wm-open{transform:translateY(0);}
+.wm-handle{width:36px;height:4px;background:var(--sub);border-radius:2px;margin:12px auto 0;}
+.wm-drawer-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 8px;}
+.wm-drawer-title{font-size:11px;letter-spacing:3px;font-weight:700;color:var(--ta);}
+.wm-done{background:var(--ta);color:#000;border:none;font-family:inherit;font-size:10px;letter-spacing:2px;font-weight:700;padding:6px 14px;cursor:pointer;}
+.wm-list{padding:0 16px 16px;display:flex;flex-direction:column;gap:0;max-height:55vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.wm-item{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--bdr);}
+.wm-item:last-child{border-bottom:none;}
+.wm-item-icon{width:30px;height:30px;background:var(--rbg);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.wm-item-info{flex:1;min-width:0;}
+.wm-item-label{font-size:12px;font-weight:700;letter-spacing:1px;}
+.wm-item-desc{font-size:10px;letter-spacing:1px;opacity:0.38;margin-top:2px;}
+.wm-toggle{position:relative;width:44px;height:26px;flex-shrink:0;cursor:pointer;}
+.wm-toggle input{opacity:0;width:0;height:0;position:absolute;}
+.wm-tog-trk{position:absolute;inset:0;background:var(--sub);border-radius:13px;transition:background 0.25s;}
+.wm-toggle input:checked + .wm-tog-trk{background:var(--ta);}
+.wm-tog-thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1),background 0.25s;}
+.wm-toggle input:checked + .wm-tog-trk .wm-tog-thumb{transform:translateX(18px);}
+.wm-widget-hidden{display:none!important;}
+
 .cal-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
 .cal-box{background:var(--rbg);padding:8px 10px;}
 .cal-box-lbl{font-size:9px;letter-spacing:2px;opacity:0.35;text-transform:uppercase;}
@@ -1704,7 +1746,10 @@ body.t-naruto span.vval{
         <!-- BLOOM: daily affirmation (hidden on other themes via CSS) -->
         <div id="bloom-aff"></div>
       </div>
-      <div class="db-date" id="clock" style="margin-top:0;align-self:flex-end;padding-bottom:4px;"></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;align-self:flex-end;padding-bottom:4px;">
+        <div class="db-date" id="clock" style="margin-top:0;"></div>
+        <button id="wm-btn" onclick="openWM()">⊞ WIDGETS</button>
+      </div>
     </div>
 
     <!-- Cycle quick-glance chip — visible on Home when cycle tracking is on -->
@@ -2468,24 +2513,35 @@ body.t-naruto span.vval{
 
       <div class="vg">
         <div class="vc exp" id="hr-card" onclick="toggleHR()" data-onb="rhr">
-          <span class="vlbl" id="lbl-hr">// FREC. CARDÍACA</span><button class="onb-q" onclick="showOnb('rhr')" aria-label="info">?</button>
-          <div class="vval" id="hrv">68</div>
-          <span class="vunit" id="u-hr">BPM — REPOSO</span>
-          <!-- Siempre visible: Reposo + Máximo del día -->
-          <div class="cal-split">
-            <div class="cal-box">
-              <div class="cal-box-lbl" id="hr-rest-lbl">REPOSO</div>
-              <div class="cal-box-val" id="hr-rest">61</div>
-              <div class="cal-box-unit">BPM</div>
+          <div class="vc-head">
+            <span class="vlbl" id="lbl-hr">// FREC. CARDÍACA</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span class="vc-pulse" id="hr-pulse"></span>
+              <button class="onb-q" onclick="event.stopPropagation();showOnb('rhr')" aria-label="info">?</button>
             </div>
-            <div class="cal-box">
-              <div class="cal-box-lbl" id="hr-max-lbl">MÁXIMO</div>
-              <div class="cal-box-val" id="hr-max">172</div>
-              <div class="cal-box-unit" id="hr-max-unit">BPM HOY</div>
+          </div>
+          <div class="vc-bpm-row">
+            <span class="vc-bpm" id="hrv">68</span>
+            <span class="vc-bpm-unit">BPM</span>
+          </div>
+          <span class="vunit" id="u-hr" style="display:none">BPM — REPOSO</span>
+          <div class="vc-spark">
+            <svg id="hr-mini-spark" viewBox="0 0 80 24" preserveAspectRatio="none"></svg>
+          </div>
+          <div class="vc-pills">
+            <div class="vc-pill">
+              <div class="vc-pill-lbl" id="hr-rest-lbl">REPOSO</div>
+              <div class="vc-pill-val" id="hr-rest">61</div>
+              <div class="vc-pill-unit">BPM</div>
+            </div>
+            <div class="vc-pill">
+              <div class="vc-pill-lbl" id="hr-max-lbl">MÁXIMO</div>
+              <div class="vc-pill-val" id="hr-max">172</div>
+              <div class="vc-pill-unit" id="hr-max-unit">BPM HOY</div>
             </div>
           </div>
           <div class="xarrow">▼</div>
-          <!-- Expandible: zonas cardíacas estilo Whoop -->
+          <!-- Expandible: zonas cardíacas -->
           <div class="vc-xpnd">
             <div class="cal-bars">
               <div class="cal-bar-row"><span class="cal-bar-lbl" id="hrz-base">BASE</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="hrbar-base" style="width:0%;background:rgba(255,255,255,0.25)"></div></div><span class="cal-bar-val" id="hrmin-base">840m</span></div>
@@ -2495,9 +2551,9 @@ body.t-naruto span.vval{
             </div>
           </div>
         </div>
-        <div class="vc" data-onb="hrv"><span class="vlbl" id="lbl-hrv">// HRV NOCTURNO</span><button class="onb-q" onclick="showOnb('hrv')" aria-label="info">?</button><div class="vval" id="hrvv">48</div><span class="vunit" id="u-hrv">ms — BUENO</span><div class="vtrd">↑ +6</div></div>
-        <div class="vc"><span class="vlbl" id="lbl-spo2">// SATURACIÓN O₂</span><div class="vval" id="spo2v">98</div><span class="vunit">% SpO2</span><div class="vtrd">→</div></div>
-        <div class="vc"><span class="vlbl" id="lbl-temp">// TEMP. CORPORAL</span><div class="vval" id="tempv">36.4</div><span class="vunit" id="u-temp">°C PIEL</span><div class="vtrd">→</div></div>
+        <div class="vc" id="hrv-card" data-onb="hrv"><span class="vlbl" id="lbl-hrv">// HRV NOCTURNO</span><button class="onb-q" onclick="showOnb('hrv')" aria-label="info">?</button><div class="vval" id="hrvv">48</div><span class="vunit" id="u-hrv">ms — BUENO</span><div class="vtrd">↑ +6</div></div>
+        <div class="vc" id="spo2-card"><span class="vlbl" id="lbl-spo2">// SATURACIÓN O₂</span><div class="vval" id="spo2v">98</div><span class="vunit">% SpO2</span><div class="vtrd">→</div></div>
+        <div class="vc" id="temp-card"><span class="vlbl" id="lbl-temp">// TEMP. CORPORAL</span><div class="vval" id="tempv">36.4</div><span class="vunit" id="u-temp">°C PIEL</span><div class="vtrd">→</div></div>
         <div class="vc exp" id="stress-card" onclick="toggleStress()" data-onb="strain">
           <span class="vlbl" id="lbl-stress">// NIVEL ESTRÉS</span>
           <div class="vval" id="stressv">24</div>
@@ -2595,7 +2651,7 @@ body.t-naruto span.vval{
     </div><!-- /mg -->
 
     <!-- ═══ Pasos — fila compacta full-width ═══ -->
-    <div class="card scard">
+    <div class="card scard" id="scard">
       <div class="scard-inner">
         <div>
           <span class="clbl" id="lbl-steps">// ACTIVIDAD DIARIA — PASOS</span><button class="onb-q" onclick="showOnb('steps')" aria-label="info">?</button>
@@ -2614,7 +2670,7 @@ body.t-naruto span.vval{
     </div>
 
     <!-- ═══ Bottom: Actividades | Coach ═══ -->
-    <div class="bot">
+    <div class="bot" id="bot">
       <div class="card">
         <span class="clbl" id="lbl-activity">// ACTIVIDADES</span>
         <div class="acit"><div class="acio">🏃</div><div><div class="acnm" id="ac1n">CARRERA</div><div class="acmt" id="ac1m">HOY 06:15 · 4.2KM</div></div><div class="acvl">287 kcal</div></div>
@@ -2643,6 +2699,17 @@ body.t-naruto span.vval{
       </div>
     </div>
   </main>
+
+  <!-- Widget Manager -->
+  <div id="wm-overlay" onclick="closeWM()"></div>
+  <div id="wm-drawer" role="dialog" aria-label="Widget Manager">
+    <div class="wm-handle"></div>
+    <div class="wm-drawer-head">
+      <span class="wm-drawer-title" id="wm-title">PERSONALIZAR WIDGETS</span>
+      <button class="wm-done" onclick="closeWM()" id="wm-done-btn">LISTO</button>
+    </div>
+    <div class="wm-list" id="wm-list"></div>
+  </div>
 
   <!-- Pull to Refresh indicator -->
   <div class="ptr" id="ptr"><span class="ptr-ic">↻</span></div>
@@ -5788,7 +5855,7 @@ if (theme) updateThemeColor(theme);
 function initDash() {
   document.getElementById('cburl').textContent = REDIR;
   updateClock(); setInterval(updateClock, 1000);
-  buildWeeks(); buildHRC(hrHist);
+  buildWeeks(); buildHRC(hrHist); drawMiniSparkline(hrHist);
   renderCycleHomeChip();
   setTimeout(animVals, 300);
   // Restore persisted name + hide Connect button if already authenticated
@@ -5849,7 +5916,7 @@ function initDash() {
         if (e && n !== c) { e.textContent = n; pulseValue(e); }
       });
       syncTicker();
-      hrHist.push(n); if (hrHist.length>48) hrHist.shift(); buildHRC(hrHist);
+      hrHist.push(n); if (hrHist.length>48) hrHist.shift(); buildHRC(hrHist); drawMiniSparkline(hrHist);
     }, 4000);
     setInterval(() => {
       if (isReal) return;
@@ -5859,6 +5926,7 @@ function initDash() {
       if (inc > 0) { el.textContent = c + inc; pulseValue(el); }
     }, 20000);
   }
+  applyWMState();
 }
 
 function updateClock() {
@@ -5889,6 +5957,99 @@ function buildHRC(hrs) {
     <path d="M ${pts[0]} L ${pth} L ${w},${h} L 0,${h} Z" fill="url(#hg)"/>
     <path d="M ${pts[0]} L ${pth}" fill="none" stroke="var(--tneg)" stroke-width="1.5"/>
     <circle cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="3.5" fill="var(--tneg)"/>`;
+}
+
+// ══════ MINI SPARKLINE (HR card) ══════
+function drawMiniSparkline(pts) {
+  var svg = document.getElementById('hr-mini-spark');
+  if (!svg || !pts || pts.length < 2) return;
+  var w = 80, h = 24;
+  var mn = Math.min.apply(null, pts) - 3;
+  var mx = Math.max.apply(null, pts) + 3;
+  var coords = pts.map(function(v, i) {
+    var x = (i / (pts.length - 1)) * w;
+    var y = h - ((v - mn) / (mx - mn)) * (h - 4) - 2;
+    return x.toFixed(1) + ',' + y.toFixed(1);
+  });
+  var path = coords.join(' L ');
+  var last = coords[coords.length - 1].split(',');
+  svg.innerHTML = '<defs><linearGradient id="msg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--tneg)" stop-opacity="0.28"/><stop offset="100%" stop-color="var(--tneg)" stop-opacity="0"/></linearGradient></defs>'
+    + '<path d="M ' + coords[0] + ' L ' + path + ' L ' + w + ',' + h + ' L 0,' + h + ' Z" fill="url(#msg)"/>'
+    + '<polyline points="' + coords.join(' ') + '" fill="none" stroke="var(--tneg)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
+    + '<circle cx="' + last[0] + '" cy="' + last[1] + '" r="2.5" fill="var(--tneg)"/>';
+}
+
+// ══════ WIDGET MANAGER ══════
+var WM_WIDGETS = [
+  { id:'hr-card',     label:'Frecuencia Cardíaca', labelEn:'Heart Rate',      desc:'BPM · Reposo · Zonas',           descEn:'BPM · Resting · Zones',         icon:'♥' },
+  { id:'hrv-card',    label:'HRV',                 labelEn:'HRV',             desc:'Variabilidad cardíaca nocturna',  descEn:'Overnight heart rate variability',icon:'〜' },
+  { id:'spo2-card',   label:'Saturación O₂',       labelEn:'O₂ Saturation',   desc:'SpO2 · Oxígeno en sangre',       descEn:'SpO2 · Blood oxygen',           icon:'○' },
+  { id:'temp-card',   label:'Temperatura',          labelEn:'Temperature',      desc:'Temperatura corporal',           descEn:'Body temperature',              icon:'◈' },
+  { id:'stress-card', label:'Nivel de Estrés',      labelEn:'Stress Level',    desc:'Carga · HRV · Respiración',      descEn:'Load · HRV · Breathing',        icon:'⚡' },
+  { id:'cal-card',    label:'Calorías',             labelEn:'Calories',         desc:'Activas · Basal · Intensidad',   descEn:'Active · Basal · Intensity',    icon:'◆' },
+  { id:'rcs',         label:'Gráficas',             labelEn:'Charts',           desc:'FC 24h · Análisis de sueño',     descEn:'HR 24h · Sleep analysis',       icon:'▓' },
+  { id:'scard',       label:'Pasos',                labelEn:'Steps',            desc:'Actividad diaria · Objetivo',    descEn:'Daily activity · Goal',         icon:'▶' },
+  { id:'bot',         label:'Actividades & Coach',  labelEn:'Activities & Coach',desc:'Entrenamientos · AIRA',         descEn:'Workouts · AIRA',               icon:'✦' },
+];
+
+function openWM() {
+  var ov = document.getElementById('wm-overlay');
+  var dr = document.getElementById('wm-drawer');
+  var list = document.getElementById('wm-list');
+  if (!ov || !dr || !list) return;
+  var state = loadWMState();
+  var isEs = (typeof lang !== 'undefined' ? lang : 'es') === 'es';
+  list.scrollTop = 0;
+  list.innerHTML = WM_WIDGETS.map(function(w) {
+    var on = state[w.id] !== false;
+    return '<label class="wm-item">'
+      + '<div class="wm-item-icon">' + w.icon + '</div>'
+      + '<div class="wm-item-info"><div class="wm-item-label">' + (isEs ? w.label : w.labelEn) + '</div>'
+      + '<div class="wm-item-desc">' + (isEs ? w.desc : w.descEn) + '</div></div>'
+      + '<label class="wm-toggle"><input type="checkbox" ' + (on ? 'checked' : '') + ' onchange="toggleWidget(\'' + w.id + '\',this.checked)">'
+      + '<div class="wm-tog-trk"><div class="wm-tog-thumb"></div></div></label>'
+      + '</label>';
+  }).join('');
+  ov.style.display = 'block';
+  requestAnimationFrame(function() {
+    ov.classList.add('wm-open');
+    dr.classList.add('wm-open');
+  });
+  document.body.style.overflow = 'hidden';
+}
+
+function closeWM() {
+  var ov = document.getElementById('wm-overlay');
+  var dr = document.getElementById('wm-drawer');
+  if (!ov || !dr) return;
+  ov.classList.remove('wm-open');
+  dr.classList.remove('wm-open');
+  document.body.style.overflow = '';
+  setTimeout(function() { ov.style.display = 'none'; }, 420);
+}
+
+function toggleWidget(id, show) {
+  var state = loadWMState();
+  state[id] = show;
+  saveWMState(state);
+  var el = document.getElementById(id);
+  if (el) el.classList.toggle('wm-widget-hidden', !show);
+}
+
+function loadWMState() {
+  try { return JSON.parse(localStorage.getItem('fb_wm') || '{}'); } catch(e) { return {}; }
+}
+
+function saveWMState(s) {
+  localStorage.setItem('fb_wm', JSON.stringify(s));
+}
+
+function applyWMState() {
+  var state = loadWMState();
+  WM_WIDGETS.forEach(function(w) {
+    var el = document.getElementById(w.id);
+    if (el) el.classList.toggle('wm-widget-hidden', state[w.id] === false);
+  });
 }
 
 // ══════ CALORÍAS EXPANDIBLE ══════
