@@ -1954,10 +1954,10 @@ body.t-naruto span.vval{
                 <feGaussianBlur stdDeviation="1.8" result="blur"/>
                 <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
               </filter>
-              <!-- Center-line paths for animated current dots (3 traces) -->
+              <!-- Center-line paths for animated current dots — must match main trace exactly -->
               <path id="nn-path1" d="M 80,46 L 80,32"/>
-              <path id="nn-path2" d="M 46,80 L 18,80 L 18,120"/>
-              <path id="nn-path3" d="M 80,114 L 80,130 L 120,130"/>
+              <path id="nn-path2" d="M 46,80 L 32,80 L 30,82 L 30,118 L 28,120 L 22,120"/>
+              <path id="nn-path3" d="M 80,114 L 80,128 L 82,130 L 118,130"/>
             </defs>
 
             <!-- ══ RECOVERY NETWORK — authentic PCB style: single traces, 45° chamfered corners, solid vias ══ -->
