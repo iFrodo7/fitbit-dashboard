@@ -1,6 +1,6 @@
 # 🤝 Handoff — Fitbit Air Dashboard
 
-> **Para el próximo desarrollador y su Claude.** Lee esto **primero**, luego `CLAUDE.md` (referencia técnica). Última actualización: **2026-05-24**.
+> **Para el próximo desarrollador y su Claude.** Lee esto **primero**, luego `CLAUDE.md` (referencia técnica). Última actualización: **2026-05-29**.
 
 > **🚨 MIGRACIÓN INMINENTE — Fitbit Web API → Google Health API (sep 2026).** Toda la app depende del Fitbit Web API, que **se apaga en septiembre 2026**. **HECHO:** la capa de datos ya está blindada con un adaptador (`FitbitSource` / `HS` en `public/app.html`) — todas las llamadas pasan por `HS`, cero URLs hardcodeadas. **PENDIENTE:** escribir `GoogleHealthSource` (misma forma) + iniciar la verificación OAuth de Google (gratis pero lenta → **empezar YA**). Sobrevivir cuesta **~$0** (local-first exime del assessment pagado). **Runbook completo y checklist: `MIGRATION.md`.**
 
@@ -20,6 +20,21 @@
   - Instalar en móvil: iPhone Safari → Compartir → *Añadir a pantalla de inicio*; Android Chrome → ⋮ → *Instalar app*.
 - Cada merge a `main` auto-despliega a Vercel (producción).
 - **Bug #12 RESUELTO** — ya se puede usar `let`/`const` top-level (declarados antes del bloque `// BOOT` final). Mantén invocaciones de arranque en BOOT.
+
+## ✅ Qué está construido (sesión 2026-05-29, Widget System v2)
+
+| Área | Qué |
+|---|---|
+| **Naruto easter eggs** | Shuriken CSS spinners en `.vc` cards, kunai blade, makimono scroll tag (巻), scratch effect en labels, chip de rango dinámico (Aprendiz→Genin→Chunin→Jonin→Kage). |
+| **Reorder biométrico** | Home: HR › HRV › Estrés › Cal › SpO₂ › Temp. Col3: Sueño primero, HR Chart segundo. Stats: Recovery › Sueño › HR Zonas › Cuerpo › Fitness. |
+| **Jiggle mode (edición widgets)** | Long-press 500ms → modo edición estilo iPhone. Badge `×` frosted-glass top-left para eliminar. Botón LISTO flotante. El `?` ya NO se dispara durante jiggle. |
+| **Drag & drop reorder** | En jiggle mode, arrastra widgets (touch y mouse). Ghost semitransparente + slot punteado de destino. Orden persiste en `localStorage (fb_wm_order)`. |
+| **Resize widgets** | Badge `⊞/⊡` bottom-right alterna entre 1 columna y 2 columnas (`grid-column: span 2`). Tamaños persisten en `localStorage (fb_wm_size)`. |
+| **Tarjeta + AGREGAR** | Siempre visible al final del grid. Abre el drawer del manager para reactivar widgets ocultos. |
+| **Grid proporcional** | `align-items:stretch` + `min-height:110px` + `display:flex/column` en `.vc`. Sin espacios muertos. |
+| **Widgets enriquecidos** | HRV: barra zona + dot animado + sub-métricas. SpO2: barra 90–100% + dot. Temp: barra 35–38°C + dot. Steps: distancia, pisos, min. activos, racha. Sleep: barra score, hora inicio/fin, eficiencia, despertares. HR Chart: mínimo, promedio, pico, rango. |
+| **Botón ? en todos los widgets** | SpO2 y Temp tenían el `?` faltante — agregado con contenido onboarding en ES/EN. |
+| **Headers sin encime** | `.vtrd` y `.xarrow` (position:absolute) movidos al `.vc-head` flex. `.xarrow-inline` reemplaza al absoluto. Ya ningún elemento flota sobre el contenido. |
 
 ## ✅ Qué está construido (sesión 2026-05-24, History v2)
 

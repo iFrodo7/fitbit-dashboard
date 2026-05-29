@@ -214,7 +214,7 @@ body{width:100%;min-height:100vh;}
 
 /* Grid layouts */
 .mg{display:grid;grid-template-columns:236px 1fr 268px;gap:12px;margin-bottom:12px;align-items:start;}
-.vg{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;align-items:start;}
+.vg{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;align-items:stretch;}
 .rcs{display:flex;flex-direction:column;gap:10px;}
 .bot{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-top:12px;}
 .scard{margin-bottom:12px;}
@@ -225,7 +225,7 @@ body{width:100%;min-height:100vh;}
 .clbl{font-size:10px;letter-spacing:3px;text-transform:uppercase;opacity:0.6;margin-bottom:8px;display:block;}
 .coach-logo{width:17px;height:17px;color:var(--ta2);flex-shrink:0;display:inline-block;}
 #lbl-coach{opacity:0.95;font-weight:700;letter-spacing:4px;color:var(--ta2);}
-.vc{padding:10px 12px;border:var(--cbdr);background:var(--cbg);position:relative;overflow:hidden;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}
+.vc{padding:10px 12px;border:var(--cbdr);background:var(--cbg);position:relative;overflow:hidden;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);display:flex;flex-direction:column;min-height:110px;}
 .vc:hover{border-color:var(--ta);box-shadow:0 0 12px rgba(0,0,0,0.3);transform:translateY(-2px);}
 
 /* Readiness ring */
@@ -242,6 +242,8 @@ body{width:100%;min-height:100vh;}
 
 /* Vital cards */
 .vlbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;opacity:0.6;margin-bottom:3px;display:block;}
+.vc-head .vlbl,.vc-head .clbl{display:inline;margin-bottom:0;}
+.vc-head .onb-q{flex-shrink:0;}
 .vval{font-size:38px;font-weight:700;line-height:1;color:var(--txt);}
 .vunit{font-size:10px;letter-spacing:1px;opacity:0.55;margin-top:2px;display:block;}
 .vtrd{position:absolute;top:8px;right:8px;font-size:11px;color:var(--tpos);font-weight:700;}
@@ -250,10 +252,10 @@ body{width:100%;min-height:100vh;}
 /* Per-theme glow on key numbers */
 .t-fut .vval,.t-fut .rnum,.t-fut .snum{text-shadow:0 0 20px rgba(0,245,255,0.6),0 0 40px rgba(0,245,255,0.3);}
 .t-halo .vval,.t-halo .rnum,.t-halo .snum{text-shadow:0 0 20px rgba(255,45,120,0.7),0 0 40px rgba(255,45,120,0.3),0 0 60px rgba(189,0,255,0.15);}
-.t-naruto .vval,.t-naruto .rnum,.t-naruto .snum{text-shadow:0 0 20px rgba(255,69,0,0.6),0 0 40px rgba(255,69,0,0.25);}
+.t-naruto .vval,.t-naruto .rnum,.t-naruto .snum{text-shadow:2px 2px 8px rgba(0,0,0,0.70);}
 .t-fut .wsn,.t-fut .snum{text-shadow:0 0 16px rgba(0,245,255,0.7),0 0 32px rgba(0,245,255,0.4);}
 .t-halo .wsn{text-shadow:0 0 16px rgba(255,45,120,0.8),0 0 32px rgba(255,45,120,0.4);}
-.t-naruto .wsn{text-shadow:0 0 16px rgba(255,69,0,0.6),0 0 32px rgba(255,69,0,0.3);}
+.t-naruto .wsn{text-shadow:2px 2px 6px rgba(0,0,0,0.55);}
 
 /* Steps */
 .snum{font-size:clamp(28px,3.5vw,48px);font-weight:700;line-height:1;animation:snumload 0.9s cubic-bezier(0.34,1.56,0.64,1);}
@@ -640,12 +642,79 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .t-halo .vc::before{content:'';position:absolute;top:0;left:0;width:14px;height:2px;background:rgba(255,45,120,0.7);box-shadow:0 0 6px rgba(255,45,120,0.5);}
 .t-halo .vc::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,rgba(255,45,120,0.6),rgba(189,0,255,0.3),transparent);}
 
-/* NARUTO: Chakra ripple and glow effects */
-.t-naruto .iitm{background:rgba(255,69,0,0.05);border-color:rgba(255,69,0,0.2);}
-.t-naruto .iitm::after{content:'';position:absolute;inset:0;border:1px solid rgba(255,69,0,0.25);border-radius:4px;animation:naruto-pulse 3.5s ease-in-out infinite;pointer-events:none;}
-@keyframes naruto-pulse{0%,100%{transform:scale(1);opacity:0;box-shadow:0 0 0 rgba(255,69,0,0.3);}50%{transform:scale(1.02);opacity:0.4;box-shadow:0 0 12px rgba(255,69,0,0.4);}}
-.t-naruto .typ{animation:naruto-glow 2.2s ease-in-out infinite;}
-@keyframes naruto-glow{0%,100%{text-shadow:0 0 8px rgba(255,69,0,0.3);}50%{text-shadow:0 0 16px rgba(255,69,0,0.7),0 0 24px rgba(255,69,0,0.4);}}
+/* NARUTO: Chakra pulse — sin glow, solo opacidad/escala */
+.t-naruto .iitm{background:rgba(74,106,132,0.04);border-color:rgba(74,106,132,0.16);}
+.t-naruto .iitm::after{content:'';position:absolute;inset:0;border:1px solid rgba(74,106,132,0.20);border-radius:4px;animation:naruto-pulse 4s ease-in-out infinite;pointer-events:none;}
+@keyframes naruto-pulse{0%,100%{transform:scale(1);opacity:0;}50%{transform:scale(1.015);opacity:0.32;}}
+.t-naruto .typ{animation:naruto-glow 3.5s ease-in-out infinite;}
+@keyframes naruto-glow{0%,100%{opacity:0.72;}50%{opacity:1.0;}}
+
+/* ── NARUTO EASTER EGGS: ocultos en todos los temas, visibles solo en .t-naruto ── */
+.nrt-egg{display:none;}
+.t-naruto .nrt-egg{display:block;}
+/* Nindo quote strip (home) */
+.nrt-nindo-strip{font-family:'Noto Serif JP',serif;font-size:9.5px;color:rgba(160,192,220,0.30);
+  letter-spacing:2.5px;text-align:center;padding:5px 0 0;line-height:1.8;
+  animation:nrtSealBreathe 9s ease-in-out infinite;}
+/* 忍者の記録 label (history header) */
+.nrt-hv-label{font-family:'Noto Serif JP',serif;font-size:8.5px;color:rgba(160,192,220,0.36);
+  letter-spacing:2px;margin-top:2px;}
+/* Shinobi rank chip (stats recovery card) */
+.nrt-rank-chip{font-family:'Noto Serif JP',serif;font-size:9px;letter-spacing:2px;
+  color:rgba(160,192,220,0.60);border:1px solid rgba(74,106,132,0.24);
+  padding:3px 9px;margin-top:8px;background:rgba(74,106,132,0.04);}
+/* Shinobi rank block (profile user card) */
+.nrt-rank-block{margin-top:12px;padding:10px 14px;
+  border:1px solid rgba(74,106,132,0.18);border-top:1px solid rgba(74,106,132,0.36);
+  background:rgba(74,106,132,0.04);position:relative;}
+.nrt-rank-block::before{content:'';position:absolute;top:-1px;left:15%;right:15%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(74,106,132,0.48),transparent);}
+.nrt-rank-ttl{font-size:8.5px;letter-spacing:3px;color:rgba(160,192,220,0.42);
+  font-family:'Noto Serif JP',serif;margin-bottom:6px;text-transform:uppercase;}
+.nrt-rank-val{font-family:'Noto Serif JP',serif;font-size:17px;color:rgba(160,192,220,0.88);
+  letter-spacing:2px;}
+.nrt-rank-nindo{font-size:8.5px;color:rgba(160,192,220,0.38);letter-spacing:1px;
+  margin-top:6px;font-family:'Noto Serif JP',serif;font-style:italic;line-height:1.6;}
+
+/* ── WORN BATTLE LABELS — scratches + worn ink on every label in .t-naruto ── */
+/* .clbl is display:flex → ::before is absolute-positioned (out of flow)       */
+.t-naruto .clbl{
+  position:relative;
+  text-shadow:0.4px 0.4px 0 rgba(0,0,0,0.55),-0.2px 0 0 rgba(160,192,220,0.07);}
+.t-naruto .clbl::before{
+  content:'';position:absolute;inset:-4px -2px;pointer-events:none;z-index:1;
+  background:
+    linear-gradient(134deg,transparent 41%,rgba(210,235,255,0.060) 41.5%,rgba(210,235,255,0.060) 42.5%,transparent 43%),
+    linear-gradient(51deg, transparent 63%,rgba(0,0,0,0.072) 63.5%,rgba(0,0,0,0.072) 64.5%,transparent 65%),
+    linear-gradient(109deg,transparent 27%,rgba(210,235,255,0.042) 27.5%,rgba(210,235,255,0.042) 28.5%,transparent 29%);}
+/* .vlbl is an inline <span> → use background-image directly (no ::before needed) */
+.t-naruto .vlbl{
+  text-shadow:0.4px 0.4px 0 rgba(0,0,0,0.55),-0.2px 0 0 rgba(160,192,220,0.07);
+  background-image:
+    linear-gradient(162deg,transparent 34%,rgba(210,235,255,0.055) 34.5%,rgba(210,235,255,0.055) 35.5%,transparent 36%),
+    linear-gradient(74deg, transparent 70%,rgba(0,0,0,0.062) 70.5%,rgba(0,0,0,0.062) 71.5%,transparent 72%);}
+
+/* ── SHURIKEN — 8-point throwing-star spinner on every .vc corner ── */
+.t-naruto .vc{position:relative;}
+.t-naruto .vc::before{
+  content:'';position:absolute;bottom:5px;right:5px;
+  width:9px;height:9px;
+  background:rgba(74,106,132,0.17);
+  clip-path:polygon(50% 0%,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0% 50%,39% 39%);
+  animation:nrtKujiTurn 16s linear infinite;pointer-events:none;}
+
+/* ── KUNAI (throwing blade) — placed inside specific cards ── */
+.nrt-kunai{position:absolute;bottom:10px;right:10px;width:3px;height:16px;
+  background:linear-gradient(180deg,rgba(74,106,132,0.32) 0%,rgba(74,106,132,0.08) 78%,transparent 100%);
+  clip-path:polygon(50% 0%,100% 22%,60% 100%,40% 100%,0% 22%);pointer-events:none;}
+.nrt-kunai::before{
+  content:'';position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);
+  width:6px;height:6px;border-radius:50%;
+  border:1px solid rgba(74,106,132,0.22);pointer-events:none;}
+/* ── MAKIMONO SCROLL tag — placed in steps/activity card ── */
+.nrt-scroll-tag{position:absolute;bottom:8px;right:10px;
+  font-family:'Noto Serif JP',serif;font-size:11px;
+  color:rgba(74,106,132,0.20);letter-spacing:1px;pointer-events:none;}
 
 /* MINECRAFT: Ore/block glow effects */
 .t-mc .iitm{background:rgba(106,255,58,0.03);border-color:rgba(106,255,58,0.15);}
@@ -657,7 +726,7 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 /* Enhanced card hover states for all themes */
 .t-fut .card:hover,.t-fut .vc:hover{border-color:rgba(0,245,255,0.4);box-shadow:0 0 16px rgba(0,245,255,0.15);}
 .t-halo .card:hover,.t-halo .vc:hover{border-color:rgba(255,45,120,0.5);box-shadow:0 0 18px rgba(255,45,120,0.15),0 0 4px rgba(189,0,255,0.1);}
-.t-naruto .card:hover,.t-naruto .vc:hover{border-color:rgba(255,69,0,0.4);box-shadow:0 0 16px rgba(255,69,0,0.15);}
+.t-naruto .card:hover,.t-naruto .vc:hover{border-color:rgba(74,106,132,0.40);box-shadow:0 3px 14px rgba(0,0,0,0.55);}
 .t-mc .card:hover,.t-mc .vc:hover{border-color:rgba(106,255,58,0.4);box-shadow:0 0 16px rgba(106,255,58,0.15);}
 
 /* Header controls */
@@ -989,7 +1058,7 @@ body.is-offline .dstrip, body.is-unstable .dstrip{display:none;}
 .t-mc .bnav{background:#1e1600;border-top:3px solid #6a5020;}
 .t-mc .bnav-btn.active{color:#6aff3a;}
 .t-halo .bnav{border-top:1px solid rgba(255,45,120,0.28);background:rgba(6,0,16,0.97);}
-.t-naruto .bnav{border-top:2px solid rgba(255,69,0,0.3);background:rgba(12,4,0,0.95);}
+.t-naruto .bnav{border-top:1px solid rgba(74,106,132,0.18);background:rgba(6,8,12,0.98);}
 
 /* ═══════════════════════════════════════
    THEME: FUTURISTIC
@@ -1112,11 +1181,11 @@ body.t-mc::before{content:'';position:fixed;inset:0;background-image:repeating-l
 
 /* ── NARUTO: CHAKRA & STAMINA ── */
 .naruto-bars{margin-top:10px;width:100%;}
-.naruto-blbl{font-size:13px;letter-spacing:1px;color:#ff4500;text-shadow:0 0 10px rgba(255,69,0,0.5),2px 0 4px rgba(0,0,0,0.4);margin-bottom:4px;font-family:'Permanent Marker',cursive;}
-.naruto-btr{width:100%;height:10px;background:rgba(12,4,0,0.8);border:1.5px solid rgba(255,69,0,0.3);box-shadow:inset 0 0 3px rgba(0,0,0,0.8),0 0 6px rgba(255,69,0,0.15);}
+.naruto-blbl{font-size:11px;letter-spacing:2.5px;color:#a0b8d0;margin-bottom:5px;font-family:'Noto Serif JP',serif;font-weight:700;text-transform:uppercase;}
+.naruto-btr{width:100%;height:10px;background:rgba(6,8,14,0.85);border:1px solid rgba(74,106,132,0.22);box-shadow:inset 0 0 4px rgba(0,0,0,0.7);}
 .naruto-bfi{height:100%;transition:width 0.5s cubic-bezier(.4,0,.2,1);}
-.naruto-chakra{background:linear-gradient(90deg,#ff4500 0%,#ff6b35 100%);box-shadow:0 0 10px rgba(255,69,0,0.7),inset 0 1px 2px rgba(255,100,50,0.3);}
-.naruto-stamina{background:linear-gradient(90deg,#ffd700 0%,#ffaa00 100%);box-shadow:0 0 10px rgba(255,170,0,0.6),inset 0 1px 2px rgba(255,180,0,0.2);}
+.naruto-chakra{background:linear-gradient(90deg,#141e28 0%,#4a6a84 100%);box-shadow:inset 0 1px 3px rgba(0,0,0,0.5);}
+.naruto-stamina{background:linear-gradient(90deg,#1a2030 0%,#8aaac4 100%);box-shadow:inset 0 1px 3px rgba(0,0,0,0.5);}
 .t-naruto .naruto-bars{display:block;}
 .t-naruto .mc-bars,.halo-bars,.t-fut-bars{display:none;}
 
@@ -1128,24 +1197,35 @@ body.t-mc::before{content:'';position:fixed;inset:0;background-image:repeating-l
 .nrt-rsvg{width:100%;height:100%;overflow:visible;}
 .t-naruto .rc{display:none;}
 .t-naruto .nrt-rc{display:block;}
-/* Chakra arc — glows like chakra flowing through an ancient seal */
-#nrt-rfil{fill:none;stroke:#ff4500;stroke-width:9;stroke-linecap:round;
+/* Chakra arc — acero lunar, respira sin glow */
+#nrt-rfil{fill:none;stroke:#4a6a84;stroke-width:9;stroke-linecap:round;
   stroke-dasharray:364;stroke-dashoffset:73;
   transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1);
-  animation:nrtArcGlow 3.5s ease-in-out infinite;}
-/* Ba Gua kanji (八卦) and seal marks */
-.nrt-kj{font-family:'Noto Serif JP',serif;font-size:9.5px;fill:rgba(255,90,0,0.6);}
+  animation:nrtArcBreathe 7s ease-in-out infinite;}
+/* Ba Gua kanji (八卦) outer ring */
+.nrt-kj{font-family:'Noto Serif JP',serif;font-size:9.5px;fill:rgba(160,192,220,0.62);}
+/* 九字 Kuji-in inner ring — rueda de oración, gira lentamente */
+.nrt-kj-inner{font-family:'Noto Serif JP',serif;font-size:7.5px;fill:rgba(160,192,220,0.36);}
 /* Center 渦 Uzumaki seal */
-.nrt-seal{font-family:'Noto Serif JP',serif;font-size:42px;fill:rgba(255,69,0,0.16);
-  animation:nrtSealPulse 4.2s ease-in-out infinite;}
-@keyframes nrtArcGlow{
-  0%,100%{filter:drop-shadow(0 0 4px rgba(255,69,0,0.85)) drop-shadow(0 0 14px rgba(255,69,0,0.35));}
-  50%    {filter:drop-shadow(0 0 9px rgba(255,110,0,1))   drop-shadow(0 0 26px rgba(255,69,0,0.65));}}
+.nrt-seal{font-family:'Noto Serif JP',serif;font-size:42px;fill:rgba(74,106,132,0.14);
+  animation:nrtSealBreathe 6s ease-in-out infinite;}
+/* Kuji-in ring — gira como rueda de oración budista */
+#nrt-kuji-ring{transform-origin:80px 80px;animation:nrtKujiTurn 90s linear infinite;}
+@keyframes nrtKujiTurn{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+/* Acero lunar: el arco respira entre sombra y plata fría */
+@keyframes nrtArcBreathe{
+  0%,100%{stroke:#141e28;stroke-opacity:0.68;}
+  28%    {stroke:#7a9ab8;stroke-opacity:1.00;}
+  55%    {stroke:#243040;stroke-opacity:0.78;}
+  78%    {stroke:#4a6a88;stroke-opacity:0.92;}
+}
+/* Sello central — respira muy suave, como brasas */
+@keyframes nrtSealBreathe{0%,100%{opacity:0.55;}50%{opacity:0.95;}}
 @keyframes nrtSealPulse{0%,100%{opacity:0.7;}50%{opacity:1;}}
 /* Percentage number */
 .nrt-pct-row{display:flex;align-items:baseline;line-height:1;}
-.nrt-pct-sym{font-family:'Permanent Marker',cursive;font-size:20px;color:#ff4500;
-  opacity:0.75;margin-left:1px;text-shadow:0 0 10px rgba(255,69,0,0.5);}
+.nrt-pct-sym{font-family:'Permanent Marker',cursive;font-size:20px;color:#a0b8d0;
+  opacity:0.80;margin-left:1px;}
 
 /* ── NEON NOIR: Circuit Chip Ring ──
    PCB IC chip at center with 4 right-angle parallel-trace arms,
@@ -1277,21 +1357,27 @@ body.t-bloom::after{content:'';position:fixed;bottom:0;left:0;right:0;height:35v
    que se vean bien a tamaños grandes. Se usa Rajdhani bold para datos numéricos.
 ═══════════════════════════════════════ */
 body.t-naruto{
-  --ta:#ff4500;--ta2:#ffd700;--tpos:#ffd700;--tneg:#cc0000;
-  --bg:#0c0400;--bg2:#180800;--bdr:rgba(255,69,0,0.3);
-  --sub:rgba(255,69,0,0.1);--cbg:rgba(255,69,0,0.025);
-  --cbdr:1px solid rgba(255,69,0,0.18);--rbg:rgba(255,69,0,0.07);--txt:#e0c090;
+  --ta:#4a6a84;--ta2:#c0d0e0;--tpos:#c0d0e0;--tneg:#1a2530;
+  --bg:#080a0c;--bg2:#0e1218;--bdr:rgba(74,106,132,0.28);
+  --sub:rgba(74,106,132,0.09);--cbg:rgba(74,106,132,0.020);
+  --cbdr:1px solid rgba(74,106,132,0.16);--rbg:rgba(74,106,132,0.06);--txt:#c0ccd8;
   background:var(--bg);color:var(--txt);
   font-family:'Noto Serif JP',serif;
 }
-body.t-naruto::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 75% 75% at 50% 50%,rgba(255,69,0,0.045) 0%,transparent 62%),repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,69,0,0.012) 0deg,transparent 22.5deg,rgba(255,69,0,0.012) 45deg);pointer-events:none;z-index:0;}
-body.t-naruto::after{content:'気';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Noto Serif JP',serif;font-size:55vw;color:rgba(255,69,0,0.016);pointer-events:none;z-index:0;line-height:1;}
-.t-naruto .db-hdr{background:rgba(12,4,0,0.93);backdrop-filter:blur(12px);border-bottom:2px solid rgba(255,69,0,0.22);}
+body.t-naruto::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 90% 90% at 50% 50%,transparent 40%,rgba(0,0,0,0.45) 100%),
+  radial-gradient(ellipse 52% 52% at 50% 50%,rgba(60,90,120,0.06) 0%,transparent 62%),
+  repeating-linear-gradient(23deg,rgba(50,75,100,0.038) 0px,rgba(50,75,100,0.038) 1px,transparent 1px,transparent 34px),
+  repeating-linear-gradient(-9deg,rgba(40,60,80,0.024) 0px,rgba(40,60,80,0.024) 1px,transparent 1px,transparent 54px),
+  repeating-linear-gradient(0deg,rgba(45,68,90,0.013) 0px,rgba(45,68,90,0.013) 1px,transparent 1px,transparent 24px);
+pointer-events:none;z-index:0;}
+body.t-naruto::after{content:'気';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Noto Serif JP',serif;font-size:55vw;color:rgba(74,106,132,0.022);pointer-events:none;z-index:0;line-height:1;}
+.t-naruto .db-hdr{background:rgba(6,8,12,0.96);backdrop-filter:blur(12px);border-bottom:1px solid rgba(74,106,132,0.18);}
 /* Titles: Permanent Marker */
-.t-naruto .db-name{font-family:'Permanent Marker',cursive;color:#ff4500;text-shadow:0 0 22px rgba(255,69,0,0.45),2px 2px 0 #000;letter-spacing:2px;}
-.t-naruto .rnum{font-family:'Permanent Marker',cursive;font-size:42px;color:#ff4500;text-shadow:0 0 14px rgba(255,69,0,0.5);}
+.t-naruto .db-name{font-family:'Permanent Marker',cursive;color:#a0b8d0;text-shadow:2px 2px 0 #000;letter-spacing:2px;}
+.t-naruto .rnum{font-family:'Permanent Marker',cursive;font-size:42px;color:#a0b8d0;text-shadow:2px 2px 6px rgba(0,0,0,0.70);}
 .t-naruto .rstatus{font-family:'Noto Serif JP',serif;}
-.t-naruto .snum{font-family:'Permanent Marker',cursive;color:#ff4500;}
+.t-naruto .snum{font-family:'Permanent Marker',cursive;color:#a0b8d0;}
 /* DATA NUMBERS: Rajdhani — soluciona el problema de glifos japoneses en números grandes */
 body.t-naruto .vval,
 body.t-naruto div.vval,
@@ -1307,10 +1393,10 @@ body.t-naruto span.vval{
 .t-naruto #logo-t{font-family:'Permanent Marker',cursive;letter-spacing:2px;}
 .t-naruto .cbtn{font-family:'Noto Serif JP',serif;font-weight:700;}
 /* Scroll card styling */
-.t-naruto .card::before{content:'';position:absolute;top:-1px;left:12%;right:12%;height:2px;background:linear-gradient(90deg,transparent,rgba(255,69,0,0.55),transparent);}
-.t-naruto .card::after{content:'';position:absolute;bottom:8px;right:9px;width:18px;height:18px;border:1px solid rgba(255,69,0,0.1);transform:rotate(45deg);}
-.t-naruto .vc::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,69,0,0.45),transparent);}
-.t-naruto .rfil{filter:drop-shadow(0 0 6px #ff4500);}
+.t-naruto .card::before{content:'';position:absolute;top:-1px;left:12%;right:12%;height:1px;background:linear-gradient(90deg,transparent,rgba(74,106,132,0.40),transparent);}
+.t-naruto .card::after{content:'';position:absolute;bottom:9px;right:9px;width:11px;height:11px;border:1px solid rgba(74,106,132,0.22);border-radius:50%;}
+.t-naruto .vc::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(74,106,132,0.32),transparent);}
+.t-naruto .rfil{filter:none;}
 /* ── Whoop-style scores dentro del ring card ── */
 .wsrow{display:flex;width:100%;margin-top:10px;border-top:1px solid var(--sub);padding-top:14px;animation:wsload 0.8s ease-out;}
 @keyframes wsload{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
@@ -1330,8 +1416,9 @@ body.t-naruto span.vval{
 
 /* ── Calorías expandible ── */
 .vc.exp{cursor:pointer;-webkit-tap-highlight-color:transparent;overflow:hidden;clip-path:none!important;position:relative;}
-.xarrow{position:absolute;top:12px;right:12px;font-size:9px;opacity:0.3;transition:transform 0.3s;pointer-events:none;}
-.vc.open .xarrow{transform:rotate(180deg);}
+.xarrow{display:none;} /* legacy — replaced by xarrow-inline */
+.xarrow-inline{font-size:9px;opacity:0.3;transition:transform 0.3s;pointer-events:none;flex-shrink:0;}
+.vc.open .xarrow-inline{transform:rotate(180deg);}
 /* Ocultar contenido inicial cuando se abre para evitar overlap */
 .vc.open .cal-split{display:none;}
 /* Dropdown expandido — crece dentro del card */
@@ -1380,47 +1467,60 @@ body.t-naruto span.vval{
 .wm-widget-hidden{display:none!important;}
 
 /* ── Jiggle Mode (iPhone-style edit) ── */
+/* ── Jiggle / Edit Mode ── */
 @keyframes jiggle{
-  0%  {transform:rotate(-0.7deg) translateY(0px);}
-  25% {transform:rotate(0.7deg)  translateY(-0.5px);}
-  50% {transform:rotate(-0.6deg) translateY(0px);}
-  75% {transform:rotate(0.6deg)  translateY(-0.5px);}
-  100%{transform:rotate(-0.7deg) translateY(0px);}
+  0%,100%{transform:rotate(-0.6deg) translateY(0);}
+  50%    {transform:rotate( 0.6deg) translateY(-0.4px);}
 }
-.jiggle-mode .vc:not(.wm-widget-hidden){
-  animation:jiggle 0.38s ease-in-out infinite;
-  animation-delay:calc(var(--ji,0) * 55ms);
-  overflow:visible;
+.jiggle-mode .vc:not(.wm-widget-hidden):not(.wm-dragging){
+  animation:jiggle 0.36s ease-in-out infinite;
+  animation-delay:calc(var(--ji,0) * 50ms);
+  overflow:visible;cursor:grab;user-select:none;-webkit-user-select:none;
 }
-.jiggle-mode .vc:not(.wm-widget-hidden):hover{transform:none;}
-/* iPhone-style X badge */
+.jiggle-mode .vc.wm-span2{grid-column:span 2;}
+/* X delete badge */
 .wm-x-btn{
-  position:absolute;top:-9px;left:-9px;z-index:10;
+  position:absolute;top:-9px;left:-9px;z-index:20;
   width:20px;height:20px;border-radius:50%;
-  background:rgba(60,60,67,0.92);
-  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
-  border:none;color:rgba(255,255,255,0.95);
-  font-size:11px;font-weight:600;line-height:20px;text-align:center;
-  cursor:pointer;display:none;
-  box-shadow:0 1px 4px rgba(0,0,0,0.55),0 0 0 1.5px rgba(255,255,255,0.18);
-  transition:transform 0.12s,background 0.12s;
-  padding:0;
+  background:rgba(58,58,64,0.95);
+  border:none;padding:0;cursor:pointer;display:none;
+  box-shadow:0 1px 5px rgba(0,0,0,0.6),0 0 0 1.5px rgba(255,255,255,0.15);
+  transition:transform 0.1s;
 }
-.wm-x-btn::before{
-  content:'';display:block;width:8px;height:1.5px;background:currentColor;
-  position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%) rotate(45deg);
-  border-radius:1px;
+.wm-x-btn::before,.wm-x-btn::after{
+  content:'';position:absolute;top:50%;left:50%;
+  width:8px;height:1.5px;background:rgba(255,255,255,0.9);border-radius:1px;
 }
-.wm-x-btn::after{
-  content:'';display:block;width:8px;height:1.5px;background:currentColor;
-  position:absolute;top:50%;left:50%;
-  transform:translate(-50%,-50%) rotate(-45deg);
-  border-radius:1px;
-}
-.wm-x-btn:active{transform:scale(0.82);background:rgba(40,40,45,0.98);}
+.wm-x-btn::before{transform:translate(-50%,-50%) rotate(45deg);}
+.wm-x-btn::after {transform:translate(-50%,-50%) rotate(-45deg);}
+.wm-x-btn:active{transform:scale(0.82);}
 .jiggle-mode .wm-x-btn{display:block;}
-.jiggle-mode .wm-x-btn{display:block;}
+/* resize badge (bottom-right) */
+.wm-sz-btn{
+  position:absolute;bottom:-9px;right:-9px;z-index:20;
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(58,58,64,0.95);
+  border:none;padding:0;cursor:pointer;display:none;
+  box-shadow:0 1px 5px rgba(0,0,0,0.6),0 0 0 1.5px rgba(255,255,255,0.15);
+  font-size:9px;color:rgba(255,255,255,0.85);line-height:20px;text-align:center;
+  transition:transform 0.1s;
+}
+.wm-sz-btn:active{transform:scale(0.82);}
+.jiggle-mode .wm-sz-btn{display:block;}
+/* drag ghost */
+.wm-drag-ghost{
+  position:fixed;z-index:9000;pointer-events:none;
+  opacity:0.85;transform:scale(1.05) rotate(1.2deg);
+  box-shadow:0 14px 36px rgba(0,0,0,0.6);
+  border:var(--cbdr);background:var(--cbg);overflow:hidden;
+  transition:none;
+}
+/* drop placeholder */
+.wm-drop-slot{
+  border:1.5px dashed var(--ta);
+  background:rgba(0,245,255,0.05);
+  border-radius:2px;min-height:60px;
+}
 /* + add card */
 #wm-add-card{
   padding:20px 12px;border:1px dashed var(--bdr);background:transparent;
@@ -1431,7 +1531,7 @@ body.t-naruto span.vval{
 #wm-add-card:hover,#wm-add-card:active{opacity:1;border-color:var(--ta);}
 .wm-add-plus{font-size:28px;line-height:1;color:var(--ta);}
 .wm-add-lbl{font-size:9px;letter-spacing:2px;color:var(--tx);opacity:0.6;}
-/* floating done bar */
+/* floating done button */
 #jiggle-done{
   position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 70px);left:50%;
   transform:translateX(-50%) translateY(120px);
@@ -1809,6 +1909,8 @@ body.t-naruto span.vval{
         <div class="db-name"><span id="g-pfx">BUEN DÍA, </span><span id="uname" class="db-ac">USUARIO</span></div>
         <!-- BLOOM: daily affirmation (hidden on other themes via CSS) -->
         <div id="bloom-aff"></div>
+        <!-- 忍 Naruto: Nindo quote — visible only in .t-naruto theme -->
+        <div class="nrt-egg nrt-nindo-strip" id="nrt-nindo-strip">忍道 · 諦めなければ、失敗はない</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;align-self:flex-end;padding-bottom:4px;">
         <div class="db-date" id="clock" style="margin-top:0;"></div>
@@ -1986,22 +2088,64 @@ body.t-naruto span.vval{
         </div>
 
         <!-- Naruto Ring — naruto theme only -->
-        <!-- Design: Eight Trigrams Sealing Style (八卦封印式)           -->
-        <!-- Static seal with Ba Gua trigrams + Uzumaki spiral center   -->
+        <!-- Design: Eight Trigrams Sealing Style (八卦封印式)                     -->
+        <!-- Outer: 八卦 Ba Gua with 3-tier radial marks (astrolabe compass style) -->
+        <!-- Inner: 九字 Kuji-in hand-seal kanji (臨兵闘者皆陣烈前行)              -->
+        <!-- Center: Uzumaki clan spiral 渦 with compass cardinal marks            -->
         <div class="nrt-rc">
           <svg class="nrt-rsvg" viewBox="0 0 160 160">
 
             <!-- ── BACKGROUND ── -->
-            <!-- Dark aged-parchment circle -->
-            <circle cx="80" cy="80" r="76" fill="rgba(28,6,0,0.72)"/>
+            <circle cx="80" cy="80" r="76" fill="rgba(6,8,14,0.93)"/>
 
-            <!-- ── OUTER SEAL RINGS (static, concentric) ── -->
-            <circle cx="80" cy="80" r="73" fill="none" stroke="rgba(255,69,0,0.28)" stroke-width="1.2"/>
-            <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,69,0,0.10)" stroke-width="0.6"/>
+            <!-- ── OUTER RINGS ── -->
+            <circle cx="80" cy="80" r="74" fill="none" stroke="rgba(74,106,132,0.30)" stroke-width="0.9"/>
+            <circle cx="80" cy="80" r="71" fill="none" stroke="rgba(74,106,132,0.10)" stroke-width="0.45"/>
 
-            <!-- ── 八卦 BA GUA — 8 trigrams at 8 compass points (r=72) ── -->
-            <!-- Each kanji is one of the classical I Ching trigrams used in -->
-            <!-- Minato's Eight Trigrams Sealing Style on Naruto's seal      -->
+            <!-- ── TIER 1: Primary marks at 8 trigram positions (every 45°) ── -->
+            <g stroke="rgba(74,106,132,0.50)" stroke-width="1.4" stroke-linecap="round">
+              <line x1="80" y1="7"  x2="80" y2="20" transform="rotate(0   80 80)"/>
+              <line x1="80" y1="7"  x2="80" y2="20" transform="rotate(45  80 80)"/>
+              <line x1="80" y1="7"  x2="80" y2="20" transform="rotate(90  80 80)"/>
+              <line x1="80" y1="7"  x2="80" y2="20" transform="rotate(135 80 80)"/>
+              <line x1="80" y1="7"  x2="80" y2="20" transform="rotate(180 80 80)"/>
+              <line x1="80" y1="7"  x2="80" y2="20" transform="rotate(225 80 80)"/>
+              <line x1="80" y1="7"  x2="80" y2="20" transform="rotate(270 80 80)"/>
+              <line x1="80" y1="7"  x2="80" y2="20" transform="rotate(315 80 80)"/>
+            </g>
+            <!-- ── TIER 2: Secondary marks midway between trigrams (every 22.5°) ── -->
+            <g stroke="rgba(74,106,132,0.24)" stroke-width="0.9" stroke-linecap="round">
+              <line x1="80" y1="9"  x2="80" y2="16" transform="rotate(22.5  80 80)"/>
+              <line x1="80" y1="9"  x2="80" y2="16" transform="rotate(67.5  80 80)"/>
+              <line x1="80" y1="9"  x2="80" y2="16" transform="rotate(112.5 80 80)"/>
+              <line x1="80" y1="9"  x2="80" y2="16" transform="rotate(157.5 80 80)"/>
+              <line x1="80" y1="9"  x2="80" y2="16" transform="rotate(202.5 80 80)"/>
+              <line x1="80" y1="9"  x2="80" y2="16" transform="rotate(247.5 80 80)"/>
+              <line x1="80" y1="9"  x2="80" y2="16" transform="rotate(292.5 80 80)"/>
+              <line x1="80" y1="9"  x2="80" y2="16" transform="rotate(337.5 80 80)"/>
+            </g>
+            <!-- ── TIER 3: Minor marks at 16 further subdivisions ── -->
+            <g stroke="rgba(74,106,132,0.13)" stroke-width="0.6">
+              <line x1="80" y1="9" x2="80" y2="13" transform="rotate(11.25  80 80)"/>
+              <line x1="80" y1="9" x2="80" y2="13" transform="rotate(33.75  80 80)"/>
+              <line x1="80" y1="9" x2="80" y2="13" transform="rotate(56.25  80 80)"/>
+              <line x1="80" y1="9" x2="80" y2="13" transform="rotate(78.75  80 80)"/>
+              <line x1="80" y1="9" x2="80" y2="13" transform="rotate(101.25 80 80)"/>
+              <line x1="80" y1="9" x2="80" y2="13" transform="rotate(123.75 80 80)"/>
+              <line x1="80" y1="9" x2="80" y2="13" transform="rotate(146.25 80 80)"/>
+              <line x1="80" y1="9" x2="80" y2="13" transform="rotate(168.75 80 80)"/>
+              <line x1="80" y1="9" x2="80" y2="13" transform="rotate(191.25 80 80)"/>
+              <line x1="80" y1="9" x2="80" y2="13" transform="rotate(213.75 80 80)"/>
+              <line x1="80" y1="9" x2="80" y2="13" transform="rotate(236.25 80 80)"/>
+              <line x1="80" y1="9" x2="80" y2="13" transform="rotate(258.75 80 80)"/>
+              <line x1="80" y1="9" x2="80" y2="13" transform="rotate(281.25 80 80)"/>
+              <line x1="80" y1="9" x2="80" y2="13" transform="rotate(303.75 80 80)"/>
+              <line x1="80" y1="9" x2="80" y2="13" transform="rotate(326.25 80 80)"/>
+              <line x1="80" y1="9" x2="80" y2="13" transform="rotate(348.75 80 80)"/>
+            </g>
+
+            <!-- ── 八卦 BA GUA — 8 trigrams at compass points ── -->
+            <!-- Minato's Eight Trigrams Sealing Style (八卦封印式)  -->
             <!-- N  --> <text x="80"  y="8"   text-anchor="middle" dominant-baseline="central" class="nrt-kj">乾</text>
             <!-- NE --> <text x="131" y="29"  text-anchor="middle" dominant-baseline="central" class="nrt-kj">兌</text>
             <!-- E  --> <text x="152" y="80"  text-anchor="middle" dominant-baseline="central" class="nrt-kj">離</text>
@@ -2011,34 +2155,55 @@ body.t-naruto span.vval{
             <!-- W  --> <text x="8"   y="80"  text-anchor="middle" dominant-baseline="central" class="nrt-kj">坎</text>
             <!-- NW --> <text x="29"  y="29"  text-anchor="middle" dominant-baseline="central" class="nrt-kj">艮</text>
 
-            <!-- ── 8 RADIAL SEAL MARKS at the trigram positions ── -->
-            <!-- Short lines from r=63 to r=70, aligned with each trigram  -->
-            <g stroke="rgba(255,80,0,0.45)" stroke-width="1.5" stroke-linecap="round">
-              <line x1="80" y1="10" x2="80" y2="17" transform="rotate(0   80 80)"/>
-              <line x1="80" y1="10" x2="80" y2="17" transform="rotate(45  80 80)"/>
-              <line x1="80" y1="10" x2="80" y2="17" transform="rotate(90  80 80)"/>
-              <line x1="80" y1="10" x2="80" y2="17" transform="rotate(135 80 80)"/>
-              <line x1="80" y1="10" x2="80" y2="17" transform="rotate(180 80 80)"/>
-              <line x1="80" y1="10" x2="80" y2="17" transform="rotate(225 80 80)"/>
-              <line x1="80" y1="10" x2="80" y2="17" transform="rotate(270 80 80)"/>
-              <line x1="80" y1="10" x2="80" y2="17" transform="rotate(315 80 80)"/>
-            </g>
-
             <!-- ── CHAKRA ARC ── -->
-            <!-- Background track -->
-            <circle cx="80" cy="80" r="58" fill="none" stroke="rgba(255,69,0,0.07)" stroke-width="9"/>
-            <!-- Animated chakra fill -->
+            <circle cx="80" cy="80" r="58" fill="none" stroke="rgba(74,106,132,0.08)" stroke-width="9"/>
             <circle id="nrt-rfil" cx="80" cy="80" r="58" transform="rotate(-90 80 80)"/>
 
-            <!-- ── INNER SEAL RINGS ── -->
-            <circle cx="80" cy="80" r="48" fill="none" stroke="rgba(255,69,0,0.14)" stroke-width="0.8"/>
-            <circle cx="80" cy="80" r="43" fill="none" stroke="rgba(255,69,0,0.07)" stroke-width="0.5"/>
+            <!-- ── INNER RING SEPARATOR ── -->
+            <circle cx="80" cy="80" r="48" fill="none" stroke="rgba(74,106,132,0.20)" stroke-width="0.8"/>
+
+            <!-- ── 九字 KUJI-IN — Nine hand-seal kanji, rotating like a prayer wheel ── -->
+            <!-- 臨(rin) 兵(byō) 闘(tō) 者(sha) 皆(kai) 陣(jin) 烈(retsu) 前(zen) 行(gyō)  -->
+            <!-- Group rotates 360° in 90s via CSS — meditative dharma wheel motion          -->
+            <g id="nrt-kuji-ring">
+              <text x="80"  y="38"  text-anchor="middle" dominant-baseline="central" class="nrt-kj-inner">臨</text>
+              <text x="107" y="47"  text-anchor="middle" dominant-baseline="central" class="nrt-kj-inner">兵</text>
+              <text x="121" y="72"  text-anchor="middle" dominant-baseline="central" class="nrt-kj-inner">闘</text>
+              <text x="116" y="101" text-anchor="middle" dominant-baseline="central" class="nrt-kj-inner">者</text>
+              <text x="95"  y="121" text-anchor="middle" dominant-baseline="central" class="nrt-kj-inner">皆</text>
+              <text x="65"  y="121" text-anchor="middle" dominant-baseline="central" class="nrt-kj-inner">陣</text>
+              <text x="44"  y="101" text-anchor="middle" dominant-baseline="central" class="nrt-kj-inner">烈</text>
+              <text x="39"  y="72"  text-anchor="middle" dominant-baseline="central" class="nrt-kj-inner">前</text>
+              <text x="53"  y="47"  text-anchor="middle" dominant-baseline="central" class="nrt-kj-inner">行</text>
+            </g>
+
+            <!-- ── ONDAS DE CHAKRA — como ondas en agua quieta (sin glow) ── -->
+            <circle cx="80" cy="80" fill="none" stroke="rgba(74,106,132,0.34)" stroke-width="0.7">
+              <animate attributeName="r"       from="48" to="64" dur="4.5s" repeatCount="indefinite" begin="0s"/>
+              <animate attributeName="opacity" from="0.34" to="0" dur="4.5s" repeatCount="indefinite" begin="0s"/>
+            </circle>
+            <circle cx="80" cy="80" fill="none" stroke="rgba(74,106,132,0.22)" stroke-width="0.6">
+              <animate attributeName="r"       from="48" to="64" dur="4.5s" repeatCount="indefinite" begin="1.5s"/>
+              <animate attributeName="opacity" from="0.22" to="0" dur="4.5s" repeatCount="indefinite" begin="1.5s"/>
+            </circle>
+            <circle cx="80" cy="80" fill="none" stroke="rgba(74,106,132,0.14)" stroke-width="0.5">
+              <animate attributeName="r"       from="48" to="64" dur="4.5s" repeatCount="indefinite" begin="3.0s"/>
+              <animate attributeName="opacity" from="0.14" to="0" dur="4.5s" repeatCount="indefinite" begin="3.0s"/>
+            </circle>
 
             <!-- ── CENTER ── -->
-            <!-- Dark backdrop framing the number -->
-            <circle cx="80" cy="80" r="37" fill="rgba(10,2,0,0.96)"/>
-            <!-- 渦 Uzumaki clan spiral — the soul of the seal -->
+            <circle cx="80" cy="80" r="32" fill="rgba(4,6,10,0.97)"/>
+            <circle cx="80" cy="80" r="30" fill="none" stroke="rgba(74,106,132,0.26)" stroke-width="0.8"/>
+            <circle cx="80" cy="80" r="25" fill="none" stroke="rgba(74,106,132,0.11)" stroke-width="0.5"/>
+            <!-- 渦 Uzumaki clan spiral — soul of the seal -->
             <text x="80" y="80" text-anchor="middle" dominant-baseline="central" class="nrt-seal">渦</text>
+            <!-- Cardinal compass dots at r=20 -->
+            <g fill="rgba(74,106,132,0.40)">
+              <circle cx="80" cy="60" r="1.3"/>
+              <circle cx="100" cy="80" r="1.3"/>
+              <circle cx="80" cy="100" r="1.3"/>
+              <circle cx="60" cy="80" r="1.3"/>
+            </g>
 
           </svg>
           <div class="ri">
@@ -2571,6 +2736,7 @@ body.t-naruto span.vval{
             <div style="display:flex;align-items:center;gap:6px;">
               <span class="vc-pulse" id="hr-pulse"></span>
               <button class="onb-q" onclick="event.stopPropagation();showOnb('rhr')" aria-label="info">?</button>
+              <span class="xarrow-inline">▼</span>
             </div>
           </div>
           <div class="vc-bpm-row">
@@ -2604,11 +2770,38 @@ body.t-naruto span.vval{
             </div>
           </div>
         </div>
-        <div class="vc" id="hrv-card" data-onb="hrv"><span class="vlbl" id="lbl-hrv">// HRV NOCTURNO</span><button class="onb-q" onclick="showOnb('hrv')" aria-label="info">?</button><div class="vval" id="hrvv">48</div><span class="vunit" id="u-hrv">ms — BUENO</span><div class="vtrd">↑ +6</div></div>
-        <div class="vc" id="spo2-card"><span class="vlbl" id="lbl-spo2">// SATURACIÓN O₂</span><div class="vval" id="spo2v">98</div><span class="vunit">% SpO2</span><div class="vtrd">→</div></div>
-        <div class="vc" id="temp-card"><span class="vlbl" id="lbl-temp">// TEMP. CORPORAL</span><div class="vval" id="tempv">36.4</div><span class="vunit" id="u-temp">°C PIEL</span><div class="vtrd">→</div></div>
+        <div class="vc" id="hrv-card" data-onb="hrv">
+          <div class="vc-head"><span class="vlbl" id="lbl-hrv">// HRV NOCTURNO</span><div style="display:flex;align-items:center;gap:6px;"><span id="hrv-trd" style="font-size:11px;color:var(--tpos);font-weight:700;">↑ +6</span><button class="onb-q" onclick="showOnb('hrv')" aria-label="info">?</button></div></div>
+          <div style="display:flex;align-items:baseline;gap:6px;margin-top:4px;">
+            <div class="vval" id="hrvv">48</div>
+            <span style="font-size:11px;opacity:0.45;letter-spacing:1px;">MS</span>
+          </div>
+          <span class="vunit" id="u-hrv" style="margin-top:2px;">RMSSD — BUENO</span>
+          <!-- zona visual -->
+          <div style="margin-top:10px;">
+            <div style="display:flex;justify-content:space-between;font-size:8px;letter-spacing:1.5px;opacity:0.35;margin-bottom:4px;">
+              <span id="lbl-hrv-low">BAJO</span><span id="lbl-hrv-opt">ÓPTIMO</span><span id="lbl-hrv-hi">ALTO</span>
+            </div>
+            <div style="position:relative;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--tneg) 0%,#f59e0b 35%,var(--ta) 75%,var(--ta) 100%);overflow:visible;">
+              <div id="hrv-zone-dot" style="position:absolute;top:50%;width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 6px rgba(0,0,0,0.5);transform:translate(-50%,-50%);transition:left 1s cubic-bezier(.4,0,.2,1);left:40%;"></div>
+            </div>
+          </div>
+          <!-- sub-métricas -->
+          <div class="cal-split" style="margin-top:10px;">
+            <div class="cal-box">
+              <div class="cal-box-lbl" id="lbl-hrv-base">BASE PERSONAL</div>
+              <div class="cal-box-val" id="hrv-base-val">—</div>
+              <div class="cal-box-unit">MS PROM.</div>
+            </div>
+            <div class="cal-box">
+              <div class="cal-box-lbl" id="lbl-hrv-sdnn">VARIACIÓN</div>
+              <div class="cal-box-val" id="hrv-sdnn-val">—</div>
+              <div class="cal-box-unit">MS SDNN</div>
+            </div>
+          </div>
+        </div>
         <div class="vc exp" id="stress-card" onclick="toggleStress()" data-onb="strain">
-          <span class="vlbl" id="lbl-stress">// NIVEL ESTRÉS</span>
+          <div class="vc-head"><span class="vlbl" id="lbl-stress">// NIVEL ESTRÉS</span><span class="xarrow-inline">▼</span></div>
           <div class="vval" id="stressv">24</div>
           <span class="vunit" id="u-stress">/ 100 — BAJO</span>
           <!-- Siempre visible: HRV + FC reposo -->
@@ -2635,7 +2828,7 @@ body.t-naruto span.vval{
           </div>
         </div>
         <div class="vc exp" id="cal-card" onclick="toggleCal()">
-          <span class="vlbl" id="lbl-cal">// CALORÍAS</span>
+          <div class="vc-head"><span class="vlbl" id="lbl-cal">// CALORÍAS</span><span class="xarrow-inline">▼</span></div>
           <div class="vval" id="calv">312</div>
           <span class="vunit" id="u-cal">KCAL ACTIVAS</span>
           <!-- Siempre visible: split BMR / Activas -->
@@ -2662,6 +2855,67 @@ body.t-naruto span.vval{
             </div>
           </div>
         </div>
+        <!-- SpO2 + Temp — moved after Stress/Cal (most stable, least actionable daily) -->
+        <div class="vc" id="spo2-card" data-onb="spo2">
+          <div class="vc-head"><span class="vlbl" id="lbl-spo2">// SATURACIÓN O₂</span><div style="display:flex;align-items:center;gap:6px;"><span id="spo2-trd" style="font-size:11px;color:var(--tpos);font-weight:700;">→</span><button class="onb-q" onclick="showOnb('spo2')" aria-label="info">?</button></div></div>
+          <div style="display:flex;align-items:baseline;gap:6px;margin-top:4px;">
+            <div class="vval" id="spo2v">98</div>
+            <span style="font-size:11px;opacity:0.45;letter-spacing:1px;">%</span>
+          </div>
+          <span class="vunit">SpO2 — NORMAL</span>
+          <!-- barra 90–100% -->
+          <div style="margin-top:10px;">
+            <div style="display:flex;justify-content:space-between;font-size:8px;letter-spacing:1.5px;opacity:0.35;margin-bottom:4px;">
+              <span>90%</span><span>95%</span><span>100%</span>
+            </div>
+            <div style="position:relative;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--tneg) 0%,#f59e0b 50%,var(--ta) 100%);overflow:visible;">
+              <div id="spo2-zone-dot" style="position:absolute;top:50%;width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 6px rgba(0,0,0,0.5);transform:translate(-50%,-50%);transition:left 1s cubic-bezier(.4,0,.2,1);left:80%;"></div>
+            </div>
+          </div>
+          <!-- sub-métricas -->
+          <div class="cal-split" style="margin-top:10px;">
+            <div class="cal-box">
+              <div class="cal-box-lbl" id="lbl-spo2-low">MÍNIMO HOY</div>
+              <div class="cal-box-val" id="spo2-low-val">—</div>
+              <div class="cal-box-unit">% SpO2</div>
+            </div>
+            <div class="cal-box">
+              <div class="cal-box-lbl" id="lbl-spo2-avg">PROMEDIO</div>
+              <div class="cal-box-val" id="spo2-avg-val">—</div>
+              <div class="cal-box-unit">% NOCTURNO</div>
+            </div>
+          </div>
+        </div>
+        <div class="vc" id="temp-card" data-onb="temp">
+          <div class="vc-head"><span class="vlbl" id="lbl-temp">// TEMP. CORPORAL</span><div style="display:flex;align-items:center;gap:6px;"><span id="temp-trd" style="font-size:11px;color:var(--tpos);font-weight:700;">→</span><button class="onb-q" onclick="showOnb('temp')" aria-label="info">?</button></div></div>
+          <div style="display:flex;align-items:baseline;gap:6px;margin-top:4px;">
+            <div class="vval" id="tempv">36.4</div>
+            <span style="font-size:11px;opacity:0.45;letter-spacing:1px;">°C</span>
+          </div>
+          <span class="vunit" id="u-temp">PIEL — NORMAL</span>
+          <!-- barra 35–38°C -->
+          <div style="margin-top:10px;">
+            <div style="display:flex;justify-content:space-between;font-size:8px;letter-spacing:1.5px;opacity:0.35;margin-bottom:4px;">
+              <span>35°</span><span>36.5°</span><span>38°</span>
+            </div>
+            <div style="position:relative;height:4px;border-radius:2px;background:linear-gradient(90deg,#4ab8ff 0%,var(--ta) 45%,#f59e0b 75%,var(--tneg) 100%);overflow:visible;">
+              <div id="temp-zone-dot" style="position:absolute;top:50%;width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 6px rgba(0,0,0,0.5);transform:translate(-50%,-50%);transition:left 1s cubic-bezier(.4,0,.2,1);left:47%;"></div>
+            </div>
+          </div>
+          <!-- sub-métricas -->
+          <div class="cal-split" style="margin-top:10px;">
+            <div class="cal-box">
+              <div class="cal-box-lbl" id="lbl-temp-delta">VARIACIÓN</div>
+              <div class="cal-box-val" id="temp-delta-val">—</div>
+              <div class="cal-box-unit">Δ°C BASE</div>
+            </div>
+            <div class="cal-box">
+              <div class="cal-box-lbl" id="lbl-temp-avg">PROMEDIO 7D</div>
+              <div class="cal-box-val" id="temp-avg-val">—</div>
+              <div class="cal-box-unit">°C PIEL</div>
+            </div>
+          </div>
+        </div>
         <!-- + Add widget card -->
         <div id="wm-add-card" onclick="openWM()" role="button" aria-label="Agregar widget">
           <div class="wm-add-plus">+</div>
@@ -2669,20 +2923,13 @@ body.t-naruto span.vval{
         </div>
       </div><!-- /vg -->
 
-      <!-- Col 3: HR chart + Sleep apilados -->
+      <!-- Col 3: Sleep (priority 1) + HR chart 24h (priority 2) -->
       <div class="rcs" id="rcs">
-        <div class="card" id="hr-chart-card">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-            <div><span class="clbl" id="lbl-hrchart" style="margin-bottom:2px;">// FREC. CARDÍACA 24H</span><div style="font-size:10px;letter-spacing:2px;opacity:0.3;" id="lbl-last24">ÚLTIMAS 24 HORAS</div></div>
-            <div style="display:flex;align-items:baseline;gap:3px;"><span id="hrlive" style="font-size:24px;font-weight:700;color:var(--tneg);">68</span><span style="font-size:10px;opacity:0.35;letter-spacing:1px;"> BPM</span></div>
-          </div>
-          <svg class="spkl" viewBox="0 0 300 72" id="hrchart" preserveAspectRatio="none"></svg>
-          <div style="display:flex;justify-content:space-between;margin-top:4px;">
-            <span style="font-size:9px;opacity:0.28;">00:00</span><span style="font-size:9px;opacity:0.28;">06:00</span><span style="font-size:9px;opacity:0.28;">12:00</span><span style="font-size:9px;opacity:0.28;">18:00</span><span style="font-size:9px;color:var(--ta)" id="lbl-now">AHORA</span>
-          </div>
-        </div>
+        <!-- Sleep first — biggest recovery driver -->
         <div class="card" id="sleep-card">
-          <span class="clbl" id="lbl-sleep">// ANÁLISIS DE SUEÑO</span><button class="onb-q" onclick="showOnb('sleep')" aria-label="info">?</button>
+          <div class="vc-head"><span class="clbl" id="lbl-sleep">// ANÁLISIS DE SUEÑO</span><button class="onb-q" onclick="showOnb('sleep')" aria-label="info">?</button></div>
+          <!-- 忍 Kunai tool mark — naruto theme only -->
+          <div class="nrt-egg nrt-kunai" aria-hidden="true"></div>
           <div class="hypno">
             <div class="hypno-grid">
               <div class="hypno-lanes" aria-hidden="true">
@@ -2701,24 +2948,66 @@ body.t-naruto span.vval{
           <div class="slrw"><div class="sllbl" id="sl-awake">DESP.</div><div class="sltr"><div class="slfi" id="sl3" style="width:12%;background:var(--tneg);"></div></div><div class="sltm">0h 22m</div></div>
           <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--sub);">
             <div><div style="font-size:9px;opacity:0.55;letter-spacing:2px;" id="lbl-total">TOTAL</div><div style="font-size:16px;font-weight:700;color:var(--ta2);" id="sl-total-v">7h 22m</div></div>
-            <div><div style="font-size:9px;opacity:0.55;letter-spacing:2px;" id="lbl-start">INICIO</div><div style="font-size:14px;font-weight:600;">23:18</div></div>
+            <div><div style="font-size:9px;opacity:0.55;letter-spacing:2px;" id="lbl-start">INICIO</div><div style="font-size:14px;font-weight:600;" id="sl-start-v">23:18</div></div>
+            <div><div style="font-size:9px;opacity:0.55;letter-spacing:2px;" id="lbl-slend">FIN</div><div style="font-size:14px;font-weight:600;" id="sl-end-v">07:02</div></div>
             <div><div style="font-size:9px;opacity:0.55;letter-spacing:2px;">SCORE</div><div style="font-size:14px;font-weight:700;color:var(--ta);" id="sl-score-v">84/100</div></div>
+          </div>
+          <!-- barra score sueño + eficiencia -->
+          <div style="margin-top:10px;">
+            <div style="position:relative;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--tneg) 0%,#f59e0b 40%,var(--ta) 75%,var(--ta2) 100%);overflow:visible;">
+              <div id="sleep-score-dot" style="position:absolute;top:50%;width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 6px rgba(0,0,0,0.5);transform:translate(-50%,-50%);transition:left 1s cubic-bezier(.4,0,.2,1);left:84%;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:8px;letter-spacing:1.5px;opacity:0.32;margin-top:3px;"><span id="lbl-sl-low">MALO</span><span id="lbl-sl-mid">BUENO</span><span id="lbl-sl-hi">ÓPTIMO</span></div>
+          </div>
+          <div class="cal-split" style="margin-top:10px;">
+            <div class="cal-box"><div class="cal-box-lbl" id="lbl-sl-eff">EFICIENCIA</div><div class="cal-box-val" id="sl-eff-v">91</div><div class="cal-box-unit">%</div></div>
+            <div class="cal-box"><div class="cal-box-lbl" id="lbl-sl-wake">DESPERTARES</div><div class="cal-box-val" id="sl-wake-v">3</div><div class="cal-box-unit">VECES</div></div>
+          </div>
+        </div>
+        <!-- HR 24h chart second -->
+        <div class="card" id="hr-chart-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+            <div><span class="clbl" id="lbl-hrchart" style="margin-bottom:2px;">// FREC. CARDÍACA 24H</span><div style="font-size:10px;letter-spacing:2px;opacity:0.3;" id="lbl-last24">ÚLTIMAS 24 HORAS</div></div>
+            <div style="display:flex;align-items:baseline;gap:3px;"><span id="hrlive" style="font-size:24px;font-weight:700;color:var(--tneg);">68</span><span style="font-size:10px;opacity:0.35;letter-spacing:1px;"> BPM</span></div>
+          </div>
+          <svg class="spkl" viewBox="0 0 300 72" id="hrchart" preserveAspectRatio="none"></svg>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <span style="font-size:9px;opacity:0.28;">00:00</span><span style="font-size:9px;opacity:0.28;">06:00</span><span style="font-size:9px;opacity:0.28;">12:00</span><span style="font-size:9px;opacity:0.28;">18:00</span><span style="font-size:9px;color:var(--ta)" id="lbl-now">AHORA</span>
+          </div>
+          <div class="cal-split" style="margin-top:10px;">
+            <div class="cal-box"><div class="cal-box-lbl" id="lbl-hrmin">MÍNIMO</div><div class="cal-box-val" id="hr-day-min">52</div><div class="cal-box-unit">BPM</div></div>
+            <div class="cal-box"><div class="cal-box-lbl" id="lbl-hravg">PROMEDIO</div><div class="cal-box-val" id="hr-day-avg">71</div><div class="cal-box-unit">BPM</div></div>
+          </div>
+          <div class="cal-split" style="margin-top:6px;">
+            <div class="cal-box"><div class="cal-box-lbl" id="lbl-hrpeak">PICO</div><div class="cal-box-val" id="hr-day-max">172</div><div class="cal-box-unit">BPM HOY</div></div>
+            <div class="cal-box"><div class="cal-box-lbl" id="lbl-hrvar">VARIACIÓN</div><div class="cal-box-val" id="hr-day-range">120</div><div class="cal-box-unit">BPM RANGO</div></div>
           </div>
         </div>
       </div><!-- /rcs -->
     </div><!-- /mg -->
 
     <!-- ═══ Pasos — fila compacta full-width ═══ -->
-    <div class="card scard" id="scard">
+    <div class="card scard" id="scard" style="position:relative;">
+      <!-- 忍 Mission scroll mark — naruto theme only -->
+      <div class="nrt-egg nrt-scroll-tag" aria-hidden="true">巻</div>
       <div class="scard-inner">
         <div>
-          <span class="clbl" id="lbl-steps">// ACTIVIDAD DIARIA — PASOS</span><button class="onb-q" onclick="showOnb('steps')" aria-label="info">?</button>
+          <div class="vc-head"><span class="clbl" id="lbl-steps">// ACTIVIDAD DIARIA — PASOS</span><button class="onb-q" onclick="showOnb('steps')" aria-label="info">?</button></div>
           <div style="display:flex;align-items:baseline;gap:8px;margin:5px 0;">
             <div class="snum" id="stepsv">7,842</div>
             <div class="sgoal" id="goal-lbl">/ 10,000 OBJETIVO</div>
           </div>
           <div class="strk"><div class="sprg" id="stepsprog" style="width:78.4%;"></div></div>
           <div class="spct" id="stepspct">78.4% COMPLETADO HOY</div>
+          <!-- sub-métricas -->
+          <div class="cal-split" style="margin-top:10px;">
+            <div class="cal-box"><div class="cal-box-lbl" id="lbl-steps-dist">DISTANCIA</div><div class="cal-box-val" id="steps-dist-val">5.8</div><div class="cal-box-unit">KM HOY</div></div>
+            <div class="cal-box"><div class="cal-box-lbl" id="lbl-steps-floors">PISOS</div><div class="cal-box-val" id="steps-floors-val">12</div><div class="cal-box-unit">SUBIDOS</div></div>
+          </div>
+          <div class="cal-split" style="margin-top:6px;">
+            <div class="cal-box"><div class="cal-box-lbl" id="lbl-steps-active">MIN. ACTIVOS</div><div class="cal-box-val" id="steps-active-val">47</div><div class="cal-box-unit">MIN HOY</div></div>
+            <div class="cal-box"><div class="cal-box-lbl" id="lbl-steps-streak">RACHA</div><div class="cal-box-val" id="steps-streak-val">4</div><div class="cal-box-unit">DÍAS META</div></div>
+          </div>
         </div>
         <div>
           <span class="clbl" id="lbl-week">// ESTA SEMANA</span>
@@ -2810,6 +3099,8 @@ body.t-naruto span.vval{
       <div>
         <div class="hv-title" id="hv-title">HISTORIAL</div>
         <div class="hv-sub" id="hv-sub">// TENDENCIAS BIOMÉTRICAS</div>
+        <!-- 忍 Naruto Easter egg: visible only in .t-naruto -->
+        <div class="nrt-egg nrt-hv-label" id="nrt-hv-label">忍者の記録 · 修行の軌跡</div>
       </div>
       <div class="hv-pills" role="tablist">
         <button class="hv-pill on" data-range="7"  onclick="setHistoryRange(7)">7D</button>
@@ -2899,6 +3190,45 @@ body.t-naruto span.vval{
         <span style="font-size:10px;font-weight:600;letter-spacing:2px;margin-left:4px;" id="sv-rec-level"></span>
       </div>
       <div style="font-size:10px;opacity:0.5;letter-spacing:1px;" id="sv-rec-txt"></div>
+      <!-- 忍 Naruto Easter egg: shinobi rank chip — visible only in .t-naruto -->
+      <div class="nrt-egg nrt-rank-chip" id="nrt-sv-rank">忍 · 階級 —</div>
+    </div>
+
+    <!-- Sleep — priority 2: biggest single driver of recovery score -->
+    <div class="card hv-card">
+      <div class="clbl" id="sv-sleep-lbl">// SUEÑO</div>
+      <div class="sv-grid2" style="margin-top:10px;">
+        <div class="sv-mini">
+          <div class="sv-mlbl" id="sv-sltotal-lbl">TOTAL</div>
+          <div class="sv-mval" id="sv-sltotal-val">—</div>
+          <div class="sv-munit" id="sv-sltotal-unit">dormido</div>
+        </div>
+        <div class="sv-mini">
+          <div class="sv-mlbl" id="sv-slscore-lbl">CALIDAD</div>
+          <div class="sv-mval" id="sv-slscore-val">—</div>
+          <div class="sv-munit">/100</div>
+        </div>
+      </div>
+      <div class="sv-bar-row" style="margin-top:12px;">
+        <div class="sv-bar-lbl" id="sv-sl-deep-lbl">PROF.</div>
+        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-sl-deep-bar" style="width:0%;background:var(--ta2)"></div></div>
+        <div class="sv-bar-val" id="sv-sl-deep-tm">—</div>
+      </div>
+      <div class="sv-bar-row">
+        <div class="sv-bar-lbl">REM</div>
+        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-sl-rem-bar" style="width:0%;background:var(--ta)"></div></div>
+        <div class="sv-bar-val" id="sv-sl-rem-tm">—</div>
+      </div>
+      <div class="sv-bar-row">
+        <div class="sv-bar-lbl" id="sv-sl-light-lbl">LIGER.</div>
+        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-sl-light-bar" style="width:0%;background:rgba(255,255,255,0.25)"></div></div>
+        <div class="sv-bar-val" id="sv-sl-light-tm">—</div>
+      </div>
+      <div class="sv-bar-row">
+        <div class="sv-bar-lbl" id="sv-sl-wake-lbl">DESP.</div>
+        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-sl-wake-bar" style="width:0%;background:var(--tneg)"></div></div>
+        <div class="sv-bar-val" id="sv-sl-wake-tm">—</div>
+      </div>
     </div>
 
     <!-- Heart rate & zones -->
@@ -3001,43 +3331,6 @@ body.t-naruto span.vval{
       </div>
     </div>
 
-    <!-- Sleep -->
-    <div class="card hv-card">
-      <div class="clbl" id="sv-sleep-lbl">// SUEÑO</div>
-      <div class="sv-grid2" style="margin-top:10px;">
-        <div class="sv-mini">
-          <div class="sv-mlbl" id="sv-sltotal-lbl">TOTAL</div>
-          <div class="sv-mval" id="sv-sltotal-val">—</div>
-          <div class="sv-munit" id="sv-sltotal-unit">dormido</div>
-        </div>
-        <div class="sv-mini">
-          <div class="sv-mlbl" id="sv-slscore-lbl">CALIDAD</div>
-          <div class="sv-mval" id="sv-slscore-val">—</div>
-          <div class="sv-munit">/100</div>
-        </div>
-      </div>
-      <div class="sv-bar-row" style="margin-top:12px;">
-        <div class="sv-bar-lbl" id="sv-sl-deep-lbl">PROF.</div>
-        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-sl-deep-bar" style="width:0%;background:var(--ta2)"></div></div>
-        <div class="sv-bar-val" id="sv-sl-deep-tm">—</div>
-      </div>
-      <div class="sv-bar-row">
-        <div class="sv-bar-lbl">REM</div>
-        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-sl-rem-bar" style="width:0%;background:var(--ta)"></div></div>
-        <div class="sv-bar-val" id="sv-sl-rem-tm">—</div>
-      </div>
-      <div class="sv-bar-row">
-        <div class="sv-bar-lbl" id="sv-sl-light-lbl">LIGER.</div>
-        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-sl-light-bar" style="width:0%;background:rgba(255,255,255,0.25)"></div></div>
-        <div class="sv-bar-val" id="sv-sl-light-tm">—</div>
-      </div>
-      <div class="sv-bar-row">
-        <div class="sv-bar-lbl" id="sv-sl-wake-lbl">DESP.</div>
-        <div class="sv-bar-trk"><div class="sv-bar-fil" id="sv-sl-wake-bar" style="width:0%;background:var(--tneg)"></div></div>
-        <div class="sv-bar-val" id="sv-sl-wake-tm">—</div>
-      </div>
-    </div>
-
     <!-- Cycle / Fertility — grouped with Fitness & Sleep at bottom, shown only when enabled -->
     <div class="card hv-card cyc-card" id="sv-cycle" data-onb="cycle" style="display:none;">
       <div class="clbl" style="display:flex;justify-content:space-between;align-items:baseline;"><span id="cyc-lbl">// CICLO</span><button class="onb-q" onclick="showOnb('cycle')" aria-label="info">?</button><span class="cyc-dchip" id="cyc-day" style="margin-left:auto;"></span></div>
@@ -3102,6 +3395,12 @@ body.t-naruto span.vval{
       </div>
       <button class="pv-connect-btn" id="pv-connect-btn" onclick="openModal()">CONECTAR CON GOOGLE →</button>
       <button class="pv-disconnect-btn" id="pv-disconnect-btn" onclick="disconnectFitbit()" style="display:none;">DESCONECTAR</button>
+      <!-- 忍 Naruto Easter egg: shinobi rank block — visible only in .t-naruto -->
+      <div class="nrt-egg nrt-rank-block">
+        <div class="nrt-rank-ttl" id="nrt-pv-rank-ttl">忍の階級 · RANGO SHINOBI</div>
+        <div class="nrt-rank-val" id="nrt-pv-rank-val">下忍 · GENIN</div>
+        <div class="nrt-rank-nindo" id="nrt-pv-nindo">Todo maestro fue una vez principiante. Sigue entrenando.</div>
+      </div>
     </div>
 
     <!-- AIRA Pro — plan comparison -->
@@ -3379,7 +3678,7 @@ const T = {
       mc:     { peak:'VIDA COMPLETA', good:'BUENA SALUD', moderate:'HP MEDIO', low:'HP BAJO' },
       bloom:  { peak:'RADIANTE', good:'FLORECIENDO', moderate:'BROTANDO', low:'RECARGANDO' },
       halo:   { peak:'NETRUNNER LISTO', good:'ENLACE ESTABLE', moderate:'SISTEMA DEGRADADO', low:'FLATLINED' },
-      naruto: { peak:'最大 · KI COMPLETO', good:'KI ESTABLE', moderate:'KI MEDIO', low:'KI BAJO' },
+      naruto: { peak:'無双 · IMPARABLE', good:'修行 · EN MISIÓN', moderate:'練習 · ENTRENANDO', low:'回復 · RECUPERANDO' },
     },
     lbl_hr: '// FREC. CARDÍACA',
     u_hr: 'BPM — REPOSO',
@@ -3442,6 +3741,8 @@ const T = {
       sleep:    { ttl:'Sueño', bd:'<p>Sleep performance = <strong>minutos dormidos / 480</strong> (8h ideales).</p><p>El hipnograma muestra las etapas reales: profundo (recuperación física), REM (memoria/sueños), ligero, despierto.</p><p>Ideal: ~45% del sueño en <strong>deep + REM</strong>.</p>' },
       hrv:      { ttl:'HRV — Variabilidad Cardíaca', bd:'<p>La <strong>HRV</strong> mide la variación de tiempo entre latidos. Más alta = mejor recuperación del sistema nervioso.</p><p>Se mide mejor durante el sueño profundo. Tu base personal es lo que importa, no comparar con otros.</p><p>Caídas marcadas pueden indicar fatiga, estrés o enfermedad incipiente.</p>' },
       rhr:      { ttl:'FC en Reposo', bd:'<p>Tu frecuencia cardíaca en reposo (<strong>RHR</strong>) es el menor número de latidos por minuto medido en el día.</p><p>Más baja = mejor estado cardiovascular. Atletas <strong>40-60 bpm</strong>, persona promedio <strong>60-80 bpm</strong>.</p><p>Una subida sostenida de 5+ bpm sobre tu base puede indicar sobreentrenamiento o estrés.</p>' },
+      spo2:     { ttl:'Saturación de Oxígeno (SpO2)', bd:'<p>Mide el porcentaje de hemoglobina en sangre que lleva oxígeno.</p><p><strong>95-100%</strong> — normal · <strong>90-94%</strong> — atención · <strong>&lt;90%</strong> — busca atención médica.</p><p>Valores bajos durante el sueño pueden indicar apnea. El Fitbit la mide durante el sueño con un sensor óptico infrarrojo.</p>' },
+      temp:     { ttl:'Temperatura Corporal', bd:'<p>Fitbit mide la temperatura de la <strong>piel</strong> de la muñeca, que refleja la temperatura core con un pequeño desfase.</p><p>El valor mostrado es tu temperatura estimada en °C. Una variación <strong>+0.3°C sostenida</strong> puede indicar enfermedad incipiente o, en mujeres, la ovulación.</p><p>Lo más útil es la tendencia: ¿sube o baja respecto a tu base personal?</p>' },
       steps:    { ttl:'Pasos', bd:'<p>Meta diaria estándar: <strong>10,000 pasos</strong> (~7-8km).</p><p>El indicador muestra el porcentaje cumplido. Constancia &gt; volumen — mejor 7,000 todos los días que 15,000 un día y 2,000 los demás.</p>' },
       cycle:        { ttl:'Fases del ciclo', bd:'<p>Tu ciclo tiene cuatro fases. AIRA las estima desde tu última regla y tus biométricos.</p><p><strong>🩸 Menstruación</strong> — días de sangrado; el ciclo se reinicia. Probabilidad de embarazo muy baja.</p><p><strong>🌱 Folicular</strong> — tras la regla sube el estrógeno; tu energía y fertilidad empiezan a subir.</p><p><strong>🌸 Ventana fértil + Ovulación</strong> — los ~6 días de mayor probabilidad de embarazo. En la ovulación se libera el óvulo (tu <strong>pico</strong>); justo después tu temperatura de piel sube ~0.3°C.</p><p><strong>🌙 Lútea</strong> — tras ovular sube la progesterona; tu FC en reposo y temperatura quedan más altas. Si no hay embarazo, llega la regla.</p><p style="opacity:0.6">Estimación informativa basada en tu ciclo y biométricos. No es método anticonceptivo ni consejo médico.</p>' },
       cyc_fertile:  { ttl:'Ventana Fértil', bd:'<p>Son los días del ciclo en los que es <strong>biológicamente posible concebir</strong>.</p><p>Los espermatozoides sobreviven hasta <strong>5 días</strong> en el tracto reproductor; el óvulo es viable aproximadamente <strong>24 horas</strong> tras la ovulación. Eso da una ventana de hasta 7 días.</p><p>La ventana cubre desde <strong>5 días antes de ovular</strong> hasta <strong>1 día después</strong>. Los dos días previos a la ovulación son los de mayor probabilidad (pico).</p>' },
@@ -3511,8 +3812,8 @@ const T = {
     mc_pfx: 'JUGADOR: ', mc_rl: '> BARRA DE VIDA',
     halo_eye: '// NEON NOIR — NIGHT CITY UPLINK — ACCESO AUTORIZADO',
     halo_pfx: 'CHOOMBATTA: ', halo_rl: '// ESTADO NEURAL',
-    naruto_eye: '忍の道 — SISTEMA DE ENERGÍA SHINOBI',
-    naruto_pfx: '忍者: ', naruto_rl: '// 気 · PREPARACIÓN',
+    naruto_eye: '忍の道 — CRÓNICAS DEL SHINOBI',
+    naruto_pfx: '忍者: ', naruto_rl: '気 · PREPARACIÓN',
     connected: '◆ GOOGLE CONECTADO', live: 'EN VIVO',
     sync_toast: (t) => `◆ SYNC ${t}`,
     // Stats view
@@ -3604,7 +3905,7 @@ const T = {
       mc:     { peak:'FULL HP', good:'HEALTHY', moderate:'HALF HP', low:'LOW HP' },
       bloom:  { peak:'RADIANT', good:'BLOOMING', moderate:'BUDDING', low:'RECHARGING' },
       halo:   { peak:'NETRUNNER READY', good:'LINK STABLE', moderate:'SYSTEM DEGRADED', low:'FLATLINED' },
-      naruto: { peak:'最大 · KI FULL', good:'KI STABLE', moderate:'KI MID', low:'KI LOW' },
+      naruto: { peak:'無双 · UNSTOPPABLE', good:'修行 · ON MISSION', moderate:'練習 · TRAINING', low:'回復 · RECOVERING' },
     },
     lbl_hr: '// HEART RATE',
     u_hr: 'BPM — RESTING',
@@ -3667,6 +3968,8 @@ const T = {
       sleep:    { ttl:'Sleep', bd:'<p>Sleep performance = <strong>minutes asleep / 480</strong> (ideal 8h).</p><p>The hypnogram shows real stages: deep (physical recovery), REM (memory/dreams), light, awake.</p><p>Ideal: ~45% of sleep in <strong>deep + REM</strong>.</p>' },
       hrv:      { ttl:'HRV — Heart Rate Variability', bd:'<p><strong>HRV</strong> measures the variation in time between heartbeats. Higher = better nervous system recovery.</p><p>Best measured during deep sleep. Your personal baseline is what matters — don\\u2019t compare across people.</p><p>Sharp drops can signal fatigue, stress, or incipient illness.</p>' },
       rhr:      { ttl:'Resting Heart Rate', bd:'<p>Your <strong>RHR</strong> is the lowest BPM measured during the day.</p><p>Lower = better cardiovascular shape. Athletes <strong>40-60 bpm</strong>, average person <strong>60-80 bpm</strong>.</p><p>A sustained rise of 5+ bpm above your baseline may indicate overtraining or stress.</p>' },
+      spo2:     { ttl:'Blood Oxygen (SpO2)', bd:'<p>The percentage of hemoglobin in your blood carrying oxygen.</p><p><strong>95-100%</strong> — normal · <strong>90-94%</strong> — monitor closely · <strong>&lt;90%</strong> — seek medical attention.</p><p>Low values during sleep may indicate sleep apnea. Fitbit measures it overnight with an infrared optical sensor.</p>' },
+      temp:     { ttl:'Body Temperature', bd:'<p>Fitbit measures <strong>wrist skin temperature</strong>, which reflects core temperature with a slight offset.</p><p>A sustained rise of <strong>+0.3°C</strong> above your baseline may signal illness or, in women, ovulation.</p><p>The trend matters more than the absolute value — watch how it changes from your personal baseline.</p>' },
       steps:    { ttl:'Steps', bd:'<p>Standard daily target: <strong>10,000 steps</strong> (~7-8km).</p><p>The bar shows percent achieved. Consistency &gt; volume — 7,000 every day beats 15,000 once + 2,000 the rest.</p>' },
       cycle:        { ttl:'Cycle phases', bd:'<p>Your cycle has four phases. AIRA estimates them from your last period and your biometrics.</p><p><strong>🩸 Menstruation</strong> — bleeding days; the cycle resets. Very low chance of pregnancy.</p><p><strong>🌱 Follicular</strong> — after your period estrogen rises; energy and fertility start climbing.</p><p><strong>🌸 Fertile window + Ovulation</strong> — the ~6 days with the highest chance of pregnancy. At ovulation the egg is released (your <strong>peak</strong>); right after, skin temp rises ~0.3°C.</p><p><strong>🌙 Luteal</strong> — after ovulation progesterone rises; resting HR and temperature run higher. If there is no pregnancy, your period arrives.</p><p style="opacity:0.6">Informational estimate based on your cycle and biometrics. Not a contraceptive method or medical advice.</p>' },
       cyc_fertile:  { ttl:'Fertile Window', bd:'<p>The days in your cycle when it is <strong>biologically possible to conceive</strong>.</p><p>Sperm can survive up to <strong>5 days</strong> in the reproductive tract; the egg is viable for approximately <strong>24 hours</strong> after ovulation. That creates a window of up to 7 days.</p><p>The window spans from <strong>5 days before ovulation</strong> through <strong>1 day after</strong>. The two days before ovulation have the highest probability (peak).</p>' },
@@ -3735,8 +4038,8 @@ const T = {
     mc_pfx: 'PLAYER: ', mc_rl: '> HEALTH BAR',
     halo_eye: '// NEON NOIR — NIGHT CITY UPLINK — ACCESS GRANTED',
     halo_pfx: 'CHOOMBATTA: ', halo_rl: '// NEURAL STATUS',
-    naruto_eye: '忍の道 — SHINOBI ENERGY SYSTEM',
-    naruto_pfx: '忍者: ', naruto_rl: '// 気 · KI READINESS',
+    naruto_eye: '忍の道 — SHINOBI CHRONICLES',
+    naruto_pfx: '忍者: ', naruto_rl: '気 · KI READINESS',
     connected: '◆ GOOGLE CONNECTED', live: 'LIVE',
     sync_toast: (t) => `◆ SYNC ${t}`,
     // Stats view
@@ -3911,6 +4214,8 @@ function setLang(l) {
   if (typeof renderProUI === 'function') renderProUI();
   // Re-apply theme overrides if theme is active
   if (theme) applyThemeText(theme);
+  // Naruto Easter Egg: re-seed rank with new language
+  if (theme === 'naruto') nrtUpdateRank(window._lastRec != null ? window._lastRec : 80);
   // Re-render cycle chip with new language
   if (typeof renderCycleHomeChip === 'function') renderCycleHomeChip();
 }
@@ -4453,7 +4758,9 @@ function applyTheme(t) {
   } else if (t === 'halo') {
     mc.innerHTML = `<div class="halo-bars"><div class="halo-blbl">▲ NEURAL LINK</div><div class="halo-btr"><div class="halo-bfi halo-shields" style="width:82%"></div></div><div class="halo-blbl" style="margin-top:6px">◆ CHROME</div><div class="halo-btr"><div class="halo-bfi halo-ammo" style="width:68%"></div></div></div>`;
   } else if (t === 'naruto') {
-    mc.innerHTML = `<div class="naruto-bars"><div class="naruto-blbl">気 KI</div><div class="naruto-btr"><div class="naruto-bfi naruto-chakra" style="width:88%"></div></div><div class="naruto-blbl" style="margin-top:6px">⚡ STAMINA</div><div class="naruto-btr"><div class="naruto-bfi naruto-stamina" style="width:76%"></div></div></div>`;
+    mc.innerHTML = `<div class="naruto-bars"><div class="naruto-blbl">気 · ${lang==='es'?'CHAKRA':'CHAKRA'}</div><div class="naruto-btr"><div id="naruto-bar-rec" class="naruto-bfi naruto-chakra" style="width:0%"></div></div><div class="naruto-blbl" style="margin-top:6px">忍 · ${lang==='es'?'RESISTENCIA':'RESILIENCE'}</div><div class="naruto-btr"><div id="naruto-bar-slp" class="naruto-bfi naruto-stamina" style="width:0%"></div></div></div>`;
+    // Easter egg: seed rank from cached score (or demo default 80)
+    nrtUpdateRank(window._lastRec != null ? window._lastRec : 80);
   } else if (t === 'fut') {
     mc.innerHTML = `<div class="fut-bars"><div class="fut-blbl">⚡ ENERGY</div><div class="fut-btr"><div class="fut-bfi fut-energy" style="width:82%"></div></div><div class="fut-blbl" style="margin-top:6px">⬢ PROCESSOR</div><div class="fut-btr"><div class="fut-bfi fut-processor" style="width:68%"></div></div></div>`;
   }
@@ -4625,7 +4932,7 @@ function initSwipeNav() {
   const clearLP = () => { if (lpTimer) { clearTimeout(lpTimer); lpTimer = null; } if (lpEl) { lpEl.style.transform=''; lpEl = null; } };
   document.addEventListener('touchstart', (e) => {
     const card = e.target.closest('[data-onb]');
-    if (!card || overlayOpen()) return;
+    if (!card || overlayOpen() || _jiggleActive) return;
     lpEl = card; lpStartX = e.touches[0].clientX; lpStartY = e.touches[0].clientY;
     card.style.transition = 'transform 0.12s ease';
     card.style.transform = 'scale(0.985)';
@@ -5987,6 +6294,8 @@ function initDash() {
     }, 20000);
   }
   applyWMState();
+  applyWMOrder();
+  applyWMSizes();
   _setupJiggleLongPress();
 }
 
@@ -6118,8 +6427,36 @@ function applyWMState() {
 }
 
 // ── Jiggle Mode ──
+// ══════ WIDGET EDIT MODE (jiggle + drag + resize) ══════
 var _jiggleLongTimer = null;
-var _jiggleActive = false;
+var _jiggleActive    = false;
+var _dragState       = null; // { card, ghost, slot, ox, oy }
+
+// ── localStorage helpers for order + size ──
+function loadWMOrder() { try { return JSON.parse(localStorage.getItem('fb_wm_order')||'[]'); } catch(e){ return []; } }
+function saveWMOrder(arr) { localStorage.setItem('fb_wm_order', JSON.stringify(arr)); }
+function loadWMSize()  { try { return JSON.parse(localStorage.getItem('fb_wm_size') ||'{}'); } catch(e){ return {}; } }
+function saveWMSize(o) { localStorage.setItem('fb_wm_size', JSON.stringify(o)); }
+
+function applyWMOrder() {
+  var order = loadWMOrder();
+  if (!order.length) return;
+  var vg = document.querySelector('.vg');
+  if (!vg) return;
+  var addCard = document.getElementById('wm-add-card');
+  order.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && el.parentNode === vg) vg.insertBefore(el, addCard);
+  });
+}
+
+function applyWMSizes() {
+  var sizes = loadWMSize();
+  Object.keys(sizes).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.classList.toggle('wm-span2', sizes[id] === 2);
+  });
+}
 
 function _setupJiggleLongPress() {
   var vg = document.querySelector('.vg');
@@ -6127,18 +6464,23 @@ function _setupJiggleLongPress() {
   var startX, startY;
 
   function onStart(e) {
-    if (e.target.closest('#wm-add-card') || e.target.closest('.wm-x-btn')) return;
+    // ignore badges, add-card, and non-widget targets
+    if (e.target.closest('.wm-x-btn,.wm-sz-btn,#wm-add-card,.onb-q')) return;
+    var card = e.target.closest('.vc');
+    if (!card) return;
     var t = e.touches ? e.touches[0] : e;
     startX = t.clientX; startY = t.clientY;
     _jiggleLongTimer = setTimeout(function() {
-      if (navigator.vibrate) navigator.vibrate(10);
-      enterJiggle();
-    }, 500);
+      _jiggleLongTimer = null;
+      if (navigator.vibrate) navigator.vibrate([8, 40, 12]);
+      if (!_jiggleActive) enterJiggle();
+      else _startDrag(card, t.clientX, t.clientY);
+    }, 450);
   }
   function onMove(e) {
     if (!_jiggleLongTimer) return;
     var t = e.touches ? e.touches[0] : e;
-    if (Math.abs(t.clientX - startX) > 8 || Math.abs(t.clientY - startY) > 8) {
+    if (Math.abs(t.clientX - startX) > 9 || Math.abs(t.clientY - startY) > 9) {
       clearTimeout(_jiggleLongTimer); _jiggleLongTimer = null;
     }
   }
@@ -6146,10 +6488,10 @@ function _setupJiggleLongPress() {
 
   vg.addEventListener('touchstart', onStart, {passive:true});
   vg.addEventListener('touchmove',  onMove,  {passive:true});
-  vg.addEventListener('touchend',   onEnd);
+  vg.addEventListener('touchend',   onEnd,   {passive:true});
   vg.addEventListener('mousedown',  onStart);
-  vg.addEventListener('mousemove',  onMove);
-  vg.addEventListener('mouseup',    onEnd);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup',   onEnd);
 }
 
 function enterJiggle() {
@@ -6158,60 +6500,171 @@ function enterJiggle() {
   var vg = document.querySelector('.vg');
   if (!vg) return;
   vg.classList.add('jiggle-mode');
-  // Add X buttons to each visible widget and stagger animation delay
+  var sizes = loadWMSize();
   var cards = vg.querySelectorAll('.vc:not(.wm-widget-hidden)');
   cards.forEach(function(c, i) {
     c.style.setProperty('--ji', i);
+    // X button
     if (!c.querySelector('.wm-x-btn')) {
-      var btn = document.createElement('button');
-      btn.className = 'wm-x-btn';
-      btn.setAttribute('aria-label', 'Eliminar widget');
-      btn.innerHTML = '&times;';
-      btn.addEventListener('click', function(e) {
+      var xBtn = document.createElement('button');
+      xBtn.className = 'wm-x-btn'; xBtn.setAttribute('aria-label','Eliminar');
+      xBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        var id = c.id;
-        if (id) {
-          c.style.transition = 'transform 0.18s,opacity 0.18s';
-          c.style.transform = 'scale(0.85)';
-          c.style.opacity = '0';
-          setTimeout(function() {
-            toggleWidget(id, false);
-            c.style.transform = '';
-            c.style.opacity = '';
-          }, 180);
-        }
+        c.style.cssText += 'transition:transform .16s,opacity .16s;transform:scale(0.82);opacity:0';
+        setTimeout(function() {
+          toggleWidget(c.id, false);
+          c.style.transform = ''; c.style.opacity = ''; c.style.transition = '';
+          _refreshJiggleBadges();
+        }, 160);
       });
-      c.appendChild(btn);
+      c.appendChild(xBtn);
     }
+    // Resize button
+    if (!c.querySelector('.wm-sz-btn')) {
+      var szBtn = document.createElement('button');
+      szBtn.className = 'wm-sz-btn'; szBtn.setAttribute('aria-label','Cambiar tamaño');
+      var isWide = (sizes[c.id] === 2);
+      szBtn.textContent = isWide ? '⊡' : '⊞';
+      szBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var s = loadWMSize();
+        var nowWide = (s[c.id] === 2);
+        s[c.id] = nowWide ? 1 : 2;
+        saveWMSize(s);
+        c.classList.toggle('wm-span2', !nowWide);
+        szBtn.textContent = nowWide ? '⊞' : '⊡';
+      });
+      c.appendChild(szBtn);
+    }
+    // Touch + mouse drag (during jiggle)
+    c.addEventListener('touchstart', _onCardTouchStart, {passive:false});
+    c.addEventListener('mousedown',  _onCardMouseStart);
   });
-  var doneBtn = document.getElementById('jiggle-done');
-  if (doneBtn) doneBtn.classList.add('jd-visible');
-  // Tap outside widgets exits jiggle
+  document.getElementById('jiggle-done')?.classList.add('jd-visible');
   setTimeout(function() {
     document.addEventListener('touchstart', _jiggleOutsideTap, {passive:true});
     document.addEventListener('mousedown',  _jiggleOutsideTap);
-  }, 300);
+  }, 350);
+}
+
+function _refreshJiggleBadges() {
+  var vg = document.querySelector('.vg');
+  if (!vg || !_jiggleActive) return;
+  vg.querySelectorAll('.vc:not(.wm-widget-hidden)').forEach(function(c, i) {
+    c.style.setProperty('--ji', i);
+  });
+}
+
+// ── Drag & Drop ──
+function _onCardTouchStart(e) {
+  if (!_jiggleActive) return;
+  if (e.target.closest('.wm-x-btn,.wm-sz-btn')) return;
+  e.preventDefault();
+  var card = this;
+  var t = e.touches[0];
+  _startDrag(card, t.clientX, t.clientY);
+}
+
+function _onCardMouseStart(e) {
+  if (!_jiggleActive) return;
+  if (e.target.closest('.wm-x-btn,.wm-sz-btn')) return;
+  e.preventDefault();
+  _startDrag(this, e.clientX, e.clientY);
+}
+
+function _startDrag(card, cx, cy, rect) {
+  if (_dragState) return;
+  rect = rect || card.getBoundingClientRect();
+  // Create ghost
+  var ghost = card.cloneNode(true);
+  ghost.className = 'wm-drag-ghost';
+  ghost.querySelectorAll('.wm-x-btn,.wm-sz-btn').forEach(function(b){ b.remove(); });
+  ghost.style.cssText = 'width:'+rect.width+'px;height:'+rect.height+'px;top:'+(cy-rect.height/2)+'px;left:'+(cx-rect.width/2)+'px;';
+  document.body.appendChild(ghost);
+  // Placeholder
+  var slot = document.createElement('div');
+  slot.className = 'wm-drop-slot';
+  slot.style.height = rect.height + 'px';
+  card.classList.add('wm-dragging');
+  card.style.opacity = '0.25';
+  card.parentNode.insertBefore(slot, card);
+  _dragState = { card:card, ghost:ghost, slot:slot, ox:cx-rect.left, oy:cy-rect.top };
+  document.addEventListener('touchmove',  _onDragMove, {passive:false});
+  document.addEventListener('touchend',   _onDragEnd);
+  document.addEventListener('touchcancel',_onDragEnd);
+  document.addEventListener('mousemove',  _onDragMove);
+  document.addEventListener('mouseup',    _onDragEnd);
+}
+
+function _onDragMove(e) {
+  if (!_dragState) return;
+  var t = e.touches ? e.touches[0] : e;
+  if (e.cancelable) e.preventDefault();
+  var cx = t.clientX, cy = t.clientY;
+  var d = _dragState;
+  var gw = parseInt(d.ghost.style.width);
+  var gh = parseInt(d.ghost.style.height);
+  d.ghost.style.top  = (cy - d.oy) + 'px';
+  d.ghost.style.left = (cx - d.ox) + 'px';
+  // Find nearest drop position
+  var vg = document.querySelector('.vg');
+  var cards = Array.from(vg.querySelectorAll('.vc:not(.wm-widget-hidden):not(.wm-dragging)'));
+  var addCard = document.getElementById('wm-add-card');
+  var best = null, bestDist = Infinity;
+  cards.concat([addCard]).forEach(function(el) {
+    var r = el.getBoundingClientRect();
+    var dist = Math.hypot(cx - (r.left+r.width/2), cy - (r.top+r.height/2));
+    if (dist < bestDist) { bestDist = dist; best = el; }
+  });
+  if (best) {
+    var br = best.getBoundingClientRect();
+    var before = cy < br.top + br.height / 2;
+    vg.insertBefore(d.slot, before ? best : best.nextSibling);
+  }
+}
+
+function _onDragEnd(e) {
+  if (!_dragState) return;
+  var d = _dragState; _dragState = null;
+  document.removeEventListener('touchmove',  _onDragMove);
+  document.removeEventListener('touchend',   _onDragEnd);
+  document.removeEventListener('touchcancel',_onDragEnd);
+  document.removeEventListener('mousemove',  _onDragMove);
+  document.removeEventListener('mouseup',    _onDragEnd);
+  // Drop card at slot position
+  var vg = document.querySelector('.vg');
+  vg.insertBefore(d.card, d.slot);
+  d.slot.remove();
+  d.ghost.remove();
+  d.card.classList.remove('wm-dragging');
+  d.card.style.opacity = '';
+  // Save new order
+  var order = Array.from(vg.querySelectorAll('.vc')).map(function(c){ return c.id; });
+  saveWMOrder(order);
+  _refreshJiggleBadges();
 }
 
 function _jiggleOutsideTap(e) {
   if (!_jiggleActive) return;
   var vg = document.querySelector('.vg');
-  if (vg && !vg.contains(e.target) && !e.target.closest('#jiggle-done')) {
-    exitJiggle();
-  }
+  if (vg && !vg.contains(e.target) && !e.target.closest('#jiggle-done')) exitJiggle();
 }
 
 function exitJiggle() {
   if (!_jiggleActive) return;
   _jiggleActive = false;
+  if (_dragState) _onDragEnd();
   var vg = document.querySelector('.vg');
   if (vg) {
     vg.classList.remove('jiggle-mode');
-    vg.querySelectorAll('.wm-x-btn').forEach(function(b) { b.remove(); });
-    vg.querySelectorAll('.vc').forEach(function(c) { c.style.removeProperty('--ji'); });
+    vg.querySelectorAll('.wm-x-btn,.wm-sz-btn').forEach(function(b){ b.remove(); });
+    vg.querySelectorAll('.vc').forEach(function(c){
+      c.style.removeProperty('--ji');
+      c.removeEventListener('touchstart', _onCardTouchStart);
+      c.removeEventListener('mousedown',  _onCardMouseStart);
+    });
   }
-  var doneBtn = document.getElementById('jiggle-done');
-  if (doneBtn) doneBtn.classList.remove('jd-visible');
+  document.getElementById('jiggle-done')?.classList.remove('jd-visible');
   document.removeEventListener('touchstart', _jiggleOutsideTap);
   document.removeEventListener('mousedown',  _jiggleOutsideTap);
 }
@@ -6273,6 +6726,28 @@ function calcStress({ hrv=68, rhr=61, br=14 }) {
   const brScore  = Math.max(0, Math.min((br - 10) / 10, 1)) * 25;
   return Math.round(hrvScore + rhrScore + brScore);
 }
+function updateZoneDots({ hrv=48, spo2=98, temp=36.4 } = {}) {
+  // HRV dot: escala 20–100ms → 0–100%
+  const hrvPct = Math.max(2, Math.min(((hrv - 20) / 80) * 100, 98));
+  const dot1 = document.getElementById('hrv-zone-dot');
+  if (dot1) dot1.style.left = hrvPct.toFixed(1) + '%';
+  // SpO2 dot: escala 90–100% → 0–100%
+  const spo2Pct = Math.max(2, Math.min(((spo2 - 90) / 10) * 100, 98));
+  const dot2 = document.getElementById('spo2-zone-dot');
+  if (dot2) dot2.style.left = spo2Pct.toFixed(1) + '%';
+  // Temp dot: escala 35–38°C → 0–100%
+  const tempVal = parseFloat(document.getElementById('tempv')?.textContent) || temp;
+  const tempPct = Math.max(2, Math.min(((tempVal - 35) / 3) * 100, 98));
+  const dot3 = document.getElementById('temp-zone-dot');
+  if (dot3) dot3.style.left = tempPct.toFixed(1) + '%';
+  // HRV status label
+  const u = document.getElementById('u-hrv');
+  if (u) {
+    const s = hrv >= 60 ? (lang==='en'?'OPTIMAL':'ÓPTIMO') : hrv >= 40 ? (lang==='en'?'GOOD':'BUENO') : (lang==='en'?'LOW':'BAJO');
+    u.textContent = 'RMSSD — ' + s;
+  }
+}
+
 function setStressBars({ hrv=68, rhr=61, br=14 }) {
   const score = calcStress({ hrv, rhr, br });
   animN('stressv', 0, score, 900);
@@ -6358,6 +6833,15 @@ function updateScores({ rec, strain, sleepPct }) {
   const nrf = document.getElementById('nrt-rfil');
   if (nrf) nrf.style.strokeDashoffset = (364*(1-rec/100)).toFixed(1);
   animN('nrt-rscore', 0, rec, 1200);
+  // Naruto bars — live data
+  setTimeout(function() {
+    var nr = document.getElementById('naruto-bar-rec');
+    var ns = document.getElementById('naruto-bar-slp');
+    if (nr) nr.style.width = Math.min(100, rec).toFixed(1) + '%';
+    if (ns) ns.style.width = Math.min(100, sleepPct).toFixed(1) + '%';
+  }, 200);
+  // Naruto Easter Egg: shinobi rank badge (Stats + Profile)
+  nrtUpdateRank(rec);
   // Neon Noir 3-node ring — 3 category chips + center composite score
   animN('nn-nv-rec', 0, rec, 1200);
   animN('nn-nv-slp', 0, sleepPct, 1200);
@@ -6403,6 +6887,41 @@ window.updateBloomFlower = function(score) {
   var halo = document.getElementById('blm-halo');
   if (halo) halo.setAttribute('opacity', score > 80 ? ((score - 80) / 20 * 0.55).toFixed(2) : '0');
 };
+// ── Naruto Easter Egg: Shinobi Rank ─────────────────────────────────────────
+// Updates rank display in Stats chip + Profile block from recovery score.
+// Ranks use generic ninja classifications (Genin/Chunin/Jonin/Kage — well before
+// any franchise, so zero copyright exposure).
+function nrtUpdateRank(score) {
+  var s = Math.round(score || 0);
+  var kanji, nindo_es, nindo_en;
+  if (s >= 80) {
+    kanji    = '影 · KAGE';
+    nindo_es = 'Más allá de todo límite — el shinobi que protege todo.';
+    nindo_en = 'Beyond every limit — the shinobi who protects all.';
+  } else if (s >= 65) {
+    kanji    = '上忍 · JŌNIN';
+    nindo_es = 'La fuerza del jōnin nace de forjar cuerpo y mente como uno.';
+    nindo_en = 'The jōnin\'s strength comes from forging body and mind as one.';
+  } else if (s >= 50) {
+    kanji    = '中忍 · CHŪNIN';
+    nindo_es = 'El camino del shinobi se recorre paso a paso, sin rendirse.';
+    nindo_en = 'The shinobi\'s path is walked step by step — never surrender.';
+  } else if (s >= 35) {
+    kanji    = '下忍 · GENIN';
+    nindo_es = 'Todo maestro fue una vez principiante. Sigue entrenando.';
+    nindo_en = 'Every master was once a beginner. Keep training.';
+  } else {
+    kanji    = '見習い · APRENDIZ';
+    nindo_es = 'El descanso también es parte del camino del shinobi.';
+    nindo_en = 'Rest is also part of the shinobi\'s path.';
+  }
+  var chip  = document.getElementById('nrt-sv-rank');
+  if (chip)  chip.textContent = '忍 · ' + kanji;
+  var prank = document.getElementById('nrt-pv-rank-val');
+  if (prank) prank.textContent = kanji;
+  var pnin  = document.getElementById('nrt-pv-nindo');
+  if (pnin)  pnin.textContent = (typeof lang !== 'undefined' && lang === 'en') ? nindo_en : nindo_es;
+}
 function recTextFor(rec) {
   return rec>=67 ? (lang==='es'?'Listo para entrenar al máximo':'Ready for peak training') :
          rec>=50 ? (lang==='es'?'Entrenamiento moderado-alto recomendado':'Moderate-high training recommended') :
@@ -6418,6 +6937,7 @@ function animVals() {
   document.getElementById('cal-act').textContent = '564';
   setCalbars({ sed:520, lig:185, mod:18, int:27 });
   animN('hrv',40,68,1000); animN('spo2v',90,98,800);
+  setTimeout(function(){ updateZoneDots({hrv:48,spo2:98,temp:36.4}); }, 1200);
   setHRZones({ zones:[{name:'Out of Range',minutes:840},{name:'Fat Burn',minutes:52},{name:'Cardio',minutes:22},{name:'Peak',minutes:6}], restHR:61, maxHR:172 });
   setStressBars({ hrv:68, rhr:61, br:14 }); animN('calv',0,312,1100); animN('hrvv',0,48,1000);
   animN('hrlive',40,68,1000); animN('stepsv',0,7842,1400,true);
@@ -6830,10 +7350,11 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
     const sp=spo2?.dataPoints?.[0]?.dailyOxygenSaturation; set('spo2v', sp?.avg??sp?.avgPercent??sp?.value);
     const hv=hrv?.dataPoints?.[0]?.dailyHeartRateVariability;  set('hrvv',  hv?.rmssd??hv?.dailyRmssd??hv?.value);
     const bv=br?.dataPoints?.[0]?.dailyRespiratoryRate;         set('resp-val', bv?.rate??bv?.breathingRate??bv?.value);
-    // Update stress bars with real HRV + BR values once available
     const hrvReal = Math.round(+(hv?.rmssd??hv?.dailyRmssd??hv?.value??68));
     const brReal  = Math.round(+(bv?.rate??bv?.breathingRate??bv?.value??14));
+    const spo2Real = parseFloat(sp?.avg??sp?.avgPercent??sp?.value??98);
     setStressBars({ hrv: hrvReal, rhr: rhr_v || 65, br: brReal });
+    updateZoneDots({ hrv: hrvReal, spo2: spo2Real });
     if (typeof syncTicker==='function') syncTicker();
   } catch(e) {}
 }
@@ -6996,10 +7517,52 @@ async function loadReal() {
       localStorage.setItem('fb_display_name', _dn);           // persist across sessions
       if (pr.user.gender) localStorage.setItem('fb_sex', String(pr.user.gender).toLowerCase());
     }
-    if (ac?.summary) { const s=ac.summary; document.getElementById('stepsv').textContent=(s.steps||0).toLocaleString('en-US'); document.getElementById('calv').textContent=s.activityCalories||0; const pct=Math.min((s.steps/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); document.getElementById('cal-bmr').textContent=(s.caloriesBMR||0).toLocaleString(); document.getElementById('cal-act').textContent=(s.activityCalories||0).toLocaleString(); setCalbars({sed:s.sedentaryMinutes||0,lig:s.lightlyActiveMinutes||0,mod:s.fairlyActiveMinutes||0,int:s.veryActiveMinutes||0}); }
-    let maxHR_real=0; if (hr?.['activities-heart-intraday']?.dataset?.length) { const ds=hr['activities-heart-intraday'].dataset; const lat=ds[ds.length-1]?.value||68; maxHR_real=Math.max(...ds.map(d=>d.value)); document.getElementById('hrv').textContent=lat; document.getElementById('hrlive').textContent=lat; const st=Math.max(1,Math.floor(ds.length/48)); hrHist=ds.filter((_,i)=>i%st===0).slice(-48).map(d=>d.value); buildHRC(hrHist); }
+    if (ac?.summary) {
+      const s=ac.summary;
+      document.getElementById('stepsv').textContent=(s.steps||0).toLocaleString('en-US');
+      document.getElementById('calv').textContent=s.activityCalories||0;
+      const pct=Math.min((s.steps/10000)*100,100);
+      document.getElementById('stepsprog').style.width=pct+'%';
+      document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY');
+      document.getElementById('cal-bmr').textContent=(s.caloriesBMR||0).toLocaleString();
+      document.getElementById('cal-act').textContent=(s.activityCalories||0).toLocaleString();
+      setCalbars({sed:s.sedentaryMinutes||0,lig:s.lightlyActiveMinutes||0,mod:s.fairlyActiveMinutes||0,int:s.veryActiveMinutes||0});
+      // sub-métricas steps
+      const distKm = s.distances?.find(d=>d.activity==='total')?.distance || (s.steps*0.00074);
+      const el_d=document.getElementById('steps-dist-val'); if(el_d) el_d.textContent=distKm.toFixed(1);
+      const el_f=document.getElementById('steps-floors-val'); if(el_f) el_f.textContent=s.floors||0;
+      const activeMin=(s.fairlyActiveMinutes||0)+(s.veryActiveMinutes||0);
+      const el_a=document.getElementById('steps-active-val'); if(el_a) el_a.textContent=activeMin;
+    }
+    let maxHR_real=0, minHR_real=999, sumHR_real=0, cntHR=0;
+    if (hr?.['activities-heart-intraday']?.dataset?.length) {
+      const ds=hr['activities-heart-intraday'].dataset;
+      const lat=ds[ds.length-1]?.value||68;
+      ds.forEach(p=>{ if(p.value>0){maxHR_real=Math.max(maxHR_real,p.value);minHR_real=Math.min(minHR_real,p.value);sumHR_real+=p.value;cntHR++;} });
+      const avgHR=cntHR?Math.round(sumHR_real/cntHR):71;
+      document.getElementById('hrv').textContent=lat;
+      document.getElementById('hrlive').textContent=lat;
+      const el_mn=document.getElementById('hr-day-min'); if(el_mn) el_mn.textContent=minHR_real<999?minHR_real:52;
+      const el_av=document.getElementById('hr-day-avg'); if(el_av) el_av.textContent=avgHR;
+      const el_mx=document.getElementById('hr-day-max'); if(el_mx) el_mx.textContent=maxHR_real||172;
+      const el_rn=document.getElementById('hr-day-range'); if(el_rn) el_rn.textContent=(maxHR_real-(minHR_real<999?minHR_real:52))||120;
+      const st=Math.max(1,Math.floor(ds.length/48)); hrHist=ds.filter((_,i)=>i%st===0).slice(-48).map(d=>d.value); buildHRC(hrHist);
+    }
     if (sl?.summary?.stages) updSl(sl.summary.stages);
-    renderHypnogram(sl?.sleep?.find(s=>s.isMainSleep) ?? sl?.sleep?.[0]);
+    const _mainSl = sl?.sleep?.find(s=>s.isMainSleep) ?? sl?.sleep?.[0];
+    renderHypnogram(_mainSl);
+    if (_mainSl) {
+      const _eff=_mainSl.efficiency||91;
+      const _wakes=(_mainSl.levels?.summary?.wake?.count)||(_mainSl.levels?.data?.filter(d=>d.level==='wake')?.length)||3;
+      const el_eff=document.getElementById('sl-eff-v'); if(el_eff) el_eff.textContent=_eff;
+      const el_wk=document.getElementById('sl-wake-v'); if(el_wk) el_wk.textContent=_wakes;
+      const _start=_mainSl.startTime?.slice(11,16)||'23:18';
+      const _end=_mainSl.endTime?.slice(11,16)||'07:02';
+      const el_st=document.getElementById('sl-start-v'); if(el_st) el_st.textContent=_start;
+      const el_en=document.getElementById('sl-end-v'); if(el_en) el_en.textContent=_end;
+      const _sc=parseInt(_mainSl.efficiency||84);
+      const _dot=document.getElementById('sleep-score-dot'); if(_dot) _dot.style.left=Math.max(2,Math.min(_sc,98))+'%';
+    }
     // Whoop-style scores con datos reales
     const rhr_real = hr?.['activities-heart']?.[0]?.value?.restingHeartRate || 68;
     const mainSleep = sl?.sleep?.find(s=>s.isMainSleep) ?? sl?.sleep?.[0];
@@ -7176,6 +7739,7 @@ function hideLoad() {
 
 // ══════ ONBOARDING — metric tooltips ══════
 function showOnb(key) {
+  if (_jiggleActive) return; // no abrir tooltips durante modo edición
   const ov = document.getElementById('onb-ov');
   const data = T[lang]?.onb?.[key]; if (!data || !ov) return;
   document.getElementById('onb-ttl').textContent = data.ttl;

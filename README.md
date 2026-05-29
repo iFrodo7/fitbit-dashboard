@@ -24,10 +24,18 @@ Arranca en modo **demo** (sin login). Para datos reales, toca **Conectar** (ver 
 - **Datos reales de Fitbit/Google**: FC, RHR, sueño, pasos, zonas + SpO₂, HRV (RMSSD) y ritmo respiratorio
 - **AIRA Pro** ($5/mes): coach ilimitado + planes, tema nuevo cada mes, reporte semanal IA (menú comparativo Free/Pro en Perfil)
 - **Emparejamiento un-toque** (PKCE, app compartida) — sin que el usuario cree cuenta de desarrollador
-- **4 temas** con identidad visual fuerte · **Bilingüe** ES/EN
+- **4 temas** con identidad visual fuerte (incluye easter eggs del tema Naruto) · **Bilingüe** ES/EN
 - **PWA** instalable, offline, pull-to-refresh, **safe-area para Dynamic Island**, touch optimizado
 - **Notificaciones** locales + server push (Web Push/VAPID)
 - **App nativa** iOS/Android vía Capacitor (scaffolding listo)
+
+### 🧩 Sistema de widgets (nuevo)
+- **Long-press** en cualquier widget → modo edición estilo iPhone (animación jiggle + badge × para eliminar)
+- **Drag & drop** para reordenar widgets (touch y mouse) — orden persiste entre sesiones
+- **Resize** por widget: badge ⊞ alterna entre ancho completo (2 col) y medio (1 col)
+- **Tarjeta +** siempre visible para reactivar widgets ocultos
+- **Grid proporcional**: todos los widgets se estiran para ocupar la misma altura por fila, sin espacios muertos
+- **Widgets enriquecidos**: cada métrica tiene barras de zona, sub-métricas secundarias y botón `?` con explicación
 
 ## 🏗️ Arquitectura
 
