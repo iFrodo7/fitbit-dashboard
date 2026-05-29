@@ -2428,13 +2428,6 @@ body.t-naruto span.vval{
             <g id="blm-p10" transform="translate(80,80) rotate(300)" opacity="0.9" filter="url(#blm-glow)"><path d="M 0,-20 C -8,-23 -8,-34 0,-42 C 8,-34 8,-23 0,-20" fill="#f472b6"/></g>
             <g id="blm-p11" transform="translate(80,80) rotate(330)" opacity="0.9" filter="url(#blm-glow)"><path d="M 0,-20 C -8,-23 -8,-34 0,-42 C 8,-34 8,-23 0,-20" fill="#e85c8a"/></g>
 
-            <!-- ══ GROUND PETALS (caídos — JS-driven, appear at low scores) ══ -->
-            <g id="blm-gp0" opacity="0"><path transform="translate(50,134) rotate(22)"  d="M 0,-4 C -5,-5 -5,-11 0,-15 C 5,-11 5,-5 0,-4" fill="#ffb7c5"/></g>
-            <g id="blm-gp1" opacity="0"><path transform="translate(68,140) rotate(-18)" d="M 0,-4 C -5,-5 -5,-11 0,-15 C 5,-11 5,-5 0,-4" fill="#f9a8d4"/></g>
-            <g id="blm-gp2" opacity="0"><path transform="translate(80,135) rotate(6)"   d="M 0,-4 C -5,-5 -5,-11 0,-15 C 5,-11 5,-5 0,-4" fill="#fce7f3"/></g>
-            <g id="blm-gp3" opacity="0"><path transform="translate(92,141) rotate(-12)" d="M 0,-4 C -5,-5 -5,-11 0,-15 C 5,-11 5,-5 0,-4" fill="#f472b6"/></g>
-            <g id="blm-gp4" opacity="0"><path transform="translate(60,143) rotate(28)"  d="M 0,-4 C -5,-5 -5,-11 0,-15 C 5,-11 5,-5 0,-4" fill="#ffb7c5"/></g>
-            <g id="blm-gp5" opacity="0"><path transform="translate(75,148) rotate(-5)"  d="M 0,-4 C -5,-5 -5,-11 0,-15 C 5,-11 5,-5 0,-4" fill="#f9a8d4"/></g>
 
             <!-- ══ FLOWER CENTER (over petals) ══ -->
             <circle cx="80" cy="80" r="19" fill="#1a0614" stroke="rgba(232,92,138,0.5)" stroke-width="1.3"/>
@@ -6237,11 +6230,6 @@ window.updateBloomFlower = function(score) {
   for (var i = 0; i < 12; i++) {
     var p = document.getElementById('blm-p' + i);
     if (p) p.setAttribute('opacity', i < alive ? '0.9' : '0.07');
-  }
-  var groundCount = Math.max(0, Math.round((1 - score / 100) * 6));
-  for (var j = 0; j < 6; j++) {
-    var gp = document.getElementById('blm-gp' + j);
-    if (gp) gp.setAttribute('opacity', j < groundCount ? '0.45' : '0');
   }
   var halo = document.getElementById('blm-halo');
   if (halo) halo.setAttribute('opacity', score > 80 ? ((score - 80) / 20 * 0.55).toFixed(2) : '0');
