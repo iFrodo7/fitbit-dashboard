@@ -2983,6 +2983,17 @@ body.t-naruto span.vval{
             <div class="cal-box"><div class="cal-box-lbl" id="lbl-hrvar">VARIACIÓN</div><div class="cal-box-val" id="hr-day-range">120</div><div class="cal-box-unit">BPM RANGO</div></div>
           </div>
         </div>
+        <!-- HR 24h chart second -->
+        <div class="card" id="hr-chart-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+            <div><span class="clbl" id="lbl-hrchart" style="margin-bottom:2px;">// FREC. CARDÍACA 24H</span><div style="font-size:10px;letter-spacing:2px;opacity:0.3;" id="lbl-last24">ÚLTIMAS 24 HORAS</div></div>
+            <div style="display:flex;align-items:baseline;gap:3px;"><span id="hrlive" style="font-size:24px;font-weight:700;color:var(--tneg);">68</span><span style="font-size:10px;opacity:0.35;letter-spacing:1px;"> BPM</span></div>
+          </div>
+          <svg class="spkl" viewBox="0 0 300 72" id="hrchart" preserveAspectRatio="none"></svg>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <span style="font-size:9px;opacity:0.28;">00:00</span><span style="font-size:9px;opacity:0.28;">06:00</span><span style="font-size:9px;opacity:0.28;">12:00</span><span style="font-size:9px;opacity:0.28;">18:00</span><span style="font-size:9px;color:var(--ta)" id="lbl-now">AHORA</span>
+          </div>
+        </div>
       </div><!-- /rcs -->
     </div><!-- /mg -->
 
