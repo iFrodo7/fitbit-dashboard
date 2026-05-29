@@ -2394,10 +2394,10 @@ body.t-naruto span.vval{
                 <stop offset="0%"   stop-color="#5a1830"/>
                 <stop offset="100%" stop-color="#1a0614"/>
               </radialGradient>
-              <!-- Stem pulse animated paths (flower center → chip nodes) -->
-              <path id="blm-path1" d="M 80,62 L 80,30"/>
-              <path id="blm-path2" d="M 80,80 C 70,98 50,114 40,132"/>
-              <path id="blm-path3" d="M 80,80 C 90,98 110,114 120,132"/>
+              <!-- Stem pulse paths — start at circle edge (r=19, center 80,80) -->
+              <path id="blm-path1" d="M 80,61 L 80,30"/>
+              <path id="blm-path2" d="M 71,97 C 70,98 50,114 40,132"/>
+              <path id="blm-path3" d="M 89,97 C 90,98 110,114 120,132"/>
             </defs>
 
             <!-- ── Outer ring hint ── -->
@@ -2406,11 +2406,11 @@ body.t-naruto span.vval{
             <!-- ── Radiant halo (JS-driven: appears at high scores) ── -->
             <circle id="blm-halo" cx="80" cy="80" r="52" fill="none" stroke="#f472b6" stroke-width="3.5" opacity="0" filter="url(#blm-halo-glow)"/>
 
-            <!-- ── Thin stems connecting flower to chip nodes ── -->
+            <!-- ── Thin stems — also start at circle edge ── -->
             <g fill="none" stroke-linecap="round" filter="url(#blm-root-glow)">
-              <path d="M 80,62 L 80,30"                          stroke="rgba(232,92,138,0.35)" stroke-width="1.2"/>
-              <path d="M 80,80 C 70,98 50,114 40,132"            stroke="rgba(196,127,181,0.35)" stroke-width="1.2"/>
-              <path d="M 80,80 C 90,98 110,114 120,132"          stroke="rgba(232,92,138,0.35)" stroke-width="1.2"/>
+              <path d="M 80,61 L 80,30"                          stroke="rgba(232,92,138,0.35)" stroke-width="1.2"/>
+              <path d="M 71,97 C 70,98 50,114 40,132"            stroke="rgba(196,127,181,0.35)" stroke-width="1.2"/>
+              <path d="M 89,97 C 90,98 110,114 120,132"          stroke="rgba(232,92,138,0.35)" stroke-width="1.2"/>
             </g>
 
             <!-- ══ 12 RING PETALS (JS sets opacity: ~0.9 alive / ~0.07 wilted) ══ -->
@@ -2470,13 +2470,13 @@ body.t-naruto span.vval{
             </text>
 
             <!-- ══ ANIMATED ENERGY PULSES ══ -->
-            <circle r="2.5" fill="#e85c8a" filter="url(#blm-glow)" opacity="0.85">
+            <circle r="1.8" fill="#e85c8a" filter="url(#blm-glow)" opacity="0.85">
               <animateMotion dur="2.2s" repeatCount="indefinite" begin="0s"><mpath href="#blm-path1"/></animateMotion>
             </circle>
-            <circle r="2.5" fill="#c47fb5" filter="url(#blm-glow)" opacity="0.78">
+            <circle r="1.8" fill="#c47fb5" filter="url(#blm-glow)" opacity="0.78">
               <animateMotion dur="3s" repeatCount="indefinite" begin="0.8s"><mpath href="#blm-path2"/></animateMotion>
             </circle>
-            <circle r="2.5" fill="#e85c8a" filter="url(#blm-glow)" opacity="0.78">
+            <circle r="1.8" fill="#e85c8a" filter="url(#blm-glow)" opacity="0.78">
               <animateMotion dur="2.7s" repeatCount="indefinite" begin="1.5s"><mpath href="#blm-path3"/></animateMotion>
             </circle>
           </svg>
