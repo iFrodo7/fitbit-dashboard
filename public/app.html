@@ -1379,6 +1379,69 @@ body.t-naruto span.vval{
 .wm-toggle input:checked + .wm-tog-trk .wm-tog-thumb{transform:translateX(18px);}
 .wm-widget-hidden{display:none!important;}
 
+/* ── Jiggle Mode (iPhone-style edit) ── */
+@keyframes jiggle{
+  0%  {transform:rotate(-0.7deg) translateY(0px);}
+  25% {transform:rotate(0.7deg)  translateY(-0.5px);}
+  50% {transform:rotate(-0.6deg) translateY(0px);}
+  75% {transform:rotate(0.6deg)  translateY(-0.5px);}
+  100%{transform:rotate(-0.7deg) translateY(0px);}
+}
+.jiggle-mode .vc:not(.wm-widget-hidden){
+  animation:jiggle 0.38s ease-in-out infinite;
+  animation-delay:calc(var(--ji,0) * 55ms);
+}
+.jiggle-mode .vc:not(.wm-widget-hidden):hover{transform:none;}
+/* iPhone-style X badge */
+.wm-x-btn{
+  position:absolute;top:-9px;left:-9px;z-index:10;
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(60,60,67,0.92);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  border:none;color:rgba(255,255,255,0.95);
+  font-size:11px;font-weight:600;line-height:20px;text-align:center;
+  cursor:pointer;display:none;
+  box-shadow:0 1px 4px rgba(0,0,0,0.55),0 0 0 1.5px rgba(255,255,255,0.18);
+  transition:transform 0.12s,background 0.12s;
+  padding:0;
+}
+.wm-x-btn::before{
+  content:'';display:block;width:8px;height:1.5px;background:currentColor;
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%) rotate(45deg);
+  border-radius:1px;
+}
+.wm-x-btn::after{
+  content:'';display:block;width:8px;height:1.5px;background:currentColor;
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%) rotate(-45deg);
+  border-radius:1px;
+}
+.wm-x-btn:active{transform:scale(0.82);background:rgba(40,40,45,0.98);}
+.jiggle-mode .wm-x-btn{display:block;}
+.jiggle-mode .wm-x-btn{display:block;}
+/* + add card */
+#wm-add-card{
+  padding:20px 12px;border:1px dashed var(--bdr);background:transparent;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;cursor:pointer;min-height:80px;opacity:0.45;
+  transition:opacity 0.2s,border-color 0.2s;
+}
+#wm-add-card:hover,#wm-add-card:active{opacity:1;border-color:var(--ta);}
+.wm-add-plus{font-size:28px;line-height:1;color:var(--ta);}
+.wm-add-lbl{font-size:9px;letter-spacing:2px;color:var(--tx);opacity:0.6;}
+/* floating done bar */
+#jiggle-done{
+  position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 70px);left:50%;
+  transform:translateX(-50%) translateY(120px);
+  z-index:7000;background:var(--ta);color:#000;
+  border:none;font-family:inherit;font-size:10px;letter-spacing:3px;font-weight:700;
+  padding:10px 32px;cursor:pointer;
+  transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s;
+  opacity:0;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+#jiggle-done.jd-visible{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto;}
+
 .cal-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
 .cal-box{background:var(--rbg);padding:8px 10px;}
 .cal-box-lbl{font-size:9px;letter-spacing:2px;opacity:0.35;text-transform:uppercase;}
@@ -2599,6 +2662,11 @@ body.t-naruto span.vval{
             </div>
           </div>
         </div>
+        <!-- + Add widget card -->
+        <div id="wm-add-card" onclick="openWM()" role="button" aria-label="Agregar widget">
+          <div class="wm-add-plus">+</div>
+          <div class="wm-add-lbl">AGREGAR</div>
+        </div>
       </div><!-- /vg -->
 
       <!-- Col 3: HR chart + Sleep apilados -->
@@ -2691,6 +2759,7 @@ body.t-naruto span.vval{
   </main>
 
   <!-- Widget Manager -->
+  <button id="jiggle-done" onclick="exitJiggle()">LISTO</button>
   <div id="wm-overlay" onclick="closeWM()"></div>
   <div id="wm-drawer" role="dialog" aria-label="Widget Manager">
     <div class="wm-handle"></div>
@@ -5918,6 +5987,7 @@ function initDash() {
     }, 20000);
   }
   applyWMState();
+  _setupJiggleLongPress();
 }
 
 function updateClock() {
@@ -6045,6 +6115,105 @@ function applyWMState() {
     var el = document.getElementById(w.id);
     if (el) el.classList.toggle('wm-widget-hidden', !wmIsOn(w));
   });
+}
+
+// ── Jiggle Mode ──
+var _jiggleLongTimer = null;
+var _jiggleActive = false;
+
+function _setupJiggleLongPress() {
+  var vg = document.querySelector('.vg');
+  if (!vg) return;
+  var startX, startY;
+
+  function onStart(e) {
+    if (e.target.closest('#wm-add-card') || e.target.closest('.wm-x-btn')) return;
+    var t = e.touches ? e.touches[0] : e;
+    startX = t.clientX; startY = t.clientY;
+    _jiggleLongTimer = setTimeout(function() {
+      if (navigator.vibrate) navigator.vibrate(10);
+      enterJiggle();
+    }, 500);
+  }
+  function onMove(e) {
+    if (!_jiggleLongTimer) return;
+    var t = e.touches ? e.touches[0] : e;
+    if (Math.abs(t.clientX - startX) > 8 || Math.abs(t.clientY - startY) > 8) {
+      clearTimeout(_jiggleLongTimer); _jiggleLongTimer = null;
+    }
+  }
+  function onEnd() { clearTimeout(_jiggleLongTimer); _jiggleLongTimer = null; }
+
+  vg.addEventListener('touchstart', onStart, {passive:true});
+  vg.addEventListener('touchmove',  onMove,  {passive:true});
+  vg.addEventListener('touchend',   onEnd);
+  vg.addEventListener('mousedown',  onStart);
+  vg.addEventListener('mousemove',  onMove);
+  vg.addEventListener('mouseup',    onEnd);
+}
+
+function enterJiggle() {
+  if (_jiggleActive) return;
+  _jiggleActive = true;
+  var vg = document.querySelector('.vg');
+  if (!vg) return;
+  vg.classList.add('jiggle-mode');
+  // Add X buttons to each visible widget and stagger animation delay
+  var cards = vg.querySelectorAll('.vc:not(.wm-widget-hidden)');
+  cards.forEach(function(c, i) {
+    c.style.setProperty('--ji', i);
+    if (!c.querySelector('.wm-x-btn')) {
+      var btn = document.createElement('button');
+      btn.className = 'wm-x-btn';
+      btn.setAttribute('aria-label', 'Eliminar widget');
+      btn.innerHTML = '&times;';
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var id = c.id;
+        if (id) {
+          c.style.transition = 'transform 0.18s,opacity 0.18s';
+          c.style.transform = 'scale(0.85)';
+          c.style.opacity = '0';
+          setTimeout(function() {
+            toggleWidget(id, false);
+            c.style.transform = '';
+            c.style.opacity = '';
+          }, 180);
+        }
+      });
+      c.appendChild(btn);
+    }
+  });
+  var doneBtn = document.getElementById('jiggle-done');
+  if (doneBtn) doneBtn.classList.add('jd-visible');
+  // Tap outside widgets exits jiggle
+  setTimeout(function() {
+    document.addEventListener('touchstart', _jiggleOutsideTap, {passive:true});
+    document.addEventListener('mousedown',  _jiggleOutsideTap);
+  }, 300);
+}
+
+function _jiggleOutsideTap(e) {
+  if (!_jiggleActive) return;
+  var vg = document.querySelector('.vg');
+  if (vg && !vg.contains(e.target) && !e.target.closest('#jiggle-done')) {
+    exitJiggle();
+  }
+}
+
+function exitJiggle() {
+  if (!_jiggleActive) return;
+  _jiggleActive = false;
+  var vg = document.querySelector('.vg');
+  if (vg) {
+    vg.classList.remove('jiggle-mode');
+    vg.querySelectorAll('.wm-x-btn').forEach(function(b) { b.remove(); });
+    vg.querySelectorAll('.vc').forEach(function(c) { c.style.removeProperty('--ji'); });
+  }
+  var doneBtn = document.getElementById('jiggle-done');
+  if (doneBtn) doneBtn.classList.remove('jd-visible');
+  document.removeEventListener('touchstart', _jiggleOutsideTap);
+  document.removeEventListener('mousedown',  _jiggleOutsideTap);
 }
 
 // ══════ CALORÍAS EXPANDIBLE ══════
