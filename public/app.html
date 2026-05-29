@@ -1090,28 +1090,6 @@ body.t-mc::before{content:'';position:fixed;inset:0;background-image:repeating-l
    THEME-SPECIFIC BARS: Health/Experience
 ═══════════════════════════════════════ */
 
-/* ── BLOOM: ground petal sway animations ── */
-@keyframes blm-sway-a {
-  0%,100%{transform:rotate(-6deg) translateX(0);}
-  45%    {transform:rotate(5deg)  translateX(2px);}
-  75%    {transform:rotate(-3deg) translateX(-1px);}
-}
-@keyframes blm-sway-b {
-  0%,100%{transform:rotate(4deg)  translateX(0);}
-  40%    {transform:rotate(-7deg) translateX(-2px);}
-  70%    {transform:rotate(3deg)  translateX(1px);}
-}
-@keyframes blm-sway-c {
-  0%,100%{transform:rotate(0deg)  translateX(0);}
-  50%    {transform:rotate(8deg)  translateX(2px);}
-}
-#blm-gp0{animation:blm-sway-a 4.2s ease-in-out infinite;}
-#blm-gp1{animation:blm-sway-b 3.8s ease-in-out infinite 0.6s;}
-#blm-gp2{animation:blm-sway-c 5.1s ease-in-out infinite 1.2s;}
-#blm-gp3{animation:blm-sway-b 4.6s ease-in-out infinite 0.3s;}
-#blm-gp4{animation:blm-sway-a 3.5s ease-in-out infinite 1.8s;}
-#blm-gp5{animation:blm-sway-c 4.9s ease-in-out infinite 0.9s;}
-
 /* ── BLOOM: bars ── */
 .bloom-bars{margin-top:10px;width:100%;}
 .bloom-blbl{font-size:11px;letter-spacing:2px;color:#e85c8a;text-shadow:0 0 8px rgba(232,92,138,0.4);margin-bottom:4px;font-family:'Nunito',sans-serif;font-weight:700;text-transform:uppercase;}
@@ -3341,7 +3319,7 @@ const T = {
     rstat: {
       fut:    { peak:'ÓPTIMO', good:'BUENO', moderate:'MODERADO', low:'BAJO' },
       mc:     { peak:'VIDA COMPLETA', good:'BUENA SALUD', moderate:'HP MEDIO', low:'HP BAJO' },
-      bloom:  { peak:'RADIANTE', good:'FLORECIENDO', moderate:'BROTANDO', low:'MUSTIA' },
+      bloom:  { peak:'RADIANTE', good:'FLORECIENDO', moderate:'BROTANDO', low:'RECARGANDO' },
       halo:   { peak:'NETRUNNER LISTO', good:'ENLACE ESTABLE', moderate:'SISTEMA DEGRADADO', low:'FLATLINED' },
       naruto: { peak:'最大 · KI COMPLETO', good:'KI ESTABLE', moderate:'KI MEDIO', low:'KI BAJO' },
     },
@@ -3566,7 +3544,7 @@ const T = {
     rstat: {
       fut:    { peak:'OPTIMAL', good:'GOOD', moderate:'MODERATE', low:'LOW' },
       mc:     { peak:'FULL HP', good:'HEALTHY', moderate:'HALF HP', low:'LOW HP' },
-      bloom:  { peak:'RADIANT', good:'BLOOMING', moderate:'BUDDING', low:'WILTING' },
+      bloom:  { peak:'RADIANT', good:'BLOOMING', moderate:'BUDDING', low:'RECHARGING' },
       halo:   { peak:'NETRUNNER READY', good:'LINK STABLE', moderate:'SYSTEM DEGRADED', low:'FLATLINED' },
       naruto: { peak:'最大 · KI FULL', good:'KI STABLE', moderate:'KI MID', low:'KI LOW' },
     },
