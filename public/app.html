@@ -1090,7 +1090,29 @@ body.t-mc::before{content:'';position:fixed;inset:0;background-image:repeating-l
    THEME-SPECIFIC BARS: Health/Experience
 ═══════════════════════════════════════ */
 
-/* ── BLOOM: VITALIDAD & FLOW ── */
+/* ── BLOOM: ground petal sway animations ── */
+@keyframes blm-sway-a {
+  0%,100%{transform:rotate(-6deg) translateX(0);}
+  45%    {transform:rotate(5deg)  translateX(2px);}
+  75%    {transform:rotate(-3deg) translateX(-1px);}
+}
+@keyframes blm-sway-b {
+  0%,100%{transform:rotate(4deg)  translateX(0);}
+  40%    {transform:rotate(-7deg) translateX(-2px);}
+  70%    {transform:rotate(3deg)  translateX(1px);}
+}
+@keyframes blm-sway-c {
+  0%,100%{transform:rotate(0deg)  translateX(0);}
+  50%    {transform:rotate(8deg)  translateX(2px);}
+}
+#blm-gp0{animation:blm-sway-a 4.2s ease-in-out infinite;}
+#blm-gp1{animation:blm-sway-b 3.8s ease-in-out infinite 0.6s;}
+#blm-gp2{animation:blm-sway-c 5.1s ease-in-out infinite 1.2s;}
+#blm-gp3{animation:blm-sway-b 4.6s ease-in-out infinite 0.3s;}
+#blm-gp4{animation:blm-sway-a 3.5s ease-in-out infinite 1.8s;}
+#blm-gp5{animation:blm-sway-c 4.9s ease-in-out infinite 0.9s;}
+
+/* ── BLOOM: bars ── */
 .bloom-bars{margin-top:10px;width:100%;}
 .bloom-blbl{font-size:11px;letter-spacing:2px;color:#e85c8a;text-shadow:0 0 8px rgba(232,92,138,0.4);margin-bottom:4px;font-family:'Nunito',sans-serif;font-weight:700;text-transform:uppercase;}
 .bloom-btr{width:100%;height:7px;background:rgba(15,7,9,0.9);border:1px solid rgba(232,92,138,0.18);border-radius:4px;overflow:hidden;}
@@ -2446,10 +2468,11 @@ body.t-naruto span.vval{
 
             <!-- ══ CENTRAL SCORE ══ -->
             <text x="80" y="75" text-anchor="middle" font-family="'Nunito',sans-serif"
-              font-size="4.2" letter-spacing="1.8" fill="rgba(232,92,138,0.5)">BLOOM</text>
-            <text x="80" y="88" text-anchor="middle" font-family="'Nunito',sans-serif"
-              font-size="14" font-weight="800" fill="#e85c8a" filter="url(#blm-glow)">
-              <tspan id="blm-nv-avg">80</tspan><tspan font-size="6" dx="1" dy="-3">%</tspan>
+              font-size="4.2" letter-spacing="1.8" fill="rgba(255,183,197,0.7)">BLOOM</text>
+            <!-- White score — no blur filter so it stays crisp -->
+            <text x="80" y="89" text-anchor="middle" font-family="'Nunito',sans-serif"
+              font-size="16" font-weight="900" fill="#ffffff">
+              <tspan id="blm-nv-avg">80</tspan><tspan font-size="7" dx="1" dy="-4" fill="#ffb7c5">%</tspan>
             </text>
 
             <!-- ══ CHIP NODE BOXES ══ -->
@@ -3318,7 +3341,7 @@ const T = {
     rstat: {
       fut:    { peak:'ÓPTIMO', good:'BUENO', moderate:'MODERADO', low:'BAJO' },
       mc:     { peak:'VIDA COMPLETA', good:'BUENA SALUD', moderate:'HP MEDIO', low:'HP BAJO' },
-      bloom:  { peak:'RADIANTE', good:'EN FLUJO', moderate:'RECUPERANDO', low:'RECARGA' },
+      bloom:  { peak:'RADIANTE', good:'FLORECIENDO', moderate:'BROTANDO', low:'MUSTIA' },
       halo:   { peak:'NETRUNNER LISTO', good:'ENLACE ESTABLE', moderate:'SISTEMA DEGRADADO', low:'FLATLINED' },
       naruto: { peak:'最大 · KI COMPLETO', good:'KI ESTABLE', moderate:'KI MEDIO', low:'KI BAJO' },
     },
@@ -3543,7 +3566,7 @@ const T = {
     rstat: {
       fut:    { peak:'OPTIMAL', good:'GOOD', moderate:'MODERATE', low:'LOW' },
       mc:     { peak:'FULL HP', good:'HEALTHY', moderate:'HALF HP', low:'LOW HP' },
-      bloom:  { peak:'RADIANT', good:'IN FLOW', moderate:'RECOVERING', low:'RECHARGE' },
+      bloom:  { peak:'RADIANT', good:'BLOOMING', moderate:'BUDDING', low:'WILTING' },
       halo:   { peak:'NETRUNNER READY', good:'LINK STABLE', moderate:'SYSTEM DEGRADED', low:'FLATLINED' },
       naruto: { peak:'最大 · KI FULL', good:'KI STABLE', moderate:'KI MID', low:'KI LOW' },
     },
@@ -4388,7 +4411,7 @@ function applyTheme(t) {
   // Theme-specific bars
   const mc = document.getElementById('mcex');
   if (t === 'bloom') {
-    mc.innerHTML = `<div class="bloom-bars"><div class="bloom-blbl">✦ VITALIDAD</div><div class="bloom-btr"><div class="bloom-bfi bloom-vita" style="width:82%"></div></div><div class="bloom-blbl" style="margin-top:6px">✦ FLOW</div><div class="bloom-btr"><div class="bloom-bfi bloom-flow" style="width:71%"></div></div></div>`;
+    mc.innerHTML = `<div class="bloom-bars"><div class="bloom-blbl">✦ ${lang==='es'?'RECUPERACIÓN':'RECOVERY'}</div><div class="bloom-btr"><div id="bloom-bar-rec" class="bloom-bfi bloom-vita" style="width:0%"></div></div><div class="bloom-blbl" style="margin-top:6px">✦ ${lang==='es'?'SUEÑO':'SLEEP'}</div><div class="bloom-btr"><div id="bloom-bar-slp" class="bloom-bfi bloom-flow" style="width:0%"></div></div></div>`;
   } else if (t === 'mc') {
     mc.innerHTML = `<div class="mc-bars"><div class="mc-blbl">❤ HEALTH</div><div class="mc-btr"><div class="mc-bfi mc-hp" style="width:80%"></div></div><div class="mc-blbl" style="margin-top:6px">✦ XP BAR</div><div class="mc-btr"><div class="mc-bfi mc-xp" style="width:60%"></div></div></div>`;
   } else if (t === 'halo') {
@@ -4420,12 +4443,13 @@ function applyThemeText(t) {
 // Single source: window._lastRec (the readiness ring). Falls back to fut labels.
 function updateStatusLabel() {
   const el = document.getElementById('rstatus'); if (!el) return;
-  const score = window._lastRec;
-  if (score == null) return; // keep markup default until first score is computed
-  const level = score >= 67 ? 'peak' : score >= 50 ? 'good' : score >= 34 ? 'moderate' : 'low';
+  // Bloom uses the composite avg (rec+sleep+strain/3); other themes use recovery alone
+  const score = (theme === 'bloom' && window._blmAvg != null) ? window._blmAvg : window._lastRec;
+  if (score == null) return;
+  const level = score >= 80 ? 'peak' : score >= 60 ? 'good' : score >= 40 ? 'moderate' : 'low';
   const map = (T[lang].rstat && (T[lang].rstat[theme] || T[lang].rstat.fut));
   if (map) el.textContent = map[level];
-  el.style.color = score >= 67 ? 'var(--tpos)' : score >= 34 ? '#f59e0b' : 'var(--tneg)';
+  el.style.color = score >= 80 ? 'var(--tpos)' : score >= 40 ? '#f59e0b' : 'var(--tneg)';
 }
 
 // Mirror live HR / SpO2 / temp from the cards into the fut-theme ticker.
@@ -6208,8 +6232,16 @@ function updateScores({ rec, strain, sleepPct }) {
   animN('blm-nv-slp', 0, sleepPct, 1200);
   animN('blm-nv-str', 0, strain, 1200);
   const blmAvg = Math.round((rec + sleepPct + strain) / 3);
+  window._blmAvg = blmAvg;
   animN('blm-nv-avg', 0, blmAvg, 1200);
   if (window.updateBloomFlower) window.updateBloomFlower(blmAvg);
+  // Bloom bars — live data (Recuperación + Sueño)
+  setTimeout(function() {
+    var br = document.getElementById('bloom-bar-rec');
+    var bs = document.getElementById('bloom-bar-slp');
+    if (br) br.style.width = Math.min(100, rec).toFixed(1) + '%';
+    if (bs) bs.style.width = Math.min(100, sleepPct).toFixed(1) + '%';
+  }, 200);
   // Strain
   const sb = document.getElementById('strain-bar');
   if (sb) setTimeout(()=>{ sb.style.width=(strain/21*100).toFixed(1)+'%'; },100);
