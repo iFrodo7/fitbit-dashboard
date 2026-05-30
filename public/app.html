@@ -1426,7 +1426,7 @@ body.t-naruto span.vval{
 .vc.open .vc-xpnd{max-height:140px;padding:10px 0;opacity:1;margin-top:10px;}
 
 /* ── Compact HR Card ── */
-.vc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;}
+.vc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;min-height:18px;}
 .vc-bpm-row{display:flex;align-items:baseline;gap:6px;margin:4px 0 0;}
 .vc-bpm{font-size:38px;font-weight:700;line-height:1;color:var(--ta);}
 .vc-bpm-unit{font-size:11px;letter-spacing:2px;opacity:0.4;}
@@ -1573,9 +1573,17 @@ body.t-naruto span.vval{
 /* Sub-métricas que llenan el resto de la tarjeta (como TEMP CORPORAL).
    El valor se agranda (estilo Apple Health) y el grupo se centra: así ocupa el
    alto sin líneas en blanco ni huecos arriba/abajo. */
-.cal-split.cs-fill{flex:1 1 auto;}
-.cal-split.cs-fill .cal-box{display:flex;flex-direction:column;justify-content:center;gap:4px;}
-/* Etiquetas en una sola línea — sin letter-spacing que cause wrap en cajas estrechas */
+.cal-split.cs-fill{
+  flex:1 1 auto;
+  margin-top:0!important;          /* override inline style — CSS handles spacing */
+  padding-top:10px;
+  border-top:1px solid var(--bdr); /* separador modular claro entre zonas */
+}
+.cal-split.cs-fill .cal-box{
+  display:flex;flex-direction:column;justify-content:center;gap:3px;
+  padding:8px 10px;
+}
+/* Etiquetas en una sola línea — sin letter-spacing que cause wrap */
 .cal-split.cs-fill .cal-box-lbl{letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .cal-split.cs-fill .cal-box-val{font-size:28px;margin:0;line-height:1;}
 .cal-split.cs-fill .cal-box-unit{margin-top:0;}
@@ -2822,7 +2830,7 @@ body.t-naruto span.vval{
             </div>
           </div>
           <!-- sub-métricas -->
-          <div class="cal-split cs-fill" style="margin-top:10px;">
+          <div class="cal-split cs-fill">
             <div class="cal-box">
               <div class="cal-box-lbl" id="lbl-hrv-base">BASE PERSONAL</div>
               <div class="cal-box-val" id="hrv-base-val">—</div>
@@ -2849,7 +2857,7 @@ body.t-naruto span.vval{
             </div>
           </div>
           <!-- Siempre visible: HRV + FC reposo -->
-          <div class="cal-split cs-fill" style="margin-top:10px;">
+          <div class="cal-split cs-fill">
             <div class="cal-box">
               <div class="cal-box-lbl">HRV</div>
               <div class="cal-box-val" id="str-hrv">68</div>
@@ -2917,7 +2925,7 @@ body.t-naruto span.vval{
             </div>
           </div>
           <!-- sub-métricas -->
-          <div class="cal-split cs-fill" style="margin-top:10px;">
+          <div class="cal-split cs-fill">
             <div class="cal-box">
               <div class="cal-box-lbl" id="lbl-spo2-low">MÍNIMO HOY</div>
               <div class="cal-box-val" id="spo2-low-val">—</div>
@@ -2947,7 +2955,7 @@ body.t-naruto span.vval{
             </div>
           </div>
           <!-- sub-métricas -->
-          <div class="cal-split cs-fill" style="margin-top:10px;">
+          <div class="cal-split cs-fill">
             <div class="cal-box">
               <div class="cal-box-lbl" id="lbl-temp-delta">VARIACIÓN</div>
               <div class="cal-box-val" id="temp-delta-val">—</div>
