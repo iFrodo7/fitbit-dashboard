@@ -6372,6 +6372,7 @@ var WM_WIDGETS = [
   { id:'sleep-card',    on:true,  label:'Análisis de Sueño',    labelEn:'Sleep Analysis',   desc:'Etapas · Duración · Score',     descEn:'Stages · Duration · Score',      icon:'◑' },
   { id:'scard',         on:true,  label:'Pasos',                labelEn:'Steps',            desc:'Actividad diaria · Objetivo',   descEn:'Daily activity · Goal',          icon:'▶' },
   { id:'bot',           on:true,  label:'Actividades & Coach',  labelEn:'Activities & Coach',desc:'Entrenamientos · AIRA',        descEn:'Workouts · AIRA',                icon:'✦' },
+  { id:'cyc-home-chip', on:false, special:'cycle', label:'Seguimiento de Ciclo', labelEn:'Cycle Tracking', desc:'Fases · Ventana fértil · Regla', descEn:'Phases · Fertile window · Period', icon:'☽' },
 ];
 
 function wmIsOn(w) {
@@ -6387,7 +6388,7 @@ function openWM() {
   var isEs = (typeof lang !== 'undefined' ? lang : 'es') === 'es';
   list.scrollTop = 0;
   list.innerHTML = WM_WIDGETS.map(function(w) {
-    var on = wmIsOn(w);
+    var on = (w.special === 'cycle') ? (typeof cycleEnabled === 'function' && cycleEnabled()) : wmIsOn(w);
     return '<label class="wm-item">'
       + '<div class="wm-item-icon">' + w.icon + '</div>'
       + '<div class="wm-item-info"><div class="wm-item-label">' + (isEs ? w.label : w.labelEn) + '</div>'
@@ -6415,6 +6416,10 @@ function closeWM() {
 }
 
 function toggleWidget(id, show) {
+  if (id === 'cyc-home-chip') {
+    if (typeof toggleCycle === 'function') toggleCycle();
+    return;
+  }
   var state = loadWMState();
   state[id] = show;
   saveWMState(state);
@@ -6432,6 +6437,7 @@ function saveWMState(s) {
 
 function applyWMState() {
   WM_WIDGETS.forEach(function(w) {
+    if (w.special === 'cycle') return; // controlled by cycleEnabled() / toggleCycle()
     var el = document.getElementById(w.id);
     if (el) el.classList.toggle('wm-widget-hidden', !wmIsOn(w));
   });
