@@ -205,23 +205,10 @@ body{width:100%;min-height:100vh;}
 .halo-pv::after{content:'';position:absolute;bottom:0;left:0;right:0;height:45px;pointer-events:none;
   background:linear-gradient(0deg,rgba(255,45,120,0.16) 0%,transparent 100%);}
 @keyframes nn-prevrain{from{background-position:0 0,0 0,0 0;}to{background-position:-25px 100px,0 0,0 0;}}
-/* Reticle rings */
-.nn-reticle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:96px;height:96px;}
-.nn-r{position:absolute;top:50%;left:50%;border-radius:50%;transform:translate(-50%,-50%);}
-.nn-r1{width:96px;height:96px;border:1px solid rgba(255,45,120,0.38);box-shadow:0 0 18px rgba(255,45,120,0.15),inset 0 0 12px rgba(189,0,255,0.06);}
-.nn-r2{width:60px;height:60px;border:1px solid rgba(255,45,120,0.55);box-shadow:0 0 10px rgba(255,45,120,0.26),inset 0 0 8px rgba(189,0,255,0.10);}
-.nn-r3{width:28px;height:28px;border:1px solid rgba(189,0,255,0.70);box-shadow:0 0 10px rgba(189,0,255,0.40),inset 0 0 8px rgba(189,0,255,0.18);}
-/* Crosshair lines */
-.nn-xh{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:130px;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(255,45,120,0.20) 22%,rgba(255,45,120,0.20) 78%,transparent);}
-.nn-xv{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:1px;height:130px;
-  background:linear-gradient(0deg,transparent,rgba(255,45,120,0.20) 22%,rgba(255,45,120,0.20) 78%,transparent);}
-/* Center dot */
-.nn-core{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:7px;height:7px;border-radius:50%;background:#ff2d78;
-  box-shadow:0 0 10px #ff2d78,0 0 24px rgba(255,45,120,0.5);}
+/* CPU chip SVG */
+.nn-chip-svg{position:absolute;top:50%;left:50%;transform:translate(-50%,-52%);
+  width:150px;height:150px;pointer-events:none;
+  filter:drop-shadow(0 0 10px rgba(255,45,120,0.38)) drop-shadow(0 0 22px rgba(189,0,255,0.18));}
 /* Corner HUD brackets */
 .nn-corner{position:absolute;width:12px;height:12px;pointer-events:none;}
 .nn-tl{top:10px;left:10px;border-top:1.5px solid rgba(255,45,120,0.55);border-left:1.5px solid rgba(255,45,120,0.55);}
@@ -1949,15 +1936,71 @@ body.t-naruto span.vval{
     <div class="t-card tc-halo" data-id="halo" onclick="openThemePreview('halo')">
       <div class="halo-pv">
         <div class="nn-hud-top">NIGHT CITY UPLINK — NEURAL NET v2.0.77</div>
-        <!-- Reticle -->
-        <div class="nn-reticle">
-          <div class="nn-r nn-r1"></div>
-          <div class="nn-r nn-r2"></div>
-          <div class="nn-r nn-r3"></div>
-          <div class="nn-xh"></div>
-          <div class="nn-xv"></div>
-          <div class="nn-core"></div>
-        </div>
+        <!-- CPU chip with circuit traces -->
+        <svg class="nn-chip-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="npv-glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="1.8" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <!-- ── Circuit traces (L-shaped) ── -->
+          <!-- Top side -->
+          <polyline points="36,30 36,18 28,18 28,8"  fill="none" stroke="rgba(255,45,120,0.42)" stroke-width="0.9"/>
+          <polyline points="50,30 50,8"               fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.9"/>
+          <polyline points="64,30 64,18 72,18 72,8"  fill="none" stroke="rgba(189,0,255,0.42)" stroke-width="0.9"/>
+          <!-- Bottom side -->
+          <polyline points="36,70 36,82 28,82 28,92" fill="none" stroke="rgba(189,0,255,0.42)" stroke-width="0.9"/>
+          <polyline points="50,70 50,92"              fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.9"/>
+          <polyline points="64,70 64,82 72,82 72,92" fill="none" stroke="rgba(255,45,120,0.42)" stroke-width="0.9"/>
+          <!-- Left side -->
+          <polyline points="30,38 18,38 18,28 8,28"  fill="none" stroke="rgba(255,45,120,0.42)" stroke-width="0.9"/>
+          <polyline points="30,50 8,50"               fill="none" stroke="rgba(189,0,255,0.55)" stroke-width="0.9"/>
+          <polyline points="30,62 18,62 18,72 8,72"  fill="none" stroke="rgba(189,0,255,0.42)" stroke-width="0.9"/>
+          <!-- Right side -->
+          <polyline points="70,38 82,38 82,28 92,28" fill="none" stroke="rgba(189,0,255,0.42)" stroke-width="0.9"/>
+          <polyline points="70,50 92,50"              fill="none" stroke="rgba(255,45,120,0.55)" stroke-width="0.9"/>
+          <polyline points="70,62 82,62 82,72 92,72" fill="none" stroke="rgba(255,45,120,0.42)" stroke-width="0.9"/>
+          <!-- Via circles at bends -->
+          <circle cx="28" cy="18" r="1.6" fill="none" stroke="rgba(255,45,120,0.50)" stroke-width="0.8"/>
+          <circle cx="72" cy="18" r="1.6" fill="none" stroke="rgba(189,0,255,0.50)" stroke-width="0.8"/>
+          <circle cx="28" cy="82" r="1.6" fill="none" stroke="rgba(189,0,255,0.50)" stroke-width="0.8"/>
+          <circle cx="72" cy="82" r="1.6" fill="none" stroke="rgba(255,45,120,0.50)" stroke-width="0.8"/>
+          <circle cx="18" cy="38" r="1.6" fill="none" stroke="rgba(255,45,120,0.50)" stroke-width="0.8"/>
+          <circle cx="18" cy="62" r="1.6" fill="none" stroke="rgba(189,0,255,0.50)" stroke-width="0.8"/>
+          <circle cx="82" cy="38" r="1.6" fill="none" stroke="rgba(189,0,255,0.50)" stroke-width="0.8"/>
+          <circle cx="82" cy="62" r="1.6" fill="none" stroke="rgba(255,45,120,0.50)" stroke-width="0.8"/>
+          <!-- Contact pads at trace ends -->
+          <rect x="25" y="5"  width="6" height="4" rx="0.5" fill="rgba(255,45,120,0.45)"/>
+          <rect x="47" y="5"  width="6" height="4" rx="0.5" fill="rgba(255,45,120,0.55)"/>
+          <rect x="69" y="5"  width="6" height="4" rx="0.5" fill="rgba(189,0,255,0.45)"/>
+          <rect x="25" y="91" width="6" height="4" rx="0.5" fill="rgba(189,0,255,0.45)"/>
+          <rect x="47" y="91" width="6" height="4" rx="0.5" fill="rgba(255,45,120,0.55)"/>
+          <rect x="69" y="91" width="6" height="4" rx="0.5" fill="rgba(255,45,120,0.45)"/>
+          <rect x="5"  y="25" width="4" height="6" rx="0.5" fill="rgba(255,45,120,0.45)"/>
+          <rect x="5"  y="47" width="4" height="6" rx="0.5" fill="rgba(189,0,255,0.55)"/>
+          <rect x="5"  y="69" width="4" height="6" rx="0.5" fill="rgba(189,0,255,0.45)"/>
+          <rect x="91" y="25" width="4" height="6" rx="0.5" fill="rgba(189,0,255,0.45)"/>
+          <rect x="91" y="47" width="4" height="6" rx="0.5" fill="rgba(255,45,120,0.55)"/>
+          <rect x="91" y="69" width="4" height="6" rx="0.5" fill="rgba(255,45,120,0.45)"/>
+          <!-- Chip body -->
+          <rect x="30" y="30" width="40" height="40" rx="1.5"
+            fill="rgba(8,0,18,0.92)" stroke="rgba(255,45,120,0.65)" stroke-width="1.2"
+            filter="url(#npv-glow)"/>
+          <!-- Die sector grid -->
+          <line x1="30" y1="40" x2="70" y2="40" stroke="rgba(255,45,120,0.12)" stroke-width="0.6"/>
+          <line x1="30" y1="50" x2="70" y2="50" stroke="rgba(255,45,120,0.12)" stroke-width="0.6"/>
+          <line x1="30" y1="60" x2="70" y2="60" stroke="rgba(255,45,120,0.12)" stroke-width="0.6"/>
+          <line x1="40" y1="30" x2="40" y2="70" stroke="rgba(255,45,120,0.12)" stroke-width="0.6"/>
+          <line x1="50" y1="30" x2="50" y2="70" stroke="rgba(255,45,120,0.12)" stroke-width="0.6"/>
+          <line x1="60" y1="30" x2="60" y2="70" stroke="rgba(255,45,120,0.12)" stroke-width="0.6"/>
+          <!-- Center die (lit) -->
+          <rect x="43" y="43" width="14" height="14" rx="0.8"
+            fill="rgba(255,45,120,0.18)" stroke="rgba(255,45,120,0.70)" stroke-width="1"
+            filter="url(#npv-glow)"/>
+          <!-- Center glow dot -->
+          <circle cx="50" cy="50" r="3" fill="#ff2d78" filter="url(#npv-glow)"/>
+        </svg>
         <!-- HUD corner brackets -->
         <div class="nn-corner nn-tl"></div>
         <div class="nn-corner nn-tr"></div>
