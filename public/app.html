@@ -1574,13 +1574,14 @@ body.t-naruto span.vval{
    El valor se agranda (estilo Apple Health) y el grupo se centra: así ocupa el
    alto sin líneas en blanco ni huecos arriba/abajo. */
 .cal-split.cs-fill{
+  flex:1 1 auto;
   margin-top:0!important;
   padding-top:10px;
   border-top:1px solid var(--bdr);
 }
 .cal-split.cs-fill .cal-box{
-  display:flex;flex-direction:column;justify-content:center;gap:3px;
-  padding:8px 10px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:10px;
 }
 /* Etiquetas en una sola línea — sin letter-spacing que cause wrap */
 .cal-split.cs-fill .cal-box-lbl{letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -2883,7 +2884,7 @@ body.t-naruto span.vval{
           <div class="vval" id="calv">312</div>
           <span class="vunit" id="u-cal">KCAL ACTIVAS</span>
           <!-- Siempre visible: split BMR / Activas -->
-          <div class="cal-split">
+          <div class="cal-split cs-fill">
             <div class="cal-box">
               <div class="cal-box-lbl" id="cal-basal-lbl">BASAL</div>
               <div class="cal-box-val" id="cal-bmr">1,620</div>
