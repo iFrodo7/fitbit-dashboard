@@ -299,7 +299,7 @@ body{
 .scard-inner{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;}
 
 /* ── HISTORY VIEW (overlay) ── */
-#hview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:110;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
+#hview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:110;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;contain:layout paint;}
 body.view-history #hview{display:block;pointer-events:auto;}
 body.view-history #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#hview):not(#cyc-modal-ov):not(#cyc-sym-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
 body.view-history #dash > #install-banner{visibility:visible;}
@@ -372,12 +372,12 @@ body.view-history #dash > #install-banner{visibility:visible;}
 .hv-coach-empty{opacity:0.35;font-size:10px;letter-spacing:2px;padding:10px 0;}
 
 /* ── STATS VIEW (overlay) ── */
-#sview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:110;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
+#sview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:110;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;contain:layout paint;}
 body.view-stats #sview{display:block;pointer-events:auto;}
 body.view-stats #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#sview):not(#cyc-modal-ov):not(#cyc-sym-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
 
 /* ── PROFILE VIEW (overlay) ── */
-#pview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:110;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;}
+#pview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:110;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;contain:layout paint;}
 body.view-profile #pview{display:block;pointer-events:auto;}
 body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#pview):not(#cyc-modal-ov):not(#cyc-sym-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
 
@@ -1485,8 +1485,6 @@ body.t-naruto span.vval{
 .vc-pill-unit{font-size:9px;opacity:0.28;letter-spacing:1px;margin-top:2px;}
 
 /* ── Widget Manager ── */
-#wm-btn{background:none;border:1px solid var(--bdr);color:var(--tx);font-family:inherit;font-size:9px;letter-spacing:2px;padding:8px 12px;cursor:pointer;opacity:0.45;transition:opacity var(--dur-base) var(--ease-std),border-color var(--dur-base) var(--ease-std),color var(--dur-base) var(--ease-std);white-space:nowrap;min-height:36px;}
-#wm-btn:hover{opacity:1;border-color:var(--ta);color:var(--ta);}
 #wm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:8000;display:none;transition:background var(--dur-base) var(--ease-std);}
 #wm-overlay.wm-open{background:rgba(0,0,0,0.72);}
 #wm-drawer{position:fixed;bottom:0;left:0;right:0;z-index:8001;background:var(--bg);border-top:1px solid var(--bdr);transform:translateY(110%);transition:transform var(--dur-slow) var(--ease-spring);padding-bottom:env(safe-area-inset-bottom,16px);}
@@ -2008,7 +2006,7 @@ body.t-naruto span.vval{
   </header>
 
   <!-- Main content -->
-  <main class="db-main">
+  <main class="db-main" id="home-panel" role="tabpanel" aria-labelledby="tab-home">
     <div class="db-greet">
       <div>
         <div class="db-eye" id="g-eye">// ANÁLISIS BIOMÉTRICO ACTIVO</div>
@@ -3209,7 +3207,7 @@ body.t-naruto span.vval{
   </div>
 
   <!-- ══════════════ HISTORY VIEW ══════════════ -->
-  <section id="hview" aria-hidden="true">
+  <section id="hview" role="tabpanel" aria-labelledby="tab-history" aria-hidden="true">
     <div class="hv-hd">
       <div>
         <div class="hv-title" id="hv-title">HISTORIAL</div>
@@ -3288,7 +3286,7 @@ body.t-naruto span.vval{
   </section>
 
   <!-- ══════════════ STATS VIEW ══════════════ -->
-  <section id="sview" aria-hidden="true">
+  <section id="sview" role="tabpanel" aria-labelledby="tab-stats" aria-hidden="true">
     <div class="ov-hd">
       <div>
         <div class="ov-title" id="sv-title">STATS</div>
@@ -3491,7 +3489,7 @@ body.t-naruto span.vval{
   </section>
 
   <!-- ══════════════ PROFILE VIEW ══════════════ -->
-  <section id="pview" aria-hidden="true">
+  <section id="pview" role="tabpanel" aria-labelledby="tab-profile" aria-hidden="true">
     <div class="ov-hd">
       <div>
         <div class="ov-title" id="pv-title">PERFIL</div>
@@ -3744,17 +3742,17 @@ body.t-naruto span.vval{
 </div>
 
 <!-- Bottom Navigation — outside #dash so position:fixed is always relative to viewport -->
-<nav class="bnav" id="bnav" style="display:none">
-  <button class="bnav-btn active" data-tab="home" onclick="navigate('home')">
+<nav class="bnav" id="bnav" role="tablist" aria-label="Navegación principal" style="display:none">
+  <button class="bnav-btn active" id="tab-home" data-tab="home" onclick="navigate('home')" role="tab" aria-selected="true" aria-controls="home-panel">
     <span class="bnav-ic">⌂</span><span class="bnav-lbl" id="bnav-home">Inicio</span>
   </button>
-  <button class="bnav-btn" data-tab="stats" onclick="navigate('stats')">
+  <button class="bnav-btn" id="tab-stats" data-tab="stats" onclick="navigate('stats')" role="tab" aria-selected="false" aria-controls="sview">
     <span class="bnav-ic">◴</span><span class="bnav-lbl" id="bnav-stats">Stats</span>
   </button>
-  <button class="bnav-btn" data-tab="history" onclick="navigate('history')">
+  <button class="bnav-btn" id="tab-history" data-tab="history" onclick="navigate('history')" role="tab" aria-selected="false" aria-controls="hview">
     <span class="bnav-ic">▤</span><span class="bnav-lbl" id="bnav-history">Historial</span>
   </button>
-  <button class="bnav-btn" data-tab="profile" onclick="navigate('profile')">
+  <button class="bnav-btn" id="tab-profile" data-tab="profile" onclick="navigate('profile')" role="tab" aria-selected="false" aria-controls="pview">
     <span class="bnav-ic">◉</span><span class="bnav-lbl" id="bnav-profile">Perfil</span>
   </button>
 </nav>
@@ -5069,7 +5067,11 @@ function initSwipeNav() {
 
 // ══════ BOTTOM NAV ══════
 function navigate(tab) {
-  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.bnav-btn').forEach(b => {
+    const on = b.dataset.tab === tab;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-selected', on);
+  });
   // Already in this view? Skip the re-render (prevents double-fire jank / stuck nav).
   if (tab !== 'home' && document.body.classList.contains('view-' + tab)) return;
   if (navigator.vibrate) navigator.vibrate(10);
