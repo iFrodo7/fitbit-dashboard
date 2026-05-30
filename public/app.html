@@ -1952,9 +1952,6 @@ body.t-naruto span.vval{
               <feGaussianBlur stdDeviation="1.0" result="blur"/>
               <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
             </filter>
-            <path id="npv-p1" d="M 80,46 L 80,32"/>
-            <path id="npv-p2" d="M 46,80 L 32,80 L 30,82 L 30,118 L 28,120"/>
-            <path id="npv-p3" d="M 80,114 L 80,128 L 82,130 L 118,130"/>
           </defs>
           <!-- ── RECOVERY NETWORK ── -->
           <g fill="none" stroke="#ff2d78" stroke-linejoin="miter" stroke-linecap="butt" filter="url(#npv-tg)">
@@ -1991,43 +1988,28 @@ body.t-naruto span.vval{
           <circle cx="114" cy="80"  r="4" fill="rgba(4,0,14,0.95)" stroke="#ff2d78" stroke-width="1.5"/>
           <circle cx="46"  cy="80"  r="4" fill="rgba(4,0,14,0.95)" stroke="#bd00ff" stroke-width="1.5"/>
           <circle cx="80"  cy="114" r="4" fill="rgba(4,0,14,0.95)" stroke="#ff2d78" stroke-width="1.5"/>
+          <!-- Orthogonal crosshair (+ shape — different from preview's × diagonal) -->
           <line x1="68" y1="80" x2="92" y2="80" stroke="rgba(255,45,120,0.12)" stroke-width="0.7"/>
           <line x1="80" y1="68" x2="80" y2="92" stroke="rgba(255,45,120,0.12)" stroke-width="0.7"/>
-          <text x="80" y="77" text-anchor="middle" font-family="'IBM Plex Mono',monospace"
-            font-size="5" letter-spacing="2" fill="rgba(255,45,120,0.45)">SCORE</text>
-          <text x="80" y="90" text-anchor="middle" font-family="'IBM Plex Mono',monospace"
-            font-size="15" font-weight="bold" fill="#ff2d78" filter="url(#npv-glow)">75<tspan font-size="7" dx="1" dy="-3">%</tspan></text>
-          <!-- ── RECOV NODE (top) ── -->
+          <!-- Center: "NET" label + single glow dot (preview has "LINK" + 3 dots) -->
+          <text x="80" y="78" text-anchor="middle" font-family="'IBM Plex Mono',monospace"
+            font-size="5" letter-spacing="2" fill="rgba(255,45,120,0.45)">NET</text>
+          <circle cx="80" cy="86" r="2.8" fill="#ff2d78" filter="url(#npv-glow)"/>
+          <!-- ── RECOV NODE — label only + single dot ── -->
           <rect x="58" y="2"  width="44" height="28" rx="3" fill="rgba(4,0,14,0.96)" stroke="#ff2d78" stroke-width="1.5"/>
           <rect x="62" y="5"  width="36" height="22" rx="2" fill="rgba(255,45,120,0.05)" stroke="rgba(255,45,120,0.28)" stroke-width="0.7"/>
           <text x="80" y="13" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="5.5" letter-spacing="1.5" fill="rgba(255,45,120,0.6)">RECOV</text>
-          <text x="80" y="24" text-anchor="middle" font-family="'IBM Plex Mono',monospace" fill="#ff2d78">
-            <tspan font-size="11" font-weight="bold">78</tspan><tspan font-size="6" dx="1" dy="-2">%</tspan>
-          </text>
-          <!-- ── SLEEP NODE (bottom-left) ── -->
+          <circle cx="80" cy="21" r="2" fill="#ff2d78" opacity="0.55" filter="url(#npv-glow)"/>
+          <!-- ── SLEEP NODE — label only + single dot ── -->
           <rect x="2"  y="120" width="36" height="28" rx="3" fill="rgba(4,0,14,0.96)" stroke="#bd00ff" stroke-width="1.5"/>
           <rect x="5"  y="123" width="30" height="22" rx="2" fill="rgba(189,0,255,0.05)" stroke="rgba(189,0,255,0.28)" stroke-width="0.7"/>
           <text x="20" y="131" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="5.5" letter-spacing="1" fill="rgba(189,0,255,0.6)">SLEEP</text>
-          <text x="20" y="142" text-anchor="middle" font-family="'IBM Plex Mono',monospace" fill="#bd00ff">
-            <tspan font-size="11" font-weight="bold">84</tspan><tspan font-size="6" dx="1" dy="-2">%</tspan>
-          </text>
-          <!-- ── STRAIN NODE (bottom-right) ── -->
+          <circle cx="20" cy="139" r="2" fill="#bd00ff" opacity="0.55" filter="url(#npv-glow)"/>
+          <!-- ── STRAIN NODE — label only + single dot ── -->
           <rect x="120" y="118" width="38" height="30" rx="3" fill="rgba(4,0,14,0.96)" stroke="#ff2d78" stroke-width="1.5"/>
           <rect x="123" y="121" width="32" height="24" rx="2" fill="rgba(255,45,120,0.05)" stroke="rgba(255,45,120,0.28)" stroke-width="0.7"/>
           <text x="139" y="129" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="5.5" letter-spacing="1" fill="rgba(255,45,120,0.6)">STRAIN</text>
-          <text x="139" y="140" text-anchor="middle" font-family="'IBM Plex Mono',monospace" fill="#ff2d78">
-            <tspan font-size="11" font-weight="bold">62</tspan><tspan font-size="6" dx="1" dy="-2">%</tspan>
-          </text>
-          <!-- ── ANIMATED CURRENT DOTS ── -->
-          <circle r="2.5" fill="#ff2d78" filter="url(#npv-glow)">
-            <animateMotion dur="1.6s" repeatCount="indefinite" begin="0s"><mpath href="#npv-p1"/></animateMotion>
-          </circle>
-          <circle r="2.5" fill="#bd00ff" filter="url(#npv-glow)">
-            <animateMotion dur="2.3s" repeatCount="indefinite" begin="0.5s"><mpath href="#npv-p2"/></animateMotion>
-          </circle>
-          <circle r="2.5" fill="#ff2d78" filter="url(#npv-glow)">
-            <animateMotion dur="2.0s" repeatCount="indefinite" begin="1.0s"><mpath href="#npv-p3"/></animateMotion>
-          </circle>
+          <circle cx="139" cy="137" r="2" fill="#ff2d78" opacity="0.55" filter="url(#npv-glow)"/>
         </svg>
         <!-- HUD corner brackets -->
         <div class="nn-corner nn-tl"></div>
