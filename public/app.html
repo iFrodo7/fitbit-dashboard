@@ -177,12 +177,61 @@ body{width:100%;min-height:100vh;}
 .halo-ov .ts{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5a0028;letter-spacing:3px;margin-top:5px;}
 
 /* Naruto card preview */
-.tc-naruto{background:#0c0400;border:1px solid rgba(255,69,0,0.4);}
-.naruto-pv{width:100%;height:100%;position:relative;background:radial-gradient(ellipse at 50% 40%,#220800 0%,#0c0400 70%);}
-.naruto-pv::before{content:'';position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,69,0,0.04) 0deg,transparent 22.5deg,rgba(255,69,0,0.04) 45deg);}
-.nseal{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Noto Serif JP',serif;font-size:56px;color:rgba(255,80,0,0.18);line-height:1;}
-.naruto-ov .tn{font-family:'Permanent Marker',cursive;font-size:clamp(26px,4.5vw,38px);color:#ff4500;text-shadow:0 0 28px rgba(255,69,0,0.7),2px 3px 0 #000;}
-.naruto-ov .ts{font-family:'Noto Serif JP',serif;font-size:11px;color:#882200;letter-spacing:3px;margin-top:6px;}
+.tc-naruto{
+  background:#06080c;
+  border:1px solid rgba(74,106,132,0.32);
+  box-shadow:inset 0 1px 0 rgba(74,106,132,0.07),inset 0 -1px 0 rgba(0,0,0,0.6);
+}
+.naruto-pv{
+  width:100%;height:100%;position:relative;overflow:hidden;
+  background:
+    radial-gradient(ellipse at 32% 68%, rgba(74,106,132,0.16) 0%, transparent 52%),
+    radial-gradient(ellipse at 74% 26%, rgba(30,50,78,0.28) 0%, transparent 48%),
+    radial-gradient(ellipse at 50% 50%, rgba(14,22,36,0.60) 0%, transparent 80%),
+    linear-gradient(152deg, #0c1520 0%, #06080c 42%, #0a1018 100%);
+}
+/* Octagonal kuji grid — steel */
+.naruto-pv::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-conic-gradient(from 0deg at 50% 50%, rgba(74,106,132,0.055) 0deg, transparent 22.5deg, rgba(74,106,132,0.055) 45deg);
+  pointer-events:none;
+}
+/* Battle scratch lines */
+.naruto-pv::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(138deg, transparent 35%,   rgba(160,192,220,0.08) 35.4%, rgba(160,192,220,0.08) 35.9%, transparent 36.3%),
+    linear-gradient(138deg, transparent 50.5%,  rgba(160,192,220,0.05) 50.9%, rgba(160,192,220,0.05) 51.3%, transparent 51.7%),
+    linear-gradient(138deg, transparent 61%,    rgba(160,192,220,0.04) 61.4%, rgba(160,192,220,0.04) 61.8%, transparent 62.2%),
+    linear-gradient(52deg,  transparent 44%,    rgba(0,0,0,0.18)       44.4%, rgba(0,0,0,0.18)       44.9%, transparent 45.3%);
+}
+/* 気 kanji seal */
+.nseal{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:'Noto Serif JP',serif;font-size:78px;
+  color:rgba(74,106,132,0.22);
+  text-shadow:0 0 36px rgba(74,106,132,0.14), 2px 2px 0 rgba(0,0,0,0.95);
+  line-height:1;letter-spacing:-2px;
+}
+/* SHINOBI title */
+.naruto-ov .tn{
+  font-family:'Permanent Marker',cursive;
+  font-size:clamp(26px,4.5vw,38px);
+  color:rgba(210,230,248,0.96);
+  text-shadow:
+    0 0 22px rgba(74,106,132,0.55),
+    0 0 50px rgba(74,106,132,0.20),
+    2px 3px 0 rgba(0,0,0,0.92),
+    -1px -1px 0 rgba(0,0,0,0.50);
+  letter-spacing:3px;line-height:1;
+}
+/* subtitle */
+.naruto-ov .ts{
+  font-family:'Noto Serif JP',serif;font-size:10px;
+  color:rgba(160,192,220,0.40);
+  letter-spacing:4px;margin-top:8px;
+  text-shadow:1px 1px 0 rgba(0,0,0,0.85);
+}
 
 /* Futuristic card preview */
 .tc-fut{background:#020810;border:1px solid rgba(0,245,255,0.2);}
