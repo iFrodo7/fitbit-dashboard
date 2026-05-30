@@ -17,7 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=IBM+Plex+Mono:wght@400;700&family=VT323&family=Silkscreen:wght@400;700&family=Oxanium:wght@400;600;700;800&family=Electrolize&family=Noto+Serif+JP:wght@400;700;900&family=Permanent+Marker&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* === RESET === */
-*{margin:0;padding:0;box-sizing:border-box;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
   --sat:env(safe-area-inset-top,0px);
   /* ── Spacing scale (4px base, 8px grid) ──────────── */
@@ -29,11 +29,17 @@
   --ease-spring:cubic-bezier(0.34,1.56,0.64,1);
   --ease-out:cubic-bezier(0.16,1,0.3,1);
   --ease-std:cubic-bezier(0.4,0,0.2,1);
+  color-scheme:dark;
 }
 /* Snappier taps on touch: kill the 300ms delay + double-tap-zoom on interactive elements */
 .bnav-btn,.cbtn,.bbtn,.hlang-btn,.bell-btn,.vc,.card,.pv-t-btn,.pv-lang-btn,.pv-connect-btn,.pv-disconnect-btn,.pv-export-btn,.hv-pill,.onb-q,button,select,[onclick]{touch-action:manipulation;}
 html{font-size:16px;}
-body{width:100%;min-height:100vh;}
+body{
+  width:100%;min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+}
 
 /* ═══════════════════════════════════════
    SELECTOR SCREEN
@@ -72,7 +78,7 @@ body{width:100%;min-height:100vh;}
 /* Stats pill row */
 .sel-stats{
   display:flex;align-items:center;gap:10px;margin-bottom:18px;
-  font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:2px;color:#2a2a2a;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;color:#2a2a2a;
 }
 .sel-st-free{color:#00c864;font-weight:700;}
 .sel-st-pro{color:#f0a500;font-weight:700;}
@@ -84,9 +90,9 @@ body{width:100%;min-height:100vh;}
   font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;
 }
 .lang-opt{
-  padding:5px 14px;border:1px solid #333;color:#555;
+  padding:10px 16px;border:1px solid #333;color:#555;
   cursor:pointer;transition:border-color var(--dur-fast) var(--ease-std),color var(--dur-fast) var(--ease-std);background:transparent;font-size:11px;
-  font-family:'IBM Plex Mono',monospace;letter-spacing:2px;
+  font-family:'IBM Plex Mono',monospace;letter-spacing:2px;min-height:40px;
 }
 .lang-opt.active{border-color:#00f5ff;color:#00f5ff;}
 .lang-sep{color:#2a2a2a;font-size:14px;}
@@ -95,7 +101,7 @@ body{width:100%;min-height:100vh;}
 .t-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:880px;width:100%;}
 .t-card{
   position:relative;cursor:pointer;overflow:hidden;
-  aspect-ratio:16/9;transition:transform 0.22s,box-shadow 0.22s;
+  aspect-ratio:16/9;transition:transform var(--dur-base) var(--ease-std),box-shadow var(--dur-base) var(--ease-std);
 }
 .t-card:hover{transform:translateY(-4px);}
 .t-card:active{transform:scale(0.97);}
@@ -212,7 +218,7 @@ body{width:100%;min-height:100vh;}
 
 .db-hdr{
   display:flex;align-items:center;justify-content:space-between;
-  padding:14px 28px;padding-top:calc(14px + var(--sat));position:sticky;top:0;z-index:100;
+  padding:14px 20px;padding-top:calc(14px + var(--sat));position:sticky;top:0;z-index:100;
 }
 .db-main{padding:14px 20px;max-width:1600px;margin:0 auto;position:relative;z-index:1;}
 
@@ -377,10 +383,10 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 /* Stats view metric grid */
 .sv-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
 .sv-mini{background:var(--rbg);border:1px solid var(--bdr);border-radius:4px;padding:12px 12px 10px;}
-.sv-mlbl{font-size:8px;letter-spacing:2px;opacity:0.4;text-transform:uppercase;margin-bottom:5px;}
+.sv-mlbl{font-size:9px;letter-spacing:1.5px;opacity:0.4;text-transform:uppercase;margin-bottom:5px;}
 .sv-mval{font-size:22px;font-weight:700;color:var(--ta);line-height:1;}
-.sv-munit{font-size:8px;opacity:0.45;letter-spacing:1px;margin-top:3px;}
-.sv-mstat{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:6px;}
+.sv-munit{font-size:9px;opacity:0.45;letter-spacing:1px;margin-top:3px;}
+.sv-mstat{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-top:6px;}
 /* Cycle / fertility card */
 .cyc-card{border-color:var(--ta2);}
 .cyc-dchip{font-size:9px;letter-spacing:1.5px;opacity:0.55;}
@@ -469,7 +475,7 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .hv-cyc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
 .hv-cyc-stat{background:rgba(255,255,255,0.03);border:1px solid var(--bdr);border-radius:6px;padding:8px 10px;text-align:center;}
 .hv-cyc-stat-val{font-size:20px;font-weight:700;color:var(--ta);}
-.hv-cyc-stat-lbl{font-size:7px;letter-spacing:1.5px;opacity:0.5;text-transform:uppercase;margin-top:3px;}
+.hv-cyc-stat-lbl{font-size:9px;letter-spacing:1px;opacity:0.5;text-transform:uppercase;margin-top:3px;}
 .hv-cyc-detail{background:rgba(255,255,255,0.03);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px;margin-bottom:14px;}
 .hv-cyc-detail-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;gap:8px;}
 .hv-cyc-detail-date{font-size:10px;letter-spacing:2px;color:var(--ta);text-transform:uppercase;font-weight:700;}
@@ -951,7 +957,7 @@ body.t-fut .db-hdr{padding-top:14px;}
 .dstrip{bottom:calc(72px + env(safe-area-inset-bottom));}
 @media(max-width:640px){
   .db-hdr{padding:10px 14px;flex-wrap:wrap;gap:8px;padding-top:calc(10px + var(--sat));}
-  .db-main{padding:10px 12px;padding-bottom:calc(72px + env(safe-area-inset-bottom));}
+  .db-main{padding:10px 14px;padding-bottom:calc(72px + env(safe-area-inset-bottom));}
   .db-name{font-size:22px;}
   .vg{grid-template-columns:repeat(2,1fr);}
   .igrd{grid-template-columns:1fr;}
@@ -1738,6 +1744,14 @@ body.t-naruto span.vval{
 /* NN scan sweep on ring card (periodic) */
 @keyframes nn-sweep{0%{top:-4px;opacity:0.7;}100%{top:105%;opacity:0;}}
 .nn-sweep{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(255,45,120,0.5),rgba(189,0,255,0.3),transparent);pointer-events:none;animation:nn-sweep 3.5s ease-in infinite;z-index:2;}
+
+/* ── Custom scrollbar (WebKit) — thin, dark, theme-tinted ── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.10);border-radius:2px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.22);}
+/* Firefox */
+*{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.10) transparent;}
 
 /* ══ ACCESSIBILITY: Reduced Motion — global kill switch ══════════
    Covers ALL animations/transitions the jiggle-mode block misses.
