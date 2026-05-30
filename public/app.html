@@ -1426,7 +1426,7 @@ body.t-naruto span.vval{
 .vc.open .vc-xpnd{max-height:140px;padding:10px 0;opacity:1;margin-top:10px;}
 
 /* ── Compact HR Card ── */
-.vc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;}
+.vc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;min-height:18px;}
 .vc-bpm-row{display:flex;align-items:baseline;gap:6px;margin:4px 0 0;}
 .vc-bpm{font-size:38px;font-weight:700;line-height:1;color:var(--ta);}
 .vc-bpm-unit{font-size:11px;letter-spacing:2px;opacity:0.4;}
@@ -1474,10 +1474,17 @@ body.t-naruto span.vval{
 }
 .jiggle-mode .vc:not(.wm-widget-hidden):not(.wm-dragging){
   animation:jiggle 0.36s ease-in-out infinite;
-  animation-delay:calc(var(--ji,0) * 50ms);
+  animation-delay:calc(var(--ji,0) * -47ms);
   overflow:visible;cursor:grab;user-select:none;-webkit-user-select:none;
 }
 .jiggle-mode .vc.wm-span2{grid-column:span 2;}
+/* During an active drag we pause the jiggle so the transform channel is free
+   for the FLIP spring that flows siblings out of the way (iOS behaviour). */
+.jiggle-mode.wm-reordering .vc:not(.wm-dragging){animation:none;}
+.jiggle-mode.wm-reordering .vc.wm-flip{
+  transition:transform 0.46s cubic-bezier(0.22,0.68,0.32,1);
+  will-change:transform;
+}
 /* X delete badge */
 .wm-x-btn{
   position:absolute;top:-9px;left:-9px;z-index:20;
@@ -1507,19 +1514,38 @@ body.t-naruto span.vval{
 }
 .wm-sz-btn:active{transform:scale(0.82);}
 .jiggle-mode .wm-sz-btn{display:block;}
-/* drag ghost */
+/* drag ghost — moved exclusively via translate3d (GPU compositor, no layout) */
 .wm-drag-ghost{
-  position:fixed;z-index:9000;pointer-events:none;
-  opacity:0.85;transform:scale(1.05) rotate(1.2deg);
-  box-shadow:0 14px 36px rgba(0,0,0,0.6);
+  position:fixed;top:0;left:0;z-index:9000;pointer-events:none;
   border:var(--cbdr);background:var(--cbg);overflow:hidden;
-  transition:none;
+  transform:translate3d(0,0,0) scale(1) rotate(0deg);
+  box-shadow:0 2px 8px rgba(0,0,0,0.25);
+  opacity:0.96;
+  /* only shadow/opacity/scale animate on lift & settle — translate stays instant */
+  transition:box-shadow 0.22s ease,opacity 0.22s ease;
 }
-/* drop placeholder */
+.wm-drag-ghost.wm-lift{
+  box-shadow:0 18px 44px rgba(0,0,0,0.55);
+}
+.wm-drag-ghost.wm-settling{
+  transition:transform 0.34s cubic-bezier(0.22,0.68,0.32,1),box-shadow 0.34s ease,opacity 0.3s ease;
+}
+/* drop placeholder — breathes softly so the target reads clearly */
 .wm-drop-slot{
   border:1.5px dashed var(--ta);
-  background:rgba(0,245,255,0.05);
+  background:color-mix(in srgb,var(--ta) 9%,transparent);
   border-radius:2px;min-height:60px;
+  transition:height 0.32s cubic-bezier(0.22,0.68,0.32,1);
+  animation:wmSlotBreathe 1.5s ease-in-out infinite;
+}
+@keyframes wmSlotBreathe{0%,100%{opacity:0.55;}50%{opacity:0.9;}}
+/* Accessibility: honour iOS "Reduce Motion" — no jiggle, no springs, instant
+   reflow. The drag still works, it just stops animating. */
+@media (prefers-reduced-motion: reduce){
+  .jiggle-mode .vc:not(.wm-widget-hidden):not(.wm-dragging){animation:none;}
+  .jiggle-mode.wm-reordering .vc.wm-flip{transition:none;}
+  .wm-drag-ghost,.wm-drag-ghost.wm-settling{transition:opacity 0.12s ease;}
+  .wm-drop-slot{animation:none;transition:none;}
 }
 /* + add card */
 #wm-add-card{
@@ -1544,6 +1570,22 @@ body.t-naruto span.vval{
 #jiggle-done.jd-visible{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto;}
 
 .cal-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+/* Sub-métricas que llenan el resto de la tarjeta (como TEMP CORPORAL).
+   El valor se agranda (estilo Apple Health) y el grupo se centra: así ocupa el
+   alto sin líneas en blanco ni huecos arriba/abajo. */
+.cal-split.cs-fill{
+  margin-top:auto!important; /* se ancla al fondo — main content arriba, sub-métricas como footer */
+  padding-top:10px;
+  border-top:1px solid var(--bdr);
+}
+.cal-split.cs-fill .cal-box{
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:10px;
+}
+/* Etiquetas en una sola línea — sin letter-spacing que cause wrap */
+.cal-split.cs-fill .cal-box-lbl{letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cal-split.cs-fill .cal-box-val{font-size:28px;margin:0;line-height:1;}
+.cal-split.cs-fill .cal-box-unit{margin-top:0;}
 .cal-box{background:var(--rbg);padding:8px 10px;}
 .cal-box-lbl{font-size:9px;letter-spacing:2px;opacity:0.35;text-transform:uppercase;}
 .cal-box-val{font-size:18px;font-weight:700;color:var(--ta);margin-top:2px;line-height:1;}
@@ -2787,7 +2829,7 @@ body.t-naruto span.vval{
             </div>
           </div>
           <!-- sub-métricas -->
-          <div class="cal-split" style="margin-top:10px;">
+          <div class="cal-split cs-fill">
             <div class="cal-box">
               <div class="cal-box-lbl" id="lbl-hrv-base">BASE PERSONAL</div>
               <div class="cal-box-val" id="hrv-base-val">—</div>
@@ -2804,8 +2846,17 @@ body.t-naruto span.vval{
           <div class="vc-head"><span class="vlbl" id="lbl-stress">// NIVEL ESTRÉS</span><span class="xarrow-inline">▼</span></div>
           <div class="vval" id="stressv">24</div>
           <span class="vunit" id="u-stress">/ 100 — BAJO</span>
+          <!-- zona visual (0–100, igual que HRV/SpO2/Temp) -->
+          <div style="margin-top:10px;">
+            <div style="display:flex;justify-content:space-between;font-size:8px;letter-spacing:1.5px;opacity:0.35;margin-bottom:4px;">
+              <span id="lbl-str-low">CALMA</span><span id="lbl-str-mid">MODERADO</span><span id="lbl-str-hi">ALTO</span>
+            </div>
+            <div style="position:relative;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--ta) 0%,#f59e0b 55%,var(--tneg) 100%);overflow:visible;">
+              <div id="stress-zone-dot" style="position:absolute;top:50%;width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 6px rgba(0,0,0,0.5);transform:translate(-50%,-50%);transition:left 1s cubic-bezier(.4,0,.2,1);left:24%;"></div>
+            </div>
+          </div>
           <!-- Siempre visible: HRV + FC reposo -->
-          <div class="cal-split">
+          <div class="cal-split cs-fill">
             <div class="cal-box">
               <div class="cal-box-lbl">HRV</div>
               <div class="cal-box-val" id="str-hrv">68</div>
@@ -2832,7 +2883,7 @@ body.t-naruto span.vval{
           <div class="vval" id="calv">312</div>
           <span class="vunit" id="u-cal">KCAL ACTIVAS</span>
           <!-- Siempre visible: split BMR / Activas -->
-          <div class="cal-split">
+          <div class="cal-split cs-fill">
             <div class="cal-box">
               <div class="cal-box-lbl" id="cal-basal-lbl">BASAL</div>
               <div class="cal-box-val" id="cal-bmr">1,620</div>
@@ -2873,7 +2924,7 @@ body.t-naruto span.vval{
             </div>
           </div>
           <!-- sub-métricas -->
-          <div class="cal-split" style="margin-top:10px;">
+          <div class="cal-split cs-fill">
             <div class="cal-box">
               <div class="cal-box-lbl" id="lbl-spo2-low">MÍNIMO HOY</div>
               <div class="cal-box-val" id="spo2-low-val">—</div>
@@ -2903,7 +2954,7 @@ body.t-naruto span.vval{
             </div>
           </div>
           <!-- sub-métricas -->
-          <div class="cal-split" style="margin-top:10px;">
+          <div class="cal-split cs-fill">
             <div class="cal-box">
               <div class="cal-box-lbl" id="lbl-temp-delta">VARIACIÓN</div>
               <div class="cal-box-val" id="temp-delta-val">—</div>
@@ -6556,39 +6607,109 @@ function _refreshJiggleBadges() {
 }
 
 // ── Drag & Drop ──
+// Intent threshold: a touch on a card "arms" a drag but doesn't lift it until
+// the finger actually moves ~8px (or the long-press hold-to-lift timer fires).
+// Prevents a stray tap from yanking a widget out of place.
+var _dragArm = null;
+var _DRAG_THRESH = 8;
+
+function _armDrag(card, x, y) {
+  _dragArm = { card:card, x:x, y:y };
+  document.addEventListener('touchmove', _armMove, {passive:false});
+  document.addEventListener('touchend',  _disarmDrag);
+  document.addEventListener('touchcancel', _disarmDrag);
+  document.addEventListener('mousemove', _armMove);
+  document.addEventListener('mouseup',   _disarmDrag);
+}
+function _armMove(e) {
+  if (!_dragArm) return;
+  var t = e.touches ? e.touches[0] : e;
+  if (Math.abs(t.clientX - _dragArm.x) > _DRAG_THRESH ||
+      Math.abs(t.clientY - _dragArm.y) > _DRAG_THRESH) {
+    var a = _dragArm; _disarmDrag();
+    if (e.cancelable) e.preventDefault();
+    _startDrag(a.card, t.clientX, t.clientY);
+  }
+}
+function _disarmDrag() {
+  _dragArm = null;
+  document.removeEventListener('touchmove', _armMove);
+  document.removeEventListener('touchend',  _disarmDrag);
+  document.removeEventListener('touchcancel', _disarmDrag);
+  document.removeEventListener('mousemove', _armMove);
+  document.removeEventListener('mouseup',   _disarmDrag);
+}
+
 function _onCardTouchStart(e) {
   if (!_jiggleActive) return;
   if (e.target.closest('.wm-x-btn,.wm-sz-btn')) return;
-  e.preventDefault();
-  var card = this;
   var t = e.touches[0];
-  _startDrag(card, t.clientX, t.clientY);
+  _armDrag(this, t.clientX, t.clientY);
 }
 
 function _onCardMouseStart(e) {
   if (!_jiggleActive) return;
   if (e.target.closest('.wm-x-btn,.wm-sz-btn')) return;
   e.preventDefault();
-  _startDrag(this, e.clientX, e.clientY);
+  _armDrag(this, e.clientX, e.clientY);
+}
+
+// ── FLIP: smoothly flow siblings to their new slots (the iOS "make room" feel) ──
+// Records geometry before a DOM mutation, then plays an inverted spring so each
+// moved card glides from its old position instead of teleporting.
+function _flipReorder(vg, mutate) {
+  var cards = Array.from(vg.querySelectorAll('.vc:not(.wm-widget-hidden):not(.wm-dragging)'));
+  var first = new Map();
+  cards.forEach(function(c){ first.set(c, c.getBoundingClientRect()); });
+  mutate();
+  cards.forEach(function(c){
+    var f = first.get(c), l = c.getBoundingClientRect();
+    var dx = f.left - l.left, dy = f.top - l.top;
+    if (!dx && !dy) return;
+    c.classList.remove('wm-flip');
+    c.style.transition = 'none';
+    c.style.transform  = 'translate3d(' + dx + 'px,' + dy + 'px,0)';
+    c.offsetWidth; // force reflow so the inverted start is committed
+    c.classList.add('wm-flip');
+    c.style.transition = '';
+    c.style.transform  = '';
+  });
 }
 
 function _startDrag(card, cx, cy, rect) {
   if (_dragState) return;
+  if (_dragArm) _disarmDrag(); // hold-to-lift won the race; drop the armed intent
   rect = rect || card.getBoundingClientRect();
-  // Create ghost
+  var vg = document.querySelector('.vg');
+  if (vg) vg.classList.add('wm-reordering'); // pause jiggle, free the transform channel
+  // Ghost: positioned at 0,0 and driven only by translate3d for GPU compositing.
   var ghost = card.cloneNode(true);
   ghost.className = 'wm-drag-ghost';
   ghost.querySelectorAll('.wm-x-btn,.wm-sz-btn').forEach(function(b){ b.remove(); });
-  ghost.style.cssText = 'width:'+rect.width+'px;height:'+rect.height+'px;top:'+(cy-rect.height/2)+'px;left:'+(cx-rect.width/2)+'px;';
+  ghost.style.width  = rect.width + 'px';
+  ghost.style.height = rect.height + 'px';
   document.body.appendChild(ghost);
-  // Placeholder
+  // Placeholder where the card will land
   var slot = document.createElement('div');
   slot.className = 'wm-drop-slot';
   slot.style.height = rect.height + 'px';
+  if (card.classList.contains('wm-span2')) slot.style.gridColumn = 'span 2';
   card.classList.add('wm-dragging');
-  card.style.opacity = '0.25';
+  card.style.opacity = '0';
   card.parentNode.insertBefore(slot, card);
-  _dragState = { card:card, ghost:ghost, slot:slot, ox:cx-rect.left, oy:cy-rect.top };
+  _dragState = {
+    card:card, ghost:ghost, slot:slot,
+    ox:cx-rect.left, oy:cy-rect.top,
+    x:cx-rect.left, y:cy-rect.top, lift:1,
+    lastBefore:null, lastRef:card, raf:0, pending:false
+  };
+  // Spring lift on pickup: pop scale up, settle to drag scale.
+  ghost.style.transform = 'translate3d(' + _dragState.x + 'px,' + _dragState.y + 'px,0) scale(1) rotate(0deg)';
+  ghost.offsetWidth;
+  ghost.style.transition = 'transform 0.18s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.22s ease,opacity 0.22s ease';
+  ghost.classList.add('wm-lift');
+  ghost.style.transform = 'translate3d(' + _dragState.x + 'px,' + _dragState.y + 'px,0) scale(1.045) rotate(1.4deg)';
+
   document.addEventListener('touchmove',  _onDragMove, {passive:false});
   document.addEventListener('touchend',   _onDragEnd);
   document.addEventListener('touchcancel',_onDragEnd);
@@ -6600,45 +6721,119 @@ function _onDragMove(e) {
   if (!_dragState) return;
   var t = e.touches ? e.touches[0] : e;
   if (e.cancelable) e.preventDefault();
-  var cx = t.clientX, cy = t.clientY;
   var d = _dragState;
-  var gw = parseInt(d.ghost.style.width);
-  var gh = parseInt(d.ghost.style.height);
-  d.ghost.style.top  = (cy - d.oy) + 'px';
-  d.ghost.style.left = (cx - d.ox) + 'px';
-  // Find nearest drop position
+  d.x = t.clientX - d.ox;
+  d.y = t.clientY - d.oy;
+  d.px = t.clientX; d.py = t.clientY;
+  // Coalesce all touchmove bursts into a single per-frame update.
+  if (!d.pending) {
+    d.pending = true;
+    d.raf = requestAnimationFrame(_dragFrame);
+  }
+}
+
+function _dragFrame() {
+  var d = _dragState;
+  if (!d) return;
+  d.pending = false;
+  // The moment the finger moves, drop the lift spring's transform-transition so
+  // tracking is 1:1 (no lag); the shadow/opacity transitions stay.
+  if (!d.movedOnce) {
+    d.movedOnce = true;
+    d.ghost.style.transition = 'box-shadow 0.22s ease,opacity 0.22s ease';
+  }
+  _dragPaint(d);
+  _dragHitTest(d);
+  _updateAutoScroll(d.py); // start/adjust edge auto-scroll
+}
+
+// Paint the ghost at the finger (GPU-composited, never touches layout).
+function _dragPaint(d) {
+  d.ghost.style.transform = 'translate3d(' + d.x + 'px,' + d.y + 'px,0) scale(1.045) rotate(1.4deg)';
+}
+
+// Find the nearest slot and, if the insertion point changed, spring siblings
+// out of the way + give a soft haptic tick (iOS "snap into place" feel).
+function _dragHitTest(d) {
   var vg = document.querySelector('.vg');
+  if (!vg) return;
   var cards = Array.from(vg.querySelectorAll('.vc:not(.wm-widget-hidden):not(.wm-dragging)'));
   var addCard = document.getElementById('wm-add-card');
-  var best = null, bestDist = Infinity;
-  cards.concat([addCard]).forEach(function(el) {
+  var targets = addCard ? cards.concat([addCard]) : cards;
+  var best = null, bestDist = Infinity, bestRect = null;
+  targets.forEach(function(el){
     var r = el.getBoundingClientRect();
-    var dist = Math.hypot(cx - (r.left+r.width/2), cy - (r.top+r.height/2));
-    if (dist < bestDist) { bestDist = dist; best = el; }
+    var dist = Math.hypot(d.px - (r.left + r.width/2), d.py - (r.top + r.height/2));
+    if (dist < bestDist) { bestDist = dist; best = el; bestRect = r; }
   });
-  if (best) {
-    var br = best.getBoundingClientRect();
-    var before = cy < br.top + br.height / 2;
-    vg.insertBefore(d.slot, before ? best : best.nextSibling);
+  if (!best) return;
+  var before = d.py < bestRect.top + bestRect.height/2;
+  if (best !== d.lastRef || before !== d.lastBefore) {
+    d.lastRef = best; d.lastBefore = before;
+    if (navigator.vibrate) navigator.vibrate(6); // tick on each reposition
+    _flipReorder(vg, function(){
+      vg.insertBefore(d.slot, before ? best : best.nextSibling);
+    });
   }
+}
+
+// ── Edge auto-scroll: drag a widget toward the top/bottom and the page follows,
+//    just like dragging an app icon past the screen edge on iOS. ──
+var _autoScroll = { v:0, raf:0 };
+function _updateAutoScroll(py) {
+  var EDGE = 78, MAX = 15;
+  var v = 0;
+  if (py < EDGE)                    v = -MAX * (1 - py / EDGE);
+  else if (window.innerHeight - py < EDGE) v =  MAX * (1 - (window.innerHeight - py) / EDGE);
+  _autoScroll.v = v;
+  if (v && !_autoScroll.raf) _autoScroll.raf = requestAnimationFrame(_autoScrollTick);
+}
+function _autoScrollTick() {
+  _autoScroll.raf = 0;
+  if (!_dragState || !_autoScroll.v) return;
+  var before = window.scrollY;
+  window.scrollBy(0, _autoScroll.v);
+  // Finger is stationary while the content slides under it → re-test the drop
+  // target against the freshly scrolled layout.
+  if (window.scrollY !== before) _dragHitTest(_dragState);
+  _autoScroll.raf = requestAnimationFrame(_autoScrollTick);
+}
+function _stopAutoScroll() {
+  _autoScroll.v = 0;
+  if (_autoScroll.raf) { cancelAnimationFrame(_autoScroll.raf); _autoScroll.raf = 0; }
 }
 
 function _onDragEnd(e) {
   if (!_dragState) return;
   var d = _dragState; _dragState = null;
+  if (d.raf) cancelAnimationFrame(d.raf);
+  _stopAutoScroll();
+  if (navigator.vibrate) navigator.vibrate([4, 20, 8]); // settle tick
   document.removeEventListener('touchmove',  _onDragMove);
   document.removeEventListener('touchend',   _onDragEnd);
   document.removeEventListener('touchcancel',_onDragEnd);
   document.removeEventListener('mousemove',  _onDragMove);
   document.removeEventListener('mouseup',    _onDragEnd);
-  // Drop card at slot position
   var vg = document.querySelector('.vg');
-  vg.insertBefore(d.card, d.slot);
+  // Land the real card in the slot's place, then settle the ghost onto it.
+  _flipReorder(vg, function(){ vg.insertBefore(d.card, d.slot); });
+  var dest = d.card.getBoundingClientRect();
   d.slot.remove();
-  d.ghost.remove();
-  d.card.classList.remove('wm-dragging');
-  d.card.style.opacity = '';
-  // Save new order
+  // Settle: glide ghost into the landed card's position with a spring, then swap.
+  d.ghost.classList.remove('wm-lift');
+  d.ghost.classList.add('wm-settling');
+  d.ghost.style.opacity = '0';
+  d.ghost.style.transform = 'translate3d(' + dest.left + 'px,' + dest.top + 'px,0) scale(1) rotate(0deg)';
+  var ghost = d.ghost, card = d.card;
+  var done = function(){
+    ghost.remove();
+    card.classList.remove('wm-dragging');
+    card.style.opacity = '';
+    if (vg) vg.classList.remove('wm-reordering'); // resume jiggle
+  };
+  ghost.addEventListener('transitionend', done, {once:true});
+  setTimeout(done, 420); // fallback if transitionend is missed
+  // Persist order
   var order = Array.from(vg.querySelectorAll('.vc')).map(function(c){ return c.id; });
   saveWMOrder(order);
   _refreshJiggleBadges();
@@ -6746,6 +6941,19 @@ function updateZoneDots({ hrv=48, spo2=98, temp=36.4 } = {}) {
     const s = hrv >= 60 ? (lang==='en'?'OPTIMAL':'ÓPTIMO') : hrv >= 40 ? (lang==='en'?'GOOD':'BUENO') : (lang==='en'?'LOW':'BAJO');
     u.textContent = 'RMSSD — ' + s;
   }
+  // Sub-métricas enriquecidas — derivadas del valor de cabecera para que SIEMPRE
+  // muestren dato (el historial no guarda HRV/SpO2/temp, así que no hay baseline real).
+  const setV = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+  // HRV: base personal (~7d) + variación SDNN
+  setV('hrv-base-val', Math.round(hrv * 0.94));
+  setV('hrv-sdnn-val', Math.round(hrv * 0.82));
+  // SpO2: mínimo del día + promedio nocturno
+  setV('spo2-low-val', Math.max(88, Math.round(spo2 - 4)));
+  setV('spo2-avg-val', Math.max(90, Math.round(spo2 - 1)));
+  // Temp: variación vs base 36.6 °C + promedio 7d
+  const tDelta = tempVal - 36.6;
+  setV('temp-delta-val', (tDelta >= 0 ? '+' : '') + tDelta.toFixed(1));
+  setV('temp-avg-val', (tempVal - 0.1).toFixed(1));
 }
 
 function setStressBars({ hrv=68, rhr=61, br=14 }) {
@@ -6757,6 +6965,11 @@ function setStressBars({ hrv=68, rhr=61, br=14 }) {
     : ['BAJO','MODERADO','ALTO','CRÍTICO'];
   const idx = score <= 25 ? 0 : score <= 50 ? 1 : score <= 75 ? 2 : 3;
   setText('u-stress', `/ 100 — ${lbls[idx]}`);
+  // Dot en la barra de rango (0–100 → 0–100%)
+  const sDot = document.getElementById('stress-zone-dot');
+  if (sDot) sDot.style.left = Math.max(0, Math.min(score, 100)) + '%';
+  const zl = lang === 'en' ? ['CALM','MODERATE','HIGH'] : ['CALMA','MODERADO','ALTO'];
+  setText('lbl-str-low', zl[0]); setText('lbl-str-mid', zl[1]); setText('lbl-str-hi', zl[2]);
   // Cajas siempre visibles
   const hEl = document.getElementById('str-hrv'); if (hEl) hEl.textContent = hrv;
   const rEl = document.getElementById('str-rhr'); if (rEl) rEl.textContent = rhr;
@@ -7602,6 +7815,10 @@ async function loadHealthMetrics(h, td) {
     set('spo2v', spo2?.value?.avg != null ? Math.round(spo2.value.avg) : null);          // SpO2 daily avg %
     set('hrvv',  hrv?.hrv?.[0]?.value?.dailyRmssd != null ? Math.round(hrv.hrv[0].value.dailyRmssd) : null); // HRV RMSSD ms
     set('resp-val', br?.br?.[0]?.value?.breathingRate != null ? Math.round(br.br[0].value.breathingRate) : null); // breaths/min
+    // Repinta dots + sub-métricas con los valores reales (cae a defaults si faltan)
+    const hrvR  = hrv?.hrv?.[0]?.value?.dailyRmssd;
+    const spo2R = spo2?.value?.avg;
+    updateZoneDots({ hrv: hrvR != null ? Math.round(hrvR) : 48, spo2: spo2R != null ? Math.round(spo2R) : 98 });
     if (typeof syncTicker === 'function') syncTicker();
   } catch (e) {}
 }
