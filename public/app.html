@@ -157,24 +157,81 @@ body{width:100%;min-height:100vh;}
 .mc-ov .tn{font-family:'VT323',monospace;font-size:clamp(28px,5vw,42px);color:#6aff3a;text-shadow:3px 3px 0 #003800,0 0 18px rgba(106,255,58,0.4);letter-spacing:3px;line-height:1;}
 .mc-ov .ts{font-family:'Silkscreen',monospace;font-size:10px;color:#4aaa2a;letter-spacing:3px;margin-top:6px;}
 
-/* Bloom card preview */
-.tc-bloom{background:#110610;border:1px solid rgba(232,92,138,0.3);}
-.bloom-pv{width:100%;height:100%;position:relative;background:radial-gradient(ellipse at 50% 115%,#2a0e1a 0%,#110610 60%);}
-.bloom-pv::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(232,92,138,0.09) 1px,transparent 1px);background-size:20px 20px;}
-.bloom-pv::after{content:'✦';position:absolute;top:50%;left:50%;transform:translate(-50%,-54%);font-size:60px;color:rgba(232,92,138,0.05);pointer-events:none;}
-@keyframes bloom-pulse{0%,100%{opacity:0.7;}50%{opacity:1;}}
+/* ── BLOOM card preview ── */
+.tc-bloom{background:#110610;border:1px solid rgba(232,92,138,0.32);box-shadow:inset 0 1px 0 rgba(232,92,138,0.06);}
+.bloom-pv{
+  width:100%;height:100%;position:relative;overflow:hidden;
+  background:
+    radial-gradient(ellipse at 50% 46%,rgba(232,92,138,0.22) 0%,transparent 52%),
+    radial-gradient(ellipse at 28% 70%,rgba(180,60,100,0.14) 0%,transparent 45%),
+    radial-gradient(ellipse at 72% 70%,rgba(180,60,100,0.14) 0%,transparent 45%),
+    radial-gradient(ellipse at 50% 115%,#2a0e1a 0%,#110610 55%);
+}
+/* Fine dot grid */
+.bloom-pv::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:radial-gradient(circle,rgba(232,92,138,0.10) 1px,transparent 1px);
+  background-size:20px 20px;}
+/* Diagonal petal-shadow lines */
+.bloom-pv::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(125deg,transparent 40%,rgba(232,92,138,0.055) 40.5%,rgba(232,92,138,0.055) 41%,transparent 41.5%),
+    linear-gradient(55deg, transparent 58%,rgba(232,92,138,0.040) 58.5%,rgba(232,92,138,0.040) 59%, transparent 59.5%);}
+/* SVG flower */
+.bpv-flower{position:absolute;top:46%;left:50%;transform:translate(-50%,-50%);
+  width:175px;height:175px;pointer-events:none;
+  filter:drop-shadow(0 0 16px rgba(232,92,138,0.32));}
+/* tag */
+.bpv-tag{position:absolute;bottom:10px;left:13px;
+  font-family:'Nunito',sans-serif;font-size:9px;font-weight:700;
+  color:rgba(232,92,138,0.42);letter-spacing:2px;text-transform:uppercase;}
 .bloom-ov .tn{font-family:'Nunito',sans-serif;font-size:clamp(22px,3.8vw,30px);font-weight:800;color:#e85c8a;letter-spacing:5px;text-shadow:0 0 20px rgba(232,92,138,0.7),0 0 40px rgba(232,92,138,0.25);}
-.bloom-ov .ts{font-family:'Nunito',sans-serif;font-size:10px;font-weight:600;color:#6a2a40;letter-spacing:3px;margin-top:5px;}
+.bloom-ov .ts{font-family:'Nunito',sans-serif;font-size:10px;font-weight:600;color:rgba(232,92,138,0.55);letter-spacing:3px;margin-top:5px;}
 
-/* Neon Noir card preview */
-.tc-halo{background:#060010;border:1px solid rgba(255,45,120,0.35);}
-.halo-pv{width:100%;height:100%;position:relative;background:radial-gradient(ellipse at 50% 120%,#1e0035 0%,#060010 60%);}
-.halo-pv::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(175deg,transparent 0px,transparent 18px,rgba(255,45,120,0.07) 18px,rgba(255,45,120,0.07) 19px),linear-gradient(rgba(255,45,120,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,45,120,0.025) 1px,transparent 1px);background-size:100% 100%,28px 28px,28px 28px;animation:nn-prevrain 4s linear infinite;}
-.halo-pv::after{content:'';position:absolute;bottom:0;left:0;right:0;height:45px;background:linear-gradient(0deg,rgba(255,45,120,0.14) 0%,transparent 100%);pointer-events:none;}
+/* ── NEON NOIR card preview ── */
+.tc-halo{background:#060010;border:1px solid rgba(255,45,120,0.35);box-shadow:inset 0 1px 0 rgba(255,45,120,0.06);}
+.halo-pv{
+  width:100%;height:100%;position:relative;overflow:hidden;
+  background:
+    radial-gradient(ellipse at 50% 50%,rgba(255,45,120,0.12) 0%,transparent 52%),
+    radial-gradient(ellipse at 50% 120%,#1e0035 0%,#060010 55%);
+}
+/* Diagonal scan rain — keep animation */
+.halo-pv::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:repeating-linear-gradient(175deg,transparent 0px,transparent 18px,rgba(255,45,120,0.07) 18px,rgba(255,45,120,0.07) 19px),
+    linear-gradient(rgba(255,45,120,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,45,120,0.025) 1px,transparent 1px);
+  background-size:100% 100%,28px 28px,28px 28px;animation:nn-prevrain 4s linear infinite;}
+/* Bottom glow strip */
+.halo-pv::after{content:'';position:absolute;bottom:0;left:0;right:0;height:45px;pointer-events:none;
+  background:linear-gradient(0deg,rgba(255,45,120,0.16) 0%,transparent 100%);}
 @keyframes nn-prevrain{from{background-position:0 0,0 0,0 0;}to{background-position:-25px 100px,0 0,0 0;}}
-.hr-ring{position:absolute;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);border:1px solid;}
+/* Reticle rings */
+.nn-reticle{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:96px;height:96px;}
+.nn-r{position:absolute;top:50%;left:50%;border-radius:50%;transform:translate(-50%,-50%);}
+.nn-r1{width:96px;height:96px;border:1px solid rgba(255,45,120,0.38);box-shadow:0 0 18px rgba(255,45,120,0.15),inset 0 0 12px rgba(189,0,255,0.06);}
+.nn-r2{width:60px;height:60px;border:1px solid rgba(255,45,120,0.55);box-shadow:0 0 10px rgba(255,45,120,0.26),inset 0 0 8px rgba(189,0,255,0.10);}
+.nn-r3{width:28px;height:28px;border:1px solid rgba(189,0,255,0.70);box-shadow:0 0 10px rgba(189,0,255,0.40),inset 0 0 8px rgba(189,0,255,0.18);}
+/* Crosshair lines */
+.nn-xh{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:130px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,45,120,0.20) 22%,rgba(255,45,120,0.20) 78%,transparent);}
+.nn-xv{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:1px;height:130px;
+  background:linear-gradient(0deg,transparent,rgba(255,45,120,0.20) 22%,rgba(255,45,120,0.20) 78%,transparent);}
+/* Center dot */
+.nn-core{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:7px;height:7px;border-radius:50%;background:#ff2d78;
+  box-shadow:0 0 10px #ff2d78,0 0 24px rgba(255,45,120,0.5);}
+/* Corner HUD brackets */
+.nn-corner{position:absolute;width:12px;height:12px;pointer-events:none;}
+.nn-tl{top:10px;left:10px;border-top:1.5px solid rgba(255,45,120,0.55);border-left:1.5px solid rgba(255,45,120,0.55);}
+.nn-tr{top:10px;right:10px;border-top:1.5px solid rgba(255,45,120,0.55);border-right:1.5px solid rgba(255,45,120,0.55);}
+.nn-bl{bottom:24px;left:10px;border-bottom:1.5px solid rgba(255,45,120,0.55);border-left:1.5px solid rgba(255,45,120,0.55);}
+.nn-br{bottom:24px;right:10px;border-bottom:1.5px solid rgba(255,45,120,0.55);border-right:1.5px solid rgba(255,45,120,0.55);}
+.nn-hud-top{position:absolute;top:11px;left:13px;right:13px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,45,120,0.45);letter-spacing:2px;text-transform:uppercase;}
+.nn-hud-bot{position:absolute;bottom:10px;left:13px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,45,120,0.32);letter-spacing:2px;}
 .halo-ov .tn{font-family:'Rajdhani',sans-serif;font-size:clamp(20px,3.5vw,28px);font-weight:800;color:#ff2d78;letter-spacing:7px;text-shadow:0 0 22px rgba(255,45,120,0.85),0 0 44px rgba(255,45,120,0.3);}
-.halo-ov .ts{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5a0028;letter-spacing:3px;margin-top:5px;}
+.halo-ov .ts{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,45,120,0.55);letter-spacing:3px;margin-top:5px;}
 
 /* Naruto card preview */
 .tc-naruto{
@@ -233,13 +290,54 @@ body{width:100%;min-height:100vh;}
   text-shadow:1px 1px 0 rgba(0,0,0,0.85);
 }
 
-/* Futuristic card preview */
-.tc-fut{background:#020810;border:1px solid rgba(0,245,255,0.2);}
-.fut-pv{width:100%;height:100%;position:relative;background:#020810;}
-.fut-pv::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,245,255,0.055) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,255,0.055) 1px,transparent 1px);background-size:18px 18px;}
-.fr{position:absolute;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);border:1px solid rgba(0,245,255,0.25);}
+/* ── AETHER card preview ── */
+.tc-fut{background:#020810;border:1px solid rgba(0,245,255,0.22);box-shadow:inset 0 1px 0 rgba(0,245,255,0.05);}
+.fut-pv{
+  width:100%;height:100%;position:relative;overflow:hidden;
+  background:
+    radial-gradient(ellipse at 50% 46%,rgba(0,245,255,0.08) 0%,transparent 52%),
+    #020810;
+}
+/* Cyan grid */
+.fut-pv::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(0,245,255,0.055) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,245,255,0.055) 1px,transparent 1px);
+  background-size:18px 18px;}
+/* Rings */
+.ae-r{position:absolute;top:46%;left:50%;border-radius:50%;transform:translate(-50%,-50%);}
+.ae-r1{width:144px;height:144px;border:1px solid rgba(0,245,255,0.16);box-shadow:0 0 10px rgba(0,245,255,0.05);}
+.ae-r2{width:96px;height:96px;border:1px solid rgba(0,245,255,0.28);box-shadow:0 0 8px rgba(0,245,255,0.08);}
+.ae-r3{width:52px;height:52px;border:1px solid rgba(0,245,255,0.48);box-shadow:0 0 10px rgba(0,245,255,0.16),inset 0 0 8px rgba(0,245,255,0.06);}
+/* Scanning arc — static 90° slice using border trick */
+.ae-arc{position:absolute;top:46%;left:50%;
+  transform:translate(-50%,-50%) rotate(25deg);
+  width:96px;height:96px;border-radius:50%;
+  border:1.5px solid transparent;
+  border-top-color:rgba(0,245,255,0.60);
+  border-right-color:rgba(0,245,255,0.20);
+  filter:drop-shadow(0 0 4px rgba(0,245,255,0.30));}
+/* Tick marks at 4 cardinal points of outermost ring */
+.ae-ticks{position:absolute;top:46%;left:50%;transform:translate(-50%,-50%);
+  width:144px;height:144px;pointer-events:none;}
+.ae-tick{position:absolute;background:rgba(0,245,255,0.42);}
+.ae-t-n{top:-5px;left:50%;transform:translateX(-50%);width:1px;height:8px;}
+.ae-t-s{bottom:-5px;left:50%;transform:translateX(-50%);width:1px;height:8px;}
+.ae-t-e{top:50%;right:-5px;transform:translateY(-50%);width:8px;height:1px;}
+.ae-t-w{top:50%;left:-5px;transform:translateY(-50%);width:8px;height:1px;}
+/* Corner data labels */
+.ae-clbl{position:absolute;font-family:'IBM Plex Mono',monospace;font-size:8px;
+  color:rgba(0,245,255,0.28);letter-spacing:1.5px;}
+.ae-cl-tl{top:10px;left:12px;}
+.ae-cl-tr{top:10px;right:12px;text-align:right;}
+/* Center core */
+.ae-core{position:absolute;top:46%;left:50%;transform:translate(-50%,-50%);
+  width:7px;height:7px;border-radius:50%;background:#00f5ff;
+  box-shadow:0 0 10px #00f5ff,0 0 22px rgba(0,245,255,0.35);}
+.ae-bottom{position:absolute;bottom:10px;left:13px;
+  font-family:'IBM Plex Mono',monospace;font-size:9px;
+  color:rgba(0,245,255,0.28);letter-spacing:2px;}
 .fut-ov .tn{font-family:'Rajdhani',sans-serif;font-size:clamp(22px,3.5vw,30px);font-weight:700;color:#00f5ff;letter-spacing:8px;text-shadow:0 0 22px rgba(0,245,255,0.55);}
-.fut-ov .ts{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#006a78;letter-spacing:2px;margin-top:5px;}
+.fut-ov .ts{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(0,245,255,0.48);letter-spacing:2px;margin-top:5px;}
 
 .t-ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);}
 
@@ -1805,10 +1903,39 @@ body.t-naruto span.vval{
     <!-- ── BLOOM (wellness · fitness — girlie editorial aesthetic) ── -->
     <div class="t-card tc-bloom" data-id="bloom" onclick="openThemePreview('bloom')">
       <div class="bloom-pv">
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:120px;height:120px;border-radius:50%;border:1px solid rgba(232,92,138,0.15);animation:bloom-pulse 4s ease-in-out infinite;"></div>
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:72px;height:72px;border-radius:50%;border:1px solid rgba(232,92,138,0.32);box-shadow:0 0 22px rgba(232,92,138,0.12);animation:bloom-pulse 4s ease-in-out infinite;animation-delay:-2s;"></div>
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:9px;height:9px;border-radius:50%;background:#e85c8a;box-shadow:0 0 12px #e85c8a,0 0 26px rgba(232,92,138,0.45);"></div>
-        <div style="position:absolute;bottom:10px;left:13px;font-family:'Nunito',sans-serif;font-size:9px;font-weight:700;color:rgba(232,92,138,0.38);letter-spacing:2px;text-transform:uppercase;">✦ WELLNESS · FITNESS · FLOW</div>
+        <!-- Full flower SVG -->
+        <svg class="bpv-flower" viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg">
+          <!-- Outer 6 petals -->
+          <ellipse rx="13" ry="30" transform="rotate(0)"   fill="#e85c8a" opacity="0.17"/>
+          <ellipse rx="13" ry="30" transform="rotate(60)"  fill="#c94478" opacity="0.17"/>
+          <ellipse rx="13" ry="30" transform="rotate(120)" fill="#e85c8a" opacity="0.17"/>
+          <ellipse rx="13" ry="30" transform="rotate(180)" fill="#c94478" opacity="0.17"/>
+          <ellipse rx="13" ry="30" transform="rotate(240)" fill="#e85c8a" opacity="0.17"/>
+          <ellipse rx="13" ry="30" transform="rotate(300)" fill="#c94478" opacity="0.17"/>
+          <!-- Inner 6 petals (rotated 30°) -->
+          <g transform="rotate(30)">
+            <ellipse rx="8" ry="20" transform="rotate(0)"   fill="#f080aa" opacity="0.24"/>
+            <ellipse rx="8" ry="20" transform="rotate(60)"  fill="#f080aa" opacity="0.24"/>
+            <ellipse rx="8" ry="20" transform="rotate(120)" fill="#f080aa" opacity="0.24"/>
+            <ellipse rx="8" ry="20" transform="rotate(180)" fill="#f080aa" opacity="0.24"/>
+            <ellipse rx="8" ry="20" transform="rotate(240)" fill="#f080aa" opacity="0.24"/>
+            <ellipse rx="8" ry="20" transform="rotate(300)" fill="#f080aa" opacity="0.24"/>
+          </g>
+          <!-- Stamen ring -->
+          <circle r="10" fill="#e85c8a" opacity="0.42"/>
+          <!-- Stamen dots (6) -->
+          <g transform="rotate(0)">
+            <circle cx="0" cy="-7" r="1.8" fill="#ffd0e0" opacity="0.80"/>
+            <circle cx="6" cy="-3.5" r="1.8" fill="#ffd0e0" opacity="0.80"/>
+            <circle cx="6" cy="3.5"  r="1.8" fill="#ffd0e0" opacity="0.80"/>
+            <circle cx="0" cy="7"   r="1.8" fill="#ffd0e0" opacity="0.80"/>
+            <circle cx="-6" cy="3.5" r="1.8" fill="#ffd0e0" opacity="0.80"/>
+            <circle cx="-6" cy="-3.5" r="1.8" fill="#ffd0e0" opacity="0.80"/>
+          </g>
+          <!-- Center -->
+          <circle r="3.5" fill="#fff5f8" opacity="0.70"/>
+        </svg>
+        <div class="bpv-tag">✦ WELLNESS · FITNESS · FLOW</div>
       </div>
       <div class="t-badge t-badge-free" id="tbf-bloom">GRATIS</div>
       <div class="t-check">✓</div>
@@ -1821,11 +1948,22 @@ body.t-naruto span.vval{
     <!-- ── NEON NOIR (cyberpunk dystopia aesthetic) ── -->
     <div class="t-card tc-halo" data-id="halo" onclick="openThemePreview('halo')">
       <div class="halo-pv">
-        <div style="position:absolute;top:11px;left:13px;right:13px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,45,120,0.45);letter-spacing:2px;text-transform:uppercase;">NIGHT CITY UPLINK — NEURAL NET v2.0.77</div>
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,45,120,0.45);box-shadow:0 0 14px rgba(255,45,120,0.3),inset 0 0 14px rgba(189,0,255,0.1);"></div>
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:50%;border:1px solid rgba(189,0,255,0.6);box-shadow:0 0 8px rgba(189,0,255,0.5);"></div>
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:7px;height:7px;border-radius:50%;background:#ff2d78;box-shadow:0 0 10px #ff2d78,0 0 22px rgba(255,45,120,0.5);"></div>
-        <div style="position:absolute;bottom:10px;left:13px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,45,120,0.32);letter-spacing:2px;">HR 68 · ICE 98% · HRV 48ms</div>
+        <div class="nn-hud-top">NIGHT CITY UPLINK — NEURAL NET v2.0.77</div>
+        <!-- Reticle -->
+        <div class="nn-reticle">
+          <div class="nn-r nn-r1"></div>
+          <div class="nn-r nn-r2"></div>
+          <div class="nn-r nn-r3"></div>
+          <div class="nn-xh"></div>
+          <div class="nn-xv"></div>
+          <div class="nn-core"></div>
+        </div>
+        <!-- HUD corner brackets -->
+        <div class="nn-corner nn-tl"></div>
+        <div class="nn-corner nn-tr"></div>
+        <div class="nn-corner nn-bl"></div>
+        <div class="nn-corner nn-br"></div>
+        <div class="nn-hud-bot">HR 68 · ICE 98% · HRV 48ms</div>
       </div>
       <div class="t-badge t-badge-free" id="tbf-halo">GRATIS</div>
       <div class="t-check">✓</div>
@@ -1849,10 +1987,25 @@ body.t-naruto span.vval{
     <!-- ── AETHER (original futuristic HUD) ── -->
     <div class="t-card tc-fut" data-id="fut" onclick="openThemePreview('fut')">
       <div class="fut-pv">
-        <div class="fr" style="width:138px;height:138px;"></div>
-        <div class="fr" style="width:84px;height:84px;border-color:rgba(0,245,255,0.4);"></div>
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:7px;height:7px;border-radius:50%;background:#00f5ff;box-shadow:0 0 10px #00f5ff,0 0 20px rgba(0,245,255,0.3);"></div>
-        <div style="position:absolute;bottom:10px;left:13px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(0,245,255,0.3);letter-spacing:2px;">HR 68 · SpO2 98% · HRV 48ms · TEMP 36.4°C</div>
+        <!-- 3 concentric rings -->
+        <div class="ae-r ae-r1"></div>
+        <div class="ae-r ae-r2"></div>
+        <div class="ae-r ae-r3"></div>
+        <!-- Static scanning arc (90° slice) -->
+        <div class="ae-arc"></div>
+        <!-- Tick marks at cardinal points -->
+        <div class="ae-ticks">
+          <div class="ae-tick ae-t-n"></div>
+          <div class="ae-tick ae-t-e"></div>
+          <div class="ae-tick ae-t-s"></div>
+          <div class="ae-tick ae-t-w"></div>
+        </div>
+        <!-- Corner labels -->
+        <div class="ae-clbl ae-cl-tl">BIO</div>
+        <div class="ae-clbl ae-cl-tr">v2.6</div>
+        <!-- Center core -->
+        <div class="ae-core"></div>
+        <div class="ae-bottom">HR 68 · SpO2 98% · HRV 48ms · TEMP 36.4°C</div>
       </div>
       <div class="t-badge t-badge-free" id="tbf-fut">GRATIS</div>
       <div class="t-check">✓</div>
