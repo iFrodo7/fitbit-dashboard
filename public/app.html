@@ -1542,6 +1542,13 @@ body.t-naruto span.vval{
   opacity:0;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,0.4);
 }
 #jiggle-done.jd-visible{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto;}
+/* ── Drag-to-reorder ── */
+.jiggle-mode .vc:not(.wm-widget-hidden){cursor:grab;touch-action:none;}
+.jiggle-mode .vc.vcd-dragging{opacity:0.28;transform:scale(0.95)!important;animation:none!important;transition:opacity 0.1s,transform 0.1s;}
+.vcd-ghost{position:fixed;pointer-events:none;z-index:9999;opacity:0.90;
+  border:1.5px solid var(--ta);box-shadow:0 12px 40px rgba(0,0,0,0.6);
+  animation:none!important;transform:scale(1.05);border-radius:inherit;background:var(--bg);}
+.vcd-over{outline:2px solid var(--ta);outline-offset:-2px;}
 
 .cal-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
 .cal-box{background:var(--rbg);padding:8px 10px;}
@@ -6436,6 +6443,7 @@ function saveWMState(s) {
 }
 
 function applyWMState() {
+  _applyWidgetOrder(); // restore drag-reordered positions first
   WM_WIDGETS.forEach(function(w) {
     if (w.special === 'cycle') return; // controlled by cycleEnabled() / toggleCycle()
     var el = document.getElementById(w.id);
@@ -6558,6 +6566,7 @@ function enterJiggle() {
     c.addEventListener('mousedown',  _onCardMouseStart);
   });
   document.getElementById('jiggle-done')?.classList.add('jd-visible');
+  // Tap outside widgets exits jiggle
   setTimeout(function() {
     document.addEventListener('touchstart', _jiggleOutsideTap, {passive:true});
     document.addEventListener('mousedown',  _jiggleOutsideTap);
@@ -6684,6 +6693,101 @@ function exitJiggle() {
   document.getElementById('jiggle-done')?.classList.remove('jd-visible');
   document.removeEventListener('touchstart', _jiggleOutsideTap);
   document.removeEventListener('mousedown',  _jiggleOutsideTap);
+}
+
+// ══════ WIDGET DRAG-TO-REORDER ══════
+var _dragState = null;
+
+function _startCardDrag(e, card) {
+  if (!_jiggleActive) return;
+  if (e.target.closest('.wm-x-btn')) return;
+  e.preventDefault();
+  var t = e.touches ? e.touches[0] : e;
+  var rect = card.getBoundingClientRect();
+  // Clone as ghost
+  var ghost = card.cloneNode(true);
+  ghost.querySelectorAll('.wm-x-btn').forEach(function(b){ b.remove(); });
+  ghost.classList.add('vcd-ghost');
+  ghost.classList.remove('vcd-dragging','jiggle-mode');
+  ghost.style.width  = rect.width  + 'px';
+  ghost.style.height = rect.height + 'px';
+  ghost.style.left   = rect.left   + 'px';
+  ghost.style.top    = rect.top    + 'px';
+  ghost.style.margin = '0';
+  document.body.appendChild(ghost);
+  card.classList.add('vcd-dragging');
+  _dragState = { card:card, ghost:ghost, offX:t.clientX - rect.left, offY:t.clientY - rect.top, lastOver:null };
+  document.addEventListener('mousemove', _onCardDragMove);
+  document.addEventListener('mouseup',   _onCardDragEnd);
+  document.addEventListener('touchmove', _onCardDragMove, {passive:false});
+  document.addEventListener('touchend',  _onCardDragEnd);
+}
+
+function _onCardDragMove(e) {
+  if (!_dragState) return;
+  e.preventDefault();
+  var t = e.touches ? e.touches[0] : e;
+  var x = t.clientX, y = t.clientY;
+  _dragState.ghost.style.left = (x - _dragState.offX) + 'px';
+  _dragState.ghost.style.top  = (y - _dragState.offY) + 'px';
+  // Find card under pointer (hide ghost so elementFromPoint works)
+  _dragState.ghost.style.visibility = 'hidden';
+  var under = document.elementFromPoint(x, y);
+  _dragState.ghost.style.visibility = '';
+  var target = under ? under.closest('.vc:not(.wm-widget-hidden)') : null;
+  if (target === _dragState.card) target = null;
+  if (_dragState.lastOver && _dragState.lastOver !== target) {
+    _dragState.lastOver.classList.remove('vcd-over');
+  }
+  _dragState.lastOver = target || null;
+  if (target) target.classList.add('vcd-over');
+}
+
+function _onCardDragEnd(e) {
+  if (!_dragState) return;
+  var ds = _dragState; _dragState = null;
+  document.removeEventListener('mousemove', _onCardDragMove);
+  document.removeEventListener('mouseup',   _onCardDragEnd);
+  document.removeEventListener('touchmove', _onCardDragMove);
+  document.removeEventListener('touchend',  _onCardDragEnd);
+  ds.ghost.remove();
+  ds.card.classList.remove('vcd-dragging');
+  if (ds.lastOver) {
+    ds.lastOver.classList.remove('vcd-over');
+    var vg = ds.card.parentNode;
+    var allCards = Array.from(vg.querySelectorAll('.vc'));
+    var dragIdx = allCards.indexOf(ds.card);
+    var dropIdx = allCards.indexOf(ds.lastOver);
+    if (dropIdx > dragIdx) {
+      vg.insertBefore(ds.card, ds.lastOver.nextSibling);
+    } else {
+      vg.insertBefore(ds.card, ds.lastOver);
+    }
+    _saveWidgetOrder();
+  }
+}
+
+function _saveWidgetOrder() {
+  var vg = document.querySelector('.vg');
+  if (!vg) return;
+  var order = Array.from(vg.querySelectorAll('.vc')).map(function(c){ return c.id; });
+  localStorage.setItem('fb_wm_order', JSON.stringify(order));
+}
+
+function _applyWidgetOrder() {
+  var vg = document.querySelector('.vg');
+  if (!vg) return;
+  try {
+    var order = JSON.parse(localStorage.getItem('fb_wm_order') || 'null');
+    if (!order || !order.length) return;
+    var addCard = document.getElementById('wm-add-card');
+    order.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && el.parentNode === vg) vg.appendChild(el);
+    });
+    // Keep + add-card always last
+    if (addCard && addCard.parentNode === vg) vg.appendChild(addCard);
+  } catch(e) {}
 }
 
 // ══════ CALORÍAS EXPANDIBLE ══════
