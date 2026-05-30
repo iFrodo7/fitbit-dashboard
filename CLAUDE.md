@@ -10,7 +10,7 @@ Panel biométrico personal con 4 temas visuales (Minecraft, Halo, Naruto, Futuri
 
 ## Stack
 
-- **Frontend principal:** `public/app.html` — SPA monolítica (~2400 líneas, JS vanilla, CSS variables por tema)
+- **Frontend principal:** `public/app.html` — SPA monolítica (~8800 líneas, JS vanilla, CSS variables por tema)
 - **Next.js 15:** App Router (TypeScript + Tailwind), por ahora solo sirve `app.html` y opcionalmente OAuth server-side
 - **Base de datos:** Supabase (PostgreSQL + RLS) — opcional, solo si se usa el backend Next
 - **Auth:** OAuth 2.0 de Fitbit, flujo *client-side* para apps tipo "Personal" (sin secret)
@@ -67,14 +67,41 @@ capacitor.config.ts          ← Config app nativa (ver CAPACITOR.md)
 ## Sistemas dentro de `public/app.html`
 
 ### 1. Temas (4 mundos)
-| ID | Acento (`--ta`) | Secundario (`--ta2`) | Fuente |
-|---|---|---|---|
-| `mc` | `#6aff3a` verde | (varía) | VT323 |
-| `halo` | `#4ab8ff` azul | teal | Oxanium |
-| `naruto` | `#ff4500` naranja | (varía) | Permanent Marker |
-| `fut` | `#00f5ff` cyan | púrpura | Rajdhani |
+| ID | Nombre | Acento (`--ta`) | Secundario (`--ta2`) | Fuente principal |
+|---|---|---|---|---|
+| `mc` | Minecraft | `#6aff3a` verde | `#ffaa00` amber | VT323 (pixel) |
+| `halo` | Neon Noir | `#ff2d78` pink | `#bd00ff` violet | IBM Plex Mono + Rajdhani (nums) |
+| `naruto` | Shinobi | `#4a6a84` steel | `#c0d0e0` silver | Noto Serif JP + Permanent Marker (títulos) |
+| `fut` | Futuristic | `#00f5ff` cyan | `#7b2fff` purple | IBM Plex Mono + Rajdhani (nums) |
+| `bloom` | Bloom | `#e85c8a` rose | `#c47fb5` mauve | Nunito |
 
-Cualquier feature nuevo debe usar las CSS vars (`--ta`, `--ta2`, `--tneg`, `--sub`, `--bg`, `--bdr`, `--tx`). Nunca hard-codear colores.
+Cualquier feature nuevo debe usar las CSS vars (`--ta`, `--ta2`, `--tpos`, `--tneg`, `--sub`, `--bg`, `--bg2`, `--bdr`, `--cbg`, `--cbdr`, `--rbg`, `--txt`). Nunca hard-codear colores.
+
+> **⚠️ OJO:** la variable de texto es **`--txt`** (no `--tx`). Usar `var(--tx)` en SVG hace que `fill` caiga a **negro**. Hay usos legacy de `var(--tx)` en el código — migrar a `--txt` cuando se toque esa zona.
+
+### 1b. CSS Design Token System (`:root`)
+
+Definidos en el bloque `:root` al inicio del `<style>`. Usar **siempre** en lugar de valores literales:
+
+```css
+/* Espaciado — escala 8px */
+--sp-1:4px   --sp-2:8px   --sp-3:12px  --sp-4:16px
+--sp-5:20px  --sp-6:24px  --sp-7:32px  --sp-8:40px
+
+/* Radios */
+--r-xs:4px  --r-sm:6px  --r-md:10px  --r-lg:16px  --r-xl:24px  --r-full:9999px
+
+/* Duración */
+--dur-fast:100ms   --dur-base:200ms   --dur-slow:360ms
+
+/* Easing */
+--ease-spring: cubic-bezier(0.34,1.56,0.64,1)   ← overshoot, para pops y spring-back
+--ease-out:    cubic-bezier(0.16,1,0.3,1)        ← decelera, para entradas (slide-in, fade-in)
+--ease-std:    cubic-bezier(0.4,0,0.2,1)         ← Material standard, para la mayoría
+--ease-settle: cubic-bezier(0.22,0.68,0.32,1)   ← settle sin overshoot, para FLIP/reorder
+```
+
+Regla: **cero `transition:all`** y **cero `cubic-bezier` raw** en transiciones — todo pasa por los tokens.
 
 ### 2. i18n (ES/EN)
 Estructurado en `T = { es: {...}, en: {...} }` dentro de `<script>`. Aplicado vía `setLang('es'|'en')` → `setText(id, t.key)` para textContent y `setHTML(id, t.key)` para innerHTML.

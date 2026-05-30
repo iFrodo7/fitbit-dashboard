@@ -29,6 +29,16 @@ Arranca en modo **demo** (sin login). Para datos reales, toca **Conectar** (ver 
 - **Notificaciones** locales + server push (Web Push/VAPID)
 - **App nativa** iOS/Android vía Capacitor (scaffolding listo)
 
+### 🎨 UI / Performance (2026-05-30)
+- **Design token system** — escala 8px, radios, motion tokens (`--dur-fast/base/slow`), easing tokens (`--ease-spring/out/std/settle`) en `:root`
+- **Zero `transition:all`** — todas reemplazadas por propiedades específicas; cero `cubic-bezier` raw fuera de las definiciones de tokens
+- **Apple touch feel** — active states con spring-back solo en touch (`@media hover:none`), indicador dot animado en bottom nav, pull-to-refresh con pop-in spring
+- **`-webkit-font-smoothing: antialiased`** en body + `font-optical-sizing:auto` en números grandes — texto nativo en iOS/Mac
+- **`contain:layout`** en cards, **`contain:layout paint`** en overlays — repaint aislado por componente
+- **WCAG 2.1 AA** — tablist/tab/tabpanel completo en nav, `:focus-visible` universal, `prefers-reduced-motion` global
+- **Landscape safe areas** — `env(safe-area-inset-left/right)` en header, content y nav
+- **~60KB menos** de payload — fuentes Oxanium y Electrolize eliminadas (no se usaban)
+
 ### 🧩 Sistema de widgets (nuevo)
 - **Long-press** en cualquier widget → modo edición estilo iPhone (animación jiggle + badge × para eliminar)
 - **Drag & drop** para reordenar widgets (touch y mouse) — orden persiste entre sesiones
@@ -100,7 +110,7 @@ npm run db:push     # aplicar migraciones Supabase
 
 ## 📍 Estado
 
-Todo el código en `main` y desplegado. Coach IA conversacional, datos reales (SpO₂/HRV/ritmo respiratorio), Stats con Fitness/Sueño, emparejamiento un-toque y suscripción AIRA Pro (Fase 1) están **vivos**. Pendiente de **activación/infra** (no de código): pegar key gratis de Gemini, registrar la app Client de Fitbit, conectar Stripe para cobros reales, y el build nativo (`CAPACITOR.md`). Ver `HANDOFF.md`.
+Todo el código en `main` y desplegado. Coach IA conversacional, datos reales (SpO₂/HRV/ritmo respiratorio), Stats con Fitness/Sueño, emparejamiento un-toque, suscripción AIRA Pro (Fase 1) y **UI polish Apple-level** están **vivos**. Pendiente de **activación/infra** (no de código): pegar key gratis de Gemini, registrar la app Client de Fitbit, conectar Stripe para cobros reales, y el build nativo (`CAPACITOR.md`). Ver `HANDOFF.md`.
 
 ---
 

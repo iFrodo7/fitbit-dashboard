@@ -1,6 +1,6 @@
 # 🤝 Handoff — Fitbit Air Dashboard
 
-> **Para el próximo desarrollador y su Claude.** Lee esto **primero**, luego `CLAUDE.md` (referencia técnica). Última actualización: **2026-05-29**.
+> **Para el próximo desarrollador y su Claude.** Lee esto **primero**, luego `CLAUDE.md` (referencia técnica). Última actualización: **2026-05-30**.
 
 > **🚨 MIGRACIÓN INMINENTE — Fitbit Web API → Google Health API (sep 2026).** Toda la app depende del Fitbit Web API, que **se apaga en septiembre 2026**. **HECHO:** la capa de datos ya está blindada con un adaptador (`FitbitSource` / `HS` en `public/app.html`) — todas las llamadas pasan por `HS`, cero URLs hardcodeadas. **PENDIENTE:** escribir `GoogleHealthSource` (misma forma) + iniciar la verificación OAuth de Google (gratis pero lenta → **empezar YA**). Sobrevivir cuesta **~$0** (local-first exime del assessment pagado). **Runbook completo y checklist: `MIGRATION.md`.**
 
@@ -20,6 +20,27 @@
   - Instalar en móvil: iPhone Safari → Compartir → *Añadir a pantalla de inicio*; Android Chrome → ⋮ → *Instalar app*.
 - Cada merge a `main` auto-despliega a Vercel (producción).
 - **Bug #12 RESUELTO** — ya se puede usar `let`/`const` top-level (declarados antes del bloque `// BOOT` final). Mantén invocaciones de arranque en BOOT.
+
+## ✅ Qué está construido (sesión 2026-05-30, UI Polish — Apple level)
+
+| Área | Qué |
+|---|---|
+| **Design tokens** | `:root` con escala 8px (`--sp-1..8`), radios (`--r-xs..full`), motion (`--dur-fast/base/slow`), easing (`--ease-spring/out/std/settle`), `color-scheme:dark`. Fuente única para todas las animaciones. |
+| **`transition:all` → 0** | 17 ocurrencias en CSS + 2 en JS inline eliminadas. Todas reemplazadas por propiedades específicas → elimina repaints completos en hover/active. |
+| **`cubic-bezier` raw → 0** | Todos los valores de easing tokenizados. Los únicos `cubic-bezier` restantes son las definiciones en `:root`. |
+| **`contain:layout`** | `.card` y `.vc` — aisla repaint de cada tarjeta del DOM. `#hview`/`#sview`/`#pview` con `contain:layout paint`. |
+| **Apple touch feel** | `scale(0.97/0.96)` spring-back solo en touch (`@media hover:none`). Bottom nav: indicador dot con `--ease-spring`. Pull-to-refresh: pop-in spring. Drawer widget manager: sube con `--ease-spring`. |
+| **Font smoothing** | `-webkit-font-smoothing:antialiased` + `moz-osx-font-smoothing:grayscale` + `text-rendering:optimizeLegibility` en `body`. Texto nativo en iOS/Mac. |
+| **Tipografía** | Floor mínimo 9-10px (eran 7-8px). `font-optical-sizing:auto` en `.rnum`/`.vval`/`.snum`. `.clbl` letter-spacing 3px→2px. |
+| **Simetría de layout** | Header y main alineados a 20px horizontal. Mobile parity (12→14px). Gaps `.vg`/`.rcs` a 12px (8px grid). |
+| **Landscape safe areas** | `env(safe-area-inset-left/right)` en header, main y bottom nav vía `@supports(padding:max(0px))`. |
+| **ARIA tablist completo** | `<nav role="tablist">`, `role="tab" aria-selected aria-controls` en botones, `role="tabpanel" aria-labelledby` en paneles. `navigate()` actualiza `aria-selected` en cada cambio de tab. |
+| **`:focus-visible`** | Anillo universal con `var(--ta)` — solo visible en keyboard nav. |
+| **`prefers-reduced-motion`** | Kill-switch global `* { animation-duration:0.01ms }` — antes solo cubría jiggle mode. |
+| **Fuentes** | `Oxanium` y `Electrolize` eliminadas (no se usaban, ~60KB menos). Font preconnect para Google Fonts. |
+| **SW cache** | Bumped a `v14`. |
+| **Dead CSS** | `#wm-btn`/`#wm-btn:hover` eliminadas (elemento no existe en HTML). |
+| **Scrollbar** | 4px thin WebKit + Firefox `scrollbar-width:thin`. |
 
 ## ✅ Qué está construido (sesión 2026-05-29, Widget System v2)
 
