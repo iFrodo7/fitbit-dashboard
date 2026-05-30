@@ -232,6 +232,13 @@ body{
 .db-greet{margin-bottom:12px;display:flex;align-items:baseline;gap:20px;flex-wrap:wrap;}
 .db-eye{font-size:12px;letter-spacing:4px;text-transform:uppercase;opacity:0.6;margin-bottom:6px;}
 .db-name{font-weight:700;text-transform:uppercase;line-height:1.1;font-size:clamp(28px,3.8vw,44px);}
+.aira-msg{font-size:12px;letter-spacing:0.3px;color:var(--txt);opacity:0;line-height:1.5;margin-top:7px;max-width:380px;font-style:italic;transition:opacity var(--dur-slow) var(--ease-out);}
+.aira-msg.live{opacity:0.68;}
+@keyframes airaMsgIn{from{opacity:0;transform:translateY(4px);}to{opacity:0.68;transform:translateY(0);}}
+.aira-msg.live{animation:airaMsgIn 0.55s var(--ease-out) both;}
+.t-mc .aira-msg{font-family:'VT323',monospace;font-style:normal;font-size:14px;letter-spacing:1px;}
+.t-naruto .aira-msg{font-family:'Noto Serif JP',serif;font-style:normal;font-size:11px;}
+.t-bloom .aira-msg{font-style:normal;font-size:12.5px;}
 .db-ac{color:var(--ta);}
 .db-date{font-size:13px;letter-spacing:2px;margin-top:6px;opacity:0.35;}
 
@@ -2015,6 +2022,8 @@ body.t-naruto span.vval{
         <div id="bloom-aff"></div>
         <!-- 忍 Naruto: Nindo quote — visible only in .t-naruto theme -->
         <div class="nrt-egg nrt-nindo-strip" id="nrt-nindo-strip">忍道 · 諦めなければ、失敗はない</div>
+        <!-- AIRA contextual narrative — generated from biometric state -->
+        <div id="aira-msg" class="aira-msg" aria-live="polite"></div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;align-self:flex-end;padding-bottom:4px;">
         <div class="db-date" id="clock" style="margin-top:0;"></div>
@@ -4331,6 +4340,7 @@ function setLang(l) {
   if (theme === 'naruto') nrtUpdateRank(window._lastRec != null ? window._lastRec : 80);
   // Re-render cycle chip with new language
   if (typeof renderCycleHomeChip === 'function') renderCycleHomeChip();
+  genAiraMsg();
 }
 
 function setText(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
@@ -7151,9 +7161,208 @@ function updateScores({ rec, strain, sleepPct }) {
   animN('sleep-pct-val', 0, sleepPct, 1000);
   // Recomendación y color del status
   window._lastRec = rec; // single recovery source (read by Stats + status label)
+  window._lastSleepPct = sleepPct;
   setText('wrec', recTextFor(rec));
   updateStatusLabel();
+  setTimeout(genAiraMsg, 80);
 }
+// ── AIRA Contextual Narrative ─────────────────────────────────────────────
+function genAiraMsg() {
+  var el = document.getElementById('aira-msg');
+  if (!el) return;
+  var rec = window._lastRec;
+  // Demo mode: invite to connect
+  if (!isReal || rec == null) {
+    var demo = lang === 'es'
+      ? ['Conecta tu dispositivo para que AIRA analice tu estado real.', 'Vincula tu Fitbit — AIRA está lista para conocerte día a día.']
+      : ['Connect your device so AIRA can analyze your real state.', 'Link your Fitbit — AIRA is ready to learn you day by day.'];
+    el.textContent = demo[new Date().getDate() % demo.length];
+    el.classList.remove('live'); void el.offsetWidth; el.classList.add('live');
+    return;
+  }
+  var slp = window._lastSleepPct || 0;
+  var val = function(id) { return parseFloat((document.getElementById(id) || {}).textContent || '0') || 0; };
+  var stress = val('stressv');
+  var es = lang === 'es';
+  var day = new Date().getDate();
+  function pick(arr) { return arr[day % arr.length]; }
+  // primary state
+  var state = rec >= 85 ? 'peak' : rec >= 70 ? 'high' : rec >= 55 ? 'mid' : rec >= 35 ? 'low' : 'floor';
+  // modifiers
+  var hiStress = stress > 65;
+  var lowSleep  = slp > 0 && slp < 50;
+  var goodSleep = slp >= 75;
+
+  // ── Default pools (fut/halo voice — AIRA clinical & cinematic) ──────────
+  var M = {
+    peak: {
+      es:['Señales en verde total. AIRA no encuentra razón para frenar hoy.','Cuerpo en modo alto rendimiento. Todo lo que hagas hoy contará más de lo normal.','Recovery de élite confirmado. Es tu momento — aprovéchalo.','El trabajo de los últimos días se refleja en estas métricas. No lo desperdicies.'],
+      en:['All signals green. AIRA finds no reason to hold back today.','Body in high-performance mode. Everything you do today counts more than usual.','Elite recovery confirmed. This is your moment — make it count.','The work of the last few days shows in these metrics. Don\'t waste it.']
+    },
+    peak_great: {
+      es:['Noche perfecta + recovery en peak. AIRA no ve mejor combinación este mes.','Sueño óptimo y cuerpo al tope — uno de tus mejores días del ciclo.'],
+      en:['Perfect night + peak recovery. AIRA sees no better combination this month.','Optimal sleep and body at peak — one of the best days in your cycle.']
+    },
+    peak_stress: {
+      es:['Recovery en peak, pero el estrés está activo. Rinde fuerte — y desconecta antes de que cuente.','Cuerpo listo, mente activa. Canaliza ese estrés — hoy tienes energía de sobra para convertirlo.'],
+      en:['Peak recovery, but stress is active. Perform hard — and disconnect before it adds up.','Body ready, mind active. Channel that stress — you have more than enough energy to convert it.']
+    },
+    peak_sleep: {
+      es:['Recovery alto pese al sueño corto. El cuerpo aguanta — pero no le pidas todo hoy.','Métricas fuertes con poco sueño. Hidrátate bien y ajusta la intensidad al mediodía.'],
+      en:['High recovery despite short sleep. The body holds — just don\'t demand everything today.','Strong metrics with little sleep. Hydrate well and dial back intensity by midday.']
+    },
+    high: {
+      es:['Buena preparación. Tienes todo lo que necesitas para una sesión sólida.','El cuerpo está en equilibrio activo. Un buen día para construir sobre lo que tienes.','Zona de alto rendimiento sostenible. Nada que forzar, todo que aprovechar.','AIRA ve forma óptima. Es un buen día para ir un paso más allá del promedio.'],
+      en:['Good readiness. You have everything you need for a solid session.','Body in active balance. A good day to build on what you have.','Sustainable high-performance zone. Nothing to force, everything to leverage.','AIRA sees optimal form. A good day to go one step beyond your average.']
+    },
+    high_stress: {
+      es:['Buena forma, estrés activo. Usa la energía con cabeza — un plan claro hoy es todo.','El cuerpo puede, el estrés resta. Sesión moderada y mente despejada primero.'],
+      en:['Good shape, stress active. Use the energy purposefully — a clear plan is everything today.','Body can do it, stress cuts in. Moderate session and clear mind first.']
+    },
+    high_sleep: {
+      es:['Buen recovery con sueño justo. El cuerpo tiene reservas — hidratación y calentamiento completo.','El cuerpo recuperó bien aunque la noche fue corta. Ajusta la sesión para cuidar las reservas.'],
+      en:['Good recovery with short sleep. The body has reserves — hydration and full warm-up today.','Body recovered well despite the short night. Adjust the session to protect those reserves.']
+    },
+    mid: {
+      es:['Reservas moderadas. Calidad sobre volumen — esa es la apuesta correcta hoy.','El cuerpo está procesando la semana. Cardio suave o movilidad es lo ideal.','AIRA detecta sistema en equilibrio ajustado. Actívate, pero con inteligencia.','Zona de mantenimiento activo. Un movimiento inteligente hoy paga dividendos mañana.'],
+      en:['Moderate reserves. Quality over volume — that\'s the right bet today.','Body is processing the week. Light cardio or mobility is ideal.','AIRA detects a tightly balanced system. Activate, but intelligently.','Active maintenance zone. One smart move today pays dividends tomorrow.']
+    },
+    mid_stress: {
+      es:['Recovery medio y estrés arriba: señal clara para ir con calma. Camina, respira, prioriza.','Cuerpo en carga y estrés activo. El mejor movimiento hoy es el más suave.'],
+      en:['Mid recovery and stress elevated: clear signal to ease off. Walk, breathe, prioritize.','Body under load and stress active. The best move today is the gentlest one.']
+    },
+    mid_sleep: {
+      es:['Recuperación media y noche corta: el cuerpo necesita tiempo, no más carga.','Fatiga + sueño insuficiente detectados. Actívate suave — la sesión intensa puede esperar.'],
+      en:['Mid recovery and short night: the body needs time, not more load.','Fatigue + insufficient sleep detected. Activate gently — the intense session can wait.']
+    },
+    low: {
+      es:['Señales de fatiga acumulada. Hoy el único objetivo es recuperar, no rendir.','El cuerpo está en modo de reparación. Dale lo que pide: tiempo y calma.','AIRA detecta carga alta en el sistema. Movilidad suave, buena nutrición y sueño esta noche.','El descanso que evitas hoy se convierte en el límite de mañana. Prioriza.'],
+      en:['Accumulated fatigue signals. Today the only goal is to recover, not to perform.','Body is in repair mode. Give it what it asks for: time and calm.','AIRA detects high system load. Gentle mobility, good nutrition, and sleep tonight.','The rest you skip today becomes tomorrow\'s ceiling. Prioritize it.']
+    },
+    low_stress: {
+      es:['Fatiga + estrés elevado: el cuerpo está en alarma real. El descanso es la decisión ganadora.','AIRA activa protocolo de recuperación prioritaria. El entrenamiento espera — tu sistema nervioso, no.'],
+      en:['Fatigue + elevated stress: your body is in real alarm. Rest is the winning decision.','AIRA activates priority recovery protocol. Training can wait — your nervous system cannot.']
+    },
+    floor: {
+      es:['Sistema bajo mínimos. Nutrición, hidratación y desconectar del ruido — nada más hoy.','El cuerpo está en modo de preservación. No es rendirse — es la estrategia correcta.','AIRA detecta agotamiento profundo. Prioridad uno: dormir bien esta noche.'],
+      en:['System at minimum. Nutrition, hydration, and disconnect from the noise — nothing else today.','Body in preservation mode. It\'s not giving up — it\'s the right strategy.','AIRA detects deep fatigue. Priority one: sleep well tonight.']
+    }
+  };
+
+  // ── Theme-specific base pools (override M for base states only) ──────────
+  var themeM = {
+    naruto: {
+      peak: {
+        es:['Tu chakra está en equilibrio perfecto. El camino del shinobi comienza ahora — sin límites hoy.','Fuerza interior al tope. Un verdadero ninja sabe cuándo soltar todo — ese momento es hoy.','El nindo que sigues se refleja en cada métrica esta mañana. No lo traiciones.'],
+        en:['Your chakra is in perfect balance. The shinobi\'s path begins now — no limits today.','Inner strength at peak. A true ninja knows when to go all out — that moment is today.','The nindo you follow shows in every metric this morning. Don\'t betray it.']
+      },
+      high: {
+        es:['Chakra sólido en el sistema. Un shinobi de tu nivel sabe distribuir la energía con sabiduría.','El cuerpo ha recuperado bien. Es el momento para un entrenamiento que forje el carácter.','Fuerza en zona de combate efectivo. Técnica clara — el jutsu responde hoy.'],
+        en:['Solid chakra in the system. A shinobi of your level knows how to distribute energy wisely.','The body has recovered well. Time for training that builds character.','Strength in effective combat range. Clear technique — the jutsu responds today.']
+      },
+      mid: {
+        es:['El chakra necesita equilibrarse. La constancia del shinobi no es siempre rendir al máximo.','Reservas moderadas — suficiente para entrenar, no para agotar. El ninja inteligente conoce la diferencia.','El cuerpo pide moderación. Entrena con técnica, no con fuerza bruta — ahí es cuando más aprendes.'],
+        en:['The chakra needs to balance. A shinobi\'s consistency isn\'t always about peak performance.','Moderate reserves — enough to train, not to exhaust. The smart ninja knows the difference.','The body asks for moderation. Train with technique, not brute force — that\'s when you learn most.']
+      },
+      low: {
+        es:['El chakra está bajo, shinobi. Incluso los más fuertes necesitan recuperar antes de dar más.','El cuerpo pide descanso — y el nindo lo incluye. Recuperar es preparar la próxima victoria.','Un shinobi que ignora su cuerpo pierde la batalla antes de empezarla.'],
+        en:['Chakra is low, shinobi. Even the strongest need to recover before giving more.','The body asks for rest — and the nindo includes that. Recovering is preparing the next victory.','A shinobi who ignores their body loses the battle before it starts.']
+      },
+      floor: {
+        es:['Chakra al límite crítico. El nindo más sabio es el que sabe retirarse para volver más fuerte.','No hay jutsu sin chakra — descansa hoy y forja mañana.'],
+        en:['Chakra at critical limit. The wisest nindo knows when to retreat to return stronger.','There\'s no jutsu without chakra — rest today and forge tomorrow.']
+      }
+    },
+    mc: {
+      peak: {
+        es:['¡BARRA DE VIDA AL MÁXIMO! Hoy es día de raid — ningún mob te frena.','¡Full HP sin debuffs! El servidor está listo — sal a farmear sin límites.','Inventario cargado y stats al tope. Las condiciones son perfectas: ¡a minar con todo!'],
+        en:['MAX HEALTH BAR! Today is raid day — no mob is stopping you.','Full HP, no debuffs! The server is ready — go farm without limits.','Loaded inventory and stats at peak. Conditions are perfect: mine everything!']
+      },
+      high: {
+        es:['Buen nivel de HP. Inventario listo para una sesión de farm intensa sin riesgo.','Stats sólidos. El personaje está preparado para avanzar un nivel hoy.','Salud en zona verde. Es día de construir sobre lo que tienes — sin desperdiciar XP.'],
+        en:['Good HP level. Inventory ready for an intense farm session without risk.','Solid stats. The character is ready to level up today.','Health in green zone. A day to build on what you have — don\'t waste the XP.']
+      },
+      mid: {
+        es:['HP moderado. Craftea con inteligencia — nada de ir a la mina sin preparación.','Vida a mitad. Es momento de consolidar la base antes de ir a zonas peligrosas.','Recursos limitados. Survival inteligente hoy: calidad sobre cantidad.'],
+        en:['Moderate HP. Craft wisely — don\'t go to the mine unprepared.','Health at halfway. Time to consolidate the base before entering dangerous zones.','Limited resources. Smart survival today: quality over quantity.']
+      },
+      low: {
+        es:['¡Vida baja! Hora de volver al spawn point y regenerar antes del próximo raid.','¡Cuidado! HP crítico — descansa y respawnea con fuerza para mañana.','El personaje necesita cama urgente. Regenera la barra de vida esta noche.'],
+        en:['Low health! Time to return to spawn and regenerate before the next raid.','Watch out! Critical HP — rest and respawn strong for tomorrow.','The character urgently needs a bed. Regenerate the health bar tonight.']
+      },
+      floor: {
+        es:['¡GAME OVER INMINENTE! Modo recuperación activado — la siguiente aventura empieza después de descansar.','Barra de vida casi vacía. Ninguna misión vale más que regenerarte primero.'],
+        en:['GAME OVER IMMINENT! Recovery mode activated — the next adventure starts after rest.','Health bar nearly empty. No mission is worth more than regenerating first.']
+      }
+    },
+    halo: {
+      peak: {
+        es:['SPARTAN operativo al 100%. AIRA confirma: la misión de hoy está en rango ejecutable.','Escudo regenerado y sistemas activos. Protocolo de combate máximo autorizado — adelante.','Diagnóstico completo: sin amenazas internas detectadas. El SPARTAN opera sin restricciones hoy.'],
+        en:['SPARTAN fully operational. AIRA confirms: today\'s mission is within executable range.','Shield regenerated and systems active. Maximum combat protocol authorized — proceed.','Full diagnostic: no internal threats detected. The SPARTAN operates unrestricted today.']
+      },
+      high: {
+        es:['Escudo a plena carga. Protocolo de misión activo — el objetivo de hoy está en rango.','Sistemas en rango óptimo. AIRA proyecta rendimiento sostenible para las próximas horas.','Diagnóstico positivo. El SPARTAN está listo para una misión de alta intensidad.'],
+        en:['Shield at full charge. Mission protocol active — today\'s objective is in range.','Systems in optimal range. AIRA projects sustainable performance for the coming hours.','Positive diagnostic. The SPARTAN is ready for a high-intensity mission.']
+      },
+      mid: {
+        es:['Escudo parcialmente regenerado. AIRA recomienda táctica moderada — preserva recursos.','Sistemas en modo estándar. Distribución inteligente de energía: no es día de combate total.','Diagnóstico: carga moderada. Misión de reconocimiento hoy — sin combate frontal.'],
+        en:['Shield partially regenerated. AIRA recommends moderate tactics — preserve resources.','Systems in standard mode. Smart energy distribution: not a day for full combat.','Diagnostic: moderate load. Reconnaissance mission today — no frontal combat.']
+      },
+      low: {
+        es:['ALERTA: escudo comprometido. AIRA activa protocolo de recuperación — retira del frente.','Diagnóstico crítico en progreso. El SPARTAN necesita mantenimiento antes de la próxima misión.','Sistemas bajo mínimos de combate. Descanso, nutrición, y preparación para mañana.'],
+        en:['ALERT: shield compromised. AIRA activates recovery protocol — pull back from the front.','Critical diagnostic in progress. The SPARTAN needs maintenance before the next mission.','Systems below combat minimum. Rest, nutrition, and prepare for tomorrow.']
+      },
+      floor: {
+        es:['SISTEMA CRÍTICO. El SPARTAN necesita evacuación — combate suspendido hasta nuevo aviso.','AIRA detecta fallo sistémico múltiple. Protocolo de emergencia: descanso total, sin excepciones.'],
+        en:['CRITICAL SYSTEM. The SPARTAN needs evacuation — combat suspended until further notice.','AIRA detects multiple system failure. Emergency protocol: full rest, no exceptions.']
+      }
+    },
+    bloom: {
+      peak: {
+        es:['Tu energía está floreciendo hoy. Escucha esa fuerza — y permítete brillar sin límites.','Tu cuerpo y mente están en perfecta armonía. Es un día para dar lo mejor de ti con gracia.','Todo en ti está alineado hoy. Deja que esa energía te guíe — mereces sentirte así.'],
+        en:['Your energy is blooming today. Listen to that strength — and let yourself shine without limits.','Your body and mind are in perfect harmony. A day to give your best with grace.','Everything in you is aligned today. Let that energy guide you — you deserve to feel this way.']
+      },
+      high: {
+        es:['Tu cuerpo está en armonía activa. Muévete con intención y disfruta cada paso hoy.','Energía floral en equilibrio. Tu cuerpo te invita a construir algo hermoso hoy.','Fuerza tranquila y sostenida. Úsala para crear, moverte y conectar contigo misma.'],
+        en:['Your body is in active harmony. Move with intention and enjoy every step today.','Floral energy in balance. Your body invites you to build something beautiful today.','Quiet and sustained strength. Use it to create, move, and connect with yourself.']
+      },
+      mid: {
+        es:['Tu cuerpo te pide moderación con amor hoy. Escúchalo — la pausa también es fuerza.','Energía en equilibrio delicado. Muévete con suavidad y nutre bien — mañana florece más.','No tienes que dar todo hoy. Tu cuerpo pide gentileza — y eso está perfectamente bien.'],
+        en:['Your body asks for moderation with love today. Listen — pausing is also strength.','Energy in delicate balance. Move gently and nourish yourself well — tomorrow blooms more.','You don\'t have to give everything today. Your body asks for gentleness — and that\'s okay.']
+      },
+      low: {
+        es:['Tu cuerpo necesita ternura hoy. Descansa, nutre y permítete regenerar — lo mereces.','La flor necesita agua antes de florecer. Hoy es día de regar tu interior, no de dar más.','Escucha la señal suave de tu cuerpo: pide descanso. Respétala — es la sabiduría más honesta.'],
+        en:['Your body needs tenderness today. Rest, nourish, and allow yourself to regenerate — you deserve it.','The flower needs water before it blooms. Today is a day to water your inner self, not to give more.','Listen to your body\'s gentle signal: it\'s asking for rest. Honor it — it\'s the most honest wisdom.']
+      },
+      floor: {
+        es:['Hoy tu energía es frágil. Cuídate con la misma delicadeza con que cuidarías a alguien que amas.','Tu cuerpo pide silencio, descanso y amor propio. Hoy, eso es todo lo que necesitas.'],
+        en:['Today your energy is fragile. Care for yourself with the same tenderness you\'d give someone you love.','Your body asks for silence, rest, and self-love. Today, that\'s all you need.']
+      }
+    }
+  };
+
+  // pick modifier key (cross-theme: uses default M pools for modifier states)
+  var key = state;
+  if (state === 'peak'  && goodSleep) key = 'peak_great';
+  else if (state === 'peak'  && hiStress)  key = 'peak_stress';
+  else if (state === 'peak'  && lowSleep)  key = 'peak_sleep';
+  else if (state === 'high'  && hiStress)  key = 'high_stress';
+  else if (state === 'high'  && lowSleep)  key = 'high_sleep';
+  else if (state === 'mid'   && hiStress)  key = 'mid_stress';
+  else if (state === 'mid'   && lowSleep)  key = 'mid_sleep';
+  else if (state === 'low'   && hiStress)  key = 'low_stress';
+
+  // prefer theme pool for base states; fall back to default M for modifier states
+  var pool;
+  if (themeM[theme] && themeM[theme][key]) pool = themeM[theme][key];
+  else if (themeM[theme] && key !== state && themeM[theme][state]) pool = themeM[theme][state];
+  else pool = M[key] || M[state];
+
+  var arr = es ? pool.es : pool.en;
+  el.textContent = pick(arr);
+  el.classList.remove('live'); void el.offsetWidth; el.classList.add('live');
+}
+
 // ── Bloom petal ring: alive petals = Math.round(score/100*12) ──────────────
 // Call after data loads to update the flower state.
 // score 0-100 → 0-12 petals visible; ground petals appear when score < 50.
