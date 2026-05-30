@@ -2830,8 +2830,17 @@ body.t-naruto span.vval{
           <div class="vc-head"><span class="vlbl" id="lbl-stress">// NIVEL ESTRÉS</span><span class="xarrow-inline">▼</span></div>
           <div class="vval" id="stressv">24</div>
           <span class="vunit" id="u-stress">/ 100 — BAJO</span>
+          <!-- zona visual (0–100, igual que HRV/SpO2/Temp) -->
+          <div style="margin-top:10px;">
+            <div style="display:flex;justify-content:space-between;font-size:8px;letter-spacing:1.5px;opacity:0.35;margin-bottom:4px;">
+              <span id="lbl-str-low">CALMA</span><span id="lbl-str-mid">MODERADO</span><span id="lbl-str-hi">ALTO</span>
+            </div>
+            <div style="position:relative;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--ta) 0%,#f59e0b 55%,var(--tneg) 100%);overflow:visible;">
+              <div id="stress-zone-dot" style="position:absolute;top:50%;width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 6px rgba(0,0,0,0.5);transform:translate(-50%,-50%);transition:left 1s cubic-bezier(.4,0,.2,1);left:24%;"></div>
+            </div>
+          </div>
           <!-- Siempre visible: HRV + FC reposo -->
-          <div class="cal-split">
+          <div class="cal-split" style="margin-top:10px;">
             <div class="cal-box">
               <div class="cal-box-lbl">HRV</div>
               <div class="cal-box-val" id="str-hrv">68</div>
@@ -6927,6 +6936,11 @@ function setStressBars({ hrv=68, rhr=61, br=14 }) {
     : ['BAJO','MODERADO','ALTO','CRÍTICO'];
   const idx = score <= 25 ? 0 : score <= 50 ? 1 : score <= 75 ? 2 : 3;
   setText('u-stress', `/ 100 — ${lbls[idx]}`);
+  // Dot en la barra de rango (0–100 → 0–100%)
+  const sDot = document.getElementById('stress-zone-dot');
+  if (sDot) sDot.style.left = Math.max(0, Math.min(score, 100)) + '%';
+  const zl = lang === 'en' ? ['CALM','MODERATE','HIGH'] : ['CALMA','MODERADO','ALTO'];
+  setText('lbl-str-low', zl[0]); setText('lbl-str-mid', zl[1]); setText('lbl-str-hi', zl[2]);
   // Cajas siempre visibles
   const hEl = document.getElementById('str-hrv'); if (hEl) hEl.textContent = hrv;
   const rEl = document.getElementById('str-rhr'); if (rEl) rEl.textContent = rhr;
