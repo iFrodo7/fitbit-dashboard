@@ -243,7 +243,7 @@ body{
 .db-date{font-size:13px;letter-spacing:2px;margin-top:6px;opacity:0.35;}
 
 /* Grid layouts */
-.mg{display:grid;grid-template-columns:236px 1fr 268px;gap:12px;margin-bottom:12px;align-items:start;}
+.mg{display:grid;grid-template-columns:272px 1fr 268px;gap:12px;margin-bottom:12px;align-items:start;}
 .vg{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;align-items:stretch;}
 .rcs{display:flex;flex-direction:column;gap:12px;}
 .bot{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-top:12px;}
@@ -953,7 +953,7 @@ body.t-fut .db-hdr{padding-top:14px;}
 
 /* Responsive */
 @media(max-width:1400px){
-  .mg{grid-template-columns:260px 1fr;gap:14px;align-items:stretch;}
+  .mg{grid-template-columns:272px 1fr;gap:14px;align-items:stretch;}
   .card.rw{justify-content:space-between;}
   .rcs{grid-column:1/-1;margin-top:8px;}
   #hr-card{grid-column:1/-1;}
@@ -967,6 +967,13 @@ body.t-fut .db-hdr{padding-top:14px;}
 }
 /* Bottom nav is always visible — give content room above it */
 .db-main{padding-bottom:calc(72px + env(safe-area-inset-bottom));}
+/* Desktop: scale rings to fit narrow rw card column */
+@media(min-width:900px){
+  .drw-row .dr-item{padding:0;}
+  .drw-row .dr-item svg{width:44px;height:44px;}
+  .dr-lbl{font-size:6.5px;letter-spacing:0.9px;}
+  .dr-val{font-size:10px;}
+}
 .dstrip{bottom:calc(72px + env(safe-area-inset-bottom));}
 @media(max-width:640px){
   .db-hdr{padding:10px 14px;flex-wrap:wrap;gap:8px;padding-top:calc(10px + var(--sat));}
