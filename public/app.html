@@ -1451,6 +1451,9 @@ body.t-naruto span.vval{
 .wm-drawer-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 8px;}
 .wm-drawer-title{font-size:11px;letter-spacing:3px;font-weight:700;color:var(--ta);}
 .wm-done{background:var(--ta);color:#000;border:none;font-family:inherit;font-size:10px;letter-spacing:2px;font-weight:700;padding:6px 14px;cursor:pointer;}
+.wm-reset-btn{background:none;border:1px solid var(--bdr);color:var(--tx);font-size:13px;cursor:pointer;padding:4px 9px;opacity:0.38;transition:opacity 0.2s;line-height:1;margin-right:6px;}
+.wm-reset-btn:hover{opacity:0.9;border-color:var(--ta);color:var(--ta);}
+.wm-reset-btn:active{opacity:1;}
 .wm-list{padding:0 16px 16px;display:flex;flex-direction:column;gap:0;max-height:55vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .wm-item{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--bdr);}
 .wm-item:last-child{border-bottom:none;}
@@ -3072,6 +3075,7 @@ body.t-naruto span.vval{
     <div class="wm-handle"></div>
     <div class="wm-drawer-head">
       <span class="wm-drawer-title" id="wm-title">PERSONALIZAR WIDGETS</span>
+      <button class="wm-reset-btn" onclick="resetWidgetOrder()" id="wm-reset-btn" title="Restaurar orden predeterminado">↺</button>
       <button class="wm-done" onclick="closeWM()" id="wm-done-btn">LISTO</button>
     </div>
     <div class="wm-list" id="wm-list"></div>
@@ -6369,16 +6373,16 @@ function drawMiniSparkline(pts) {
 
 // ══════ WIDGET MANAGER ══════
 var WM_WIDGETS = [
-  { id:'hr-card',       on:true,  label:'Frecuencia Cardíaca', labelEn:'Heart Rate',       desc:'BPM · Reposo · Zonas',          descEn:'BPM · Resting · Zones',          icon:'♥' },
-  { id:'hrv-card',      on:true,  label:'HRV',                 labelEn:'HRV',              desc:'Variabilidad cardíaca nocturna', descEn:'Overnight heart rate variability',icon:'〜' },
-  { id:'spo2-card',     on:true,  label:'Saturación O₂',       labelEn:'O₂ Saturation',    desc:'SpO2 · Oxígeno en sangre',      descEn:'SpO2 · Blood oxygen',            icon:'○' },
-  { id:'temp-card',     on:true,  label:'Temperatura',          labelEn:'Temperature',      desc:'Temperatura corporal',           descEn:'Body temperature',               icon:'◈' },
-  { id:'stress-card',   on:true,  label:'Nivel de Estrés',      labelEn:'Stress Level',     desc:'Carga · HRV · Respiración',     descEn:'Load · HRV · Breathing',         icon:'⚡' },
-  { id:'cal-card',      on:true,  label:'Calorías',             labelEn:'Calories',         desc:'Activas · Basal · Intensidad',  descEn:'Active · Basal · Intensity',     icon:'◆' },
-  { id:'hr-chart-card', on:false, label:'Gráfica FC 24H',       labelEn:'HR Chart 24H',     desc:'Historial FC del día completo',  descEn:'Full-day heart rate history',    icon:'〰' },
-  { id:'sleep-card',    on:true,  label:'Análisis de Sueño',    labelEn:'Sleep Analysis',   desc:'Etapas · Duración · Score',     descEn:'Stages · Duration · Score',      icon:'◑' },
-  { id:'scard',         on:true,  label:'Pasos',                labelEn:'Steps',            desc:'Actividad diaria · Objetivo',   descEn:'Daily activity · Goal',          icon:'▶' },
-  { id:'bot',           on:true,  label:'Actividades & Coach',  labelEn:'Activities & Coach',desc:'Entrenamientos · AIRA',        descEn:'Workouts · AIRA',                icon:'✦' },
+  { id:'hr-card',       on:true,  label:'Frecuencia Cardíaca', labelEn:'Heart Rate',        desc:'BPM · Reposo · Zonas',          descEn:'BPM · Resting · Zones',          icon:'♥' },
+  { id:'hrv-card',      on:true,  label:'HRV',                 labelEn:'HRV',               desc:'Variabilidad cardíaca nocturna', descEn:'Overnight heart rate variability',icon:'〜' },
+  { id:'stress-card',   on:true,  label:'Nivel de Estrés',     labelEn:'Stress Level',      desc:'Carga · HRV · Respiración',     descEn:'Load · HRV · Breathing',         icon:'⚡' },
+  { id:'cal-card',      on:true,  label:'Calorías',            labelEn:'Calories',          desc:'Activas · Basal · Intensidad',  descEn:'Active · Basal · Intensity',     icon:'◆' },
+  { id:'spo2-card',     on:true,  label:'Saturación O₂',      labelEn:'O₂ Saturation',     desc:'SpO2 · Oxígeno en sangre',      descEn:'SpO2 · Blood oxygen',            icon:'○' },
+  { id:'temp-card',     on:true,  label:'Temperatura',         labelEn:'Temperature',       desc:'Temperatura corporal',          descEn:'Body temperature',               icon:'◈' },
+  { id:'hr-chart-card', on:false, label:'Gráfica FC 24H',      labelEn:'HR Chart 24H',      desc:'Historial FC del día completo', descEn:'Full-day heart rate history',    icon:'〰' },
+  { id:'sleep-card',    on:true,  label:'Análisis de Sueño',   labelEn:'Sleep Analysis',    desc:'Etapas · Duración · Score',     descEn:'Stages · Duration · Score',      icon:'◑' },
+  { id:'scard',         on:true,  label:'Pasos',               labelEn:'Steps',             desc:'Actividad diaria · Objetivo',   descEn:'Daily activity · Goal',          icon:'▶' },
+  { id:'bot',           on:true,  label:'Actividades & Coach', labelEn:'Activities & Coach', desc:'Entrenamientos · AIRA',        descEn:'Workouts · AIRA',                icon:'✦' },
   { id:'cyc-home-chip', on:false, special:'cycle', label:'Seguimiento de Ciclo', labelEn:'Cycle Tracking', desc:'Fases · Ventana fértil · Regla', descEn:'Phases · Fertile window · Period', icon:'☽' },
 ];
 
@@ -6696,6 +6700,29 @@ function exitJiggle() {
 }
 
 // ══════ WIDGET DRAG-TO-REORDER ══════
+// Default order = importance ranking (set during biometric reorder sprint)
+var WM_DEFAULT_ORDER = ['hr-card','hrv-card','stress-card','cal-card','spo2-card','temp-card'];
+
+function resetWidgetOrder() {
+  localStorage.removeItem('fb_wm_order');
+  var vg = document.querySelector('.vg');
+  if (!vg) return;
+  var addCard = document.getElementById('wm-add-card');
+  WM_DEFAULT_ORDER.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && el.parentNode === vg) vg.appendChild(el);
+  });
+  if (addCard && addCard.parentNode === vg) vg.appendChild(addCard);
+  // Spin icon for visual feedback
+  var btn = document.getElementById('wm-reset-btn');
+  if (btn) {
+    btn.style.transition = 'transform 0.5s ease,opacity 0.2s';
+    btn.style.transform = 'rotate(-360deg)';
+    setTimeout(function(){ btn.style.transform = ''; btn.style.transition = ''; }, 520);
+  }
+  if (navigator.vibrate) navigator.vibrate(10);
+}
+
 var _dragState = null;
 
 function _startCardDrag(e, card) {
