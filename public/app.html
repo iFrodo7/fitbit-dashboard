@@ -1574,10 +1574,11 @@ body.t-naruto span.vval{
    El valor se agranda (estilo Apple Health) y el grupo se centra: así ocupa el
    alto sin líneas en blanco ni huecos arriba/abajo. */
 .cal-split.cs-fill{flex:1 1 auto;}
-.cal-split.cs-fill .cal-box{display:flex;flex-direction:column;justify-content:space-between;}
-.cal-split.cs-fill .cal-box-lbl{align-self:flex-start;}
-.cal-split.cs-fill .cal-box-val{font-size:30px;margin:0;align-self:flex-start;}
-.cal-split.cs-fill .cal-box-unit{align-self:flex-start;margin-top:0;}
+.cal-split.cs-fill .cal-box{display:flex;flex-direction:column;justify-content:center;gap:4px;}
+/* Etiquetas en una sola línea — sin letter-spacing que cause wrap en cajas estrechas */
+.cal-split.cs-fill .cal-box-lbl{letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cal-split.cs-fill .cal-box-val{font-size:28px;margin:0;line-height:1;}
+.cal-split.cs-fill .cal-box-unit{margin-top:0;}
 .cal-box{background:var(--rbg);padding:8px 10px;}
 .cal-box-lbl{font-size:9px;letter-spacing:2px;opacity:0.35;text-transform:uppercase;}
 .cal-box-val{font-size:18px;font-weight:700;color:var(--ta);margin-top:2px;line-height:1;}
