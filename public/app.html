@@ -7172,6 +7172,7 @@ function updateScores({ rec, strain, sleepPct }) {
   updateStatusLabel();
   setTimeout(genAiraMsg, 80);
   updateDailyRings();
+  if (!window._drAnimDone) { window._drAnimDone = true; setTimeout(animateDailyRings, 200); }
 }
 // ── Daily Progress Rings ──────────────────────────────────────────────────
 var _DR_R=24, _DR_SW=5.5, _DR_C=2*Math.PI*24, _DR_DIM=24*2+5.5*2+2, _DR_CX=(_DR_DIM/2), _DR_CY=(_DR_DIM/2);
@@ -7197,6 +7198,7 @@ function getDailyStreak() {
 
 function renderDailyRings() {
   var mc=document.getElementById('mcex'); if(!mc) return;
+  window._drAnimDone = false;
   var C=_DR_C.toFixed(2), cx=_DR_CX, cy=_DR_CY, R=_DR_R, DIM=_DR_DIM, SW=_DR_SW;
   function makeRing(d,i) {
     var fid='drf'+i;
