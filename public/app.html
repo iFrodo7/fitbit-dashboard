@@ -1779,7 +1779,12 @@ body.t-naruto span.vval{
 @keyframes tph-scan{0%{transform:translateY(-100%);}100%{transform:translateY(100vh);}}
 .tprev-halo-bg::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(255,45,120,0.4),transparent);animation:tph-scan 3s linear infinite;}
 /* SHINOBI preview canvas */
-.tprev-naruto-bg{width:100%;height:100%;background:radial-gradient(ellipse at 50% 120%,#1a0800 0%,#0c0400 65%);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.tprev-naruto-bg{width:100%;height:100%;
+  background:
+    radial-gradient(ellipse at 32% 68%, rgba(74,106,132,0.14) 0%, transparent 52%),
+    radial-gradient(ellipse at 74% 26%, rgba(30,50,78,0.22) 0%, transparent 48%),
+    linear-gradient(152deg, #0c1520 0%, #06080c 42%, #0a1018 100%);
+  position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
 /* AETHER preview canvas */
 .tprev-fut-bg{width:100%;height:100%;background:radial-gradient(ellipse at 50% 120%,#001428 0%,#020810 65%);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
 
@@ -4532,12 +4537,46 @@ var TPREV_DATA = {
     },
     canvas: function() {
       return '<div class="tprev-bloom-bg">' +
-        '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:160px;height:160px;border-radius:50%;border:1px solid rgba(232,92,138,0.18);animation:tpb-ring 3s ease-in-out infinite;"></div>' +
-        '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:108px;height:108px;border-radius:50%;border:1px solid rgba(232,92,138,0.35);box-shadow:0 0 30px rgba(232,92,138,0.15);animation:tpb-ring 3s ease-in-out infinite;animation-delay:-1.5s;"></div>' +
-        '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60px;height:60px;border-radius:50%;border:1.5px solid rgba(232,92,138,0.6);box-shadow:0 0 18px rgba(232,92,138,0.25),inset 0 0 18px rgba(232,92,138,0.07);animation:tpb-ring 3s ease-in-out infinite;animation-delay:-0.5s;"></div>' +
-        '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:50%;background:#e85c8a;box-shadow:0 0 20px #e85c8a,0 0 40px rgba(232,92,138,0.5);"></div>' +
-        '<div style="position:absolute;top:16px;left:20px;font-family:\'Nunito\',sans-serif;font-size:10px;font-weight:700;color:rgba(232,92,138,0.4);letter-spacing:3px;text-transform:uppercase;">✦ WELLNESS · FITNESS · FLOW</div>' +
-        '<div style="position:absolute;bottom:14px;right:20px;font-family:\'Nunito\',sans-serif;font-size:9px;color:rgba(196,127,181,0.35);letter-spacing:2px;">AIRA · BLOOM</div>' +
+        '<svg width="220" height="220" viewBox="-50 -50 100 100" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);filter:drop-shadow(0 0 20px rgba(232,92,138,0.28));" xmlns="http://www.w3.org/2000/svg">' +
+        '<ellipse rx="17" ry="40" transform="rotate(0)"   fill="#e85c8a" opacity="0.07"/>' +
+        '<ellipse rx="17" ry="40" transform="rotate(60)"  fill="#c94478" opacity="0.07"/>' +
+        '<ellipse rx="17" ry="40" transform="rotate(120)" fill="#e85c8a" opacity="0.07"/>' +
+        '<ellipse rx="17" ry="40" transform="rotate(180)" fill="#c94478" opacity="0.07"/>' +
+        '<ellipse rx="17" ry="40" transform="rotate(240)" fill="#e85c8a" opacity="0.07"/>' +
+        '<ellipse rx="17" ry="40" transform="rotate(300)" fill="#c94478" opacity="0.07"/>' +
+        '<ellipse rx="13" ry="30" transform="rotate(0)"   fill="#e85c8a" opacity="0.17"/>' +
+        '<ellipse rx="13" ry="30" transform="rotate(60)"  fill="#c94478" opacity="0.17"/>' +
+        '<ellipse rx="13" ry="30" transform="rotate(120)" fill="#e85c8a" opacity="0.17"/>' +
+        '<ellipse rx="13" ry="30" transform="rotate(180)" fill="#c94478" opacity="0.17"/>' +
+        '<ellipse rx="13" ry="30" transform="rotate(240)" fill="#e85c8a" opacity="0.17"/>' +
+        '<ellipse rx="13" ry="30" transform="rotate(300)" fill="#c94478" opacity="0.17"/>' +
+        '<g transform="rotate(30)">' +
+        '<ellipse rx="8" ry="20" transform="rotate(0)"   fill="#f080aa" opacity="0.24"/>' +
+        '<ellipse rx="8" ry="20" transform="rotate(60)"  fill="#f080aa" opacity="0.24"/>' +
+        '<ellipse rx="8" ry="20" transform="rotate(120)" fill="#f080aa" opacity="0.24"/>' +
+        '<ellipse rx="8" ry="20" transform="rotate(180)" fill="#f080aa" opacity="0.24"/>' +
+        '<ellipse rx="8" ry="20" transform="rotate(240)" fill="#f080aa" opacity="0.24"/>' +
+        '<ellipse rx="8" ry="20" transform="rotate(300)" fill="#f080aa" opacity="0.24"/>' +
+        '</g>' +
+        '<g transform="rotate(15)">' +
+        '<ellipse rx="4" ry="13" transform="rotate(0)"   fill="#ff9fc0" opacity="0.30"/>' +
+        '<ellipse rx="4" ry="13" transform="rotate(60)"  fill="#ff9fc0" opacity="0.30"/>' +
+        '<ellipse rx="4" ry="13" transform="rotate(120)" fill="#ff9fc0" opacity="0.30"/>' +
+        '<ellipse rx="4" ry="13" transform="rotate(180)" fill="#ff9fc0" opacity="0.30"/>' +
+        '<ellipse rx="4" ry="13" transform="rotate(240)" fill="#ff9fc0" opacity="0.30"/>' +
+        '<ellipse rx="4" ry="13" transform="rotate(300)" fill="#ff9fc0" opacity="0.30"/>' +
+        '</g>' +
+        '<circle r="10" fill="#e85c8a" opacity="0.42"/>' +
+        '<circle cx="0" cy="-7" r="1.8" fill="#ffd0e0" opacity="0.80"/>' +
+        '<circle cx="6" cy="-3.5" r="1.8" fill="#ffd0e0" opacity="0.80"/>' +
+        '<circle cx="6" cy="3.5" r="1.8" fill="#ffd0e0" opacity="0.80"/>' +
+        '<circle cx="0" cy="7" r="1.8" fill="#ffd0e0" opacity="0.80"/>' +
+        '<circle cx="-6" cy="3.5" r="1.8" fill="#ffd0e0" opacity="0.80"/>' +
+        '<circle cx="-6" cy="-3.5" r="1.8" fill="#ffd0e0" opacity="0.80"/>' +
+        '<circle r="3.5" fill="#fff5f8" opacity="0.70"/>' +
+        '</svg>' +
+        '<div style="position:absolute;top:16px;left:20px;font-family:\'Nunito\',sans-serif;font-size:10px;font-weight:700;color:rgba(232,92,138,0.4);letter-spacing:3px;text-transform:uppercase;z-index:1;">✦ WELLNESS · FITNESS · FLOW</div>' +
+        '<div style="position:absolute;bottom:14px;right:20px;font-family:\'Nunito\',sans-serif;font-size:9px;color:rgba(196,127,181,0.35);letter-spacing:2px;z-index:1;">AIRA · BLOOM</div>' +
         '</div>';
     }
   },
@@ -4626,13 +4665,13 @@ var TPREV_DATA = {
     }
   },
   naruto: {
-    bg: 'radial-gradient(ellipse at 50% 130%, #1a0800 0%, #0c0400 65%)',
-    sheetBg: '#100500',
-    color: '#ff6b00',
-    color2: '#ffaa00',
+    bg: 'radial-gradient(ellipse at 50% 130%, #0c1520 0%, #06080c 65%)',
+    sheetBg: '#06080c',
+    color: '#4a6a84',
+    color2: '#a0c0dc',
     nameFont: "'Permanent Marker',cursive",
-    confirmBg: 'linear-gradient(135deg,#ff6b00,#ff4500)',
-    confirmColor: '#0c0400',
+    confirmBg: 'rgba(74,106,132,0.88)',
+    confirmColor: '#ddeeff',
     confirmLabel: { es: '気 ACTIVAR JUTSU', en: '気 ACTIVATE JUTSU' },
     feats: {
       es: ['気 Flujo de Ki · reservas de chakra en tiempo real', '⚡ Stamina tracker · arco de entrenamiento ninja', '🌙 Sello de descanso · sueño restaurador de chakra'],
@@ -4640,10 +4679,36 @@ var TPREV_DATA = {
     },
     canvas: function() {
       return '<div class="tprev-naruto-bg">' +
-        '<div style="font-size:120px;color:rgba(255,107,0,0.12);font-family:\'Noto Serif JP\',serif;user-select:none;line-height:1;animation:b-orb-drift 4s ease-in-out infinite;">渦</div>' +
-        '<div style="position:absolute;font-size:48px;color:rgba(255,170,0,0.35);font-family:\'Noto Serif JP\',serif;top:50%;left:50%;transform:translate(-50%,-50%);text-shadow:0 0 30px rgba(255,107,0,0.4);">気</div>' +
-        '<div style="position:absolute;top:10px;left:16px;font-family:\'IBM Plex Mono\',monospace;font-size:9px;color:rgba(255,107,0,0.35);letter-spacing:2px;">封印 · 木ノ葉 · 忍道</div>' +
-        '<div style="position:absolute;bottom:14px;right:16px;font-family:\'IBM Plex Mono\',monospace;font-size:9px;color:rgba(255,170,0,0.3);letter-spacing:2px;">SHINOBI v気.2</div>' +
+        '<div style="position:absolute;top:10px;left:16px;font-family:\'Noto Serif JP\',serif;font-size:9px;color:rgba(74,106,132,0.45);letter-spacing:3px;z-index:1;">封印 · 木ノ葉 · 忍道</div>' +
+        '<svg width="200" height="200" viewBox="-100 -100 200 200" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);" xmlns="http://www.w3.org/2000/svg">' +
+        '<defs><filter id="tpn-gw" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.0" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
+        '<circle r="88" fill="none" stroke="rgba(74,106,132,0.18)" stroke-width="0.8"/>' +
+        '<g stroke="rgba(74,106,132,0.14)" stroke-width="0.7" stroke-linecap="butt">' +
+        '<line x1="0" y1="-88" x2="0" y2="-46"/><line x1="0" y1="46" x2="0" y2="88"/>' +
+        '<line x1="-88" y1="0" x2="-46" y2="0"/><line x1="46" y1="0" x2="88" y2="0"/>' +
+        '<line x1="-62" y1="-62" x2="-33" y2="-33"/><line x1="33" y1="33" x2="62" y2="62"/>' +
+        '<line x1="62" y1="-62" x2="33" y2="-33"/><line x1="-33" y1="33" x2="-62" y2="62"/>' +
+        '</g>' +
+        '<g fill="none" stroke="rgba(160,192,220,0.28)" stroke-width="1.2" stroke-linecap="round">' +
+        '<line x1="0" y1="-92" x2="0" y2="-83"/><line x1="0" y1="83" x2="0" y2="92"/>' +
+        '<line x1="-92" y1="0" x2="-83" y2="0"/><line x1="83" y1="0" x2="92" y2="0"/>' +
+        '<line x1="-65" y1="-65" x2="-59" y2="-59"/><line x1="59" y1="59" x2="65" y2="65"/>' +
+        '<line x1="65" y1="-65" x2="59" y2="-59"/><line x1="-59" y1="59" x2="-65" y2="65"/>' +
+        '</g>' +
+        '<circle r="62" fill="none" stroke="rgba(74,106,132,0.28)" stroke-width="1.0"/>' +
+        '<g fill="rgba(74,106,132,0.52)">' +
+        '<circle cx="0" cy="-62" r="1.8"/><circle cx="44" cy="-44" r="1.4"/>' +
+        '<circle cx="62" cy="0" r="1.8"/><circle cx="44" cy="44" r="1.4"/>' +
+        '<circle cx="0" cy="62" r="1.8"/><circle cx="-44" cy="44" r="1.4"/>' +
+        '<circle cx="-62" cy="0" r="1.8"/><circle cx="-44" cy="-44" r="1.4"/>' +
+        '</g>' +
+        '<polygon points="0,-46 33,-33 46,0 33,33 0,46 -33,33 -46,0 -33,-33" fill="rgba(74,106,132,0.04)" stroke="rgba(74,106,132,0.32)" stroke-width="1.0"/>' +
+        '<circle r="26" fill="rgba(6,8,12,0.78)" stroke="rgba(74,106,132,0.48)" stroke-width="1.2"/>' +
+        '<line x1="-18" y1="0" x2="18" y2="0" stroke="rgba(74,106,132,0.18)" stroke-width="0.7"/>' +
+        '<line x1="0" y1="-18" x2="0" y2="18" stroke="rgba(74,106,132,0.18)" stroke-width="0.7"/>' +
+        '<text x="0" y="10" text-anchor="middle" font-family="\'Noto Serif JP\',serif" font-size="26" fill="rgba(74,106,132,0.55)" filter="url(#tpn-gw)">忍</text>' +
+        '</svg>' +
+        '<div style="position:absolute;bottom:12px;right:16px;font-family:\'Noto Serif JP\',serif;font-size:9px;color:rgba(160,192,220,0.28);letter-spacing:3px;z-index:1;">SHINOBI · 忍道</div>' +
         '</div>';
     }
   },
