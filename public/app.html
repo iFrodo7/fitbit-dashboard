@@ -1474,10 +1474,17 @@ body.t-naruto span.vval{
 }
 .jiggle-mode .vc:not(.wm-widget-hidden):not(.wm-dragging){
   animation:jiggle 0.36s ease-in-out infinite;
-  animation-delay:calc(var(--ji,0) * 50ms);
+  animation-delay:calc(var(--ji,0) * -47ms);
   overflow:visible;cursor:grab;user-select:none;-webkit-user-select:none;
 }
 .jiggle-mode .vc.wm-span2{grid-column:span 2;}
+/* During an active drag we pause the jiggle so the transform channel is free
+   for the FLIP spring that flows siblings out of the way (iOS behaviour). */
+.jiggle-mode.wm-reordering .vc:not(.wm-dragging){animation:none;}
+.jiggle-mode.wm-reordering .vc.wm-flip{
+  transition:transform 0.46s cubic-bezier(0.22,0.68,0.32,1);
+  will-change:transform;
+}
 /* X delete badge */
 .wm-x-btn{
   position:absolute;top:-9px;left:-9px;z-index:20;
@@ -1507,19 +1514,38 @@ body.t-naruto span.vval{
 }
 .wm-sz-btn:active{transform:scale(0.82);}
 .jiggle-mode .wm-sz-btn{display:block;}
-/* drag ghost */
+/* drag ghost — moved exclusively via translate3d (GPU compositor, no layout) */
 .wm-drag-ghost{
-  position:fixed;z-index:9000;pointer-events:none;
-  opacity:0.85;transform:scale(1.05) rotate(1.2deg);
-  box-shadow:0 14px 36px rgba(0,0,0,0.6);
+  position:fixed;top:0;left:0;z-index:9000;pointer-events:none;
   border:var(--cbdr);background:var(--cbg);overflow:hidden;
-  transition:none;
+  transform:translate3d(0,0,0) scale(1) rotate(0deg);
+  box-shadow:0 2px 8px rgba(0,0,0,0.25);
+  opacity:0.96;
+  /* only shadow/opacity/scale animate on lift & settle — translate stays instant */
+  transition:box-shadow 0.22s ease,opacity 0.22s ease;
 }
-/* drop placeholder */
+.wm-drag-ghost.wm-lift{
+  box-shadow:0 18px 44px rgba(0,0,0,0.55);
+}
+.wm-drag-ghost.wm-settling{
+  transition:transform 0.34s cubic-bezier(0.22,0.68,0.32,1),box-shadow 0.34s ease,opacity 0.3s ease;
+}
+/* drop placeholder — breathes softly so the target reads clearly */
 .wm-drop-slot{
   border:1.5px dashed var(--ta);
-  background:rgba(0,245,255,0.05);
+  background:color-mix(in srgb,var(--ta) 9%,transparent);
   border-radius:2px;min-height:60px;
+  transition:height 0.32s cubic-bezier(0.22,0.68,0.32,1);
+  animation:wmSlotBreathe 1.5s ease-in-out infinite;
+}
+@keyframes wmSlotBreathe{0%,100%{opacity:0.55;}50%{opacity:0.9;}}
+/* Accessibility: honour iOS "Reduce Motion" — no jiggle, no springs, instant
+   reflow. The drag still works, it just stops animating. */
+@media (prefers-reduced-motion: reduce){
+  .jiggle-mode .vc:not(.wm-widget-hidden):not(.wm-dragging){animation:none;}
+  .jiggle-mode.wm-reordering .vc.wm-flip{transition:none;}
+  .wm-drag-ghost,.wm-drag-ghost.wm-settling{transition:opacity 0.12s ease;}
+  .wm-drop-slot{animation:none;transition:none;}
 }
 /* + add card */
 #wm-add-card{
@@ -6556,39 +6582,109 @@ function _refreshJiggleBadges() {
 }
 
 // ── Drag & Drop ──
+// Intent threshold: a touch on a card "arms" a drag but doesn't lift it until
+// the finger actually moves ~8px (or the long-press hold-to-lift timer fires).
+// Prevents a stray tap from yanking a widget out of place.
+var _dragArm = null;
+var _DRAG_THRESH = 8;
+
+function _armDrag(card, x, y) {
+  _dragArm = { card:card, x:x, y:y };
+  document.addEventListener('touchmove', _armMove, {passive:false});
+  document.addEventListener('touchend',  _disarmDrag);
+  document.addEventListener('touchcancel', _disarmDrag);
+  document.addEventListener('mousemove', _armMove);
+  document.addEventListener('mouseup',   _disarmDrag);
+}
+function _armMove(e) {
+  if (!_dragArm) return;
+  var t = e.touches ? e.touches[0] : e;
+  if (Math.abs(t.clientX - _dragArm.x) > _DRAG_THRESH ||
+      Math.abs(t.clientY - _dragArm.y) > _DRAG_THRESH) {
+    var a = _dragArm; _disarmDrag();
+    if (e.cancelable) e.preventDefault();
+    _startDrag(a.card, t.clientX, t.clientY);
+  }
+}
+function _disarmDrag() {
+  _dragArm = null;
+  document.removeEventListener('touchmove', _armMove);
+  document.removeEventListener('touchend',  _disarmDrag);
+  document.removeEventListener('touchcancel', _disarmDrag);
+  document.removeEventListener('mousemove', _armMove);
+  document.removeEventListener('mouseup',   _disarmDrag);
+}
+
 function _onCardTouchStart(e) {
   if (!_jiggleActive) return;
   if (e.target.closest('.wm-x-btn,.wm-sz-btn')) return;
-  e.preventDefault();
-  var card = this;
   var t = e.touches[0];
-  _startDrag(card, t.clientX, t.clientY);
+  _armDrag(this, t.clientX, t.clientY);
 }
 
 function _onCardMouseStart(e) {
   if (!_jiggleActive) return;
   if (e.target.closest('.wm-x-btn,.wm-sz-btn')) return;
   e.preventDefault();
-  _startDrag(this, e.clientX, e.clientY);
+  _armDrag(this, e.clientX, e.clientY);
+}
+
+// ── FLIP: smoothly flow siblings to their new slots (the iOS "make room" feel) ──
+// Records geometry before a DOM mutation, then plays an inverted spring so each
+// moved card glides from its old position instead of teleporting.
+function _flipReorder(vg, mutate) {
+  var cards = Array.from(vg.querySelectorAll('.vc:not(.wm-widget-hidden):not(.wm-dragging)'));
+  var first = new Map();
+  cards.forEach(function(c){ first.set(c, c.getBoundingClientRect()); });
+  mutate();
+  cards.forEach(function(c){
+    var f = first.get(c), l = c.getBoundingClientRect();
+    var dx = f.left - l.left, dy = f.top - l.top;
+    if (!dx && !dy) return;
+    c.classList.remove('wm-flip');
+    c.style.transition = 'none';
+    c.style.transform  = 'translate3d(' + dx + 'px,' + dy + 'px,0)';
+    c.offsetWidth; // force reflow so the inverted start is committed
+    c.classList.add('wm-flip');
+    c.style.transition = '';
+    c.style.transform  = '';
+  });
 }
 
 function _startDrag(card, cx, cy, rect) {
   if (_dragState) return;
+  if (_dragArm) _disarmDrag(); // hold-to-lift won the race; drop the armed intent
   rect = rect || card.getBoundingClientRect();
-  // Create ghost
+  var vg = document.querySelector('.vg');
+  if (vg) vg.classList.add('wm-reordering'); // pause jiggle, free the transform channel
+  // Ghost: positioned at 0,0 and driven only by translate3d for GPU compositing.
   var ghost = card.cloneNode(true);
   ghost.className = 'wm-drag-ghost';
   ghost.querySelectorAll('.wm-x-btn,.wm-sz-btn').forEach(function(b){ b.remove(); });
-  ghost.style.cssText = 'width:'+rect.width+'px;height:'+rect.height+'px;top:'+(cy-rect.height/2)+'px;left:'+(cx-rect.width/2)+'px;';
+  ghost.style.width  = rect.width + 'px';
+  ghost.style.height = rect.height + 'px';
   document.body.appendChild(ghost);
-  // Placeholder
+  // Placeholder where the card will land
   var slot = document.createElement('div');
   slot.className = 'wm-drop-slot';
   slot.style.height = rect.height + 'px';
+  if (card.classList.contains('wm-span2')) slot.style.gridColumn = 'span 2';
   card.classList.add('wm-dragging');
-  card.style.opacity = '0.25';
+  card.style.opacity = '0';
   card.parentNode.insertBefore(slot, card);
-  _dragState = { card:card, ghost:ghost, slot:slot, ox:cx-rect.left, oy:cy-rect.top };
+  _dragState = {
+    card:card, ghost:ghost, slot:slot,
+    ox:cx-rect.left, oy:cy-rect.top,
+    x:cx-rect.left, y:cy-rect.top, lift:1,
+    lastBefore:null, lastRef:card, raf:0, pending:false
+  };
+  // Spring lift on pickup: pop scale up, settle to drag scale.
+  ghost.style.transform = 'translate3d(' + _dragState.x + 'px,' + _dragState.y + 'px,0) scale(1) rotate(0deg)';
+  ghost.offsetWidth;
+  ghost.style.transition = 'transform 0.18s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.22s ease,opacity 0.22s ease';
+  ghost.classList.add('wm-lift');
+  ghost.style.transform = 'translate3d(' + _dragState.x + 'px,' + _dragState.y + 'px,0) scale(1.045) rotate(1.4deg)';
+
   document.addEventListener('touchmove',  _onDragMove, {passive:false});
   document.addEventListener('touchend',   _onDragEnd);
   document.addEventListener('touchcancel',_onDragEnd);
@@ -6600,45 +6696,119 @@ function _onDragMove(e) {
   if (!_dragState) return;
   var t = e.touches ? e.touches[0] : e;
   if (e.cancelable) e.preventDefault();
-  var cx = t.clientX, cy = t.clientY;
   var d = _dragState;
-  var gw = parseInt(d.ghost.style.width);
-  var gh = parseInt(d.ghost.style.height);
-  d.ghost.style.top  = (cy - d.oy) + 'px';
-  d.ghost.style.left = (cx - d.ox) + 'px';
-  // Find nearest drop position
+  d.x = t.clientX - d.ox;
+  d.y = t.clientY - d.oy;
+  d.px = t.clientX; d.py = t.clientY;
+  // Coalesce all touchmove bursts into a single per-frame update.
+  if (!d.pending) {
+    d.pending = true;
+    d.raf = requestAnimationFrame(_dragFrame);
+  }
+}
+
+function _dragFrame() {
+  var d = _dragState;
+  if (!d) return;
+  d.pending = false;
+  // The moment the finger moves, drop the lift spring's transform-transition so
+  // tracking is 1:1 (no lag); the shadow/opacity transitions stay.
+  if (!d.movedOnce) {
+    d.movedOnce = true;
+    d.ghost.style.transition = 'box-shadow 0.22s ease,opacity 0.22s ease';
+  }
+  _dragPaint(d);
+  _dragHitTest(d);
+  _updateAutoScroll(d.py); // start/adjust edge auto-scroll
+}
+
+// Paint the ghost at the finger (GPU-composited, never touches layout).
+function _dragPaint(d) {
+  d.ghost.style.transform = 'translate3d(' + d.x + 'px,' + d.y + 'px,0) scale(1.045) rotate(1.4deg)';
+}
+
+// Find the nearest slot and, if the insertion point changed, spring siblings
+// out of the way + give a soft haptic tick (iOS "snap into place" feel).
+function _dragHitTest(d) {
   var vg = document.querySelector('.vg');
+  if (!vg) return;
   var cards = Array.from(vg.querySelectorAll('.vc:not(.wm-widget-hidden):not(.wm-dragging)'));
   var addCard = document.getElementById('wm-add-card');
-  var best = null, bestDist = Infinity;
-  cards.concat([addCard]).forEach(function(el) {
+  var targets = addCard ? cards.concat([addCard]) : cards;
+  var best = null, bestDist = Infinity, bestRect = null;
+  targets.forEach(function(el){
     var r = el.getBoundingClientRect();
-    var dist = Math.hypot(cx - (r.left+r.width/2), cy - (r.top+r.height/2));
-    if (dist < bestDist) { bestDist = dist; best = el; }
+    var dist = Math.hypot(d.px - (r.left + r.width/2), d.py - (r.top + r.height/2));
+    if (dist < bestDist) { bestDist = dist; best = el; bestRect = r; }
   });
-  if (best) {
-    var br = best.getBoundingClientRect();
-    var before = cy < br.top + br.height / 2;
-    vg.insertBefore(d.slot, before ? best : best.nextSibling);
+  if (!best) return;
+  var before = d.py < bestRect.top + bestRect.height/2;
+  if (best !== d.lastRef || before !== d.lastBefore) {
+    d.lastRef = best; d.lastBefore = before;
+    if (navigator.vibrate) navigator.vibrate(6); // tick on each reposition
+    _flipReorder(vg, function(){
+      vg.insertBefore(d.slot, before ? best : best.nextSibling);
+    });
   }
+}
+
+// ── Edge auto-scroll: drag a widget toward the top/bottom and the page follows,
+//    just like dragging an app icon past the screen edge on iOS. ──
+var _autoScroll = { v:0, raf:0 };
+function _updateAutoScroll(py) {
+  var EDGE = 78, MAX = 15;
+  var v = 0;
+  if (py < EDGE)                    v = -MAX * (1 - py / EDGE);
+  else if (window.innerHeight - py < EDGE) v =  MAX * (1 - (window.innerHeight - py) / EDGE);
+  _autoScroll.v = v;
+  if (v && !_autoScroll.raf) _autoScroll.raf = requestAnimationFrame(_autoScrollTick);
+}
+function _autoScrollTick() {
+  _autoScroll.raf = 0;
+  if (!_dragState || !_autoScroll.v) return;
+  var before = window.scrollY;
+  window.scrollBy(0, _autoScroll.v);
+  // Finger is stationary while the content slides under it → re-test the drop
+  // target against the freshly scrolled layout.
+  if (window.scrollY !== before) _dragHitTest(_dragState);
+  _autoScroll.raf = requestAnimationFrame(_autoScrollTick);
+}
+function _stopAutoScroll() {
+  _autoScroll.v = 0;
+  if (_autoScroll.raf) { cancelAnimationFrame(_autoScroll.raf); _autoScroll.raf = 0; }
 }
 
 function _onDragEnd(e) {
   if (!_dragState) return;
   var d = _dragState; _dragState = null;
+  if (d.raf) cancelAnimationFrame(d.raf);
+  _stopAutoScroll();
+  if (navigator.vibrate) navigator.vibrate([4, 20, 8]); // settle tick
   document.removeEventListener('touchmove',  _onDragMove);
   document.removeEventListener('touchend',   _onDragEnd);
   document.removeEventListener('touchcancel',_onDragEnd);
   document.removeEventListener('mousemove',  _onDragMove);
   document.removeEventListener('mouseup',    _onDragEnd);
-  // Drop card at slot position
   var vg = document.querySelector('.vg');
-  vg.insertBefore(d.card, d.slot);
+  // Land the real card in the slot's place, then settle the ghost onto it.
+  _flipReorder(vg, function(){ vg.insertBefore(d.card, d.slot); });
+  var dest = d.card.getBoundingClientRect();
   d.slot.remove();
-  d.ghost.remove();
-  d.card.classList.remove('wm-dragging');
-  d.card.style.opacity = '';
-  // Save new order
+  // Settle: glide ghost into the landed card's position with a spring, then swap.
+  d.ghost.classList.remove('wm-lift');
+  d.ghost.classList.add('wm-settling');
+  d.ghost.style.opacity = '0';
+  d.ghost.style.transform = 'translate3d(' + dest.left + 'px,' + dest.top + 'px,0) scale(1) rotate(0deg)';
+  var ghost = d.ghost, card = d.card;
+  var done = function(){
+    ghost.remove();
+    card.classList.remove('wm-dragging');
+    card.style.opacity = '';
+    if (vg) vg.classList.remove('wm-reordering'); // resume jiggle
+  };
+  ghost.addEventListener('transitionend', done, {once:true});
+  setTimeout(done, 420); // fallback if transitionend is missed
+  // Persist order
   var order = Array.from(vg.querySelectorAll('.vc')).map(function(c){ return c.id; });
   saveWMOrder(order);
   _refreshJiggleBadges();
