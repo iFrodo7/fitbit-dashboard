@@ -1572,7 +1572,11 @@ body.t-naruto span.vval{
 .cal-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
 /* Sub-métricas que llenan el resto de la tarjeta (como TEMP CORPORAL) */
 .cal-split.cs-fill{flex:1 1 auto;}
-.cal-split.cs-fill .cal-box{display:flex;flex-direction:column;justify-content:center;}
+.cal-split.cs-fill .cal-box{display:flex;flex-direction:column;justify-content:space-between;}
+/* Reservar 2 líneas para la etiqueta → valores y unidades alineados entre las
+   dos cajas aunque una etiqueta sea de 1 línea y la otra de 2. */
+.cal-split.cs-fill .cal-box-lbl{min-height:2.2em;display:flex;align-items:flex-start;}
+.cal-split.cs-fill .cal-box-val{margin-top:0;}
 .cal-box{background:var(--rbg);padding:8px 10px;}
 .cal-box-lbl{font-size:9px;letter-spacing:2px;opacity:0.35;text-transform:uppercase;}
 .cal-box-val{font-size:18px;font-weight:700;color:var(--ta);margin-top:2px;line-height:1;}
