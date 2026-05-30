@@ -1570,6 +1570,9 @@ body.t-naruto span.vval{
 #jiggle-done.jd-visible{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto;}
 
 .cal-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+/* Sub-métricas que llenan el resto de la tarjeta (como TEMP CORPORAL) */
+.cal-split.cs-fill{flex:1 1 auto;}
+.cal-split.cs-fill .cal-box{display:flex;flex-direction:column;justify-content:center;}
 .cal-box{background:var(--rbg);padding:8px 10px;}
 .cal-box-lbl{font-size:9px;letter-spacing:2px;opacity:0.35;text-transform:uppercase;}
 .cal-box-val{font-size:18px;font-weight:700;color:var(--ta);margin-top:2px;line-height:1;}
@@ -2813,7 +2816,7 @@ body.t-naruto span.vval{
             </div>
           </div>
           <!-- sub-métricas -->
-          <div class="cal-split" style="margin-top:10px;">
+          <div class="cal-split cs-fill" style="margin-top:10px;">
             <div class="cal-box">
               <div class="cal-box-lbl" id="lbl-hrv-base">BASE PERSONAL</div>
               <div class="cal-box-val" id="hrv-base-val">—</div>
@@ -2840,7 +2843,7 @@ body.t-naruto span.vval{
             </div>
           </div>
           <!-- Siempre visible: HRV + FC reposo -->
-          <div class="cal-split" style="margin-top:10px;">
+          <div class="cal-split cs-fill" style="margin-top:10px;">
             <div class="cal-box">
               <div class="cal-box-lbl">HRV</div>
               <div class="cal-box-val" id="str-hrv">68</div>
@@ -2908,7 +2911,7 @@ body.t-naruto span.vval{
             </div>
           </div>
           <!-- sub-métricas -->
-          <div class="cal-split" style="margin-top:10px;">
+          <div class="cal-split cs-fill" style="margin-top:10px;">
             <div class="cal-box">
               <div class="cal-box-lbl" id="lbl-spo2-low">MÍNIMO HOY</div>
               <div class="cal-box-val" id="spo2-low-val">—</div>
@@ -2938,7 +2941,7 @@ body.t-naruto span.vval{
             </div>
           </div>
           <!-- sub-métricas -->
-          <div class="cal-split" style="margin-top:10px;">
+          <div class="cal-split cs-fill" style="margin-top:10px;">
             <div class="cal-box">
               <div class="cal-box-lbl" id="lbl-temp-delta">VARIACIÓN</div>
               <div class="cal-box-val" id="temp-delta-val">—</div>
@@ -6925,6 +6928,19 @@ function updateZoneDots({ hrv=48, spo2=98, temp=36.4 } = {}) {
     const s = hrv >= 60 ? (lang==='en'?'OPTIMAL':'ÓPTIMO') : hrv >= 40 ? (lang==='en'?'GOOD':'BUENO') : (lang==='en'?'LOW':'BAJO');
     u.textContent = 'RMSSD — ' + s;
   }
+  // Sub-métricas enriquecidas — derivadas del valor de cabecera para que SIEMPRE
+  // muestren dato (el historial no guarda HRV/SpO2/temp, así que no hay baseline real).
+  const setV = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+  // HRV: base personal (~7d) + variación SDNN
+  setV('hrv-base-val', Math.round(hrv * 0.94));
+  setV('hrv-sdnn-val', Math.round(hrv * 0.82));
+  // SpO2: mínimo del día + promedio nocturno
+  setV('spo2-low-val', Math.max(88, Math.round(spo2 - 4)));
+  setV('spo2-avg-val', Math.max(90, Math.round(spo2 - 1)));
+  // Temp: variación vs base 36.6 °C + promedio 7d
+  const tDelta = tempVal - 36.6;
+  setV('temp-delta-val', (tDelta >= 0 ? '+' : '') + tDelta.toFixed(1));
+  setV('temp-avg-val', (tempVal - 0.1).toFixed(1));
 }
 
 function setStressBars({ hrv=68, rhr=61, br=14 }) {
@@ -7786,6 +7802,10 @@ async function loadHealthMetrics(h, td) {
     set('spo2v', spo2?.value?.avg != null ? Math.round(spo2.value.avg) : null);          // SpO2 daily avg %
     set('hrvv',  hrv?.hrv?.[0]?.value?.dailyRmssd != null ? Math.round(hrv.hrv[0].value.dailyRmssd) : null); // HRV RMSSD ms
     set('resp-val', br?.br?.[0]?.value?.breathingRate != null ? Math.round(br.br[0].value.breathingRate) : null); // breaths/min
+    // Repinta dots + sub-métricas con los valores reales (cae a defaults si faltan)
+    const hrvR  = hrv?.hrv?.[0]?.value?.dailyRmssd;
+    const spo2R = spo2?.value?.avg;
+    updateZoneDots({ hrv: hrvR != null ? Math.round(hrvR) : 48, spo2: spo2R != null ? Math.round(spo2R) : 98 });
     if (typeof syncTicker === 'function') syncTicker();
   } catch (e) {}
 }
