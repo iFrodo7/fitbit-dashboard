@@ -1449,7 +1449,17 @@ body.t-naruto span.vval{
 .t-naruto .vc::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(74,106,132,0.32),transparent);}
 .t-naruto .rfil{filter:none;}
 /* ── Whoop-style scores dentro del ring card ── */
-.wsrow{display:flex;width:100%;margin-top:10px;border-top:1px solid var(--sub);padding-top:14px;animation:wsload 0.8s ease-out;}
+.wsrow{display:none;}
+/* ── Daily Progress Rings ────────────────────────────────────────── */
+.drw{border-top:1px solid rgba(255,255,255,0.07);margin-top:14px;padding-top:13px;}
+.drw-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.drw-lbl{font-size:7.5px;letter-spacing:2px;color:rgba(255,255,255,0.38);font-family:'IBM Plex Mono',monospace;}
+.drw-stk{display:flex;align-items:center;gap:4px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.22);border-radius:20px;padding:2px 8px;}
+.drw-stk-val{font-size:10px;font-weight:700;color:#f59e0b;font-family:Rajdhani,sans-serif;letter-spacing:1px;}
+.drw-row{display:flex;width:100%;align-items:flex-start;}
+.dr-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:0 1px;}
+.dr-lbl{font-size:7px;letter-spacing:1px;color:rgba(255,255,255,0.38);font-family:'IBM Plex Mono',monospace;text-align:center;line-height:1.1;text-transform:uppercase;}
+.dr-val{font-size:11px;font-weight:700;font-family:Rajdhani,sans-serif;text-align:center;line-height:1;}
 @keyframes wsload{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
 .wsitem{flex:1;display:flex;flex-direction:column;gap:5px;padding:0 14px;transition:filter var(--dur-base) var(--ease-std);}
 .wsitem:hover{filter:brightness(1.15);}
@@ -4872,21 +4882,9 @@ function applyTheme(t) {
       document.body.appendChild(d);
     });
   }
-  // Theme-specific bars
-  const mc = document.getElementById('mcex');
-  if (t === 'bloom') {
-    mc.innerHTML = `<div class="bloom-bars"><div class="bloom-blbl">✦ ${lang==='es'?'RECUPERACIÓN':'RECOVERY'}</div><div class="bloom-btr"><div id="bloom-bar-rec" class="bloom-bfi bloom-vita" style="width:0%"></div></div><div class="bloom-blbl" style="margin-top:6px">✦ ${lang==='es'?'SUEÑO':'SLEEP'}</div><div class="bloom-btr"><div id="bloom-bar-slp" class="bloom-bfi bloom-flow" style="width:0%"></div></div></div>`;
-  } else if (t === 'mc') {
-    mc.innerHTML = `<div class="mc-bars"><div class="mc-blbl">❤ HEALTH</div><div class="mc-btr"><div class="mc-bfi mc-hp" style="width:80%"></div></div><div class="mc-blbl" style="margin-top:6px">✦ XP BAR</div><div class="mc-btr"><div class="mc-bfi mc-xp" style="width:60%"></div></div></div>`;
-  } else if (t === 'halo') {
-    mc.innerHTML = `<div class="halo-bars"><div class="halo-blbl">▲ NEURAL LINK</div><div class="halo-btr"><div class="halo-bfi halo-shields" style="width:82%"></div></div><div class="halo-blbl" style="margin-top:6px">◆ CHROME</div><div class="halo-btr"><div class="halo-bfi halo-ammo" style="width:68%"></div></div></div>`;
-  } else if (t === 'naruto') {
-    mc.innerHTML = `<div class="naruto-bars"><div class="naruto-blbl">気 · ${lang==='es'?'CHAKRA':'CHAKRA'}</div><div class="naruto-btr"><div id="naruto-bar-rec" class="naruto-bfi naruto-chakra" style="width:0%"></div></div><div class="naruto-blbl" style="margin-top:6px">忍 · ${lang==='es'?'RESISTENCIA':'RESILIENCE'}</div><div class="naruto-btr"><div id="naruto-bar-slp" class="naruto-bfi naruto-stamina" style="width:0%"></div></div></div>`;
-    // Easter egg: seed rank from cached score (or demo default 80)
-    nrtUpdateRank(window._lastRec != null ? window._lastRec : 80);
-  } else if (t === 'fut') {
-    mc.innerHTML = `<div class="fut-bars"><div class="fut-blbl">⚡ ENERGY</div><div class="fut-btr"><div class="fut-bfi fut-energy" style="width:82%"></div></div><div class="fut-blbl" style="margin-top:6px">⬢ PROCESSOR</div><div class="fut-btr"><div class="fut-bfi fut-processor" style="width:68%"></div></div></div>`;
-  }
+  // Daily progress rings (universal, replaces theme bars)
+  renderDailyRings();
+  if (t === 'naruto') nrtUpdateRank(window._lastRec != null ? window._lastRec : 80);
   const ls = T[lang];
   const logoSubMap = { bloom: ls.logo_s_bloom, fut: ls.logo_s_fut, mc: ls.logo_s_mc, halo: ls.logo_s_halo, naruto: ls.logo_s_naruto };
   setText('logo-s', logoSubMap[t]);
@@ -5113,8 +5111,9 @@ function navigate(tab) {
     try { renderProfile(); } catch(e) { console.error('[nav] renderProfile:', e); }
     return;
   }
-  // home — scroll to top
+  // home — scroll to top + re-animate rings
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(animateDailyRings, 120);
 }
 
 // ══════ STATS VIEW ══════
@@ -7165,7 +7164,130 @@ function updateScores({ rec, strain, sleepPct }) {
   setText('wrec', recTextFor(rec));
   updateStatusLabel();
   setTimeout(genAiraMsg, 80);
+  updateDailyRings();
 }
+// ── Daily Progress Rings ──────────────────────────────────────────────────
+var _DR_R=24, _DR_SW=5.5, _DR_C=2*Math.PI*24, _DR_DIM=24*2+5.5*2+2, _DR_CX=(_DR_DIM/2), _DR_CY=(_DR_DIM/2);
+var _DR_DEFS=[
+  {id:'dr-rec',label:'RECOVERY',color:'#00f5ff'},
+  {id:'dr-cal',label:'CALORÍAS',color:'#ff7b3a'},
+  {id:'dr-stp',label:'PASOS',   color:'#6aff3a'},
+  {id:'dr-act',label:'MIN ACT.',color:'#f59e0b'},
+  {id:'dr-slp',label:'SUEÑO',   color:'#a855f7'}
+];
+
+function getDailyStreak() {
+  try {
+    var today=new Date().toISOString().slice(0,10);
+    var s=JSON.parse(localStorage.getItem('fb_streak')||'{}');
+    if (s.date===today) return s.count||1;
+    var yest=new Date(Date.now()-86400000).toISOString().slice(0,10);
+    var cnt=s.date===yest?(s.count||1)+1:1;
+    localStorage.setItem('fb_streak',JSON.stringify({date:today,count:cnt}));
+    return cnt;
+  } catch(e){return 1;}
+}
+
+function renderDailyRings() {
+  var mc=document.getElementById('mcex'); if(!mc) return;
+  var C=_DR_C.toFixed(2), cx=_DR_CX, cy=_DR_CY, R=_DR_R, DIM=_DR_DIM, SW=_DR_SW;
+  function makeRing(d,i) {
+    var fid='drf'+i;
+    return '<div class="dr-item">'
+      +'<svg width="'+DIM+'" height="'+DIM+'" viewBox="0 0 '+DIM+' '+DIM+'" style="overflow:visible">'
+        +'<defs><filter id="'+fid+'" x="-80%" y="-80%" width="260%" height="260%">'
+          +'<feGaussianBlur stdDeviation="2.8" result="b"/>'
+          +'<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
+        +'</filter></defs>'
+        +'<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="'+d.color+'" stroke-width="'+SW+'" opacity="0.12"/>'
+        +'<circle id="'+d.id+'-arc" cx="'+cx+'" cy="'+cy+'" r="'+R+'"'
+          +' fill="none" stroke="'+d.color+'" stroke-width="'+SW+'" stroke-linecap="round"'
+          +' stroke-dasharray="'+C+'" stroke-dashoffset="'+C+'"'
+          +' transform="rotate(-90 '+cx+' '+cy+')"'
+          +' filter="url(#'+fid+')"'
+          +' style="transition:stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1)"/>'
+        +'<circle id="'+d.id+'-dot" r="3.2" fill="'+d.color+'" filter="url(#'+fid+')"'
+          +' cx="'+cx+'" cy="'+(cy-R)+'" opacity="0"/>'
+        +'<text id="'+d.id+'-pct" x="'+cx+'" y="'+(cy+4.5)+'"'
+          +' text-anchor="middle" fill="'+d.color+'"'
+          +' font-size="11" font-family="Rajdhani,sans-serif" font-weight="700">—</text>'
+      +'</svg>'
+      +'<div class="dr-lbl">'+d.label+'</div>'
+      +'<div class="dr-val" id="'+d.id+'-val" style="color:'+d.color+'">—</div>'
+    +'</div>';
+  }
+  var strk=getDailyStreak();
+  mc.innerHTML='<div class="drw">'
+    +'<div class="drw-hd">'
+      +'<div class="drw-lbl">// PROGRESO DIARIO</div>'
+      +'<div class="drw-stk"><span style="font-size:10px">🔥</span>'
+        +'<span class="drw-stk-val" id="dr-stk">'+strk+(lang==='es'?' DÍAS':' DAYS')+'</span>'
+      +'</div>'
+    +'</div>'
+    +'<div class="drw-row">'+_DR_DEFS.map(makeRing).join('')+'</div>'
+  +'</div>';
+  updateDailyRings();
+}
+
+function updateDailyRings() {
+  if (!document.getElementById('dr-rec-arc')) return;
+  var C=_DR_C, cx=_DR_CX, cy=_DR_CY, R=_DR_R;
+  var nv=function(id){ return parseFloat(((document.getElementById(id)||{}).textContent||'0').replace(/[^0-9.]/g,''))||0; };
+  var rec=window._lastRec||0, slp=window._lastSleepPct||0;
+  var cal=nv('cal-act'), steps=nv('stepsv');
+  var actMin=nv('hrmin-cardio')+nv('hrmin-peak');
+  var data=[
+    {id:'dr-rec',pct:Math.min(100,rec),       val:rec>0?Math.round(rec)+'':'-',  unit:''},
+    {id:'dr-cal',pct:Math.min(100,cal/500*100),val:cal>0?cal.toLocaleString():'-',unit:'kcal'},
+    {id:'dr-stp',pct:Math.min(100,steps/10000*100),val:steps>0?(steps/1000).toFixed(1)+'k':'-',unit:''},
+    {id:'dr-act',pct:Math.min(100,actMin/30*100),val:actMin>0?Math.round(actMin)+'':'-',unit:'min'},
+    {id:'dr-slp',pct:Math.min(100,slp),       val:function(){if(!slp)return'-';var m=Math.round(slp/100*480);return Math.floor(m/60)+'h '+(m%60)+'m';}(),unit:''}
+  ];
+  data.forEach(function(d){
+    var arc=document.getElementById(d.id+'-arc');
+    if(arc) arc.dataset.target=(C*(1-d.pct/100)).toFixed(1);
+    var pctEl=document.getElementById(d.id+'-pct');
+    if(pctEl) pctEl.textContent=d.pct>0?Math.round(d.pct)+'%':'—';
+    var valEl=document.getElementById(d.id+'-val');
+    if(valEl) valEl.textContent=d.val+(d.unit&&d.val!=='-'?' '+d.unit:'');
+  });
+}
+
+function animateDailyRings() {
+  if (!document.getElementById('dr-rec-arc')) return;
+  var C=_DR_C, cx=_DR_CX, cy=_DR_CY, R=_DR_R;
+  // reset all arcs to empty instantly
+  _DR_DEFS.forEach(function(d){
+    var arc=document.getElementById(d.id+'-arc');
+    var dot=document.getElementById(d.id+'-dot');
+    if(arc){arc.style.transition='none';arc.style.strokeDashoffset=C;}
+    if(dot) dot.setAttribute('opacity','0');
+  });
+  // re-animate with stagger after 2 frames
+  requestAnimationFrame(function(){requestAnimationFrame(function(){
+    _DR_DEFS.forEach(function(d,i){
+      setTimeout(function(){
+        var arc=document.getElementById(d.id+'-arc');
+        var dot=document.getElementById(d.id+'-dot');
+        if(!arc) return;
+        var target=parseFloat(arc.dataset.target!=null?arc.dataset.target:C);
+        arc.style.transition='stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1)';
+        arc.style.strokeDashoffset=target;
+        // tip dot: appear at endpoint after arc finishes
+        var pct=(1-target/C)*100;
+        if(dot&&pct>1){
+          var ang=(-90+pct*3.6)*Math.PI/180;
+          setTimeout(function(){
+            dot.setAttribute('cx',(cx+R*Math.cos(ang)).toFixed(2));
+            dot.setAttribute('cy',(cy+R*Math.sin(ang)).toFixed(2));
+            dot.setAttribute('opacity','0.9');
+          },1100);
+        }
+      },i*110);
+    });
+  });});
+}
+
 // ── AIRA Contextual Narrative ─────────────────────────────────────────────
 function genAiraMsg() {
   var el = document.getElementById('aira-msg');
