@@ -1494,7 +1494,7 @@ body.t-naruto span.vval{
 .wm-handle{width:36px;height:4px;background:var(--sub);border-radius:2px;margin:12px auto 0;}
 .wm-drawer-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 8px;}
 .wm-drawer-title{font-size:11px;letter-spacing:3px;font-weight:700;color:var(--ta);}
-.wm-done{background:var(--ta);color:#000;border:none;font-family:inherit;font-size:10px;letter-spacing:2px;font-weight:700;padding:6px 14px;cursor:pointer;}
+.wm-done{background:var(--ta);color:#000;border:none;font-family:inherit;font-size:10px;letter-spacing:2px;font-weight:700;padding:10px 16px;cursor:pointer;min-height:40px;border-radius:var(--r-sm);}
 .wm-list{padding:0 16px 16px;display:flex;flex-direction:column;gap:0;max-height:55vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .wm-item{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--bdr);}
 .wm-item:last-child{border-bottom:none;}
@@ -1973,7 +1973,7 @@ body.t-naruto span.vval{
   <!-- Header -->
   <header class="db-hdr">
     <div style="display:flex;align-items:center;gap:13px;">
-      <button class="bbtn" id="btn-back" onclick="goBack()">← TEMAS</button>
+      <button class="bbtn" id="btn-back" onclick="goBack()" aria-label="Volver a temas">← TEMAS</button>
       <div>
         <div id="logo-t" style="font-size:15px;font-weight:700;letter-spacing:4px;color:var(--ta);">AIRA</div>
         <div id="logo-s" style="font-size:10px;letter-spacing:3px;opacity:0.3;">BIOMETRIC CORE v2.6</div>
@@ -1982,15 +1982,15 @@ body.t-naruto span.vval{
     <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
       <!-- Language toggle in header -->
       <div class="hlang">
-        <button class="hlang-btn active" id="h-lang-es" onclick="setLang('es')">ES</button>
-        <button class="hlang-btn" id="h-lang-en" onclick="setLang('en')">EN</button>
+        <button class="hlang-btn active" id="h-lang-es" onclick="setLang('es')" aria-label="Español">ES</button>
+        <button class="hlang-btn" id="h-lang-en" onclick="setLang('en')" aria-label="English">EN</button>
       </div>
       <!-- Sync controls -->
       <div id="swrap" style="display:none;align-items:center;gap:7px;font-size:12px;letter-spacing:2px;opacity:0.55;">
         <div class="sring" id="sring"></div>
         <span id="slbl">PRÓX. SYNC</span>
         <span id="scd" style="color:var(--ta);font-size:13px;min-width:24px;">60s</span>
-        <select class="isel" id="isel" onchange="chgI(this.value)">
+        <select class="isel" id="isel" onchange="chgI(this.value)" aria-label="Intervalo de sincronización">
           <option value="15">15s</option><option value="30">30s</option>
           <option value="60" selected>60s</option><option value="120">2min</option>
         </select>
