@@ -7804,16 +7804,16 @@ function updateScores({ rec, strain, sleepPct }) {
   const rf = document.getElementById('rfil');
   if (rf) rf.style.strokeDashoffset = (339*(1-rec/100)).toFixed(1);
   animN('rscore', 0, rec, 1200);
-  // HUD ring (futuristic) — 3 arcos concéntricos
+  // HUD ring (futuristic) — arcos concéntricos por biométrica (el número central lo maneja updateDailyRings)
   const hrf = document.getElementById('hud-rfil');
   if (hrf) hrf.style.strokeDashoffset = (439.8*(1-rec/100)).toFixed(1);
   const hsp = document.getElementById('hud-spfil');
   if (hsp) hsp.style.strokeDashoffset = (345.6*(1-sleepPct/100)).toFixed(1);
-  animN('hud-rscore', 0, rec, 1200);
+  // hud-rscore → driven by activity composite in updateDailyRings()
   // MC ring — iconos de pixel art
   setMCHearts('r', Math.round(rec/10));
   setMCHearts('s', Math.round(sleepPct/10));
-  animN('mc-rscore', 0, rec, 1200);
+  // mc-rscore → driven by activity composite in updateDailyRings()
   // nrt-rfil arc + nrt-rscore driven by activity composite in updateDailyRings()
   // Naruto bars — live data
   setTimeout(function() {
@@ -7828,15 +7828,12 @@ function updateScores({ rec, strain, sleepPct }) {
   animN('nn-nv-rec', 0, rec, 1200);
   animN('nn-nv-slp', 0, sleepPct, 1200);
   animN('nn-nv-str', 0, strain, 1200);
-  animN('nn-nv-avg', 0, Math.round((rec + sleepPct + strain) / 3), 1200);
-  // Bloom flower ring — 3 category chip nodes + center composite score + petal count
+  // nn-nv-avg → driven by activity composite in updateDailyRings()
+  // Bloom flower ring — node chips (rec/slp/str stay biometric)
   animN('blm-nv-rec', 0, rec, 1200);
   animN('blm-nv-slp', 0, sleepPct, 1200);
   animN('blm-nv-str', 0, strain, 1200);
-  const blmAvg = Math.round((rec + sleepPct + strain) / 3);
-  window._blmAvg = blmAvg;
-  animN('blm-nv-avg', 0, blmAvg, 1200);
-  if (window.updateBloomFlower) window.updateBloomFlower(blmAvg);
+  // blm-nv-avg + updateBloomFlower → driven by activity composite in updateDailyRings()
   // Bloom bars — live data (Recuperación + Sueño)
   setTimeout(function() {
     var br = document.getElementById('bloom-bar-rec');
