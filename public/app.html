@@ -1598,9 +1598,11 @@ body.t-naruto span.vval{
 .drw-stk{display:flex;align-items:center;gap:4px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.22);border-radius:20px;padding:2px 8px;}
 .drw-stk-val{font-size:10px;font-weight:700;color:#f59e0b;font-family:Rajdhani,sans-serif;letter-spacing:1px;}
 .drw-row{display:flex;width:100%;align-items:flex-start;}
-.dr-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:0 1px;}
+.dr-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:0 1px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .dr-lbl{font-size:7px;letter-spacing:1px;color:rgba(255,255,255,0.38);font-family:'IBM Plex Mono',monospace;text-align:center;line-height:1.1;text-transform:uppercase;}
 .dr-val{font-size:11px;font-weight:700;font-family:Rajdhani,sans-serif;text-align:center;line-height:1;}
+.dr-goal{font-size:8px;letter-spacing:0.5px;color:rgba(255,255,255,0.22);font-family:Rajdhani,sans-serif;text-align:center;line-height:1;margin-top:-2px;}
+.dr-goal-inp{width:54px;background:rgba(0,0,0,0.55);border:1px solid var(--ta);border-radius:var(--r-xs);color:var(--ta);font-size:12px;font-family:Rajdhani,sans-serif;font-weight:700;text-align:center;padding:3px 4px;outline:none;display:block;margin:0 auto;}
 @keyframes wsload{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
 .wsitem{flex:1;display:flex;flex-direction:column;gap:5px;padding:0 14px;transition:filter var(--dur-base) var(--ease-std);}
 .wsitem:hover{filter:brightness(1.15);}
@@ -7687,6 +7689,29 @@ function updateScores({ rec, strain, sleepPct }) {
 }
 // ── Daily Progress Rings ──────────────────────────────────────────────────
 var _DR_R=24, _DR_SW=5.5, _DR_C=2*Math.PI*24, _DR_DIM=24*2+5.5*2+2, _DR_CX=(_DR_DIM/2), _DR_CY=(_DR_DIM/2);
+var _DR_GOALS_DEFAULT={stp:10000,cal:500,act:30};
+function _loadDRGoals(){try{return Object.assign({},_DR_GOALS_DEFAULT,JSON.parse(localStorage.getItem('fb_dr_goals')||'{}'));}catch(e){return Object.assign({},_DR_GOALS_DEFAULT);}}
+function _saveDRGoals(g){try{localStorage.setItem('fb_dr_goals',JSON.stringify(g));}catch(e){}}
+function _fmtGoal(key,v){if(key==='stp')return v>=1000?(v/1000).toFixed(v%1000===0?0:1)+'k':v+'';return v+'';}
+function _openDRGoalEdit(id){
+  if(document.querySelector('.dr-goal-inp')) return;
+  var key=id.replace('dr-','');
+  var goals=_loadDRGoals();
+  var goalEl=document.getElementById(id+'-goal');
+  if(!goalEl) return;
+  var inp=document.createElement('input');
+  inp.type='number'; inp.className='dr-goal-inp'; inp.value=goals[key]; inp.min='1';
+  goalEl.style.visibility='hidden';
+  goalEl.parentNode.insertBefore(inp,goalEl.nextSibling);
+  inp.focus(); inp.select();
+  function save(){
+    var v=parseInt(inp.value);
+    if(!isNaN(v)&&v>0){goals[key]=v;_saveDRGoals(goals);updateDailyRings();}
+    inp.remove(); goalEl.style.visibility='';
+  }
+  inp.addEventListener('keydown',function(e){if(e.key==='Enter')save();if(e.key==='Escape'){inp.remove();goalEl.style.visibility='';}});
+  inp.addEventListener('blur',save);
+}
 var _DR_DEFS=[
   {id:'dr-stp',label:'PASOS',   color:'#6aff3a'},
   {id:'dr-cal',label:'CALORÍAS',color:'#ff7b3a'},
@@ -7711,7 +7736,10 @@ function renderDailyRings() {
   var C=_DR_C.toFixed(2), cx=_DR_CX, cy=_DR_CY, R=_DR_R, DIM=_DR_DIM, SW=_DR_SW;
   function makeRing(d,i) {
     var fid='drf'+i;
-    return '<div class="dr-item">'
+    var goals=_loadDRGoals();
+    var key=d.id.replace('dr-','');
+    var goalHint='/ '+_fmtGoal(key,goals[key]);
+    return '<div class="dr-item" onclick="_openDRGoalEdit(\''+d.id+'\')">'
       +'<svg width="'+DIM+'" height="'+DIM+'" viewBox="0 0 '+DIM+' '+DIM+'" style="overflow:visible">'
         +'<defs><filter id="'+fid+'" x="-80%" y="-80%" width="260%" height="260%">'
           +'<feGaussianBlur stdDeviation="2.8" result="b"/>'
@@ -7732,6 +7760,7 @@ function renderDailyRings() {
       +'</svg>'
       +'<div class="dr-lbl">'+d.label+'</div>'
       +'<div class="dr-val" id="'+d.id+'-val" style="color:'+d.color+'">—</div>'
+      +'<div class="dr-goal" id="'+d.id+'-goal">'+goalHint+'</div>'
     +'</div>';
   }
   var strk=getDailyStreak();
@@ -7751,12 +7780,13 @@ function updateDailyRings() {
   if (!document.getElementById('dr-stp-arc')) return;
   var C=_DR_C, cx=_DR_CX, cy=_DR_CY, R=_DR_R;
   var nv=function(id){ return parseFloat(((document.getElementById(id)||{}).textContent||'0').replace(/[^0-9.]/g,''))||0; };
+  var goals=_loadDRGoals();
   var cal=nv('calv')||nv('cal-act'), steps=nv('stepsv');
   var actMin=nv('hrmin-cardio')+nv('hrmin-peak');
   var data=[
-    {id:'dr-stp',pct:Math.min(100,steps/10000*100),val:steps>0?(steps/1000).toFixed(1)+'k':'-',unit:''},
-    {id:'dr-cal',pct:Math.min(100,cal/500*100),    val:cal>0?cal.toLocaleString():'-',          unit:'kcal'},
-    {id:'dr-act',pct:Math.min(100,actMin/30*100),  val:actMin>0?Math.round(actMin)+'':'-',      unit:'min'}
+    {id:'dr-stp',pct:Math.min(100,steps/goals.stp*100),  val:steps>0?(steps/1000).toFixed(1)+'k':'-',   unit:'', goalKey:'stp'},
+    {id:'dr-cal',pct:Math.min(100,cal/goals.cal*100),    val:cal>0?cal.toLocaleString():'-',             unit:'kcal', goalKey:'cal'},
+    {id:'dr-act',pct:Math.min(100,actMin/goals.act*100), val:actMin>0?Math.round(actMin)+'':'-',        unit:'min',  goalKey:'act'}
   ];
   data.forEach(function(d){
     var offset=(C*(1-d.pct/100)).toFixed(1);
@@ -7782,6 +7812,8 @@ function updateDailyRings() {
     if(pctEl) pctEl.textContent=d.pct>0?Math.round(d.pct)+'%':'—';
     var valEl=document.getElementById(d.id+'-val');
     if(valEl) valEl.textContent=d.val+(d.unit&&d.val!=='-'?' '+d.unit:'');
+    var goalEl=document.getElementById(d.id+'-goal');
+    if(goalEl&&!document.querySelector('.dr-goal-inp')) goalEl.textContent='/ '+_fmtGoal(d.goalKey,goals[d.goalKey]);
   });
   // Mandala central = promedio de los 3 anillos de actividad
   var composite=Math.round((data[0].pct+data[1].pct+data[2].pct)/3);
