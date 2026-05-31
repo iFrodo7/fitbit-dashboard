@@ -7253,8 +7253,25 @@ function updateDailyRings() {
     {id:'dr-slp',pct:Math.min(100,slp),       val:function(){if(!slp)return'-';var m=Math.round(slp/100*480);return Math.floor(m/60)+'h '+(m%60)+'m';}(),unit:''}
   ];
   data.forEach(function(d){
+    var offset=(C*(1-d.pct/100)).toFixed(1);
     var arc=document.getElementById(d.id+'-arc');
-    if(arc) arc.dataset.target=(C*(1-d.pct/100)).toFixed(1);
+    if(arc){
+      arc.dataset.target=offset;
+      // Si el arco ya fue animado (no está en reset), actualiza visualmente con transición suave
+      var cur=parseFloat(arc.style.strokeDashoffset);
+      if(window._drAnimDone && !isNaN(cur)){
+        arc.style.transition='stroke-dashoffset 0.9s cubic-bezier(0.16,1,0.3,1)';
+        arc.style.strokeDashoffset=offset;
+        // actualiza tip dot
+        var dot=document.getElementById(d.id+'-dot');
+        if(dot&&d.pct>1){
+          var ang=(-90+d.pct*3.6)*Math.PI/180;
+          dot.setAttribute('cx',(cx+R*Math.cos(ang)).toFixed(2));
+          dot.setAttribute('cy',(cy+R*Math.sin(ang)).toFixed(2));
+          dot.setAttribute('opacity','0.9');
+        } else if(dot){ dot.setAttribute('opacity','0'); }
+      }
+    }
     var pctEl=document.getElementById(d.id+'-pct');
     if(pctEl) pctEl.textContent=d.pct>0?Math.round(d.pct)+'%':'—';
     var valEl=document.getElementById(d.id+'-val');
