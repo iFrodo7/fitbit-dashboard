@@ -1596,6 +1596,12 @@ body.t-naruto span.vval{
 .dr-daytype{display:flex;align-items:center;gap:5px;margin-bottom:10px;font-size:8.5px;letter-spacing:1.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;opacity:0;transition:opacity 0.4s ease;}
 .dr-daytype.live{opacity:1;}
 .dr-daytype-mult{opacity:0.4;font-size:7.5px;margin-left:4px;}
+/* Overclock: ring supera el 100% de la meta */
+.dr-item.overclock .dr-lbl{color:#ffd700;}
+.dr-item.overclock .dr-val{color:#ffd700;font-weight:800;}
+.dr-item.overclock .dr-goal{color:rgba(255,215,0,0.5);}
+@keyframes ocPulse{0%,100%{opacity:1;}50%{opacity:0.6;}}
+.dr-item.overclock .dr-ring-wrap{animation:ocPulse 2s ease-in-out infinite;}
 /* ── Achievements ── */
 .ach-badge{display:flex;align-items:center;gap:3px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:2px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .ach-badge-val{font-size:10px;font-weight:700;font-family:Rajdhani,sans-serif;letter-spacing:1px;color:rgba(255,255,255,0.55);}
@@ -7894,6 +7900,38 @@ function _getNextAchievement(t) {
 }
 function _saveDRGoals(g){try{localStorage.setItem('fb_dr_goals',JSON.stringify(g));}catch(e){}}
 function _fmtGoal(key,v){if(key==='stp')return v>=1000?(v/1000).toFixed(v%1000===0?0:1)+'k':v+'';return v+'';}
+
+// ── Activity history: aprende tu baseline real (últimos 7 días) ───────────
+function _recordActivityDay(steps, cal, actMin) {
+  if (!steps && !cal && !actMin) return;
+  try {
+    var today=new Date().toISOString().slice(0,10);
+    var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
+    hist=hist.filter(function(e){return e.date!==today;});
+    hist.push({date:today,steps:steps||0,cal:cal||0,actMin:actMin||0});
+    hist.sort(function(a,b){return a.date<b.date?-1:1;});
+    if(hist.length>7) hist=hist.slice(-7);
+    localStorage.setItem('fb_activity_history',JSON.stringify(hist));
+  } catch(e){}
+}
+function _getActivityBaseline() {
+  try {
+    var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
+    var override=JSON.parse(localStorage.getItem('fb_dr_goals')||'{}');
+    if(!hist.length) return Object.assign({},_DR_GOALS_DEFAULT,override);
+    var stpS=0,calS=0,actS=0,stpN=0,calN=0,actN=0;
+    hist.forEach(function(e){
+      if(e.steps>100){stpS+=e.steps;stpN++;}
+      if(e.cal>10){calS+=e.cal;calN++;}
+      if(e.actMin>0){actS+=e.actMin;actN++;}
+    });
+    return {
+      stp: override.stp || (stpN>0?Math.round(stpS/stpN):_DR_GOALS_DEFAULT.stp),
+      cal: override.cal || (calN>0?Math.round(calS/calN):_DR_GOALS_DEFAULT.cal),
+      act: override.act || (actN>0?Math.round(actS/actN):_DR_GOALS_DEFAULT.act)
+    };
+  } catch(e){return Object.assign({},_DR_GOALS_DEFAULT);}
+}
 function _drItemMD(el, e){
   // prevent blur when tapping a ring that already has an open input
   if(el.querySelector('.dr-goal-inp')) e.preventDefault();
@@ -7967,7 +8005,7 @@ function renderDailyRings() {
     var goals=_loadDRGoals();
     var key=d.id.replace('dr-','');
     var goalHint='/ '+_fmtGoal(key,goals[key]);
-    return '<div class="dr-item" onmousedown="_drItemMD(this,event)" onclick="_openDRGoalEdit(\''+d.id+'\',this)">'
+    return '<div class="dr-item" id="'+d.id+'-item">'
       +'<div class="dr-ring-wrap">'
         +'<svg width="'+DIM+'" height="'+DIM+'" viewBox="0 0 '+DIM+' '+DIM+'" style="overflow:visible">'
           +'<defs><filter id="'+fid+'" x="-80%" y="-80%" width="260%" height="260%">'
@@ -8016,7 +8054,7 @@ function updateDailyRings() {
   if (!document.getElementById('dr-stp-arc')) return;
   var C=_DR_C, cx=_DR_CX, cy=_DR_CY, R=_DR_R;
   var nv=function(id){ return parseFloat(((document.getElementById(id)||{}).textContent||'0').replace(/[^0-9.]/g,''))||0; };
-  var goals=_loadDRGoals();
+  var goals=_getActivityBaseline(); // baseline personal (7-day rolling avg)
   var cal=nv('calv')||nv('cal-act'), steps=nv('stepsv');
   var actMin=nv('hrmin-cardio')+nv('hrmin-peak');
   // Metas adaptativas por recovery (A)
@@ -8024,6 +8062,8 @@ function updateDailyRings() {
   var dt=_getDayType(rec);
   var mult=dt.mult;
   var ag={stp:Math.round(goals.stp*mult),cal:Math.round(goals.cal*mult),act:Math.round(goals.act*mult)};
+  // Registra actividad de hoy para aprender baseline (solo en modo real)
+  if(isReal&&(steps||cal||actMin)) _recordActivityDay(steps,cal,actMin);
   // Chip de tipo de día
   var dtEl=document.getElementById('dr-daytype');
   if(dtEl){
@@ -8034,10 +8074,11 @@ function updateDailyRings() {
     dtEl.style.color=dt.color;
     dtEl.classList.add('live');
   }
+  var rawPcts={stp:steps>0?steps/ag.stp*100:0, cal:cal>0?cal/ag.cal*100:0, act:actMin>0?actMin/ag.act*100:0};
   var data=[
-    {id:'dr-stp',pct:Math.min(100,steps/ag.stp*100),  val:steps>0?(steps/1000).toFixed(1)+'k':'-',  unit:'', goalKey:'stp', goalVal:ag.stp},
-    {id:'dr-cal',pct:Math.min(100,cal/ag.cal*100),    val:cal>0?cal.toLocaleString():'-',            unit:'kcal',goalKey:'cal',goalVal:ag.cal},
-    {id:'dr-act',pct:Math.min(100,actMin/ag.act*100), val:actMin>0?Math.round(actMin)+'':'-',       unit:'min', goalKey:'act',goalVal:ag.act}
+    {id:'dr-stp',pct:Math.min(100,rawPcts.stp),rawPct:rawPcts.stp,  val:steps>0?(steps/1000).toFixed(1)+'k':'-',  unit:'', goalKey:'stp', goalVal:ag.stp},
+    {id:'dr-cal',pct:Math.min(100,rawPcts.cal),rawPct:rawPcts.cal,  val:cal>0?cal.toLocaleString():'-',            unit:'kcal',goalKey:'cal',goalVal:ag.cal},
+    {id:'dr-act',pct:Math.min(100,rawPcts.act),rawPct:rawPcts.act,  val:actMin>0?Math.round(actMin)+'':'-',       unit:'min', goalKey:'act',goalVal:ag.act}
   ];
   data.forEach(function(d){
     var offset=(C*(1-d.pct/100)).toFixed(1);
@@ -8059,8 +8100,21 @@ function updateDailyRings() {
         } else if(dot){ dot.setAttribute('opacity','0'); }
       }
     }
+    // Overclock: superó la meta → ring dorado pulsante
+    var item=document.getElementById(d.id+'-item');
+    var isOC=d.rawPct>=100&&d.rawPct>0;
+    if(item) item.classList.toggle('overclock', isOC);
+    if(arc&&isOC){
+      arc.style.stroke='#ffd700';
+      arc.style.filter='drop-shadow(0 0 6px #ffd700) drop-shadow(0 0 14px rgba(255,215,0,0.4))';
+    } else if(arc){
+      arc.style.stroke=''; arc.style.filter='';
+    }
     var pctEl=document.getElementById(d.id+'-pct');
-    if(pctEl) pctEl.textContent=d.pct>0?Math.round(d.pct)+'%':'—';
+    if(pctEl){
+      pctEl.textContent=d.pct>0?Math.round(isOC?d.rawPct:d.pct)+'%':'—';
+      pctEl.style.fill=isOC?'#ffd700':'';
+    }
     var valEl=document.getElementById(d.id+'-val');
     if(valEl) valEl.textContent=d.val+(d.unit&&d.val!=='-'?' '+d.unit:'');
     var goalEl=document.getElementById(d.id+'-goal');
