@@ -5388,9 +5388,10 @@ function goBack() {
   document.body.className = '';
   clearInterval(ptmr); clearInterval(cdtmr);
   document.querySelectorAll('.nring').forEach(e => e.remove());
-  // Clear ambient layers
+  // Clear ambient layers + injected Neon Noir sweep line
   var ba = document.getElementById('bloom-ambient'); if (ba) ba.innerHTML = '';
   var na = document.getElementById('nn-ambient');    if (na) na.innerHTML = '';
+  document.querySelectorAll('.nn-sweep').forEach(function(el){ el.remove(); });
   markActiveTheme();
 }
 
