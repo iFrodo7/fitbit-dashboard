@@ -1602,6 +1602,46 @@ body.t-naruto span.vval{
 .dr-item.overclock .dr-goal{color:rgba(255,215,0,0.5);}
 @keyframes ocPulse{0%,100%{opacity:1;}50%{opacity:0.6;}}
 .dr-item.overclock .dr-ring-wrap{animation:ocPulse 2s ease-in-out infinite;}
+
+/* ══ Achievement Unlock Overlay ══════════════════════════════════════════ */
+#ach-unlock-ov{position:fixed;inset:0;z-index:9100;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);cursor:pointer;-webkit-tap-highlight-color:transparent;animation:achOvIn 0.25s ease both;}
+@keyframes achOvIn{from{opacity:0;}to{opacity:1;}}
+@keyframes achOvOut{to{transform:translateY(-110%);opacity:0;}}
+/* flash blanco en el impacto */
+.ach-ul-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;animation:achFlash 0.35s ease-out 0.15s both;}
+@keyframes achFlash{0%{opacity:0.22;}100%{opacity:0;}}
+/* onda de choque */
+.ach-ul-shock{position:absolute;width:120px;height:120px;border-radius:50%;border:2px solid var(--ta);opacity:0;pointer-events:none;animation:achShock 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s both;}
+@keyframes achShock{0%{transform:scale(0.4);opacity:0.9;}100%{transform:scale(7);opacity:0;}}
+/* segunda onda más suave */
+.ach-ul-shock2{position:absolute;width:80px;height:80px;border-radius:50%;border:1px solid var(--ta2,var(--ta));opacity:0;pointer-events:none;animation:achShock 1.2s cubic-bezier(0.16,1,0.3,1) 0.3s both;}
+/* contenedor de partículas */
+.ach-ul-parts{position:absolute;width:0;height:0;pointer-events:none;}
+.ach-ul-part{position:absolute;border-radius:50%;transform:translate(-50%,-50%);animation:achPart 1.6s cubic-bezier(0.25,0.46,0.45,0.94) both;}
+@keyframes achPart{
+  0%  {transform:translate(-50%,-50%) translate(0,0) scale(1);opacity:1;}
+  55% {opacity:0.9;}
+  100%{transform:translate(-50%,-50%) translate(var(--tx),calc(var(--ty) + 28px)) scale(0);opacity:0;}
+}
+/* ícono */
+.ach-ul-icon-wrap{position:relative;display:flex;align-items:center;justify-content:center;width:140px;height:140px;margin-bottom:20px;}
+.ach-ul-glow{position:absolute;inset:-24px;border-radius:50%;background:radial-gradient(circle,var(--ta) 0%,transparent 68%);opacity:0;animation:achGlowIn 0.6s ease 0.3s both,achGlowPulse 2.5s ease-in-out 0.9s infinite;}
+@keyframes achGlowIn{from{opacity:0;transform:scale(0.5);}to{opacity:0.35;transform:scale(1);}}
+@keyframes achGlowPulse{0%,100%{opacity:0.32;transform:scale(1);}50%{opacity:0.55;transform:scale(1.12);}}
+.ach-ul-icon{font-size:86px;line-height:1;opacity:0;animation:achIconIn 0.65s cubic-bezier(0.34,1.56,0.64,1) 0.2s both;filter:drop-shadow(0 0 18px var(--ta));}
+@keyframes achIconIn{from{opacity:0;transform:translateY(-40px) scale(0.4) rotate(-8deg);}to{opacity:1;transform:translateY(0) scale(1) rotate(0deg);}}
+/* textos */
+.ach-ul-content{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:0 28px;position:relative;pointer-events:none;}
+.ach-ul-eye{font-size:9px;letter-spacing:3.5px;color:var(--ta);opacity:0;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;animation:achTxtIn 0.45s ease 0.55s both;}
+.ach-ul-name{font-size:23px;font-weight:800;color:var(--txt);letter-spacing:0.5px;opacity:0;line-height:1.15;animation:achTxtIn 0.45s ease 0.7s both;}
+.ach-ul-desc{font-size:13px;color:var(--txt);opacity:0;max-width:270px;line-height:1.5;animation:achTxtIn 0.45s ease 0.85s both;}
+.ach-ul-tap{font-size:8.5px;letter-spacing:2.5px;color:var(--ta);opacity:0;font-family:'IBM Plex Mono',monospace;margin-top:28px;text-transform:uppercase;animation:achTxtIn 0.4s ease 1.6s both,achBlink 1.4s ease-in-out 2.1s infinite;}
+@keyframes achTxtIn{from{opacity:0;transform:translateY(10px);}to{opacity:0.88;transform:translateY(0);}}
+@keyframes achBlink{0%,100%{opacity:0.88;}50%{opacity:0.25;}}
+/* ── Goal ring completion mini-notif (distinto al logro) ───────────────── */
+.ring-notif{position:fixed;bottom:90px;right:16px;display:flex;align-items:center;gap:8px;background:var(--bg2,rgba(2,8,16,0.95));border:1px solid;border-radius:12px;padding:10px 14px;font-size:11px;font-weight:700;font-family:Rajdhani,sans-serif;letter-spacing:1px;z-index:800;opacity:0;transform:translateY(8px) scale(0.95);transition:opacity 0.3s ease,transform 0.3s ease;pointer-events:none;backdrop-filter:blur(12px);}
+.ring-notif.show{opacity:1;transform:translateY(0) scale(1);}
+.ring-notif.hide{opacity:0;transform:translateY(-8px) scale(0.95);}
 /* ── Achievements ── */
 .ach-badge{display:flex;align-items:center;gap:3px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:2px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .ach-badge-val{font-size:10px;font-weight:700;font-family:Rajdhani,sans-serif;letter-spacing:1px;color:rgba(255,255,255,0.55);}
@@ -8074,6 +8114,7 @@ function updateDailyRings() {
     dtEl.style.color=dt.color;
     dtEl.classList.add('live');
   }
+  if(!window._drPrevRaw) window._drPrevRaw={};
   var rawPcts={stp:steps>0?steps/ag.stp*100:0, cal:cal>0?cal/ag.cal*100:0, act:actMin>0?actMin/ag.act*100:0};
   var data=[
     {id:'dr-stp',pct:Math.min(100,rawPcts.stp),rawPct:rawPcts.stp,  val:steps>0?(steps/1000).toFixed(1)+'k':'-',  unit:'', goalKey:'stp', goalVal:ag.stp},
@@ -8156,6 +8197,12 @@ function updateDailyRings() {
   if(mcEl){ var c4=parseInt(mcEl.textContent)||0; animN('mc-rscore',c4,composite,900); }
   // Status label for ALL themes
   updateStatusLabel();
+  // Notificación cuando un ring cruza el umbral de 100% por primera vez hoy
+  if(isReal) data.forEach(function(d){
+    var prev=window._drPrevRaw[d.id]||0;
+    if(prev<100&&d.rawPct>=100) _showRingNotif(d.id, d.rawPct);
+    window._drPrevRaw[d.id]=d.rawPct;
+  });
   // check goal achievements
   var allHit = data.every(function(d){ return d.pct >= 100; });
   var anyHit = data.some(function(d){ return d.pct >= 100; });
@@ -10376,13 +10423,105 @@ function recordGoalHit(allThree) {
 }
 
 function _showAchToast(t, i) {
-  var labels = (_ACH_LABELS[t]||_ACH_LABELS.naruto).list[i];
-  var def = _ACH_DEFS[i];
-  var toast = document.getElementById('ach-toast');
-  if (!toast || !labels) return;
-  toast.textContent = def.icon + '  ' + labels.name + ' — LOGRO DESBLOQUEADO';
-  toast.classList.add('show');
-  setTimeout(function(){ toast.classList.remove('show'); }, 3200);
+  // El toast simple se reemplaza por la animación full-screen
+  _showAchUnlockAnim(t, i);
+}
+
+// ── Achievement Unlock — Full-screen cinematic animation ──────────────────
+var _achAnimQ=[], _achAnimBusy=false;
+function _showAchUnlockAnim(t, idx) {
+  _achAnimQ.push({t:t,i:idx});
+  if(!_achAnimBusy) _nextAchAnim();
+}
+function _nextAchAnim() {
+  if(!_achAnimQ.length){_achAnimBusy=false;return;}
+  _achAnimBusy=true;
+  var item=_achAnimQ.shift();
+  _renderAchAnim(item.t, item.i);
+}
+function _renderAchAnim(t, idx) {
+  var def=_ACH_DEFS[idx];
+  var lbl=(_ACH_LABELS[t]||_ACH_LABELS.naruto).list[idx];
+  if(!def||!lbl) {_achAnimBusy=false; setTimeout(_nextAchAnim,100); return;}
+  var taColor=getComputedStyle(document.documentElement).getPropertyValue('--ta').trim()||'#00f5ff';
+  var ta2Color=getComputedStyle(document.documentElement).getPropertyValue('--ta2').trim()||'#a855f7';
+  var es=lang==='es';
+  // Remove stale overlay
+  var old=document.getElementById('ach-unlock-ov'); if(old) old.remove();
+  // Build overlay
+  var ov=document.createElement('div'); ov.id='ach-unlock-ov';
+  ov.innerHTML=''
+    +'<div class="ach-ul-flash"></div>'
+    +'<div class="ach-ul-shock"></div>'
+    +'<div class="ach-ul-shock2"></div>'
+    +'<div class="ach-ul-parts" id="ach-ul-parts"></div>'
+    +'<div class="ach-ul-icon-wrap">'
+      +'<div class="ach-ul-glow"></div>'
+      +'<div class="ach-ul-icon">'+def.icon+'</div>'
+    +'</div>'
+    +'<div class="ach-ul-content">'
+      +'<div class="ach-ul-eye">'+(es?'// LOGRO DESBLOQUEADO':'// ACHIEVEMENT UNLOCKED')+'</div>'
+      +'<div class="ach-ul-name">'+lbl.name+'</div>'
+      +'<div class="ach-ul-desc">'+lbl.desc+'</div>'
+      +'<div class="ach-ul-tap">'+(es?'toca para continuar':'tap to continue')+'</div>'
+    +'</div>';
+  document.body.appendChild(ov);
+  // Haptics
+  if(navigator.vibrate) navigator.vibrate([30,40,60,40,30]);
+  // Particles — 20 dots in all directions with gravity arc
+  var parts=document.getElementById('ach-ul-parts');
+  for(var i=0;i<20;i++){
+    var p=document.createElement('div');
+    p.className='ach-ul-part';
+    var angle=(i/20)*360, dist=85+Math.random()*80;
+    var tx=Math.cos(angle*Math.PI/180)*dist, ty=Math.sin(angle*Math.PI/180)*dist;
+    var delay=0.28+Math.random()*0.18, sz=3+Math.floor(Math.random()*5);
+    var col=i%3===0?ta2Color:taColor;
+    p.style.cssText='--tx:'+tx+'px;--ty:'+ty+'px;animation-delay:'+delay+'s;width:'+sz+'px;height:'+sz+'px;background:'+col+';box-shadow:0 0 '+(sz+3)+'px '+col+';';
+    parts.appendChild(p);
+  }
+  // Dismiss logic
+  var gone=false;
+  function dismiss(){
+    if(gone)return; gone=true;
+    ov.style.animation='achOvOut 0.45s cubic-bezier(0.4,0,1,1) both';
+    setTimeout(function(){ov.remove(); _achAnimBusy=false; setTimeout(_nextAchAnim,250);},460);
+  }
+  ov.addEventListener('click',dismiss);
+  setTimeout(dismiss,5000);
+}
+
+// ── Goal ring completion notification ─────────────────────────────────────
+var _RING_NOTIF={
+  'dr-stp':{icon:'👟',color:'#6aff3a',es:'Pasos completados',en:'Steps goal done'},
+  'dr-cal':{icon:'🔥',color:'#ff7b3a',es:'Calorías completadas',en:'Calories goal done'},
+  'dr-act':{icon:'💪',color:'#f59e0b',es:'Min. activos completados',en:'Active minutes done'}
+};
+var _ringNotifEl=null;
+function _showRingNotif(ringId, rawPct) {
+  var meta=_RING_NOTIF[ringId]; if(!meta) return;
+  // Create element once
+  if(!_ringNotifEl){
+    _ringNotifEl=document.createElement('div');
+    _ringNotifEl.className='ring-notif';
+    document.body.appendChild(_ringNotifEl);
+  }
+  clearTimeout(_ringNotifEl._t);
+  _ringNotifEl.style.borderColor=meta.color;
+  _ringNotifEl.style.color=meta.color;
+  _ringNotifEl.innerHTML='<span style="font-size:16px">'+meta.icon+'</span>'
+    +'<span>'+(lang==='es'?meta.es:meta.en)
+    +(rawPct>=150?' &nbsp;🚀':'')+'</span>';
+  _ringNotifEl.classList.remove('hide'); void _ringNotifEl.offsetWidth;
+  _ringNotifEl.classList.add('show');
+  // Browser push if permitted
+  if('Notification' in window&&Notification.permission==='granted'){
+    try{ new Notification('AIRA',{body:(lang==='es'?meta.es:meta.en),icon:'/icons/icon-192.png',silent:true});}catch(e){}
+  }
+  _ringNotifEl._t=setTimeout(function(){
+    _ringNotifEl.classList.add('hide');
+    setTimeout(function(){_ringNotifEl.classList.remove('show','hide');},350);
+  },3000);
 }
 
 function _updateAchBadges(activeTheme) {
