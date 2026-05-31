@@ -1597,6 +1597,38 @@ body.t-naruto span.vval{
 .drw-lbl{font-size:7.5px;letter-spacing:2px;color:rgba(255,255,255,0.38);font-family:'IBM Plex Mono',monospace;}
 .drw-stk{display:flex;align-items:center;gap:4px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.22);border-radius:20px;padding:2px 8px;}
 .drw-stk-val{font-size:10px;font-weight:700;color:#f59e0b;font-family:Rajdhani,sans-serif;letter-spacing:1px;}
+/* ── Achievements ── */
+.ach-badge{display:flex;align-items:center;gap:3px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:2px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.ach-badge-val{font-size:10px;font-weight:700;font-family:Rajdhani,sans-serif;letter-spacing:1px;color:rgba(255,255,255,0.55);}
+.ach-badge.has-new{border-color:rgba(255,215,0,0.5);background:rgba(255,215,0,0.07);}
+.ach-badge.has-new .ach-badge-val{color:#ffd700;}
+/* selector card badge */
+.tc-ach{position:absolute;bottom:8px;right:8px;font-size:8px;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;color:rgba(255,255,255,0.3);display:flex;align-items:center;gap:3px;z-index:2;}
+.tc-ach-bar{width:28px;height:2px;background:rgba(255,255,255,0.1);border-radius:1px;overflow:hidden;}
+.tc-ach-fill{height:100%;border-radius:1px;transition:width 0.6s ease;}
+/* achievements bottom sheet */
+#ach-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:8100;opacity:0;pointer-events:none;transition:opacity 0.22s;}
+#ach-overlay.ach-open{opacity:1;pointer-events:all;}
+#ach-drawer{position:fixed;bottom:0;left:0;right:0;z-index:8101;background:var(--bg);border-top:1px solid var(--bdr);transform:translateY(110%);transition:transform 0.32s cubic-bezier(0.34,1.56,0.64,1);padding-bottom:env(safe-area-inset-bottom,16px);max-height:70vh;overflow-y:auto;}
+#ach-drawer.ach-open{transform:translateY(0);}
+.ach-handle{width:36px;height:4px;background:var(--sub);border-radius:2px;margin:12px auto 0;}
+.ach-head{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;}
+.ach-title{font-size:11px;letter-spacing:3px;font-weight:700;color:var(--ta);}
+.ach-close{background:none;border:none;color:var(--txt);font-size:18px;cursor:pointer;padding:4px 8px;opacity:0.5;}
+.ach-list{padding:0 16px 20px;display:flex;flex-direction:column;gap:0;}
+.ach-item{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--bdr);}
+.ach-item:last-child{border-bottom:none;}
+.ach-item.locked{opacity:0.32;}
+.ach-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:var(--rbg);border:1px solid var(--bdr);}
+.ach-item:not(.locked) .ach-icon{border-color:var(--ta);background:rgba(var(--ta-rgb,0,245,255),0.08);}
+.ach-info{flex:1;min-width:0;}
+.ach-name{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--ta);}
+.ach-item.locked .ach-name{color:var(--txt);opacity:0.6;}
+.ach-desc{font-size:10px;letter-spacing:0.5px;opacity:0.45;margin-top:2px;}
+.ach-unlocked-lbl{font-size:8px;letter-spacing:1px;color:var(--ta);opacity:0.6;margin-top:2px;}
+/* toast */
+#ach-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg);border:1px solid var(--ta);border-radius:24px;padding:8px 18px;font-size:11px;letter-spacing:1px;color:var(--ta);font-family:'IBM Plex Mono',monospace;z-index:9000;opacity:0;transition:opacity 0.2s,transform 0.2s;pointer-events:none;white-space:nowrap;}
+#ach-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .drw-row{display:flex;width:100%;align-items:flex-start;}
 .dr-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:0 1px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .dr-lbl{font-size:7px;letter-spacing:1px;color:rgba(255,255,255,0.38);font-family:'IBM Plex Mono',monospace;text-align:center;line-height:1.1;text-transform:uppercase;}
@@ -2070,6 +2102,10 @@ body.t-naruto span.vval{
         <div class="tn bloom">BLOOM</div>
         <div class="ts bloom" id="sel-bloom-sub">WELLNESS · RENDIMIENTO</div>
       </div>
+      <div class="tc-ach" id="tc-ach-bloom">
+        <span class="tc-ach-count">0/8</span>
+        <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#e85c8a;width:0%"></div></div>
+      </div>
     </div>
 
     <!-- ── NEON NOIR (cyberpunk dystopia aesthetic) ── -->
@@ -2159,6 +2195,10 @@ body.t-naruto span.vval{
         <div class="tn halo">NEON NOIR</div>
         <div class="ts halo" id="sel-halo-sub">NIGHT CITY UPLINK</div>
       </div>
+      <div class="tc-ach" id="tc-ach-halo">
+        <span class="tc-ach-count">0/8</span>
+        <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#ff2d78;width:0%"></div></div>
+      </div>
     </div>
 
     <!-- ── SHINOBI (feudal Japan / ki energy aesthetic) ── -->
@@ -2169,6 +2209,10 @@ body.t-naruto span.vval{
       <div class="t-ov naruto-ov">
         <div class="tn naruto">SHINOBI</div>
         <div class="ts naruto" id="sel-naruto-sub">気 · MONITOR DE ENERGÍA</div>
+      </div>
+      <div class="tc-ach" id="tc-ach-naruto">
+        <span class="tc-ach-count">0/8</span>
+        <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#4a6a84;width:0%"></div></div>
       </div>
     </div>
 
@@ -2201,6 +2245,10 @@ body.t-naruto span.vval{
         <div class="tn fut">AETHER</div>
         <div class="ts fut" id="sel-fut-sub">BIOMETRIC CORE v2.6</div>
       </div>
+      <div class="tc-ach" id="tc-ach-fut">
+        <span class="tc-ach-count">0/8</span>
+        <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#00f5ff;width:0%"></div></div>
+      </div>
     </div>
 
     <!-- ── VOXEL PRO (block-world aesthetics — PRO tier) ── -->
@@ -2211,6 +2259,10 @@ body.t-naruto span.vval{
         <div class="t-lock-ico">⛏</div>
         <div class="t-lock-nm">VOXEL</div>
         <div class="t-lock-tag">PRO</div>
+      </div>
+      <div class="tc-ach" id="tc-ach-mc">
+        <span class="tc-ach-count">0/8</span>
+        <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#6aff3a;width:0%"></div></div>
       </div>
     </div>
 
@@ -5247,6 +5299,9 @@ function _finishSelectTheme(t) {
   maybeAutoTour();
   refreshBell();
   initSwipeNav();
+  _recordThemeDay(t);
+  checkAchievements(t);
+  _updateAchBadges(t);
 }
 
 function markActiveTheme() {
@@ -7802,8 +7857,13 @@ function renderDailyRings() {
   mc.innerHTML='<div class="drw">'
     +'<div class="drw-hd">'
       +'<div class="drw-lbl">// PROGRESO DIARIO</div>'
-      +'<div class="drw-stk"><span style="font-size:10px">🔥</span>'
-        +'<span class="drw-stk-val" id="dr-stk">'+strk+(lang==='es'?' DÍAS':' DAYS')+'</span>'
+      +'<div style="display:flex;align-items:center;gap:6px;">'
+        +'<div class="drw-stk"><span style="font-size:10px">🔥</span>'
+          +'<span class="drw-stk-val" id="dr-stk">'+strk+(lang==='es'?' DÍAS':' DAYS')+'</span>'
+        +'</div>'
+        +'<div class="ach-badge" id="ach-ring-badge" onclick="openAch()" title="Logros">'
+          +'<span class="ach-badge-val">🏆 0/8</span>'
+        +'</div>'
       +'</div>'
     +'</div>'
     +'<div class="drw-row">'+_DR_DEFS.map(makeRing).join('')+'</div>'
@@ -7859,6 +7919,11 @@ function updateDailyRings() {
   if(nrf){ nrf.style.transition='stroke-dashoffset 0.9s cubic-bezier(0.16,1,0.3,1)'; nrf.style.strokeDashoffset=(364*(1-composite/100)).toFixed(1); }
   nrtUpdateRank(composite);
   updateStatusLabel();
+  // check goal achievements
+  var allHit = data.every(function(d){ return d.pct >= 100; });
+  var anyHit = data.some(function(d){ return d.pct >= 100; });
+  if (anyHit) recordGoalHit(allHit);
+  checkAchievements();
 }
 
 function animateDailyRings() {
@@ -9823,6 +9888,218 @@ initCapacitor();
 // Fix: listen on touchend directly — fires before iOS overlay routing —
 // and call navigate() immediately. preventDefault() suppresses the
 // synthesized click so navigate() isn't called twice.
+
+// ══════ ACHIEVEMENT SYSTEM ══════
+var _ACH_DEFS = [
+  { id:'explorer', icon:'🗺', check:function(s,t){ return (s.themeDays[t]||0)>=1; } },
+  { id:'first_goal', icon:'🎯', check:function(s){ return s.goalsHit>=1; } },
+  { id:'triple', icon:'⚡', check:function(s){ return s.tripleHit>=1; } },
+  { id:'streak3', icon:'🔥', check:function(s){ return s.maxStreak>=3; } },
+  { id:'streak7', icon:'💎', check:function(s){ return s.maxStreak>=7; } },
+  { id:'loyal', icon:'🏅', check:function(s,t){ return (s.themeDays[t]||0)>=5; } },
+  { id:'peak', icon:'👑', check:function(s){ return s.peakComposite>=90; } },
+  { id:'all_goals', icon:'🌟', check:function(s){ return s.allGoalsDays>=1; } }
+];
+
+var _ACH_LABELS = {
+  naruto:{
+    title:'忍者の道 · LOGROS',
+    list:[
+      {name:'新道を開く', desc:'Descubriste el camino del Shinobi'},
+      {name:'目標達成', desc:'Primera meta alcanzada'},
+      {name:'三位一体', desc:'Los 3 rings al 100% en un día'},
+      {name:'修行3日', desc:'3 días de entrenamiento seguidos'},
+      {name:'不眠修行', desc:'7 días de racha'},
+      {name:'義士', desc:'Fiel al camino — 5 sesiones'},
+      {name:'影の力', desc:'Composite ≥ 90% — Rango Kage'},
+      {name:'無双', desc:'Todos los objetivos — día perfecto'}
+    ]
+  },
+  halo:{
+    title:'// NEURAL ACHIEVEMENTS',
+    list:[
+      {name:'JACK IN', desc:'Primer acceso al sistema Neon Noir'},
+      {name:'CHROME I', desc:'Primera meta alcanzada'},
+      {name:'FULL SYNC', desc:'Los 3 rings al 100%'},
+      {name:'NET-RUN ×3', desc:'3 días activos seguidos'},
+      {name:'GHOST PROTOCOL', desc:'7 días de racha'},
+      {name:'CORPO LOYAL', desc:'5 sesiones en Neon Noir'},
+      {name:'FLATLINE >90', desc:'Composite ≥ 90%'},
+      {name:'OVERCLOCK', desc:'Día perfecto — todos los objetivos'}
+    ]
+  },
+  mc:{
+    title:'[!] ACHIEVEMENTS UNLOCKED',
+    list:[
+      {name:'NEW WORLD', desc:'Primer día en Minecraft mode'},
+      {name:'IRON PICKAXE', desc:'Primera meta alcanzada'},
+      {name:'DIAMOND HAUL', desc:'Los 3 rings al 100%'},
+      {name:'3-DAY GRIND', desc:'3 días seguidos'},
+      {name:'WEEK STREAK', desc:'7 días de racha'},
+      {name:'VETERAN', desc:'5 sesiones en Minecraft'},
+      {name:'MAX LEVEL', desc:'Composite ≥ 90%'},
+      {name:'FULL CLEAR', desc:'Día perfecto'}
+    ]
+  },
+  fut:{
+    title:'◈ MISSION LOG',
+    list:[
+      {name:'INITIALIZED', desc:'Sistema Aether activado'},
+      {name:'TARGET HIT', desc:'Primera meta alcanzada'},
+      {name:'TRIPLE LOCK', desc:'Los 3 rings al 100%'},
+      {name:'SEQUENCE ×3', desc:'3 días seguidos'},
+      {name:'PROTOCOL 7', desc:'7 días de racha'},
+      {name:'CORE BOUND', desc:'5 sesiones en Aether'},
+      {name:'APEX SIGNAL', desc:'Composite ≥ 90%'},
+      {name:'MISSION CLEAR', desc:'Día perfecto'}
+    ]
+  },
+  bloom:{
+    title:'🌸 JARDÍN DE LOGROS',
+    list:[
+      {name:'Primer Brote', desc:'Bloom despertó por primera vez'},
+      {name:'Primera Flor', desc:'Primera meta alcanzada'},
+      {name:'Florecer', desc:'Los 3 rings al 100%'},
+      {name:'Raíces', desc:'3 días seguidos'},
+      {name:'Árbol Pleno', desc:'7 días de racha'},
+      {name:'Jardinera Fiel', desc:'5 sesiones en Bloom'},
+      {name:'Sakura Máx.', desc:'Composite ≥ 90%'},
+      {name:'Jardín Perfecto', desc:'Día perfecto'}
+    ]
+  }
+};
+
+function _loadAchStats() {
+  try { return JSON.parse(localStorage.getItem('fb_ach_stats')||'{}'); } catch(e){ return {}; }
+}
+function _saveAchStats(s) { try { localStorage.setItem('fb_ach_stats', JSON.stringify(s)); } catch(e){} }
+function _loadAchUnlocked() {
+  try { return JSON.parse(localStorage.getItem('fb_ach')||'{}'); } catch(e){ return {}; }
+}
+function _saveAchUnlocked(u) { try { localStorage.setItem('fb_ach', JSON.stringify(u)); } catch(e){} }
+
+function _achCountForTheme(t) {
+  var u = _loadAchUnlocked(); return (u[t]||[]).filter(Boolean).length;
+}
+
+function checkAchievements(t) {
+  if (!t) t = (typeof theme !== 'undefined') ? theme : 'naruto';
+  var s = _loadAchStats();
+  var u = _loadAchUnlocked();
+  if (!u[t]) u[t] = new Array(_ACH_DEFS.length).fill(false);
+  // update stats
+  s.maxStreak = Math.max(s.maxStreak||0, getDailyStreak());
+  s.peakComposite = Math.max(s.peakComposite||0, window._lastActivityComposite||0);
+  if (!s.themeDays) s.themeDays = {};
+  s.themeDays[t] = (s.themeDays[t]||0);
+  var newUnlocks = [];
+  _ACH_DEFS.forEach(function(def, i) {
+    if (u[t][i]) return;
+    if (def.check(s, t)) { u[t][i] = true; newUnlocks.push(i); }
+  });
+  _saveAchStats(s); _saveAchUnlocked(u);
+  newUnlocks.forEach(function(i) { _showAchToast(t, i); });
+  _updateAchBadges(t);
+  return newUnlocks.length;
+}
+
+function _recordThemeDay(t) {
+  var s = _loadAchStats();
+  var today = new Date().toISOString().slice(0,10);
+  if (!s.themeDays) s.themeDays = {};
+  if (!s._lastThemeDate) s._lastThemeDate = {};
+  if (s._lastThemeDate[t] !== today) {
+    s.themeDays[t] = (s.themeDays[t]||0) + 1;
+    s._lastThemeDate[t] = today;
+    _saveAchStats(s);
+  }
+}
+
+function recordGoalHit(allThree) {
+  var s = _loadAchStats();
+  s.goalsHit = (s.goalsHit||0) + 1;
+  if (allThree) { s.tripleHit = (s.tripleHit||0) + 1; s.allGoalsDays = (s.allGoalsDays||0) + 1; }
+  _saveAchStats(s);
+  checkAchievements();
+}
+
+function _showAchToast(t, i) {
+  var labels = (_ACH_LABELS[t]||_ACH_LABELS.naruto).list[i];
+  var def = _ACH_DEFS[i];
+  var toast = document.getElementById('ach-toast');
+  if (!toast || !labels) return;
+  toast.textContent = def.icon + '  ' + labels.name + ' — LOGRO DESBLOQUEADO';
+  toast.classList.add('show');
+  setTimeout(function(){ toast.classList.remove('show'); }, 3200);
+}
+
+function _updateAchBadges(activeTheme) {
+  var themes = ['naruto','halo','mc','fut','bloom'];
+  themes.forEach(function(t) {
+    var count = _achCountForTheme(t);
+    var total = _ACH_DEFS.length;
+    // selector card badge
+    var badge = document.getElementById('tc-ach-'+t);
+    if (badge) {
+      badge.querySelector('.tc-ach-count').textContent = count+'/'+total;
+      badge.querySelector('.tc-ach-fill').style.width = Math.round(count/total*100)+'%';
+    }
+  });
+  // ring card badge
+  var ringBadge = document.getElementById('ach-ring-badge');
+  if (ringBadge) {
+    var c = _achCountForTheme(activeTheme||theme);
+    ringBadge.querySelector('.ach-badge-val').textContent = '🏆 '+c+'/'+_ACH_DEFS.length;
+    ringBadge.classList.toggle('has-new', c > 0);
+  }
+}
+
+function openAch() {
+  var t = (typeof theme !== 'undefined') ? theme : 'naruto';
+  var labels = _ACH_LABELS[t] || _ACH_LABELS.naruto;
+  var u = _loadAchUnlocked();
+  var unlocked = u[t] || [];
+  var list = document.getElementById('ach-list');
+  var title = document.getElementById('ach-drawer-title');
+  if (title) title.textContent = labels.title;
+  if (list) {
+    list.innerHTML = _ACH_DEFS.map(function(def, i) {
+      var lbl = labels.list[i];
+      var done = !!unlocked[i];
+      return '<div class="ach-item'+(done?'':' locked')+'">'
+        +'<div class="ach-icon">'+def.icon+'</div>'
+        +'<div class="ach-info">'
+          +'<div class="ach-name">'+lbl.name+'</div>'
+          +'<div class="ach-desc">'+lbl.desc+'</div>'
+          +(done?'<div class="ach-unlocked-lbl">✓ DESBLOQUEADO</div>':'')
+        +'</div>'
+      +'</div>';
+    }).join('');
+  }
+  var ov = document.getElementById('ach-overlay');
+  var dr = document.getElementById('ach-drawer');
+  if (ov) ov.classList.add('ach-open');
+  if (dr) dr.classList.add('ach-open');
+}
+
+function closeAch() {
+  var ov = document.getElementById('ach-overlay');
+  var dr = document.getElementById('ach-drawer');
+  if (ov) ov.classList.remove('ach-open');
+  if (dr) dr.classList.remove('ach-open');
+}
 </script>
+
+<!-- Achievements overlay + drawer -->
+<div id="ach-overlay" onclick="closeAch()"></div>
+<div id="ach-drawer">
+  <div class="ach-handle"></div>
+  <div class="ach-head">
+    <div class="ach-title" id="ach-drawer-title">LOGROS</div>
+    <button class="ach-close" onclick="closeAch()">✕</button>
+  </div>
+  <div class="ach-list" id="ach-list"></div>
+</div>
+<div id="ach-toast"></div>
 </body>
 </html>
