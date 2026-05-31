@@ -410,7 +410,7 @@ body{
 .vlbl{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;opacity:0.6;margin-bottom:4px;display:block;}
 .vc-head .vlbl,.vc-head .clbl{display:inline;margin-bottom:0;}
 .vc-head .onb-q{flex-shrink:0;}
-.vval{font-size:38px;font-weight:700;line-height:1;color:var(--txt);font-optical-sizing:auto;}
+.vval{font-size:38px;font-weight:700;line-height:1;color:var(--ta);font-optical-sizing:auto;}
 .vunit{font-size:10px;letter-spacing:1px;opacity:0.55;margin-top:2px;display:block;}
 .vtrd{position:absolute;top:8px;right:8px;font-size:11px;color:var(--tpos);font-weight:700;}
 .vtrd.neg{color:var(--tneg);}
@@ -6841,10 +6841,10 @@ function buildHRC(hrs) {
   const w=300,h=72,mn=Math.min(...hrs)-5,mx=Math.max(...hrs)+5;
   const pts = hrs.map((v,i) => { const x=(i/(hrs.length-1))*w; const y=h-((v-mn)/(mx-mn))*(h-8)-4; return `${x},${y}`; });
   const pth = pts.join(' L ');
-  svg.innerHTML = `<defs><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--tneg)" stop-opacity="0.28"/><stop offset="100%" stop-color="var(--tneg)" stop-opacity="0"/></linearGradient></defs>
+  svg.innerHTML = `<defs><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444" stop-opacity="0.30"/><stop offset="100%" stop-color="#ef4444" stop-opacity="0"/></linearGradient></defs>
     <path d="M ${pts[0]} L ${pth} L ${w},${h} L 0,${h} Z" fill="url(#hg)"/>
-    <path d="M ${pts[0]} L ${pth}" fill="none" stroke="var(--tneg)" stroke-width="1.5"/>
-    <circle cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="3.5" fill="var(--tneg)"/>`;
+    <path d="M ${pts[0]} L ${pth}" fill="none" stroke="#ef4444" stroke-width="1.8"/>
+    <circle cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="3.5" fill="#ef4444"/>`;
 }
 
 // ══════ MINI SPARKLINE (HR card) ══════
@@ -6861,10 +6861,10 @@ function drawMiniSparkline(pts) {
   });
   var path = coords.join(' L ');
   var last = coords[coords.length - 1].split(',');
-  svg.innerHTML = '<defs><linearGradient id="msg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--tneg)" stop-opacity="0.28"/><stop offset="100%" stop-color="var(--tneg)" stop-opacity="0"/></linearGradient></defs>'
+  svg.innerHTML = '<defs><linearGradient id="msg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444" stop-opacity="0.30"/><stop offset="100%" stop-color="#ef4444" stop-opacity="0"/></linearGradient></defs>'
     + '<path d="M ' + coords[0] + ' L ' + path + ' L ' + w + ',' + h + ' L 0,' + h + ' Z" fill="url(#msg)"/>'
-    + '<polyline points="' + coords.join(' ') + '" fill="none" stroke="var(--tneg)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
-    + '<circle cx="' + last[0] + '" cy="' + last[1] + '" r="2.5" fill="var(--tneg)"/>';
+    + '<polyline points="' + coords.join(' ') + '" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+    + '<circle cx="' + last[0] + '" cy="' + last[1] + '" r="2.5" fill="#ef4444"/>';
 }
 
 // ══════ WIDGET MANAGER ══════
