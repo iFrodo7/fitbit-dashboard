@@ -1602,7 +1602,12 @@ body.t-naruto span.vval{
 .dr-lbl{font-size:7px;letter-spacing:1px;color:rgba(255,255,255,0.38);font-family:'IBM Plex Mono',monospace;text-align:center;line-height:1.1;text-transform:uppercase;}
 .dr-val{font-size:11px;font-weight:700;font-family:Rajdhani,sans-serif;text-align:center;line-height:1;}
 .dr-goal{font-size:8px;letter-spacing:0.5px;color:rgba(255,255,255,0.22);font-family:Rajdhani,sans-serif;text-align:center;line-height:1;margin-top:-2px;}
-.dr-goal-inp{width:54px;background:rgba(0,0,0,0.55);border:1px solid var(--ta);border-radius:var(--r-xs);color:var(--ta);font-size:12px;font-family:Rajdhani,sans-serif;font-weight:700;text-align:center;padding:3px 4px;outline:none;display:block;margin:0 auto;}
+.dr-ring-wrap{position:relative;display:flex;align-items:center;justify-content:center;transition:opacity var(--dur-base) var(--ease-std);}
+.dr-ring-wrap.dr-editing svg{opacity:0.25;}
+@keyframes dr-pop{0%,100%{transform:scale(1)}45%{transform:scale(1.18)}}
+.dr-ring-wrap.dr-pulse svg{animation:dr-pop 0.36s var(--ease-spring);}
+.dr-goal-inp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:rgba(4,0,14,0.92);border:2px solid;font-size:13px;font-family:Rajdhani,sans-serif;font-weight:700;text-align:center;padding:0;line-height:40px;outline:none;-moz-appearance:textfield;box-shadow:0 0 12px rgba(0,0,0,0.6);}
+.dr-goal-inp::-webkit-outer-spin-button,.dr-goal-inp::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
 @keyframes wsload{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
 .wsitem{flex:1;display:flex;flex-direction:column;gap:5px;padding:0 14px;transition:filter var(--dur-base) var(--ease-std);}
 .wsitem:hover{filter:brightness(1.15);}
@@ -7693,24 +7698,41 @@ var _DR_GOALS_DEFAULT={stp:10000,cal:500,act:30};
 function _loadDRGoals(){try{return Object.assign({},_DR_GOALS_DEFAULT,JSON.parse(localStorage.getItem('fb_dr_goals')||'{}'));}catch(e){return Object.assign({},_DR_GOALS_DEFAULT);}}
 function _saveDRGoals(g){try{localStorage.setItem('fb_dr_goals',JSON.stringify(g));}catch(e){}}
 function _fmtGoal(key,v){if(key==='stp')return v>=1000?(v/1000).toFixed(v%1000===0?0:1)+'k':v+'';return v+'';}
-function _openDRGoalEdit(id){
+function _drItemMD(el, e){
+  // prevent blur when tapping a ring that already has an open input
+  if(el.querySelector('.dr-goal-inp')) e.preventDefault();
+}
+function _openDRGoalEdit(id, el){
+  // if input already open in this item, just focus it
+  var existing=el&&el.querySelector('.dr-goal-inp');
+  if(existing){existing.focus();return;}
+  // if open elsewhere, close nothing — one at a time
   if(document.querySelector('.dr-goal-inp')) return;
   var key=id.replace('dr-','');
   var goals=_loadDRGoals();
-  var goalEl=document.getElementById(id+'-goal');
-  if(!goalEl) return;
+  var def=_DR_DEFS.filter(function(d){return d.id===id;})[0];
+  var wrap=el&&el.querySelector('.dr-ring-wrap');
+  // pulse + dim
+  if(wrap){
+    wrap.classList.add('dr-pulse','dr-editing');
+    setTimeout(function(){wrap.classList.remove('dr-pulse');},360);
+  }
   var inp=document.createElement('input');
   inp.type='number'; inp.className='dr-goal-inp'; inp.value=goals[key]; inp.min='1';
-  goalEl.style.visibility='hidden';
-  goalEl.parentNode.insertBefore(inp,goalEl.nextSibling);
+  if(def){inp.style.borderColor=def.color;inp.style.color=def.color;inp.style.boxShadow='0 0 14px '+def.color+'55';}
+  if(wrap) wrap.appendChild(inp);
   inp.focus(); inp.select();
+  function close(){
+    inp.remove();
+    if(wrap) wrap.classList.remove('dr-editing');
+  }
   function save(){
     var v=parseInt(inp.value);
     if(!isNaN(v)&&v>0){goals[key]=v;_saveDRGoals(goals);updateDailyRings();}
-    inp.remove(); goalEl.style.visibility='';
+    close();
   }
-  inp.addEventListener('keydown',function(e){if(e.key==='Enter')save();if(e.key==='Escape'){inp.remove();goalEl.style.visibility='';}});
-  inp.addEventListener('blur',save);
+  inp.addEventListener('keydown',function(e){if(e.key==='Enter')save();if(e.key==='Escape')close();});
+  inp.addEventListener('blur',function(){setTimeout(save,80);});
 }
 var _DR_DEFS=[
   {id:'dr-stp',label:'PASOS',   color:'#6aff3a'},
@@ -7739,25 +7761,27 @@ function renderDailyRings() {
     var goals=_loadDRGoals();
     var key=d.id.replace('dr-','');
     var goalHint='/ '+_fmtGoal(key,goals[key]);
-    return '<div class="dr-item" onclick="_openDRGoalEdit(\''+d.id+'\')">'
-      +'<svg width="'+DIM+'" height="'+DIM+'" viewBox="0 0 '+DIM+' '+DIM+'" style="overflow:visible">'
-        +'<defs><filter id="'+fid+'" x="-80%" y="-80%" width="260%" height="260%">'
-          +'<feGaussianBlur stdDeviation="2.8" result="b"/>'
-          +'<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
-        +'</filter></defs>'
-        +'<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="'+d.color+'" stroke-width="'+SW+'" opacity="0.12"/>'
-        +'<circle id="'+d.id+'-arc" cx="'+cx+'" cy="'+cy+'" r="'+R+'"'
-          +' fill="none" stroke="'+d.color+'" stroke-width="'+SW+'" stroke-linecap="round"'
-          +' stroke-dasharray="'+C+'" stroke-dashoffset="'+C+'"'
-          +' transform="rotate(-90 '+cx+' '+cy+')"'
-          +' filter="url(#'+fid+')"'
-          +' style="transition:stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1)"/>'
-        +'<circle id="'+d.id+'-dot" r="3.2" fill="'+d.color+'" filter="url(#'+fid+')"'
-          +' cx="'+cx+'" cy="'+(cy-R)+'" opacity="0"/>'
-        +'<text id="'+d.id+'-pct" x="'+cx+'" y="'+(cy+4.5)+'"'
-          +' text-anchor="middle" fill="'+d.color+'"'
-          +' font-size="11" font-family="Rajdhani,sans-serif" font-weight="700">—</text>'
-      +'</svg>'
+    return '<div class="dr-item" onmousedown="_drItemMD(this,event)" onclick="_openDRGoalEdit(\''+d.id+'\',this)">'
+      +'<div class="dr-ring-wrap">'
+        +'<svg width="'+DIM+'" height="'+DIM+'" viewBox="0 0 '+DIM+' '+DIM+'" style="overflow:visible">'
+          +'<defs><filter id="'+fid+'" x="-80%" y="-80%" width="260%" height="260%">'
+            +'<feGaussianBlur stdDeviation="2.8" result="b"/>'
+            +'<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>'
+          +'</filter></defs>'
+          +'<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="'+d.color+'" stroke-width="'+SW+'" opacity="0.12"/>'
+          +'<circle id="'+d.id+'-arc" cx="'+cx+'" cy="'+cy+'" r="'+R+'"'
+            +' fill="none" stroke="'+d.color+'" stroke-width="'+SW+'" stroke-linecap="round"'
+            +' stroke-dasharray="'+C+'" stroke-dashoffset="'+C+'"'
+            +' transform="rotate(-90 '+cx+' '+cy+')"'
+            +' filter="url(#'+fid+')"'
+            +' style="transition:stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1)"/>'
+          +'<circle id="'+d.id+'-dot" r="3.2" fill="'+d.color+'" filter="url(#'+fid+')"'
+            +' cx="'+cx+'" cy="'+(cy-R)+'" opacity="0"/>'
+          +'<text id="'+d.id+'-pct" x="'+cx+'" y="'+(cy+4.5)+'"'
+            +' text-anchor="middle" fill="'+d.color+'"'
+            +' font-size="11" font-family="Rajdhani,sans-serif" font-weight="700">—</text>'
+        +'</svg>'
+      +'</div>'
       +'<div class="dr-lbl">'+d.label+'</div>'
       +'<div class="dr-val" id="'+d.id+'-val" style="color:'+d.color+'">—</div>'
       +'<div class="dr-goal" id="'+d.id+'-goal">'+goalHint+'</div>'
