@@ -5306,8 +5306,10 @@ function applyThemeText(t) {
 // Single source: window._lastRec (the readiness ring). Falls back to fut labels.
 function updateStatusLabel() {
   const el = document.getElementById('rstatus'); if (!el) return;
-  // Bloom uses the composite avg (rec+sleep+strain/3); other themes use recovery alone
-  const score = (theme === 'bloom' && window._blmAvg != null) ? window._blmAvg : window._lastRec;
+  // Bloom uses rec+sleep+strain composite; naruto uses activity composite; others use recovery
+  const score = (theme === 'bloom' && window._blmAvg != null) ? window._blmAvg
+              : (theme === 'naruto' && window._lastActivityComposite != null) ? window._lastActivityComposite
+              : window._lastRec;
   if (score == null) return;
   const level = score >= 80 ? 'peak' : score >= 60 ? 'good' : score >= 40 ? 'moderate' : 'low';
   const map = (T[lang].rstat && (T[lang].rstat[theme] || T[lang].rstat.fut));
@@ -7722,16 +7724,26 @@ function _openDRGoalEdit(id, el){
   if(def){inp.style.borderColor=def.color;inp.style.color=def.color;inp.style.boxShadow='0 0 14px '+def.color+'55';}
   if(wrap) wrap.appendChild(inp);
   inp.focus(); inp.select();
+  var origVal=goals[key];
   function close(){
     inp.remove();
     if(wrap) wrap.classList.remove('dr-editing');
   }
   function save(){
     var v=parseInt(inp.value);
-    if(!isNaN(v)&&v>0){goals[key]=v;_saveDRGoals(goals);updateDailyRings();}
-    close();
+    if(!isNaN(v)&&v>0){goals[key]=v;_saveDRGoals(goals);}
+    else{goals[key]=origVal;_saveDRGoals(goals);}
+    updateDailyRings(); close();
   }
-  inp.addEventListener('keydown',function(e){if(e.key==='Enter')save();if(e.key==='Escape')close();});
+  // live preview while typing
+  inp.addEventListener('input',function(){
+    var v=parseInt(inp.value);
+    if(!isNaN(v)&&v>0){var live=_loadDRGoals();live[key]=v;_saveDRGoals(live);updateDailyRings();}
+  });
+  inp.addEventListener('keydown',function(e){
+    if(e.key==='Enter')save();
+    if(e.key==='Escape'){goals[key]=origVal;_saveDRGoals(goals);updateDailyRings();close();}
+  });
   inp.addEventListener('blur',function(){setTimeout(save,80);});
 }
 var _DR_DEFS=[
@@ -7841,9 +7853,11 @@ function updateDailyRings() {
   });
   // Mandala central = promedio de los 3 anillos de actividad
   var composite=Math.round((data[0].pct+data[1].pct+data[2].pct)/3);
+  window._lastActivityComposite = composite;
   var nrtEl=document.getElementById('nrt-rscore');
   if(nrtEl){ var cur=parseInt(nrtEl.textContent)||0; animN('nrt-rscore',cur,composite,900); }
   nrtUpdateRank(composite);
+  updateStatusLabel();
 }
 
 function animateDailyRings() {
