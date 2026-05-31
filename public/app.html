@@ -5314,8 +5314,8 @@ function updateStatusLabel() {
   const level = score >= 80 ? 'peak' : score >= 60 ? 'good' : score >= 40 ? 'moderate' : 'low';
   const map = (T[lang].rstat && (T[lang].rstat[theme] || T[lang].rstat.fut));
   if (map) el.textContent = map[level];
-  // --tneg en SHINOBI es #1a2530 (casi invisible) — usar --ta como fallback para estado bajo
-  const lowCol = (theme === 'naruto') ? 'var(--ta)' : 'var(--tneg)';
+  // --tneg en SHINOBI es #1a2530 (invisible) — todos los estados usan el ámbar del tema
+  const lowCol = (theme === 'naruto') ? '#f59e0b' : 'var(--tneg)';
   el.style.color = score >= 80 ? 'var(--tpos)' : score >= 40 ? '#f59e0b' : lowCol;
 }
 
