@@ -257,12 +257,8 @@ body{
     radial-gradient(ellipse at 50% 50%, rgba(14,22,36,0.60) 0%, transparent 80%),
     linear-gradient(152deg, #0c1520 0%, #06080c 42%, #0a1018 100%);
 }
-/* Octagonal kuji grid — steel */
-.naruto-pv::before{
-  content:'';position:absolute;inset:0;
-  background:repeating-conic-gradient(from 0deg at 50% 50%, rgba(74,106,132,0.055) 0deg, transparent 22.5deg, rgba(74,106,132,0.055) 45deg);
-  pointer-events:none;
-}
+/* Bamboo grove — replace spider-web grid */
+.naruto-pv::before{content:none;}
 /* Battle scratch lines */
 .naruto-pv::after{
   content:'';position:absolute;inset:0;pointer-events:none;
@@ -2203,7 +2199,81 @@ body.t-naruto span.vval{
 
     <!-- ── SHINOBI (feudal Japan / ki energy aesthetic) ── -->
     <div class="t-card tc-naruto" data-id="naruto" onclick="openThemePreview('naruto')">
-      <div class="naruto-pv"><div class="nseal">気</div></div>
+      <div class="naruto-pv">
+        <svg viewBox="0 0 200 260" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%" xmlns="http://www.w3.org/2000/svg">
+          <!-- Bamboo stalks — varying heights, slight lean -->
+          <g fill="none" stroke="rgba(74,106,132,0.22)" stroke-linecap="round">
+            <line x1="28"  y1="260" x2="24"  y2="40"  stroke-width="5.5"/>
+            <line x1="29"  y1="260" x2="25"  y2="40"  stroke-width="1"   stroke="rgba(160,192,220,0.08)"/>
+            <line x1="58"  y1="260" x2="62"  y2="20"  stroke-width="7"/>
+            <line x1="59"  y1="260" x2="63"  y2="20"  stroke-width="1"   stroke="rgba(160,192,220,0.08)"/>
+            <line x1="92"  y1="260" x2="88"  y2="60"  stroke-width="4.5"/>
+            <line x1="128" y1="260" x2="132" y2="30"  stroke-width="8"/>
+            <line x1="129" y1="260" x2="133" y2="30"  stroke-width="1"   stroke="rgba(160,192,220,0.08)"/>
+            <line x1="162" y1="260" x2="158" y2="50"  stroke-width="5.5"/>
+            <line x1="163" y1="260" x2="159" y2="50"  stroke-width="1"   stroke="rgba(160,192,220,0.08)"/>
+            <!-- Bamboo nodes (horizontal ridges) -->
+            <line x1="20"  y1="180" x2="33"  y2="183" stroke-width="1.5" stroke="rgba(74,106,132,0.3)"/>
+            <line x1="20"  y1="120" x2="33"  y2="117" stroke-width="1.5" stroke="rgba(74,106,132,0.3)"/>
+            <line x1="20"  y1="65"  x2="33"  y2="62"  stroke-width="1.5" stroke="rgba(74,106,132,0.3)"/>
+            <line x1="52"  y1="165" x2="68"  y2="168" stroke-width="1.5" stroke="rgba(74,106,132,0.3)"/>
+            <line x1="53"  y1="100" x2="69"  y2="97"  stroke-width="1.5" stroke="rgba(74,106,132,0.3)"/>
+            <line x1="53"  y1="45"  x2="69"  y2="42"  stroke-width="1.5" stroke="rgba(74,106,132,0.3)"/>
+            <line x1="85"  y1="175" x2="96"  y2="172" stroke-width="1.2" stroke="rgba(74,106,132,0.3)"/>
+            <line x1="85"  y1="115" x2="96"  y2="112" stroke-width="1.2" stroke="rgba(74,106,132,0.3)"/>
+            <line x1="121" y1="190" x2="138" y2="192" stroke-width="1.5" stroke="rgba(74,106,132,0.3)"/>
+            <line x1="122" y1="120" x2="139" y2="117" stroke-width="1.5" stroke="rgba(74,106,132,0.3)"/>
+            <line x1="122" y1="62"  x2="139" y2="59"  stroke-width="1.5" stroke="rgba(74,106,132,0.3)"/>
+            <line x1="154" y1="175" x2="167" y2="172" stroke-width="1.5" stroke="rgba(74,106,132,0.3)"/>
+            <line x1="154" y1="108" x2="167" y2="105" stroke-width="1.5" stroke="rgba(74,106,132,0.3)"/>
+          </g>
+          <!-- Bamboo leaves — small clusters sprouting from nodes -->
+          <g fill="none" stroke="rgba(74,106,132,0.28)" stroke-linecap="round" stroke-width="1.2">
+            <!-- cluster 1: left stalk, top -->
+            <path d="M24,62 Q10,52 4,38"/>
+            <path d="M24,62 Q14,58 8,52"/>
+            <path d="M24,62 Q18,50 20,36"/>
+            <!-- cluster 2: second stalk, mid -->
+            <path d="M63,42 Q76,30 84,18"/>
+            <path d="M63,42 Q74,38 82,30"/>
+            <path d="M63,97 Q76,88 88,76"/>
+            <path d="M63,97 Q70,85 72,70"/>
+            <!-- cluster 3: center stalk -->
+            <path d="M88,112 Q78,102 70,88"/>
+            <path d="M88,112 Q82,100 84,86"/>
+            <!-- cluster 4: right-center stalk -->
+            <path d="M132,59 Q144,46 154,32"/>
+            <path d="M132,59 Q146,56 156,48"/>
+            <path d="M132,117 Q146,106 158,94"/>
+            <path d="M132,117 Q140,104 142,90"/>
+            <!-- cluster 5: far right stalk -->
+            <path d="M159,50 Q170,38 178,24"/>
+            <path d="M159,50 Q172,48 180,40"/>
+            <path d="M159,105 Q172,95 182,82"/>
+          </g>
+          <!-- Falling leaves (3 individual leaves mid-air) -->
+          <g fill="rgba(74,106,132,0.18)" stroke="rgba(160,192,220,0.25)" stroke-width="0.7">
+            <!-- Leaf 1 — top center, slight rotate -->
+            <ellipse cx="100" cy="55" rx="4" ry="9" transform="rotate(-25 100 55)"/>
+            <line x1="100" y1="48" x2="100" y2="64" stroke="rgba(160,192,220,0.3)" stroke-width="0.6" transform="rotate(-25 100 55)"/>
+            <!-- Leaf 2 — right, lower -->
+            <ellipse cx="148" cy="145" rx="3.5" ry="8" transform="rotate(35 148 145)"/>
+            <line x1="148" y1="138" x2="148" y2="153" stroke="rgba(160,192,220,0.3)" stroke-width="0.6" transform="rotate(35 148 145)"/>
+            <!-- Leaf 3 — left, mid -->
+            <ellipse cx="44" cy="105" rx="3" ry="7" transform="rotate(-40 44 105)"/>
+            <line x1="44" y1="99" x2="44" y2="112" stroke="rgba(160,192,220,0.3)" stroke-width="0.6" transform="rotate(-40 44 105)"/>
+          </g>
+          <!-- Ground mist line -->
+          <rect x="0" y="230" width="200" height="30" fill="url(#mist)"/>
+          <defs>
+            <linearGradient id="mist" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(74,106,132,0.08)"/>
+              <stop offset="100%" stop-color="rgba(6,8,12,0)"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="nseal">忍</div>
+      </div>
       <div class="t-badge t-badge-free" id="tbf-naruto">GRATIS</div>
       <div class="t-check">✓</div>
       <div class="t-ov naruto-ov">
