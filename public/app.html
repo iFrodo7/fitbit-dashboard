@@ -5476,10 +5476,8 @@ function applyThemeText(t) {
 // Single source: window._lastRec (the readiness ring). Falls back to fut labels.
 function updateStatusLabel() {
   const el = document.getElementById('rstatus'); if (!el) return;
-  // Bloom uses rec+sleep+strain composite; naruto uses activity composite; others use recovery
-  const score = (theme === 'bloom' && window._blmAvg != null) ? window._blmAvg
-              : (theme === 'naruto' && window._lastActivityComposite != null) ? window._lastActivityComposite
-              : window._lastRec;
+  // Todos los temas usan el composite de actividad cuando está disponible
+  const score = (window._lastActivityComposite != null) ? window._lastActivityComposite : window._lastRec;
   if (score == null) return;
   const level = score >= 80 ? 'peak' : score >= 60 ? 'good' : score >= 40 ? 'moderate' : 'low';
   const map = (T[lang].rstat && (T[lang].rstat[theme] || T[lang].rstat.fut));
@@ -8025,14 +8023,33 @@ function updateDailyRings() {
     var goalEl=document.getElementById(d.id+'-goal');
     if(goalEl&&!document.querySelector('.dr-goal-inp')) goalEl.textContent='/ '+_fmtGoal(d.goalKey,goals[d.goalKey]);
   });
-  // Mandala central = promedio de los 3 anillos de actividad
+  // Composite = promedio de los 3 anillos de actividad → actualiza TODOS los temas
   var composite=Math.round((data[0].pct+data[1].pct+data[2].pct)/3);
   window._lastActivityComposite = composite;
+  var tr='stroke-dashoffset 0.9s cubic-bezier(0.16,1,0.3,1)';
+  // SHINOBI
   var nrtEl=document.getElementById('nrt-rscore');
   if(nrtEl){ var cur=parseInt(nrtEl.textContent)||0; animN('nrt-rscore',cur,composite,900); }
   var nrf=document.getElementById('nrt-rfil');
-  if(nrf){ nrf.style.transition='stroke-dashoffset 0.9s cubic-bezier(0.16,1,0.3,1)'; nrf.style.strokeDashoffset=(364*(1-composite/100)).toFixed(1); }
+  if(nrf){ nrf.style.transition=tr; nrf.style.strokeDashoffset=(364*(1-composite/100)).toFixed(1); }
   nrtUpdateRank(composite);
+  // AETHER (fut) — circumference 439.8
+  var hudEl=document.getElementById('hud-rscore');
+  if(hudEl){ var c2=parseInt(hudEl.textContent)||0; animN('hud-rscore',c2,composite,900); }
+  var hrf=document.getElementById('hud-rfil');
+  if(hrf){ hrf.style.transition=tr; hrf.style.strokeDashoffset=(439.8*(1-composite/100)).toFixed(1); }
+  // NEON NOIR
+  var nnEl=document.getElementById('nn-rscore');
+  if(nnEl){ var c3=parseInt(nnEl.textContent)||0; animN('nn-rscore',c3,composite,900); }
+  animN('nn-nv-avg', parseInt((document.getElementById('nn-nv-avg')||{}).textContent)||0, composite, 900);
+  // BLOOM
+  animN('blm-nv-avg', parseInt((document.getElementById('blm-nv-avg')||{}).textContent)||0, composite, 900);
+  window._blmAvg = composite;
+  if(window.updateBloomFlower) window.updateBloomFlower(composite);
+  // MINECRAFT
+  var mcEl=document.getElementById('mc-rscore');
+  if(mcEl){ var c4=parseInt(mcEl.textContent)||0; animN('mc-rscore',c4,composite,900); }
+  // Status label for ALL themes
   updateStatusLabel();
   // check goal achievements
   var allHit = data.every(function(d){ return d.pct >= 100; });
