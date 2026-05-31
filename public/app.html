@@ -1593,6 +1593,9 @@ body.t-naruto span.vval{
 .drw-lbl{font-size:7.5px;letter-spacing:2px;color:rgba(255,255,255,0.38);font-family:'IBM Plex Mono',monospace;}
 .drw-stk{display:flex;align-items:center;gap:4px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.22);border-radius:20px;padding:2px 8px;}
 .drw-stk-val{font-size:10px;font-weight:700;color:#f59e0b;font-family:Rajdhani,sans-serif;letter-spacing:1px;}
+.dr-daytype{display:flex;align-items:center;gap:5px;margin-bottom:10px;font-size:8.5px;letter-spacing:1.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;opacity:0;transition:opacity 0.4s ease;}
+.dr-daytype.live{opacity:1;}
+.dr-daytype-mult{opacity:0.4;font-size:7.5px;margin-left:4px;}
 /* ── Achievements ── */
 .ach-badge{display:flex;align-items:center;gap:3px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:2px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .ach-badge-val{font-size:10px;font-weight:700;font-family:Rajdhani,sans-serif;letter-spacing:1px;color:rgba(255,255,255,0.55);}
@@ -7855,6 +7858,40 @@ function updateScores({ rec, strain, sleepPct }) {
 var _DR_R=24, _DR_SW=5.5, _DR_C=2*Math.PI*24, _DR_DIM=24*2+5.5*2+2, _DR_CX=(_DR_DIM/2), _DR_CY=(_DR_DIM/2);
 var _DR_GOALS_DEFAULT={stp:10000,cal:500,act:30};
 function _loadDRGoals(){try{return Object.assign({},_DR_GOALS_DEFAULT,JSON.parse(localStorage.getItem('fb_dr_goals')||'{}'));}catch(e){return Object.assign({},_DR_GOALS_DEFAULT);}}
+
+function _getDayType(rec) {
+  var es=lang==='es';
+  if(rec>=85)return{label:es?'DÍA DE EMPUJE':'PUSH DAY',    color:'#ff7b3a',icon:'🔥',mult:1.2};
+  if(rec>=70)return{label:es?'DÍA ACTIVO':'ACTIVE DAY',     color:'#6aff3a',icon:'💪',mult:1.0};
+  if(rec>=55)return{label:es?'DÍA MODERADO':'MODERATE',     color:'#f59e0b',icon:'⚡',mult:0.8};
+  if(rec>=35)return{label:es?'DÍA SUAVE':'EASY DAY',        color:'#a855f7',icon:'🧘',mult:0.6};
+  return            {label:es?'DÍA DE REPOSO':'REST DAY',   color:'rgba(255,255,255,0.3)',icon:'😴',mult:0.5};
+}
+
+function _getNextAchievement(t) {
+  var s=_loadAchStats(), u=_loadAchUnlocked(), un=u[t]||[], es=lang==='es';
+  var prog=[
+    {idx:2,  cur:s.stepsMax||0,             total:10000,label:es?'pasos':'steps'},
+    {idx:4,  cur:s.stepsMax||0,             total:20000,label:es?'pasos':'steps'},
+    {idx:5,  cur:s.actMinHits||0,           total:5,    label:es?'sesiones':'sessions'},
+    {idx:6,  cur:(s.themeDays&&s.themeDays[t])||0,total:5,label:es?'días':'days'},
+    {idx:10, cur:s.calStreakMax||0,          total:5,    label:es?'días':'days'},
+    {idx:11, cur:s.anyRingStreakMax||0,      total:7,    label:es?'días':'days'},
+    {idx:12, cur:s.tripleStreakMax||0,       total:3,    label:es?'días':'days'},
+    {idx:13, cur:s.tripleStreakMax||0,       total:7,    label:es?'días':'days'},
+    {idx:15, cur:s.tripleStreakMax||0,       total:15,   label:es?'días':'days'}
+  ];
+  var best=null;
+  prog.forEach(function(p){
+    if(un[p.idx])return;
+    var pct=p.cur/p.total;
+    if(!best||pct>best.pct) best={idx:p.idx,pct:pct,cur:p.cur,total:p.total,label:p.label};
+  });
+  if(!best)return null;
+  var def=_ACH_DEFS[best.idx];
+  var lbl=(_ACH_LABELS[t]||_ACH_LABELS.naruto).list[best.idx];
+  return{icon:def.icon,name:lbl?lbl.name:'',cur:best.cur,total:best.total,label:best.label};
+}
 function _saveDRGoals(g){try{localStorage.setItem('fb_dr_goals',JSON.stringify(g));}catch(e){}}
 function _fmtGoal(key,v){if(key==='stp')return v>=1000?(v/1000).toFixed(v%1000===0?0:1)+'k':v+'';return v+'';}
 function _drItemMD(el, e){
@@ -7969,6 +8006,7 @@ function renderDailyRings() {
         +'</div>'
       +'</div>'
     +'</div>'
+    +'<div id="dr-daytype" class="dr-daytype"></div>'
     +'<div class="drw-row">'+_DR_DEFS.map(makeRing).join('')+'</div>'
   +'</div>';
   updateDailyRings();
@@ -7981,10 +8019,25 @@ function updateDailyRings() {
   var goals=_loadDRGoals();
   var cal=nv('calv')||nv('cal-act'), steps=nv('stepsv');
   var actMin=nv('hrmin-cardio')+nv('hrmin-peak');
+  // Metas adaptativas por recovery (A)
+  var rec=window._lastRec||0;
+  var dt=_getDayType(rec);
+  var mult=dt.mult;
+  var ag={stp:Math.round(goals.stp*mult),cal:Math.round(goals.cal*mult),act:Math.round(goals.act*mult)};
+  // Chip de tipo de día
+  var dtEl=document.getElementById('dr-daytype');
+  if(dtEl){
+    var isAdj=Math.abs(mult-1)>0.05;
+    dtEl.innerHTML='<span style="font-size:12px">'+dt.icon+'</span>'
+      +'<span style="color:'+dt.color+'">'+dt.label+'</span>'
+      +(isAdj?'<span class="dr-daytype-mult">· META ×'+mult+'</span>':'');
+    dtEl.style.color=dt.color;
+    dtEl.classList.add('live');
+  }
   var data=[
-    {id:'dr-stp',pct:Math.min(100,steps/goals.stp*100),  val:steps>0?(steps/1000).toFixed(1)+'k':'-',   unit:'', goalKey:'stp'},
-    {id:'dr-cal',pct:Math.min(100,cal/goals.cal*100),    val:cal>0?cal.toLocaleString():'-',             unit:'kcal', goalKey:'cal'},
-    {id:'dr-act',pct:Math.min(100,actMin/goals.act*100), val:actMin>0?Math.round(actMin)+'':'-',        unit:'min',  goalKey:'act'}
+    {id:'dr-stp',pct:Math.min(100,steps/ag.stp*100),  val:steps>0?(steps/1000).toFixed(1)+'k':'-',  unit:'', goalKey:'stp', goalVal:ag.stp},
+    {id:'dr-cal',pct:Math.min(100,cal/ag.cal*100),    val:cal>0?cal.toLocaleString():'-',            unit:'kcal',goalKey:'cal',goalVal:ag.cal},
+    {id:'dr-act',pct:Math.min(100,actMin/ag.act*100), val:actMin>0?Math.round(actMin)+'':'-',       unit:'min', goalKey:'act',goalVal:ag.act}
   ];
   data.forEach(function(d){
     var offset=(C*(1-d.pct/100)).toFixed(1);
@@ -8011,7 +8064,7 @@ function updateDailyRings() {
     var valEl=document.getElementById(d.id+'-val');
     if(valEl) valEl.textContent=d.val+(d.unit&&d.val!=='-'?' '+d.unit:'');
     var goalEl=document.getElementById(d.id+'-goal');
-    if(goalEl&&!document.querySelector('.dr-goal-inp')) goalEl.textContent='/ '+_fmtGoal(d.goalKey,goals[d.goalKey]);
+    if(goalEl&&!document.querySelector('.dr-goal-inp')) goalEl.textContent='/ '+_fmtGoal(d.goalKey,d.goalVal);
   });
   // Composite = promedio de los 3 anillos de actividad → actualiza TODOS los temas
   var composite=Math.round((data[0].pct+data[1].pct+data[2].pct)/3);
@@ -10290,12 +10343,23 @@ function _updateAchBadges(activeTheme) {
       badge.querySelector('.tc-ach-fill').style.width = Math.round(count/total*100)+'%';
     }
   });
-  // ring card badge
+  // ring card badge → muestra próximo logro con progreso real (C)
   var ringBadge = document.getElementById('ach-ring-badge');
   if (ringBadge) {
-    var c = _achCountForTheme(activeTheme||theme);
-    ringBadge.querySelector('.ach-badge-val').textContent = '🏆 '+c+'/'+_ACH_DEFS.length;
+    var _at = activeTheme||theme;
+    var c = _achCountForTheme(_at);
+    var total = _ACH_DEFS.length;
     ringBadge.classList.toggle('has-new', c > 0);
+    var next = _getNextAchievement(_at);
+    var badgeText;
+    if (c >= total) {
+      badgeText = '🏆 ' + total + '/' + total;
+    } else if (next && next.cur > 0) {
+      badgeText = next.icon + ' ' + next.cur + '/' + next.total + ' ' + next.label;
+    } else {
+      badgeText = '🏆 ' + c + '/' + total;
+    }
+    ringBadge.querySelector('.ach-badge-val').textContent = badgeText;
   }
 }
 
