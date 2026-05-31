@@ -1661,9 +1661,12 @@ body.t-naruto span.vval{
 .ach-title{font-size:11px;letter-spacing:3px;font-weight:700;color:var(--ta);}
 .ach-close{background:none;border:none;color:var(--txt);font-size:18px;cursor:pointer;padding:4px 8px;opacity:0.5;}
 .ach-list{padding:0 16px 20px;display:flex;flex-direction:column;gap:0;}
-.ach-item{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--bdr);}
+.ach-item{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--bdr);border-radius:8px;transition:background var(--dur-fast) var(--ease-std);}
 .ach-item:last-child{border-bottom:none;}
 .ach-item.locked{opacity:0.32;}
+.ach-item:not(.locked){cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.ach-item:not(.locked):hover,.ach-item:not(.locked):active{background:rgba(255,255,255,0.05);}
+.ach-replay-hint{color:var(--ta);font-size:9px;letter-spacing:1.5px;opacity:0.65;margin-left:4px;font-family:'IBM Plex Mono',monospace;}
 .ach-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:var(--rbg);border:1px solid var(--bdr);}
 .ach-item:not(.locked) .ach-icon{border-color:var(--ta);background:rgba(var(--ta-rgb,0,245,255),0.08);}
 .ach-info{flex:1;min-width:0;}
@@ -10568,12 +10571,14 @@ function openAch() {
     list.innerHTML = _ACH_DEFS.map(function(def, i) {
       var lbl = labels.list[i];
       var done = !!unlocked[i];
-      return '<div class="ach-item'+(done?'':' locked')+'">'
+      var es = lang === 'es';
+      return '<div class="ach-item'+(done?'':' locked')+'"'
+        +(done?' onclick="_replayAchAnim('+i+')" role="button" aria-label="'+(es?'Ver animación':'Replay animation')+'"':'')+'>'
         +'<div class="ach-icon">'+def.icon+'</div>'
         +'<div class="ach-info">'
           +'<div class="ach-name">'+lbl.name+'</div>'
           +'<div class="ach-desc">'+lbl.desc+'</div>'
-          +(done?'<div class="ach-unlocked-lbl">✓ DESBLOQUEADO</div>':'')
+          +(done?'<div class="ach-unlocked-lbl">✓ '+(es?'DESBLOQUEADO':'UNLOCKED')+'<span class="ach-replay-hint">· ▶ '+(es?'VER':'PLAY')+'</span></div>':'')
         +'</div>'
       +'</div>';
     }).join('');
@@ -10589,6 +10594,13 @@ function closeAch() {
   var dr = document.getElementById('ach-drawer');
   if (ov) ov.classList.remove('ach-open');
   if (dr) dr.classList.remove('ach-open');
+}
+
+function _replayAchAnim(idx) {
+  var t = (typeof theme !== 'undefined') ? theme : 'naruto';
+  // Cierra el drawer y espera a que salga antes de mostrar la animación
+  closeAch();
+  setTimeout(function() { _showAchUnlockAnim(t, idx); }, 320);
 }
 </script>
 
