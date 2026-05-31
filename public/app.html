@@ -5314,7 +5314,9 @@ function updateStatusLabel() {
   const level = score >= 80 ? 'peak' : score >= 60 ? 'good' : score >= 40 ? 'moderate' : 'low';
   const map = (T[lang].rstat && (T[lang].rstat[theme] || T[lang].rstat.fut));
   if (map) el.textContent = map[level];
-  el.style.color = score >= 80 ? 'var(--tpos)' : score >= 40 ? '#f59e0b' : 'var(--tneg)';
+  // --tneg en SHINOBI es #1a2530 (casi invisible) — usar --ta como fallback para estado bajo
+  const lowCol = (theme === 'naruto') ? 'var(--ta)' : 'var(--tneg)';
+  el.style.color = score >= 80 ? 'var(--tpos)' : score >= 40 ? '#f59e0b' : lowCol;
 }
 
 // Mirror live HR / SpO2 / temp from the cards into the fut-theme ticker.
@@ -7644,10 +7646,7 @@ function updateScores({ rec, strain, sleepPct }) {
   setMCHearts('r', Math.round(rec/10));
   setMCHearts('s', Math.round(sleepPct/10));
   animN('mc-rscore', 0, rec, 1200);
-  // Naruto ring (r=58, circumference=364)
-  const nrf = document.getElementById('nrt-rfil');
-  if (nrf) nrf.style.strokeDashoffset = (364*(1-rec/100)).toFixed(1);
-  // nrt-rscore driven by activity composite in updateDailyRings()
+  // nrt-rfil arc + nrt-rscore driven by activity composite in updateDailyRings()
   // Naruto bars — live data
   setTimeout(function() {
     var nr = document.getElementById('naruto-bar-rec');
@@ -7856,6 +7855,8 @@ function updateDailyRings() {
   window._lastActivityComposite = composite;
   var nrtEl=document.getElementById('nrt-rscore');
   if(nrtEl){ var cur=parseInt(nrtEl.textContent)||0; animN('nrt-rscore',cur,composite,900); }
+  var nrf=document.getElementById('nrt-rfil');
+  if(nrf){ nrf.style.transition='stroke-dashoffset 0.9s cubic-bezier(0.16,1,0.3,1)'; nrf.style.strokeDashoffset=(364*(1-composite/100)).toFixed(1); }
   nrtUpdateRank(composite);
   updateStatusLabel();
 }
