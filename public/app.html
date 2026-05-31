@@ -4919,35 +4919,79 @@ var TPREV_DATA = {
       en: ['気 Ki flow · real-time chakra reserves', '⚡ Stamina tracker · ninja training arc', '🌙 Rest seal · chakra-restoring sleep tracking']
     },
     canvas: function() {
-      return '<div class="tprev-naruto-bg">' +
+      return '<div class="tprev-naruto-bg" style="overflow:hidden;">' +
         '<div style="position:absolute;top:10px;left:16px;font-family:\'Noto Serif JP\',serif;font-size:9px;color:rgba(74,106,132,0.45);letter-spacing:3px;z-index:1;">封印 · 木ノ葉 · 忍道</div>' +
-        '<svg width="200" height="200" viewBox="-100 -100 200 200" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);" xmlns="http://www.w3.org/2000/svg">' +
-        '<defs><filter id="tpn-gw" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.0" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
-        '<circle r="88" fill="none" stroke="rgba(74,106,132,0.18)" stroke-width="0.8"/>' +
-        '<g stroke="rgba(74,106,132,0.14)" stroke-width="0.7" stroke-linecap="butt">' +
-        '<line x1="0" y1="-88" x2="0" y2="-46"/><line x1="0" y1="46" x2="0" y2="88"/>' +
-        '<line x1="-88" y1="0" x2="-46" y2="0"/><line x1="46" y1="0" x2="88" y2="0"/>' +
-        '<line x1="-62" y1="-62" x2="-33" y2="-33"/><line x1="33" y1="33" x2="62" y2="62"/>' +
-        '<line x1="62" y1="-62" x2="33" y2="-33"/><line x1="-33" y1="33" x2="-62" y2="62"/>' +
+        '<svg viewBox="0 0 320 220" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;" xmlns="http://www.w3.org/2000/svg">' +
+        '<defs><filter id="tpn-gw" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>' +
+        '<linearGradient id="tpn-mist" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(74,106,132,0.10)"/><stop offset="100%" stop-color="rgba(6,8,12,0)"/></linearGradient></defs>' +
+        /* Bamboo stalks */
+        '<g fill="none" stroke="rgba(74,106,132,0.20)" stroke-linecap="round">' +
+        '<line x1="22"  y1="220" x2="18"  y2="10"  stroke-width="6"/>' +
+        '<line x1="23"  y1="220" x2="19"  y2="10"  stroke-width="1" stroke="rgba(160,192,220,0.07)"/>' +
+        '<line x1="58"  y1="220" x2="63"  y2="-5"  stroke-width="8.5"/>' +
+        '<line x1="59"  y1="220" x2="64"  y2="-5"  stroke-width="1" stroke="rgba(160,192,220,0.07)"/>' +
+        '<line x1="96"  y1="220" x2="91"  y2="25"  stroke-width="5"/>' +
+        '<line x1="148" y1="220" x2="153" y2="0"   stroke-width="9.5"/>' +
+        '<line x1="149" y1="220" x2="154" y2="0"   stroke-width="1" stroke="rgba(160,192,220,0.07)"/>' +
+        '<line x1="196" y1="220" x2="191" y2="15"  stroke-width="6.5"/>' +
+        '<line x1="197" y1="220" x2="192" y2="15"  stroke-width="1" stroke="rgba(160,192,220,0.07)"/>' +
+        '<line x1="240" y1="220" x2="245" y2="5"   stroke-width="7.5"/>' +
+        '<line x1="241" y1="220" x2="246" y2="5"   stroke-width="1" stroke="rgba(160,192,220,0.07)"/>' +
+        '<line x1="282" y1="220" x2="278" y2="30"  stroke-width="5.5"/>' +
+        '<line x1="310" y1="220" x2="315" y2="10"  stroke-width="8"/>' +
         '</g>' +
-        '<g fill="none" stroke="rgba(160,192,220,0.28)" stroke-width="1.2" stroke-linecap="round">' +
-        '<line x1="0" y1="-92" x2="0" y2="-83"/><line x1="0" y1="83" x2="0" y2="92"/>' +
-        '<line x1="-92" y1="0" x2="-83" y2="0"/><line x1="83" y1="0" x2="92" y2="0"/>' +
-        '<line x1="-65" y1="-65" x2="-59" y2="-59"/><line x1="59" y1="59" x2="65" y2="65"/>' +
-        '<line x1="65" y1="-65" x2="59" y2="-59"/><line x1="-59" y1="59" x2="-65" y2="65"/>' +
+        /* Node ridges */
+        '<g fill="none" stroke="rgba(74,106,132,0.26)" stroke-linecap="round">' +
+        '<line x1="14" y1="155" x2="27" y2="158" stroke-width="1.5"/>' +
+        '<line x1="14" y1="95"  x2="27" y2="92"  stroke-width="1.5"/>' +
+        '<line x1="14" y1="44"  x2="27" y2="41"  stroke-width="1.5"/>' +
+        '<line x1="52" y1="168" x2="69" y2="171" stroke-width="1.8"/>' +
+        '<line x1="53" y1="100" x2="70" y2="97"  stroke-width="1.8"/>' +
+        '<line x1="53" y1="38"  x2="70" y2="35"  stroke-width="1.8"/>' +
+        '<line x1="87" y1="160" x2="100" y2="157" stroke-width="1.4"/>' +
+        '<line x1="87" y1="100" x2="100" y2="97"  stroke-width="1.4"/>' +
+        '<line x1="140" y1="175" x2="159" y2="178" stroke-width="1.8"/>' +
+        '<line x1="141" y1="105" x2="160" y2="102" stroke-width="1.8"/>' +
+        '<line x1="141" y1="45"  x2="160" y2="42"  stroke-width="1.8"/>' +
+        '<line x1="186" y1="162" x2="201" y2="159" stroke-width="1.6"/>' +
+        '<line x1="186" y1="98"  x2="201" y2="95"  stroke-width="1.6"/>' +
+        '<line x1="235" y1="170" x2="252" y2="173" stroke-width="1.7"/>' +
+        '<line x1="236" y1="100" x2="253" y2="97"  stroke-width="1.7"/>' +
+        '<line x1="273" y1="155" x2="286" y2="152" stroke-width="1.5"/>' +
+        '<line x1="305" y1="168" x2="320" y2="171" stroke-width="1.8"/>' +
+        '<line x1="306" y1="95"  x2="321" y2="92"  stroke-width="1.8"/>' +
         '</g>' +
-        '<circle r="62" fill="none" stroke="rgba(74,106,132,0.28)" stroke-width="1.0"/>' +
-        '<g fill="rgba(74,106,132,0.52)">' +
-        '<circle cx="0" cy="-62" r="1.8"/><circle cx="44" cy="-44" r="1.4"/>' +
-        '<circle cx="62" cy="0" r="1.8"/><circle cx="44" cy="44" r="1.4"/>' +
-        '<circle cx="0" cy="62" r="1.8"/><circle cx="-44" cy="44" r="1.4"/>' +
-        '<circle cx="-62" cy="0" r="1.8"/><circle cx="-44" cy="-44" r="1.4"/>' +
+        /* Leaf clusters */
+        '<g fill="none" stroke="rgba(74,106,132,0.24)" stroke-linecap="round" stroke-width="1.2">' +
+        '<path d="M19,41 Q4,28 -2,12"/><path d="M19,41 Q7,36 0,26"/>' +
+        '<path d="M19,92 Q5,80 1,64"/><path d="M19,92 Q9,88 5,78"/>' +
+        '<path d="M64,35 Q80,20 90,4"/><path d="M64,35 Q78,31 88,21"/>' +
+        '<path d="M64,97 Q80,84 92,70"/><path d="M64,97 Q74,84 76,68"/>' +
+        '<path d="M91,97 Q78,85 72,70"/><path d="M91,97 Q83,86 85,70"/>' +
+        '<path d="M153,42 Q168,26 178,8"/><path d="M153,42 Q168,38 180,28"/>' +
+        '<path d="M153,102 Q170,88 182,74"/><path d="M153,102 Q164,90 166,74"/>' +
+        '<path d="M192,95 Q178,83 172,68"/><path d="M192,95 Q185,84 187,68"/>' +
+        '<path d="M192,159 Q208,146 218,130"/>' +
+        '<path d="M246,97 Q262,83 274,68"/><path d="M246,97 Q257,86 259,70"/>' +
+        '<path d="M246,170 Q262,158 274,144"/>' +
+        '<path d="M279,152 Q266,138 260,122"/>' +
+        '<path d="M315,92 Q329,78 336,62"/><path d="M315,168 Q330,154 338,138"/>' +
         '</g>' +
-        '<polygon points="0,-46 33,-33 46,0 33,33 0,46 -33,33 -46,0 -33,-33" fill="rgba(74,106,132,0.04)" stroke="rgba(74,106,132,0.32)" stroke-width="1.0"/>' +
-        '<circle r="26" fill="rgba(6,8,12,0.78)" stroke="rgba(74,106,132,0.48)" stroke-width="1.2"/>' +
-        '<line x1="-18" y1="0" x2="18" y2="0" stroke="rgba(74,106,132,0.18)" stroke-width="0.7"/>' +
-        '<line x1="0" y1="-18" x2="0" y2="18" stroke="rgba(74,106,132,0.18)" stroke-width="0.7"/>' +
-        '<text x="0" y="10" text-anchor="middle" font-family="\'Noto Serif JP\',serif" font-size="26" fill="rgba(74,106,132,0.55)" filter="url(#tpn-gw)">忍</text>' +
+        /* Floating leaves */
+        '<g fill="rgba(74,106,132,0.16)" stroke="rgba(160,192,220,0.22)" stroke-width="0.8">' +
+        '<ellipse cx="115" cy="52" rx="4" ry="10" transform="rotate(-28 115 52)"/>' +
+        '<line x1="115" y1="43" x2="115" y2="62" stroke="rgba(160,192,220,0.28)" stroke-width="0.7" transform="rotate(-28 115 52)"/>' +
+        '<ellipse cx="214" cy="140" rx="3.5" ry="8.5" transform="rotate(38 214 140)"/>' +
+        '<line x1="214" y1="132" x2="214" y2="149" stroke="rgba(160,192,220,0.28)" stroke-width="0.7" transform="rotate(38 214 140)"/>' +
+        '<ellipse cx="72" cy="170" rx="3" ry="7" transform="rotate(-45 72 170)"/>' +
+        '<line x1="72" y1="163" x2="72" y2="177" stroke="rgba(160,192,220,0.28)" stroke-width="0.7" transform="rotate(-45 72 170)"/>' +
+        '<ellipse cx="268" cy="58" rx="3.5" ry="8" transform="rotate(22 268 58)"/>' +
+        '</g>' +
+        /* 忍 watermark seal */
+        '<circle cx="160" cy="110" r="28" fill="rgba(6,8,12,0.55)" stroke="rgba(74,106,132,0.22)" stroke-width="1.0"/>' +
+        '<text x="160" y="122" text-anchor="middle" font-family="\'Noto Serif JP\',serif" font-size="32" fill="rgba(74,106,132,0.42)" filter="url(#tpn-gw)">忍</text>' +
+        /* Ground mist */
+        '<rect x="0" y="185" width="320" height="35" fill="url(#tpn-mist)"/>' +
         '</svg>' +
         '<div style="position:absolute;bottom:12px;right:16px;font-family:\'Noto Serif JP\',serif;font-size:9px;color:rgba(160,192,220,0.28);letter-spacing:3px;z-index:1;">SHINOBI · 忍道</div>' +
         '</div>';
