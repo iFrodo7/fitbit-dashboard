@@ -436,8 +436,8 @@ body{
 .scard-inner{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;}
 
 /* ── HISTORY VIEW (overlay) ── */
-#hview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:110;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;contain:layout paint;}
-body.view-history #hview{display:block;pointer-events:auto;}
+#hview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:110;background:var(--bg);padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;contain:layout paint;opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity 0.22s var(--ease-out),transform 0.28s var(--ease-out),visibility 0s linear 0.28s;}
+body.view-history #hview{pointer-events:auto;opacity:1;visibility:visible;transform:translateY(0);transition:opacity 0.22s var(--ease-out),transform 0.28s var(--ease-out),visibility 0s linear 0s;}
 body.view-history #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#hview):not(#cyc-modal-ov):not(#cyc-sym-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
 body.view-history #dash > #install-banner{visibility:visible;}
 .hv-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--sub);}
@@ -509,13 +509,13 @@ body.view-history #dash > #install-banner{visibility:visible;}
 .hv-coach-empty{opacity:0.35;font-size:10px;letter-spacing:2px;padding:10px 0;}
 
 /* ── STATS VIEW (overlay) ── */
-#sview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:110;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;contain:layout paint;}
-body.view-stats #sview{display:block;pointer-events:auto;}
+#sview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:110;background:var(--bg);padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;contain:layout paint;opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity 0.22s var(--ease-out),transform 0.28s var(--ease-out),visibility 0s linear 0.28s;}
+body.view-stats #sview{pointer-events:auto;opacity:1;visibility:visible;transform:translateY(0);transition:opacity 0.22s var(--ease-out),transform 0.28s var(--ease-out),visibility 0s linear 0s;}
 body.view-stats #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#sview):not(#cyc-modal-ov):not(#cyc-sym-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
 
 /* ── PROFILE VIEW (overlay) ── */
-#pview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:110;background:var(--bg);display:none;padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;contain:layout paint;}
-body.view-profile #pview{display:block;pointer-events:auto;}
+#pview{position:fixed;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;z-index:110;background:var(--bg);padding:18px 14px 30px;overscroll-behavior:contain;pointer-events:none;contain:layout paint;opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity 0.22s var(--ease-out),transform 0.28s var(--ease-out),visibility 0s linear 0.28s;}
+body.view-profile #pview{pointer-events:auto;opacity:1;visibility:visible;transform:translateY(0);transition:opacity 0.22s var(--ease-out),transform 0.28s var(--ease-out),visibility 0s linear 0s;}
 body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#offline-badge):not(#pview):not(#cyc-modal-ov):not(#cyc-sym-ov):not(#onb-ov):not(#tour-ov){visibility:hidden;pointer-events:none;}
 
 /* Shared overlay header */
@@ -1239,8 +1239,8 @@ body.is-offline .dstrip, body.is-unstable .dstrip{display:none;}
 }
 .bnav-btn.active{opacity:1;color:var(--ta);}
 .bnav-btn:active{transform:scale(0.88);}
-.bnav-btn::after{content:'';display:block;width:4px;height:4px;border-radius:var(--r-full);background:var(--ta);opacity:0;transform:scale(0);transition:opacity var(--dur-base) var(--ease-spring),transform var(--dur-base) var(--ease-spring);margin-top:1px;}
-.bnav-btn.active::after{opacity:1;transform:scale(1);}
+.bnav-btn::after{display:none;}
+#bnav-ind{position:absolute;top:0;height:2px;width:28px;background:var(--ta);border-radius:0 0 3px 3px;left:0;transition:left 0.32s var(--ease-spring),background var(--dur-base) var(--ease-std),opacity var(--dur-base) var(--ease-std);opacity:0;pointer-events:none;}
 .bnav-ic{font-size:20px;line-height:1;}
 .bnav-lbl{font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:600;}
 .t-mc .bnav{background:#1e1600;border-top:3px solid #6a5020;}
@@ -4244,6 +4244,7 @@ body.t-naruto span.vval{
 
 <!-- Bottom Navigation — outside #dash so position:fixed is always relative to viewport -->
 <nav class="bnav" id="bnav" role="tablist" aria-label="Navegación principal" style="display:none">
+  <div id="bnav-ind" aria-hidden="true"></div>
   <button class="bnav-btn active" id="tab-home" data-tab="home" onclick="navigate('home')" role="tab" aria-selected="true" aria-controls="home-panel">
     <span class="bnav-ic">⌂</span><span class="bnav-lbl" id="bnav-home">Inicio</span>
   </button>
@@ -5483,6 +5484,7 @@ function _finishSelectTheme(t) {
   document.getElementById('sel').style.display = 'none';
   document.getElementById('dash').style.display = 'block';
   document.getElementById('bnav').style.display = 'flex';
+  setTimeout(function() { _updateBnavInd(localStorage.getItem('fb_tab') || 'home'); }, 60);
   applyTheme(t);
   setLang(lang);
   if (typeof updateThemeColor === 'function') updateThemeColor(t);
@@ -5725,12 +5727,24 @@ function initSwipeNav() {
 }
 
 // ══════ BOTTOM NAV ══════
+function _updateBnavInd(tab) {
+  var ind = document.getElementById('bnav-ind');
+  var bnav = document.getElementById('bnav');
+  if (!ind || !bnav) return;
+  var btn = document.getElementById('tab-' + tab);
+  if (!btn) return;
+  var bRect = bnav.getBoundingClientRect();
+  var bBtn = btn.getBoundingClientRect();
+  ind.style.left = (bBtn.left - bRect.left + bBtn.width / 2 - 14) + 'px';
+  ind.style.opacity = '1';
+}
 function navigate(tab) {
   document.querySelectorAll('.bnav-btn').forEach(b => {
     const on = b.dataset.tab === tab;
     b.classList.toggle('active', on);
     b.setAttribute('aria-selected', on);
   });
+  _updateBnavInd(tab);
   // Already in this view? Skip the re-render (prevents double-fire jank / stuck nav).
   if (tab !== 'home' && document.body.classList.contains('view-' + tab)) return;
   if (navigator.vibrate) navigator.vibrate(10);
