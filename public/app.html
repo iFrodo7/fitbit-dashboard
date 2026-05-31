@@ -7638,7 +7638,7 @@ function updateScores({ rec, strain, sleepPct }) {
   // Naruto ring (r=58, circumference=364)
   const nrf = document.getElementById('nrt-rfil');
   if (nrf) nrf.style.strokeDashoffset = (364*(1-rec/100)).toFixed(1);
-  animN('nrt-rscore', 0, rec, 1200);
+  // nrt-rscore driven by activity composite in updateDailyRings()
   // Naruto bars — live data
   setTimeout(function() {
     var nr = document.getElementById('naruto-bar-rec');
@@ -7688,11 +7688,9 @@ function updateScores({ rec, strain, sleepPct }) {
 // ── Daily Progress Rings ──────────────────────────────────────────────────
 var _DR_R=24, _DR_SW=5.5, _DR_C=2*Math.PI*24, _DR_DIM=24*2+5.5*2+2, _DR_CX=(_DR_DIM/2), _DR_CY=(_DR_DIM/2);
 var _DR_DEFS=[
-  {id:'dr-rec',label:'RECOVERY',color:'#00f5ff'},
-  {id:'dr-cal',label:'CALORÍAS',color:'#ff7b3a'},
   {id:'dr-stp',label:'PASOS',   color:'#6aff3a'},
-  {id:'dr-act',label:'MIN ACT.',color:'#f59e0b'},
-  {id:'dr-slp',label:'SUEÑO',   color:'#a855f7'}
+  {id:'dr-cal',label:'CALORÍAS',color:'#ff7b3a'},
+  {id:'dr-act',label:'MIN ACT.',color:'#f59e0b'}
 ];
 
 function getDailyStreak() {
@@ -7750,18 +7748,15 @@ function renderDailyRings() {
 }
 
 function updateDailyRings() {
-  if (!document.getElementById('dr-rec-arc')) return;
+  if (!document.getElementById('dr-stp-arc')) return;
   var C=_DR_C, cx=_DR_CX, cy=_DR_CY, R=_DR_R;
   var nv=function(id){ return parseFloat(((document.getElementById(id)||{}).textContent||'0').replace(/[^0-9.]/g,''))||0; };
-  var rec=window._lastRec||0, slp=window._lastSleepPct||0;
   var cal=nv('calv')||nv('cal-act'), steps=nv('stepsv');
   var actMin=nv('hrmin-cardio')+nv('hrmin-peak');
   var data=[
-    {id:'dr-rec',pct:Math.min(100,rec),       val:rec>0?Math.round(rec)+'':'-',  unit:''},
-    {id:'dr-cal',pct:Math.min(100,cal/500*100),val:cal>0?cal.toLocaleString():'-',unit:'kcal'},
     {id:'dr-stp',pct:Math.min(100,steps/10000*100),val:steps>0?(steps/1000).toFixed(1)+'k':'-',unit:''},
-    {id:'dr-act',pct:Math.min(100,actMin/30*100),val:actMin>0?Math.round(actMin)+'':'-',unit:'min'},
-    {id:'dr-slp',pct:Math.min(100,slp),       val:function(){if(!slp)return'-';var m=Math.round(slp/100*480);return Math.floor(m/60)+'h '+(m%60)+'m';}(),unit:''}
+    {id:'dr-cal',pct:Math.min(100,cal/500*100),    val:cal>0?cal.toLocaleString():'-',          unit:'kcal'},
+    {id:'dr-act',pct:Math.min(100,actMin/30*100),  val:actMin>0?Math.round(actMin)+'':'-',      unit:'min'}
   ];
   data.forEach(function(d){
     var offset=(C*(1-d.pct/100)).toFixed(1);
@@ -7788,10 +7783,15 @@ function updateDailyRings() {
     var valEl=document.getElementById(d.id+'-val');
     if(valEl) valEl.textContent=d.val+(d.unit&&d.val!=='-'?' '+d.unit:'');
   });
+  // Mandala central = promedio de los 3 anillos de actividad
+  var composite=Math.round((data[0].pct+data[1].pct+data[2].pct)/3);
+  var nrtEl=document.getElementById('nrt-rscore');
+  if(nrtEl){ var cur=parseInt(nrtEl.textContent)||0; animN('nrt-rscore',cur,composite,900); }
+  nrtUpdateRank(composite);
 }
 
 function animateDailyRings() {
-  if (!document.getElementById('dr-rec-arc')) return;
+  if (!document.getElementById('dr-stp-arc')) return;
   var C=_DR_C, cx=_DR_CX, cy=_DR_CY, R=_DR_R;
   // reset all arcs to empty instantly
   _DR_DEFS.forEach(function(d){
