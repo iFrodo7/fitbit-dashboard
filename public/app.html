@@ -2103,7 +2103,7 @@ body.t-naruto span.vval{
         <div class="ts bloom" id="sel-bloom-sub">WELLNESS · RENDIMIENTO</div>
       </div>
       <div class="tc-ach" id="tc-ach-bloom">
-        <span class="tc-ach-count">0/17</span>
+        <span class="tc-ach-count">0/18</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#e85c8a;width:0%"></div></div>
       </div>
     </div>
@@ -2196,7 +2196,7 @@ body.t-naruto span.vval{
         <div class="ts halo" id="sel-halo-sub">NIGHT CITY UPLINK</div>
       </div>
       <div class="tc-ach" id="tc-ach-halo">
-        <span class="tc-ach-count">0/17</span>
+        <span class="tc-ach-count">0/18</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#ff2d78;width:0%"></div></div>
       </div>
     </div>
@@ -2211,7 +2211,7 @@ body.t-naruto span.vval{
         <div class="ts naruto" id="sel-naruto-sub">気 · MONITOR DE ENERGÍA</div>
       </div>
       <div class="tc-ach" id="tc-ach-naruto">
-        <span class="tc-ach-count">0/17</span>
+        <span class="tc-ach-count">0/18</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#4a6a84;width:0%"></div></div>
       </div>
     </div>
@@ -2246,7 +2246,7 @@ body.t-naruto span.vval{
         <div class="ts fut" id="sel-fut-sub">BIOMETRIC CORE v2.6</div>
       </div>
       <div class="tc-ach" id="tc-ach-fut">
-        <span class="tc-ach-count">0/17</span>
+        <span class="tc-ach-count">0/18</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#00f5ff;width:0%"></div></div>
       </div>
     </div>
@@ -2261,7 +2261,7 @@ body.t-naruto span.vval{
         <div class="t-lock-tag">PRO</div>
       </div>
       <div class="tc-ach" id="tc-ach-mc">
-        <span class="tc-ach-count">0/17</span>
+        <span class="tc-ach-count">0/18</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#6aff3a;width:0%"></div></div>
       </div>
     </div>
@@ -7862,7 +7862,7 @@ function renderDailyRings() {
           +'<span class="drw-stk-val" id="dr-stk">'+strk+(lang==='es'?' DÍAS':' DAYS')+'</span>'
         +'</div>'
         +'<div class="ach-badge" id="ach-ring-badge" onclick="openAch()" title="Logros">'
-          +'<span class="ach-badge-val">🏆 0/17</span>'
+          +'<span class="ach-badge-val">🏆 0/18</span>'
         +'</div>'
       +'</div>'
     +'</div>'
@@ -9898,23 +9898,24 @@ initCapacitor();
 
 // ══════ ACHIEVEMENT SYSTEM ══════
 var _ACH_DEFS = [
-  { id:'explorer',     icon:'🗺', check:function(s,t){ return (s.themeDays[t]||0)>=1; } },
-  { id:'first_goal',   icon:'🎯', check:function(s){   return s.goalsHit>=1; } },
-  { id:'triple',       icon:'⚡', check:function(s){   return s.tripleHit>=1; } },
-  { id:'streak3',      icon:'🔥', check:function(s){   return (s.tripleStreakMax||0)>=3; } },
-  { id:'streak7',      icon:'💎', check:function(s){   return (s.tripleStreakMax||0)>=7; } },
-  { id:'streak15',     icon:'🌙', check:function(s){   return (s.tripleStreakMax||0)>=15; } },
-  { id:'streak30',     icon:'🗓', check:function(s){   return (s.tripleStreakMax||0)>=30; } },
-  { id:'loyal',        icon:'🏅', check:function(s,t){ return (s.themeDays[t]||0)>=5; } },
-  { id:'peak',         icon:'👑', check:function(s){   return s.peakComposite>=90; } },
-  { id:'all_goals',    icon:'🌟', check:function(s){   return s.allGoalsDays>=1; } },
-  { id:'caminante',    icon:'👣', check:function(s){   return (s.stepsMax||0)>=10000; } },
-  { id:'maratonista',  icon:'🏃', check:function(s){   return (s.stepsMax||0)>=20000; } },
-  { id:'quemador',     icon:'🔥', check:function(s){   return (s.calStreakMax||0)>=5; } },
-  { id:'entrenador',   icon:'💪', check:function(s){   return (s.actMinHits||0)>=5; } },
-  { id:'superado',     icon:'📈', check:function(s){   return !!s.superadoHit; } },
-  { id:'semana_activa',icon:'🏋', check:function(s){   return (s.anyRingStreakMax||0)>=7; } },
-  { id:'mes_hierro',   icon:'🏆', check:function(s){   return (s.anyRingStreakMax||0)>=30; } }
+  { id:'explorer',      icon:'🗺', check:function(s,t,u){ return (s.themeDays[t]||0)>=1; } },
+  { id:'first_goal',    icon:'🎯', check:function(s,t,u){ return s.goalsHit>=1; } },
+  { id:'caminante',     icon:'👣', check:function(s,t,u){ return (s.stepsMax||0)>=10000; } },
+  { id:'triple',        icon:'⚡', check:function(s,t,u){ return s.tripleHit>=1; } },
+  { id:'maratonista',   icon:'🏃', check:function(s,t,u){ return (s.stepsMax||0)>=20000; } },
+  { id:'entrenador',    icon:'💪', check:function(s,t,u){ return (s.actMinHits||0)>=5; } },
+  { id:'loyal',         icon:'🏅', check:function(s,t,u){ return (s.themeDays[t]||0)>=5; } },
+  { id:'superado',      icon:'📈', check:function(s,t,u){ return !!s.superadoHit; } },
+  { id:'all_goals',     icon:'🌟', check:function(s,t,u){ return s.allGoalsDays>=1; } },
+  { id:'peak',          icon:'👑', check:function(s,t,u){ return s.peakComposite>=90; } },
+  { id:'quemador',      icon:'🔥', check:function(s,t,u){ return (s.calStreakMax||0)>=5; } },
+  { id:'semana_activa', icon:'🏋', check:function(s,t,u){ return (s.anyRingStreakMax||0)>=7; } },
+  { id:'streak3',       icon:'🔥', check:function(s,t,u){ return (s.tripleStreakMax||0)>=3; } },
+  { id:'streak7',       icon:'💎', check:function(s,t,u){ return (s.tripleStreakMax||0)>=7; } },
+  { id:'mes_hierro',    icon:'🏆', check:function(s,t,u){ return (s.anyRingStreakMax||0)>=30; } },
+  { id:'streak15',      icon:'🌙', check:function(s,t,u){ return (s.tripleStreakMax||0)>=15; } },
+  { id:'streak30',      icon:'🗓', check:function(s,t,u){ return (s.tripleStreakMax||0)>=30; } },
+  { id:'completionist', icon:'🔮', check:function(s,t,u){ return (u[t]||[]).slice(0,17).filter(Boolean).length===17; } }
 ];
 
 var _ACH_LABELS = {
@@ -9923,21 +9924,22 @@ var _ACH_LABELS = {
     list:[
       {name:'新道を開く',  desc:'Descubriste el camino del Shinobi'},
       {name:'目標達成',   desc:'Primera meta alcanzada'},
+      {name:'千歩の道',  desc:'10,000 pasos en un día'},
       {name:'三位一体',   desc:'3 rings al 100% en un día'},
+      {name:'万歩の覇者',desc:'20,000 pasos — resistencia de jōnin'},
+      {name:'鍛錬の士',  desc:'Minutos activos al 100% en 5 ocasiones'},
+      {name:'義士',      desc:'Fiel al camino — 5 sesiones'},
+      {name:'限界突破',  desc:'Superar el 150% de cualquier objetivo'},
+      {name:'無双',      desc:'Todos los objetivos — día perfecto'},
+      {name:'影の力',    desc:'Composite ≥ 90% — Rango Kage'},
+      {name:'炎の修行',  desc:'Calorías al 100% durante 5 días seguidos'},
+      {name:'七日の陣',  desc:'7 días seguidos con al menos 1 ring cerrado'},
       {name:'修行3日',   desc:'3 días seguidos con los 3 rings cerrados'},
       {name:'不眠修行',   desc:'7 días seguidos con los 3 rings cerrados'},
-      {name:'半月修行',   desc:'15 días seguidos con los 3 rings cerrados'},
-      {name:'一ヶ月修行', desc:'30 días seguidos — rango legendario'},
-      {name:'義士',      desc:'Fiel al camino — 5 sesiones'},
-      {name:'影の力',    desc:'Composite ≥ 90% — Rango Kage'},
-      {name:'無双',      desc:'Todos los objetivos — día perfecto'},
-      {name:'千歩の道',  desc:'10,000 pasos en un día'},
-      {name:'万歩の覇者',desc:'20,000 pasos en un día — resistencia de jōnin'},
-      {name:'炎の修行',  desc:'Calorías al 100% durante 5 días seguidos'},
-      {name:'鍛錬の士',  desc:'Minutos activos al 100% en 5 ocasiones'},
-      {name:'限界突破',  desc:'Superar el 150% de cualquier objetivo'},
-      {name:'七日の陣',  desc:'7 días seguidos con al menos 1 ring cerrado'},
-      {name:'鉄の月',   desc:'30 días seguidos con al menos 1 ring cerrado'}
+      {name:'鉄の月',   desc:'30 días seguidos con al menos 1 ring cerrado'},
+      {name:'半月修行',  desc:'15 días seguidos con los 3 rings cerrados'},
+      {name:'一ヶ月修行',desc:'30 días seguidos — rango legendario'},
+      {name:'忍の極み',  desc:'Todos los logros desbloqueados — maestro absoluto'}
     ]
   },
   halo:{
@@ -9945,21 +9947,22 @@ var _ACH_LABELS = {
     list:[
       {name:'JACK IN',        desc:'Primer acceso al sistema Neon Noir'},
       {name:'CHROME I',       desc:'Primera meta alcanzada'},
+      {name:'PEDESTRIAN',     desc:'10,000 pasos en un día'},
       {name:'FULL SYNC',      desc:'3 rings al 100%'},
+      {name:'GHOST RUNNER',   desc:'20,000 pasos — chrome al límite'},
+      {name:'REFLEX ARC ×5',  desc:'Minutos activos al 100% en 5 ocasiones'},
+      {name:'CORPO LOYAL',    desc:'5 sesiones en Neon Noir'},
+      {name:'OVERCAP >150',   desc:'Superar el 150% de cualquier objetivo'},
+      {name:'OVERCLOCK',      desc:'Día perfecto — todos los objetivos'},
+      {name:'FLATLINE >90',   desc:'Composite ≥ 90%'},
+      {name:'THERMAL BURN ×5',desc:'Calorías al 100% durante 5 días seguidos'},
+      {name:'7-DAY UPLINK',   desc:'7 días seguidos con al menos 1 ring cerrado'},
       {name:'NET-RUN ×3',     desc:'3 días seguidos con los 3 rings cerrados'},
       {name:'GHOST PROTOCOL', desc:'7 días seguidos con los 3 rings cerrados'},
+      {name:'IRON MONTH',     desc:'30 días seguidos con al menos 1 ring cerrado'},
       {name:'BLACKWALL ×15',  desc:'15 días seguidos con los 3 rings cerrados'},
       {name:'NETRUNNER MAX',  desc:'30 días seguidos — chrome total'},
-      {name:'CORPO LOYAL',    desc:'5 sesiones en Neon Noir'},
-      {name:'FLATLINE >90',   desc:'Composite ≥ 90%'},
-      {name:'OVERCLOCK',      desc:'Día perfecto — todos los objetivos'},
-      {name:'PEDESTRIAN',     desc:'10,000 pasos en un día'},
-      {name:'GHOST RUNNER',   desc:'20,000 pasos — chrome al límite'},
-      {name:'THERMAL BURN ×5',desc:'Calorías al 100% durante 5 días seguidos'},
-      {name:'REFLEX ARC ×5',  desc:'Minutos activos al 100% en 5 ocasiones'},
-      {name:'OVERCAP >150',   desc:'Superar el 150% de cualquier objetivo'},
-      {name:'7-DAY UPLINK',   desc:'7 días seguidos con al menos 1 ring cerrado'},
-      {name:'IRON MONTH',     desc:'30 días seguidos con al menos 1 ring cerrado'}
+      {name:'FULL CHROME',    desc:'Todos los logros — implantes al máximo'}
     ]
   },
   mc:{
@@ -9967,43 +9970,45 @@ var _ACH_LABELS = {
     list:[
       {name:'NEW WORLD',    desc:'Primer día en Minecraft mode'},
       {name:'IRON PICKAXE', desc:'Primera meta alcanzada'},
+      {name:'10K WALKER',   desc:'10,000 pasos en un día'},
       {name:'DIAMOND HAUL', desc:'3 rings al 100%'},
+      {name:'SPEEDRUNNER',  desc:'20,000 pasos — no-hit run'},
+      {name:'GRINDER ×5',   desc:'Minutos activos al 100% en 5 ocasiones'},
+      {name:'VETERAN',      desc:'5 sesiones en Minecraft'},
+      {name:'>150% BUFF',   desc:'Superar el 150% de cualquier objetivo'},
+      {name:'FULL CLEAR',   desc:'Día perfecto'},
+      {name:'MAX LEVEL',    desc:'Composite ≥ 90%'},
+      {name:'FURNACE ×5',   desc:'Calorías al 100% durante 5 días seguidos'},
+      {name:'WEEK ACTIVE',  desc:'7 días seguidos con al menos 1 ring cerrado'},
       {name:'3-DAY GRIND',  desc:'3 días seguidos con los 3 rings cerrados'},
       {name:'WEEK STREAK',  desc:'7 días seguidos con los 3 rings cerrados'},
+      {name:'IRON MONTH',   desc:'30 días seguidos con al menos 1 ring cerrado'},
       {name:'HALF MONTH',   desc:'15 días seguidos con los 3 rings cerrados'},
       {name:'LEGEND MODE',  desc:'30 días seguidos — nivel leyenda'},
-      {name:'VETERAN',      desc:'5 sesiones en Minecraft'},
-      {name:'MAX LEVEL',    desc:'Composite ≥ 90%'},
-      {name:'FULL CLEAR',   desc:'Día perfecto'},
-      {name:'10K WALKER',   desc:'10,000 pasos en un día'},
-      {name:'SPEEDRUNNER',  desc:'20,000 pasos — no-hit run'},
-      {name:'FURNACE ×5',   desc:'Calorías al 100% durante 5 días seguidos'},
-      {name:'GRINDER ×5',   desc:'Minutos activos al 100% en 5 ocasiones'},
-      {name:'>150% BUFF',   desc:'Superar el 150% de cualquier objetivo'},
-      {name:'WEEK ACTIVE',  desc:'7 días seguidos con al menos 1 ring cerrado'},
-      {name:'IRON MONTH',   desc:'30 días seguidos con al menos 1 ring cerrado'}
+      {name:'NETHERITE',    desc:'Todos los logros — el material más duro'}
     ]
   },
   fut:{
     title:'◈ MISSION LOG',
     list:[
-      {name:'INITIALIZED',  desc:'Sistema Aether activado'},
-      {name:'TARGET HIT',   desc:'Primera meta alcanzada'},
-      {name:'TRIPLE LOCK',  desc:'3 rings al 100%'},
-      {name:'SEQUENCE ×3',  desc:'3 días seguidos con los 3 rings cerrados'},
-      {name:'PROTOCOL 7',   desc:'7 días seguidos con los 3 rings cerrados'},
-      {name:'SIGMA ×15',    desc:'15 días seguidos con los 3 rings cerrados'},
-      {name:'OMEGA PROTOCOL',desc:'30 días seguidos — misión absoluta'},
-      {name:'CORE BOUND',   desc:'5 sesiones en Aether'},
-      {name:'APEX SIGNAL',  desc:'Composite ≥ 90%'},
-      {name:'MISSION CLEAR', desc:'Día perfecto'},
+      {name:'INITIALIZED',   desc:'Sistema Aether activado'},
+      {name:'TARGET HIT',    desc:'Primera meta alcanzada'},
       {name:'PATROL ROUTE',  desc:'10,000 pasos en un día'},
+      {name:'TRIPLE LOCK',   desc:'3 rings al 100%'},
       {name:'SIGMA RUNNER',  desc:'20,000 pasos — velocidad máxima'},
-      {name:'BURN CYCLE ×5', desc:'Calorías al 100% durante 5 días seguidos'},
       {name:'ACTIVE CORE ×5',desc:'Minutos activos al 100% en 5 ocasiones'},
+      {name:'CORE BOUND',    desc:'5 sesiones en Aether'},
       {name:'OVERCLOCK 150', desc:'Superar el 150% de cualquier objetivo'},
+      {name:'MISSION CLEAR', desc:'Día perfecto'},
+      {name:'APEX SIGNAL',   desc:'Composite ≥ 90%'},
+      {name:'BURN CYCLE ×5', desc:'Calorías al 100% durante 5 días seguidos'},
       {name:'7-CYCLE LOCK',  desc:'7 días seguidos con al menos 1 ring cerrado'},
-      {name:'IRON PROTOCOL', desc:'30 días seguidos con al menos 1 ring cerrado'}
+      {name:'SEQUENCE ×3',   desc:'3 días seguidos con los 3 rings cerrados'},
+      {name:'PROTOCOL 7',    desc:'7 días seguidos con los 3 rings cerrados'},
+      {name:'IRON PROTOCOL', desc:'30 días seguidos con al menos 1 ring cerrado'},
+      {name:'SIGMA ×15',     desc:'15 días seguidos con los 3 rings cerrados'},
+      {name:'OMEGA PROTOCOL',desc:'30 días seguidos — misión absoluta'},
+      {name:'SINGULARITY',   desc:'Todos los logros — convergencia total'}
     ]
   },
   bloom:{
@@ -10011,21 +10016,22 @@ var _ACH_LABELS = {
     list:[
       {name:'Primer Brote',    desc:'Bloom despertó por primera vez'},
       {name:'Primera Flor',    desc:'Primera meta alcanzada'},
+      {name:'Caminante',       desc:'10,000 pasos en un día'},
       {name:'Florecer',        desc:'3 rings al 100%'},
+      {name:'Maratonista',     desc:'20,000 pasos — plenitud total'},
+      {name:'Raíz Fuerte ×5',  desc:'Minutos activos al 100% en 5 ocasiones'},
+      {name:'Jardinera Fiel',  desc:'5 sesiones en Bloom'},
+      {name:'Floración Plena', desc:'Superar el 150% de cualquier objetivo'},
+      {name:'Jardín Perfecto', desc:'Día perfecto'},
+      {name:'Sakura Máx.',     desc:'Composite ≥ 90%'},
+      {name:'Llama Viva ×5',   desc:'Calorías al 100% durante 5 días seguidos'},
+      {name:'Semana en Flor',  desc:'7 días seguidos con al menos 1 ring cerrado'},
       {name:'Raíces',          desc:'3 días seguidos con los 3 rings cerrados'},
       {name:'Árbol Pleno',     desc:'7 días seguidos con los 3 rings cerrados'},
+      {name:'Mes de Hierro',   desc:'30 días seguidos con al menos 1 ring cerrado'},
       {name:'Luna en Flor',    desc:'15 días seguidos con los 3 rings cerrados'},
       {name:'Jardín Eterno',   desc:'30 días seguidos — florecimiento total'},
-      {name:'Jardinera Fiel',  desc:'5 sesiones en Bloom'},
-      {name:'Sakura Máx.',     desc:'Composite ≥ 90%'},
-      {name:'Jardín Perfecto', desc:'Día perfecto'},
-      {name:'Caminante',       desc:'10,000 pasos en un día'},
-      {name:'Maratonista',     desc:'20,000 pasos — plenitud total'},
-      {name:'Llama Viva ×5',   desc:'Calorías al 100% durante 5 días seguidos'},
-      {name:'Raíz Fuerte ×5',  desc:'Minutos activos al 100% en 5 ocasiones'},
-      {name:'Floración Plena', desc:'Superar el 150% de cualquier objetivo'},
-      {name:'Semana en Flor',  desc:'7 días seguidos con al menos 1 ring cerrado'},
-      {name:'Mes de Hierro',   desc:'30 días seguidos con al menos 1 ring cerrado'}
+      {name:'Flor Inmortal',   desc:'Todos los logros — jardín completo'}
     ]
   }
 };
@@ -10056,7 +10062,7 @@ function checkAchievements(t) {
   var newUnlocks = [];
   _ACH_DEFS.forEach(function(def, i) {
     if (u[t][i]) return;
-    if (def.check(s, t)) { u[t][i] = true; newUnlocks.push(i); }
+    if (def.check(s, t, u)) { u[t][i] = true; newUnlocks.push(i); }
   });
   _saveAchStats(s); _saveAchUnlocked(u);
   newUnlocks.forEach(function(i) { _showAchToast(t, i); });
