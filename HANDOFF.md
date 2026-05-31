@@ -1,6 +1,6 @@
 # 🤝 Handoff — Fitbit Air Dashboard
 
-> **Para el próximo desarrollador y su Claude.** Lee esto **primero**, luego `CLAUDE.md` (referencia técnica). Última actualización: **2026-05-30**.
+> **Para el próximo desarrollador y su Claude.** Lee esto **primero**, luego `CLAUDE.md` (referencia técnica). Última actualización: **2026-05-30 (sesión 2 — rings + AIRA narrative)**.
 
 > **🚨 MIGRACIÓN INMINENTE — Fitbit Web API → Google Health API (sep 2026).** Toda la app depende del Fitbit Web API, que **se apaga en septiembre 2026**. **HECHO:** la capa de datos ya está blindada con un adaptador (`FitbitSource` / `HS` en `public/app.html`) — todas las llamadas pasan por `HS`, cero URLs hardcodeadas. **PENDIENTE:** escribir `GoogleHealthSource` (misma forma) + iniciar la verificación OAuth de Google (gratis pero lenta → **empezar YA**). Sobrevivir cuesta **~$0** (local-first exime del assessment pagado). **Runbook completo y checklist: `MIGRATION.md`.**
 
@@ -20,6 +20,27 @@
   - Instalar en móvil: iPhone Safari → Compartir → *Añadir a pantalla de inicio*; Android Chrome → ⋮ → *Instalar app*.
 - Cada merge a `main` auto-despliega a Vercel (producción).
 - **Bug #12 RESUELTO** — ya se puede usar `let`/`const` top-level (declarados antes del bloque `// BOOT` final). Mantén invocaciones de arranque en BOOT.
+
+## ✅ Qué está construido (sesión 2026-05-30 #2 — Daily Rings + AIRA Narrative)
+
+| Área | Qué |
+|---|---|
+| **Daily Progress Rings** | 5 rings circulares SVG en `#mcex` (reemplazan ENERGY/PROCESSOR y las barras temáticas de todos los temas). Orden: Recovery · Calorías · Pasos · Min Act. · Sueño. Colores fijos por métrica (cyan/naranja/verde/ámbar/morado) — consistentes en todos los temas como los Activity Rings de Apple. |
+| **Animación de rings** | `animateDailyRings()`: resetea arcos a vacío + rellena con stagger de 110ms por ring + tip dot en el endpoint al terminar. Se dispara en: carga inicial (vía `_drAnimDone` flag en `updateScores()`), cambio de tab a Home (`navigate('home')`), cambio de tema (`renderDailyRings()`). |
+| **Actualización en vivo** | `updateDailyRings()` ahora también mueve los arcos visualmente (transición 0.9s) cuando `_drAnimDone=true`, para reflejar datos que llegan tarde (sleep via `pollSlow`, steps/cal via `pollFast`). |
+| **Data sync corregido** | 4 bugs de datos: (1) leía `#cal-act` en vez de `#calv`; (2) `pollFast` no llamaba `updateDailyRings()`; (3) `pollFastGoogle` tampoco; (4) `pollSlow`/`pollSlowGoogle` actualizaban barras de sueño pero nunca seteaban `window._lastSleepPct`. Todos corregidos. |
+| **Racha diaria** | `getDailyStreak()`: contador `{ date, count }` en localStorage (`fb_streak`). Badge `🔥 N DÍAS` en el header de los rings. |
+| **Metas de rings** | Recovery ≥100pts, Calorías 500 kcal activas (`#calv`), Pasos 10,000 (`#stepsv`), Min. Activos 30 min (cardio+peak HR zones), Sueño 8h=100%. |
+| **Escala desktop** | Grid `.mg` ampliado de 236px→272px. `@media(min-width:900px)` escala SVGs de 58px→44px para que los 5 rings quepan en la card narrow de desktop. |
+| **AIRA Narrative** | `genAiraMsg()`: mensaje contextual bajo el nombre del usuario. 9 pools de estado (peak/peak_great/peak_stress/peak_sleep/high/high_stress/high_sleep/mid/mid_stress/mid_sleep/low/low_stress/floor + demo) × ES/EN. 4 voces temáticas: naruto=chakra, mc=gaming, halo=SPARTAN, bloom=wellness (fut usa la voz default de AIRA). Modifiers: stress >65, sleepPct <50, sleepPct ≥75. Rotación diaria (`day % pool.length`). Fade-in con `.live` class. Llamado desde `updateScores()` + `setLang()`. |
+| **`.wsrow` oculto** | `display:none` en CSS — los rings reemplazan ESFUERZO/RESP/SUEÑO visualmente. Los elementos siguen en DOM (los scripts que los actualizan no se rompen). |
+
+**Funciones clave añadidas:**
+- `renderDailyRings()` — inyecta HTML en `#mcex`, resetea `_drAnimDone`
+- `updateDailyRings()` — sincroniza valores + mueve arcos si ya animados
+- `animateDailyRings()` — reset + rellena con stagger
+- `getDailyStreak()` — racha diaria en localStorage
+- `genAiraMsg()` — mensaje narrativo AIRA por estado y tema
 
 ## ✅ Qué está construido (sesión 2026-05-30, UI Polish — Apple level)
 
