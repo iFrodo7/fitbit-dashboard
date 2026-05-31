@@ -1596,6 +1596,24 @@ body.t-naruto span.vval{
 .dr-daytype{display:flex;align-items:center;gap:5px;margin-bottom:10px;font-size:8.5px;letter-spacing:1.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;opacity:0;transition:opacity 0.4s ease;}
 .dr-daytype.live{opacity:1;}
 .dr-daytype-mult{opacity:0.4;font-size:7.5px;margin-left:4px;}
+/* Standard mode: rings son editables con tap */
+.dr-item.std-editable{cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.dr-item.std-editable:active{opacity:0.78;}
+.dr-item.std-editable .dr-goal::after{content:' ✏';opacity:0.38;font-size:8px;}
+/* Chip bloqueado Pro */
+.dr-daytype.pro-lock{cursor:pointer;opacity:0.55;border:1px dashed rgba(255,255,255,0.2);border-radius:20px;padding:3px 10px;}
+.dr-daytype.pro-lock:active{opacity:0.38;}
+/* Pro upsell sheet */
+#pro-ring-sheet{position:fixed;inset:0;z-index:8000;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);animation:achOvIn 0.2s ease both;}
+.prs-card{background:var(--bg2,#0d1117);border:1px solid var(--ta);border-radius:20px 20px 0 0;padding:28px 24px 40px;display:flex;flex-direction:column;gap:14px;}
+.prs-icon{font-size:32px;text-align:center;}
+.prs-title{font-size:17px;font-weight:800;letter-spacing:1px;color:var(--ta);text-align:center;}
+.prs-desc{font-size:13px;color:var(--txt);opacity:0.72;text-align:center;line-height:1.55;}
+.prs-feat{display:flex;flex-direction:column;gap:8px;}
+.prs-feat-row{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--txt);opacity:0.8;}
+.prs-feat-row span:first-child{font-size:16px;width:22px;text-align:center;}
+.prs-cta{width:100%;padding:14px;background:var(--ta);color:var(--bg);border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:4px;}
+.prs-skip{text-align:center;font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,0.35);cursor:pointer;padding:8px;font-family:'IBM Plex Mono',monospace;}
 /* Overclock: ring supera el 100% de la meta */
 .dr-item.overclock .dr-lbl{color:#ffd700;}
 .dr-item.overclock .dr-val{color:#ffd700;font-weight:800;}
@@ -1686,8 +1704,18 @@ body.t-naruto span.vval{
 .dr-ring-wrap.dr-editing svg{opacity:0.25;}
 @keyframes dr-pop{0%,100%{transform:scale(1)}45%{transform:scale(1.18)}}
 .dr-ring-wrap.dr-pulse svg{animation:dr-pop 0.36s var(--ease-spring);}
-.dr-goal-inp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:rgba(4,0,14,0.92);border:2px solid;font-size:13px;font-family:Rajdhani,sans-serif;font-weight:700;text-align:center;padding:0;line-height:40px;outline:none;-moz-appearance:textfield;box-shadow:0 0 12px rgba(0,0,0,0.6);}
-.dr-goal-inp::-webkit-outer-spin-button,.dr-goal-inp::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+#dr-goal-sheet{position:fixed;inset:0;z-index:8000;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);animation:achOvIn 0.2s ease both;}
+.drgs-card{background:var(--bg2,#0d1117);border-top:1px solid rgba(255,255,255,0.08);border-radius:20px 20px 0 0;padding:16px 24px max(40px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:14px;}
+.drgs-handle{width:36px;height:4px;background:rgba(255,255,255,0.12);border-radius:2px;margin-bottom:4px;}
+.drgs-lbl{font-size:11px;font-weight:700;letter-spacing:4px;font-family:'IBM Plex Mono',monospace;text-align:center;}
+.drgs-unit{font-size:10px;opacity:0.38;letter-spacing:2px;font-family:'IBM Plex Mono',monospace;margin-top:-8px;text-transform:uppercase;}
+.drgs-stepper{display:flex;align-items:center;gap:14px;margin:4px 0;}
+.drgs-step{width:48px;height:48px;border-radius:50%;border:1.5px solid;background:transparent;font-size:24px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity var(--dur-fast) var(--ease-std);-webkit-tap-highlight-color:transparent;font-family:inherit;}
+.drgs-step:active{opacity:0.4;}
+.drgs-inp{width:130px;height:56px;background:rgba(255,255,255,0.04);border:1.5px solid;border-radius:10px;font-size:26px;font-weight:700;font-family:Rajdhani,sans-serif;text-align:center;outline:none;-moz-appearance:textfield;}
+.drgs-inp::-webkit-outer-spin-button,.drgs-inp::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.drgs-save{width:100%;padding:16px;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:2px;cursor:pointer;margin-top:4px;}
+.drgs-cancel{font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);cursor:pointer;padding:8px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;}
 @keyframes wsload{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
 .wsitem{flex:1;display:flex;flex-direction:column;gap:5px;padding:0 14px;transition:filter var(--dur-base) var(--ease-std);}
 .wsitem:hover{filter:brightness(1.15);}
@@ -6661,9 +6689,16 @@ function coachConsume() {
 function proAction() {
   if (isPro()) {
     const msg = lang === 'es' ? '¿Cancelar AIRA Pro? (modo prueba)' : 'Cancel AIRA Pro? (test mode)';
-    if (confirm(msg)) { localStorage.removeItem('fb_pro'); renderProfile(); showToast(lang === 'es' ? 'Plan cancelado' : 'Plan cancelled', 'info'); }
+    if (confirm(msg)) {
+      localStorage.removeItem('fb_pro');
+      renderProfile(); renderDailyRings();
+      window._drAnimDone = true; setTimeout(animateDailyRings, 60);
+      showToast(lang === 'es' ? 'Plan cancelado' : 'Plan cancelled', 'info');
+    }
   } else {
-    localStorage.setItem('fb_pro', '1'); renderProfile();
+    localStorage.setItem('fb_pro', '1');
+    renderProfile(); renderDailyRings();
+    window._drAnimDone = true; setTimeout(animateDailyRings, 60);
     showToast(lang === 'es' ? 'AIRA Pro activado (prueba)' : 'AIRA Pro activated (test)', 'success');
   }
 }
@@ -7980,46 +8015,78 @@ function _drItemMD(el, e){
   if(el.querySelector('.dr-goal-inp')) e.preventDefault();
 }
 function _openDRGoalEdit(id, el){
-  // if input already open in this item, just focus it
-  var existing=el&&el.querySelector('.dr-goal-inp');
-  if(existing){existing.focus();return;}
-  // if open elsewhere, close nothing — one at a time
-  if(document.querySelector('.dr-goal-inp')) return;
   var key=id.replace('dr-','');
   var goals=_loadDRGoals();
   var def=_DR_DEFS.filter(function(d){return d.id===id;})[0];
+  var color=def?def.color:'var(--ta)';
+  var label=def?def.label:key.toUpperCase();
+  var es=lang==='es';
+  var step=key==='stp'?500:key==='cal'?50:5;
+  var minV=step;
+  var val=goals[key]||(key==='stp'?10000:key==='cal'?500:30);
+  var unitLabel=key==='stp'?(es?'pasos diarios':'daily steps'):key==='cal'?'kcal activas':(es?'min activos':'active min');
+  // Pulse animation
   var wrap=el&&el.querySelector('.dr-ring-wrap');
-  // pulse + dim
-  if(wrap){
-    wrap.classList.add('dr-pulse','dr-editing');
-    setTimeout(function(){wrap.classList.remove('dr-pulse');},360);
-  }
-  var inp=document.createElement('input');
-  inp.type='number'; inp.className='dr-goal-inp'; inp.value=goals[key]; inp.min='1';
-  if(def){inp.style.borderColor=def.color;inp.style.color=def.color;inp.style.boxShadow='0 0 14px '+def.color+'55';}
-  if(wrap) wrap.appendChild(inp);
+  if(wrap){wrap.classList.add('dr-pulse');setTimeout(function(){wrap.classList.remove('dr-pulse');},360);}
+  // Remove existing sheet
+  var old=document.getElementById('dr-goal-sheet'); if(old) old.remove();
+  window._drGoalOrig={key:key,val:val};
+  var sh=document.createElement('div');
+  sh.id='dr-goal-sheet';
+  sh.innerHTML=`<div class="drgs-card">
+    <div class="drgs-handle"></div>
+    <div class="drgs-lbl" style="color:${color}">${label}</div>
+    <div class="drgs-unit">${unitLabel}</div>
+    <div class="drgs-stepper">
+      <button class="drgs-step" id="drgs-dec" style="border-color:${color}44;color:${color}">−</button>
+      <input id="drgs-inp" type="number" class="drgs-inp" value="${val}" min="${minV}" step="${step}" style="color:${color};border-color:${color}55" />
+      <button class="drgs-step" id="drgs-inc" style="border-color:${color}44;color:${color}">+</button>
+    </div>
+    <button class="drgs-save" style="background:${color};color:var(--bg,#020810)" onclick="_saveDRGoalFromSheet()">
+      ${es?'GUARDAR META':'SAVE GOAL'}
+    </button>
+    <div class="drgs-cancel" onclick="_cancelDRGoalSheet()">
+      ${es?'CANCELAR':'CANCEL'}
+    </div>
+  </div>`;
+  sh.addEventListener('click',function(e){if(e.target===sh)_cancelDRGoalSheet();});
+  document.body.appendChild(sh);
+  var inp=document.getElementById('drgs-inp');
+  if(!inp) return;
   inp.focus(); inp.select();
-  var origVal=goals[key];
-  function close(){
-    inp.remove();
-    if(wrap) wrap.classList.remove('dr-editing');
-  }
-  function save(){
-    var v=parseInt(inp.value);
-    if(!isNaN(v)&&v>0){goals[key]=v;_saveDRGoals(goals);}
-    else{goals[key]=origVal;_saveDRGoals(goals);}
-    updateDailyRings(); close();
-  }
-  // live preview while typing
+  document.getElementById('drgs-dec').addEventListener('click',function(){
+    var v=Math.max(minV,(parseInt(inp.value)||val)-step);
+    inp.value=v; _livePreviewGoal(key,v);
+  });
+  document.getElementById('drgs-inc').addEventListener('click',function(){
+    var v=(parseInt(inp.value)||val)+step;
+    inp.value=v; _livePreviewGoal(key,v);
+  });
   inp.addEventListener('input',function(){
     var v=parseInt(inp.value);
-    if(!isNaN(v)&&v>0){var live=_loadDRGoals();live[key]=v;_saveDRGoals(live);updateDailyRings();}
+    if(!isNaN(v)&&v>=minV) _livePreviewGoal(key,v);
   });
-  inp.addEventListener('keydown',function(e){
-    if(e.key==='Enter')save();
-    if(e.key==='Escape'){goals[key]=origVal;_saveDRGoals(goals);updateDailyRings();close();}
-  });
-  inp.addEventListener('blur',function(){setTimeout(save,80);});
+}
+function _livePreviewGoal(key,val){
+  var g=_loadDRGoals(); g[key]=val; _saveDRGoals(g); updateDailyRings();
+}
+function _cancelDRGoalSheet(){
+  var sh=document.getElementById('dr-goal-sheet'); if(sh) sh.remove();
+  if(window._drGoalOrig){
+    var g=_loadDRGoals(); g[window._drGoalOrig.key]=window._drGoalOrig.val;
+    _saveDRGoals(g); updateDailyRings();
+  }
+}
+function _saveDRGoalFromSheet(){
+  var inp=document.getElementById('drgs-inp');
+  var key=window._drGoalOrig?window._drGoalOrig.key:null;
+  if(inp&&key){
+    var step=key==='stp'?500:key==='cal'?50:5;
+    var v=parseInt(inp.value);
+    if(!isNaN(v)&&v>=step){var g=_loadDRGoals();g[key]=v;_saveDRGoals(g);}
+  }
+  updateDailyRings();
+  var sh=document.getElementById('dr-goal-sheet'); if(sh) sh.remove();
 }
 var _DR_DEFS=[
   {id:'dr-stp',label:'PASOS',   color:'#6aff3a'},
@@ -8042,13 +8109,16 @@ function getDailyStreak() {
 function renderDailyRings() {
   var mc=document.getElementById('mcex'); if(!mc) return;
   window._drAnimDone = false;
+  var _pro=typeof isPro==='function'&&isPro();
   var C=_DR_C.toFixed(2), cx=_DR_CX, cy=_DR_CY, R=_DR_R, DIM=_DR_DIM, SW=_DR_SW;
   function makeRing(d,i) {
     var fid='drf'+i;
     var goals=_loadDRGoals();
     var key=d.id.replace('dr-','');
     var goalHint='/ '+_fmtGoal(key,goals[key]);
-    return '<div class="dr-item" id="'+d.id+'-item">'
+    var iClass='dr-item'+(_pro?'':' std-editable');
+    var iAct=_pro?'':` onmousedown="_drItemMD(this,event)" onclick="_openDRGoalEdit('${d.id}',this)"`;
+    return '<div class="'+iClass+'" id="'+d.id+'-item"'+iAct+'>'
       +'<div class="dr-ring-wrap">'
         +'<svg width="'+DIM+'" height="'+DIM+'" viewBox="0 0 '+DIM+' '+DIM+'" style="overflow:visible">'
           +'<defs><filter id="'+fid+'" x="-80%" y="-80%" width="260%" height="260%">'
@@ -8097,24 +8167,30 @@ function updateDailyRings() {
   if (!document.getElementById('dr-stp-arc')) return;
   var C=_DR_C, cx=_DR_CX, cy=_DR_CY, R=_DR_R;
   var nv=function(id){ return parseFloat(((document.getElementById(id)||{}).textContent||'0').replace(/[^0-9.]/g,''))||0; };
-  var goals=_getActivityBaseline(); // baseline personal (7-day rolling avg)
+  var pro=typeof isPro==='function'&&isPro();
+  var goals=pro?_getActivityBaseline():_loadDRGoals();
   var cal=nv('calv')||nv('cal-act'), steps=nv('stepsv');
   var actMin=nv('hrmin-cardio')+nv('hrmin-peak');
-  // Metas adaptativas por recovery (A)
   var rec=window._lastRec||0;
   var dt=_getDayType(rec);
-  var mult=dt.mult;
-  var ag={stp:Math.round(goals.stp*mult),cal:Math.round(goals.cal*mult),act:Math.round(goals.act*mult)};
-  // Registra actividad de hoy para aprender baseline (solo en modo real)
+  var mult=pro?dt.mult:1.0;
+  var ag=pro?{stp:Math.round(goals.stp*mult),cal:Math.round(goals.cal*mult),act:Math.round(goals.act*mult)}:goals;
+  // Registra actividad (ambos planes — útil si el usuario hace upgrade)
   if(isReal&&(steps||cal||actMin)) _recordActivityDay(steps,cal,actMin);
-  // Chip de tipo de día
+  // Chip de tipo de día — Pro: tipo de día adaptativo | Standard: 🔒 upsell
   var dtEl=document.getElementById('dr-daytype');
   if(dtEl){
-    var isAdj=Math.abs(mult-1)>0.05;
-    dtEl.innerHTML='<span style="font-size:12px">'+dt.icon+'</span>'
-      +'<span style="color:'+dt.color+'">'+dt.label+'</span>'
-      +(isAdj?'<span class="dr-daytype-mult">· META ×'+mult+'</span>':'');
-    dtEl.style.color=dt.color;
+    if(pro){
+      var isAdj=Math.abs(mult-1)>0.05;
+      dtEl.innerHTML='<span style="font-size:12px">'+dt.icon+'</span>'
+        +'<span style="color:'+dt.color+'">'+dt.label+'</span>'
+        +(isAdj?'<span class="dr-daytype-mult">· META ×'+mult+'</span>':'');
+      dtEl.style.color=''; dtEl.onclick=null; dtEl.classList.remove('pro-lock');
+    } else {
+      dtEl.innerHTML='<span style="font-size:11px">🔒</span>'
+        +'<span>'+(lang==='es'?'METAS ADAPTATIVAS · AIRA PRO':'ADAPTIVE GOALS · AIRA PRO')+'</span>';
+      dtEl.style.color=''; dtEl.onclick=_showProRingUpsell; dtEl.classList.add('pro-lock');
+    }
     dtEl.classList.add('live');
   }
   if(!window._drPrevRaw) window._drPrevRaw={};
@@ -8162,7 +8238,7 @@ function updateDailyRings() {
     var valEl=document.getElementById(d.id+'-val');
     if(valEl) valEl.textContent=d.val+(d.unit&&d.val!=='-'?' '+d.unit:'');
     var goalEl=document.getElementById(d.id+'-goal');
-    if(goalEl&&!document.querySelector('.dr-goal-inp')) goalEl.textContent='/ '+_fmtGoal(d.goalKey,d.goalVal);
+    if(goalEl) goalEl.textContent='/ '+_fmtGoal(d.goalKey,d.goalVal);
   });
   // Composite = promedio de los 3 anillos de actividad → actualiza TODOS los temas
   var composite=Math.round((data[0].pct+data[1].pct+data[2].pct)/3);
@@ -10594,6 +10670,28 @@ function closeAch() {
   var dr = document.getElementById('ach-drawer');
   if (ov) ov.classList.remove('ach-open');
   if (dr) dr.classList.remove('ach-open');
+}
+
+function _showProRingUpsell() {
+  var es=lang==='es';
+  var old=document.getElementById('pro-ring-sheet'); if(old) old.remove();
+  var sh=document.createElement('div'); sh.id='pro-ring-sheet';
+  sh.innerHTML='<div class="prs-card">'
+    +'<div class="prs-icon">⚡</div>'
+    +'<div class="prs-title">'+(es?'AIRA PRO — Metas que piensan':'AIRA PRO — Goals that think')+'</div>'
+    +'<div class="prs-desc">'+(es
+      ?'AIRA aprende tu cuerpo y ajusta tus metas según cómo amaneces cada día.'
+      :'AIRA learns your body and adjusts your goals based on how you wake up each day.')+'</div>'
+    +'<div class="prs-feat">'
+      +'<div class="prs-feat-row"><span>📈</span><span>'+(es?'Baseline personal de 7 días — tus números reales':'7-day personal baseline — your real numbers')+'</span></div>'
+      +'<div class="prs-feat-row"><span>🔥</span><span>'+(es?'Multiplicador por recovery — más en días fuertes, menos en reposo':'Recovery multiplier — push on peak days, rest on low days')+'</span></div>'
+      +'<div class="prs-feat-row"><span>👑</span><span>'+(es?'Overclock dorado cuando superas la meta adaptada':'Gold overclock when you beat your adaptive goal')+'</span></div>'
+    +'</div>'
+    +'<button class="prs-cta" onclick="document.getElementById(\'pro-ring-sheet\').remove();proAction();">'+(es?'ACTIVAR AIRA PRO':'ACTIVATE AIRA PRO')+'</button>'
+    +'<div class="prs-skip" onclick="document.getElementById(\'pro-ring-sheet\').remove();">'+(es?'AHORA NO':'NOT NOW')+'</div>'
+  +'</div>';
+  sh.addEventListener('click',function(e){ if(e.target===sh) sh.remove(); });
+  document.body.appendChild(sh);
 }
 
 function _replayAchAnim(idx) {
