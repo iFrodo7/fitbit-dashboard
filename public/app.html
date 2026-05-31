@@ -2103,7 +2103,7 @@ body.t-naruto span.vval{
         <div class="ts bloom" id="sel-bloom-sub">WELLNESS · RENDIMIENTO</div>
       </div>
       <div class="tc-ach" id="tc-ach-bloom">
-        <span class="tc-ach-count">0/10</span>
+        <span class="tc-ach-count">0/17</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#e85c8a;width:0%"></div></div>
       </div>
     </div>
@@ -2196,7 +2196,7 @@ body.t-naruto span.vval{
         <div class="ts halo" id="sel-halo-sub">NIGHT CITY UPLINK</div>
       </div>
       <div class="tc-ach" id="tc-ach-halo">
-        <span class="tc-ach-count">0/10</span>
+        <span class="tc-ach-count">0/17</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#ff2d78;width:0%"></div></div>
       </div>
     </div>
@@ -2211,7 +2211,7 @@ body.t-naruto span.vval{
         <div class="ts naruto" id="sel-naruto-sub">気 · MONITOR DE ENERGÍA</div>
       </div>
       <div class="tc-ach" id="tc-ach-naruto">
-        <span class="tc-ach-count">0/10</span>
+        <span class="tc-ach-count">0/17</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#4a6a84;width:0%"></div></div>
       </div>
     </div>
@@ -2246,7 +2246,7 @@ body.t-naruto span.vval{
         <div class="ts fut" id="sel-fut-sub">BIOMETRIC CORE v2.6</div>
       </div>
       <div class="tc-ach" id="tc-ach-fut">
-        <span class="tc-ach-count">0/10</span>
+        <span class="tc-ach-count">0/17</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#00f5ff;width:0%"></div></div>
       </div>
     </div>
@@ -2261,7 +2261,7 @@ body.t-naruto span.vval{
         <div class="t-lock-tag">PRO</div>
       </div>
       <div class="tc-ach" id="tc-ach-mc">
-        <span class="tc-ach-count">0/10</span>
+        <span class="tc-ach-count">0/17</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#6aff3a;width:0%"></div></div>
       </div>
     </div>
@@ -7862,7 +7862,7 @@ function renderDailyRings() {
           +'<span class="drw-stk-val" id="dr-stk">'+strk+(lang==='es'?' DÍAS':' DAYS')+'</span>'
         +'</div>'
         +'<div class="ach-badge" id="ach-ring-badge" onclick="openAch()" title="Logros">'
-          +'<span class="ach-badge-val">🏆 0/10</span>'
+          +'<span class="ach-badge-val">🏆 0/17</span>'
         +'</div>'
       +'</div>'
     +'</div>'
@@ -7923,6 +7923,13 @@ function updateDailyRings() {
   var allHit = data.every(function(d){ return d.pct >= 100; });
   var anyHit = data.some(function(d){ return d.pct >= 100; });
   if (anyHit) recordGoalHit(allHit);
+  // raw (uncapped) percentages for 150% check
+  var rawPcts = {
+    stp: steps/goals.stp*100,
+    cal: cal/goals.cal*100,
+    act: actMin/goals.act*100
+  };
+  _updateDailyActivityStats(steps, rawPcts, anyHit);
   checkAchievements();
 }
 
@@ -9891,16 +9898,23 @@ initCapacitor();
 
 // ══════ ACHIEVEMENT SYSTEM ══════
 var _ACH_DEFS = [
-  { id:'explorer',  icon:'🗺', check:function(s,t){ return (s.themeDays[t]||0)>=1; } },
-  { id:'first_goal',icon:'🎯', check:function(s){   return s.goalsHit>=1; } },
-  { id:'triple',    icon:'⚡', check:function(s){   return s.tripleHit>=1; } },
-  { id:'streak3',   icon:'🔥', check:function(s){   return (s.tripleStreakMax||0)>=3; } },
-  { id:'streak7',   icon:'💎', check:function(s){   return (s.tripleStreakMax||0)>=7; } },
-  { id:'streak15',  icon:'🌙', check:function(s){   return (s.tripleStreakMax||0)>=15; } },
-  { id:'streak30',  icon:'🗓', check:function(s){   return (s.tripleStreakMax||0)>=30; } },
-  { id:'loyal',     icon:'🏅', check:function(s,t){ return (s.themeDays[t]||0)>=5; } },
-  { id:'peak',      icon:'👑', check:function(s){   return s.peakComposite>=90; } },
-  { id:'all_goals', icon:'🌟', check:function(s){   return s.allGoalsDays>=1; } }
+  { id:'explorer',     icon:'🗺', check:function(s,t){ return (s.themeDays[t]||0)>=1; } },
+  { id:'first_goal',   icon:'🎯', check:function(s){   return s.goalsHit>=1; } },
+  { id:'triple',       icon:'⚡', check:function(s){   return s.tripleHit>=1; } },
+  { id:'streak3',      icon:'🔥', check:function(s){   return (s.tripleStreakMax||0)>=3; } },
+  { id:'streak7',      icon:'💎', check:function(s){   return (s.tripleStreakMax||0)>=7; } },
+  { id:'streak15',     icon:'🌙', check:function(s){   return (s.tripleStreakMax||0)>=15; } },
+  { id:'streak30',     icon:'🗓', check:function(s){   return (s.tripleStreakMax||0)>=30; } },
+  { id:'loyal',        icon:'🏅', check:function(s,t){ return (s.themeDays[t]||0)>=5; } },
+  { id:'peak',         icon:'👑', check:function(s){   return s.peakComposite>=90; } },
+  { id:'all_goals',    icon:'🌟', check:function(s){   return s.allGoalsDays>=1; } },
+  { id:'caminante',    icon:'👣', check:function(s){   return (s.stepsMax||0)>=10000; } },
+  { id:'maratonista',  icon:'🏃', check:function(s){   return (s.stepsMax||0)>=20000; } },
+  { id:'quemador',     icon:'🔥', check:function(s){   return (s.calStreakMax||0)>=5; } },
+  { id:'entrenador',   icon:'💪', check:function(s){   return (s.actMinHits||0)>=5; } },
+  { id:'superado',     icon:'📈', check:function(s){   return !!s.superadoHit; } },
+  { id:'semana_activa',icon:'🏋', check:function(s){   return (s.anyRingStreakMax||0)>=7; } },
+  { id:'mes_hierro',   icon:'🏆', check:function(s){   return (s.anyRingStreakMax||0)>=30; } }
 ];
 
 var _ACH_LABELS = {
@@ -9916,7 +9930,14 @@ var _ACH_LABELS = {
       {name:'一ヶ月修行', desc:'30 días seguidos — rango legendario'},
       {name:'義士',      desc:'Fiel al camino — 5 sesiones'},
       {name:'影の力',    desc:'Composite ≥ 90% — Rango Kage'},
-      {name:'無双',      desc:'Todos los objetivos — día perfecto'}
+      {name:'無双',      desc:'Todos los objetivos — día perfecto'},
+      {name:'千歩の道',  desc:'10,000 pasos en un día'},
+      {name:'万歩の覇者',desc:'20,000 pasos en un día — resistencia de jōnin'},
+      {name:'炎の修行',  desc:'Calorías al 100% durante 5 días seguidos'},
+      {name:'鍛錬の士',  desc:'Minutos activos al 100% en 5 ocasiones'},
+      {name:'限界突破',  desc:'Superar el 150% de cualquier objetivo'},
+      {name:'七日の陣',  desc:'7 días seguidos con al menos 1 ring cerrado'},
+      {name:'鉄の月',   desc:'30 días seguidos con al menos 1 ring cerrado'}
     ]
   },
   halo:{
@@ -9931,7 +9952,14 @@ var _ACH_LABELS = {
       {name:'NETRUNNER MAX',  desc:'30 días seguidos — chrome total'},
       {name:'CORPO LOYAL',    desc:'5 sesiones en Neon Noir'},
       {name:'FLATLINE >90',   desc:'Composite ≥ 90%'},
-      {name:'OVERCLOCK',      desc:'Día perfecto — todos los objetivos'}
+      {name:'OVERCLOCK',      desc:'Día perfecto — todos los objetivos'},
+      {name:'PEDESTRIAN',     desc:'10,000 pasos en un día'},
+      {name:'GHOST RUNNER',   desc:'20,000 pasos — chrome al límite'},
+      {name:'THERMAL BURN ×5',desc:'Calorías al 100% durante 5 días seguidos'},
+      {name:'REFLEX ARC ×5',  desc:'Minutos activos al 100% en 5 ocasiones'},
+      {name:'OVERCAP >150',   desc:'Superar el 150% de cualquier objetivo'},
+      {name:'7-DAY UPLINK',   desc:'7 días seguidos con al menos 1 ring cerrado'},
+      {name:'IRON MONTH',     desc:'30 días seguidos con al menos 1 ring cerrado'}
     ]
   },
   mc:{
@@ -9946,7 +9974,14 @@ var _ACH_LABELS = {
       {name:'LEGEND MODE',  desc:'30 días seguidos — nivel leyenda'},
       {name:'VETERAN',      desc:'5 sesiones en Minecraft'},
       {name:'MAX LEVEL',    desc:'Composite ≥ 90%'},
-      {name:'FULL CLEAR',   desc:'Día perfecto'}
+      {name:'FULL CLEAR',   desc:'Día perfecto'},
+      {name:'10K WALKER',   desc:'10,000 pasos en un día'},
+      {name:'SPEEDRUNNER',  desc:'20,000 pasos — no-hit run'},
+      {name:'FURNACE ×5',   desc:'Calorías al 100% durante 5 días seguidos'},
+      {name:'GRINDER ×5',   desc:'Minutos activos al 100% en 5 ocasiones'},
+      {name:'>150% BUFF',   desc:'Superar el 150% de cualquier objetivo'},
+      {name:'WEEK ACTIVE',  desc:'7 días seguidos con al menos 1 ring cerrado'},
+      {name:'IRON MONTH',   desc:'30 días seguidos con al menos 1 ring cerrado'}
     ]
   },
   fut:{
@@ -9961,7 +9996,14 @@ var _ACH_LABELS = {
       {name:'OMEGA PROTOCOL',desc:'30 días seguidos — misión absoluta'},
       {name:'CORE BOUND',   desc:'5 sesiones en Aether'},
       {name:'APEX SIGNAL',  desc:'Composite ≥ 90%'},
-      {name:'MISSION CLEAR',desc:'Día perfecto'}
+      {name:'MISSION CLEAR', desc:'Día perfecto'},
+      {name:'PATROL ROUTE',  desc:'10,000 pasos en un día'},
+      {name:'SIGMA RUNNER',  desc:'20,000 pasos — velocidad máxima'},
+      {name:'BURN CYCLE ×5', desc:'Calorías al 100% durante 5 días seguidos'},
+      {name:'ACTIVE CORE ×5',desc:'Minutos activos al 100% en 5 ocasiones'},
+      {name:'OVERCLOCK 150', desc:'Superar el 150% de cualquier objetivo'},
+      {name:'7-CYCLE LOCK',  desc:'7 días seguidos con al menos 1 ring cerrado'},
+      {name:'IRON PROTOCOL', desc:'30 días seguidos con al menos 1 ring cerrado'}
     ]
   },
   bloom:{
@@ -9976,7 +10018,14 @@ var _ACH_LABELS = {
       {name:'Jardín Eterno',   desc:'30 días seguidos — florecimiento total'},
       {name:'Jardinera Fiel',  desc:'5 sesiones en Bloom'},
       {name:'Sakura Máx.',     desc:'Composite ≥ 90%'},
-      {name:'Jardín Perfecto', desc:'Día perfecto'}
+      {name:'Jardín Perfecto', desc:'Día perfecto'},
+      {name:'Caminante',       desc:'10,000 pasos en un día'},
+      {name:'Maratonista',     desc:'20,000 pasos — plenitud total'},
+      {name:'Llama Viva ×5',   desc:'Calorías al 100% durante 5 días seguidos'},
+      {name:'Raíz Fuerte ×5',  desc:'Minutos activos al 100% en 5 ocasiones'},
+      {name:'Floración Plena', desc:'Superar el 150% de cualquier objetivo'},
+      {name:'Semana en Flor',  desc:'7 días seguidos con al menos 1 ring cerrado'},
+      {name:'Mes de Hierro',   desc:'30 días seguidos con al menos 1 ring cerrado'}
     ]
   }
 };
@@ -10025,6 +10074,36 @@ function _recordThemeDay(t) {
     s._lastThemeDate[t] = today;
     _saveAchStats(s);
   }
+}
+
+function _updateDailyActivityStats(steps, rawPcts, anyAt100) {
+  var s = _loadAchStats();
+  var today = new Date().toISOString().slice(0,10);
+  var yest  = new Date(Date.now()-86400000).toISOString().slice(0,10);
+  // Steps max (update always — might improve during day)
+  if (steps > (s.stepsMax||0)) s.stepsMax = steps;
+  // Superado: any ring raw >= 150%
+  if (Math.max(rawPcts.stp, rawPcts.cal, rawPcts.act) >= 150) s.superadoHit = true;
+  // Any-ring streak (at least 1 ring at 100%)
+  if (anyAt100 && s._lastAnyDate !== today) {
+    var anyCur = (s._lastAnyDate === yest) ? (s.anyRingStreakCur||0)+1 : 1;
+    s.anyRingStreakCur = anyCur;
+    s.anyRingStreakMax = Math.max(s.anyRingStreakMax||0, anyCur);
+    s._lastAnyDate = today;
+  }
+  // Cal streak (cal ring at 100%)
+  if (rawPcts.cal >= 100 && s._lastCalDate !== today) {
+    var calCur = (s._lastCalDate === yest) ? (s.calStreakCur||0)+1 : 1;
+    s.calStreakCur = calCur;
+    s.calStreakMax = Math.max(s.calStreakMax||0, calCur);
+    s._lastCalDate = today;
+  }
+  // ActMin hits (count unique days at 100%)
+  if (rawPcts.act >= 100 && s._lastActDate !== today) {
+    s.actMinHits = (s.actMinHits||0)+1;
+    s._lastActDate = today;
+  }
+  _saveAchStats(s);
 }
 
 function _updateTripleStreak() {
