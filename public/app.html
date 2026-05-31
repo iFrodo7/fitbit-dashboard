@@ -2103,7 +2103,7 @@ body.t-naruto span.vval{
         <div class="ts bloom" id="sel-bloom-sub">WELLNESS · RENDIMIENTO</div>
       </div>
       <div class="tc-ach" id="tc-ach-bloom">
-        <span class="tc-ach-count">0/8</span>
+        <span class="tc-ach-count">0/10</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#e85c8a;width:0%"></div></div>
       </div>
     </div>
@@ -2196,7 +2196,7 @@ body.t-naruto span.vval{
         <div class="ts halo" id="sel-halo-sub">NIGHT CITY UPLINK</div>
       </div>
       <div class="tc-ach" id="tc-ach-halo">
-        <span class="tc-ach-count">0/8</span>
+        <span class="tc-ach-count">0/10</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#ff2d78;width:0%"></div></div>
       </div>
     </div>
@@ -2211,7 +2211,7 @@ body.t-naruto span.vval{
         <div class="ts naruto" id="sel-naruto-sub">気 · MONITOR DE ENERGÍA</div>
       </div>
       <div class="tc-ach" id="tc-ach-naruto">
-        <span class="tc-ach-count">0/8</span>
+        <span class="tc-ach-count">0/10</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#4a6a84;width:0%"></div></div>
       </div>
     </div>
@@ -2246,7 +2246,7 @@ body.t-naruto span.vval{
         <div class="ts fut" id="sel-fut-sub">BIOMETRIC CORE v2.6</div>
       </div>
       <div class="tc-ach" id="tc-ach-fut">
-        <span class="tc-ach-count">0/8</span>
+        <span class="tc-ach-count">0/10</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#00f5ff;width:0%"></div></div>
       </div>
     </div>
@@ -2261,7 +2261,7 @@ body.t-naruto span.vval{
         <div class="t-lock-tag">PRO</div>
       </div>
       <div class="tc-ach" id="tc-ach-mc">
-        <span class="tc-ach-count">0/8</span>
+        <span class="tc-ach-count">0/10</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#6aff3a;width:0%"></div></div>
       </div>
     </div>
@@ -7862,7 +7862,7 @@ function renderDailyRings() {
           +'<span class="drw-stk-val" id="dr-stk">'+strk+(lang==='es'?' DÍAS':' DAYS')+'</span>'
         +'</div>'
         +'<div class="ach-badge" id="ach-ring-badge" onclick="openAch()" title="Logros">'
-          +'<span class="ach-badge-val">🏆 0/8</span>'
+          +'<span class="ach-badge-val">🏆 0/10</span>'
         +'</div>'
       +'</div>'
     +'</div>'
@@ -9891,79 +9891,91 @@ initCapacitor();
 
 // ══════ ACHIEVEMENT SYSTEM ══════
 var _ACH_DEFS = [
-  { id:'explorer', icon:'🗺', check:function(s,t){ return (s.themeDays[t]||0)>=1; } },
-  { id:'first_goal', icon:'🎯', check:function(s){ return s.goalsHit>=1; } },
-  { id:'triple', icon:'⚡', check:function(s){ return s.tripleHit>=1; } },
-  { id:'streak3', icon:'🔥', check:function(s){ return s.maxStreak>=3; } },
-  { id:'streak7', icon:'💎', check:function(s){ return s.maxStreak>=7; } },
-  { id:'loyal', icon:'🏅', check:function(s,t){ return (s.themeDays[t]||0)>=5; } },
-  { id:'peak', icon:'👑', check:function(s){ return s.peakComposite>=90; } },
-  { id:'all_goals', icon:'🌟', check:function(s){ return s.allGoalsDays>=1; } }
+  { id:'explorer',  icon:'🗺', check:function(s,t){ return (s.themeDays[t]||0)>=1; } },
+  { id:'first_goal',icon:'🎯', check:function(s){   return s.goalsHit>=1; } },
+  { id:'triple',    icon:'⚡', check:function(s){   return s.tripleHit>=1; } },
+  { id:'streak3',   icon:'🔥', check:function(s){   return (s.tripleStreakMax||0)>=3; } },
+  { id:'streak7',   icon:'💎', check:function(s){   return (s.tripleStreakMax||0)>=7; } },
+  { id:'streak15',  icon:'🌙', check:function(s){   return (s.tripleStreakMax||0)>=15; } },
+  { id:'streak30',  icon:'🗓', check:function(s){   return (s.tripleStreakMax||0)>=30; } },
+  { id:'loyal',     icon:'🏅', check:function(s,t){ return (s.themeDays[t]||0)>=5; } },
+  { id:'peak',      icon:'👑', check:function(s){   return s.peakComposite>=90; } },
+  { id:'all_goals', icon:'🌟', check:function(s){   return s.allGoalsDays>=1; } }
 ];
 
 var _ACH_LABELS = {
   naruto:{
     title:'忍者の道 · LOGROS',
     list:[
-      {name:'新道を開く', desc:'Descubriste el camino del Shinobi'},
-      {name:'目標達成', desc:'Primera meta alcanzada'},
-      {name:'三位一体', desc:'Los 3 rings al 100% en un día'},
-      {name:'修行3日', desc:'3 días de entrenamiento seguidos'},
-      {name:'不眠修行', desc:'7 días de racha'},
-      {name:'義士', desc:'Fiel al camino — 5 sesiones'},
-      {name:'影の力', desc:'Composite ≥ 90% — Rango Kage'},
-      {name:'無双', desc:'Todos los objetivos — día perfecto'}
+      {name:'新道を開く',  desc:'Descubriste el camino del Shinobi'},
+      {name:'目標達成',   desc:'Primera meta alcanzada'},
+      {name:'三位一体',   desc:'3 rings al 100% en un día'},
+      {name:'修行3日',   desc:'3 días seguidos con los 3 rings cerrados'},
+      {name:'不眠修行',   desc:'7 días seguidos con los 3 rings cerrados'},
+      {name:'半月修行',   desc:'15 días seguidos con los 3 rings cerrados'},
+      {name:'一ヶ月修行', desc:'30 días seguidos — rango legendario'},
+      {name:'義士',      desc:'Fiel al camino — 5 sesiones'},
+      {name:'影の力',    desc:'Composite ≥ 90% — Rango Kage'},
+      {name:'無双',      desc:'Todos los objetivos — día perfecto'}
     ]
   },
   halo:{
     title:'// NEURAL ACHIEVEMENTS',
     list:[
-      {name:'JACK IN', desc:'Primer acceso al sistema Neon Noir'},
-      {name:'CHROME I', desc:'Primera meta alcanzada'},
-      {name:'FULL SYNC', desc:'Los 3 rings al 100%'},
-      {name:'NET-RUN ×3', desc:'3 días activos seguidos'},
-      {name:'GHOST PROTOCOL', desc:'7 días de racha'},
-      {name:'CORPO LOYAL', desc:'5 sesiones en Neon Noir'},
-      {name:'FLATLINE >90', desc:'Composite ≥ 90%'},
-      {name:'OVERCLOCK', desc:'Día perfecto — todos los objetivos'}
+      {name:'JACK IN',        desc:'Primer acceso al sistema Neon Noir'},
+      {name:'CHROME I',       desc:'Primera meta alcanzada'},
+      {name:'FULL SYNC',      desc:'3 rings al 100%'},
+      {name:'NET-RUN ×3',     desc:'3 días seguidos con los 3 rings cerrados'},
+      {name:'GHOST PROTOCOL', desc:'7 días seguidos con los 3 rings cerrados'},
+      {name:'BLACKWALL ×15',  desc:'15 días seguidos con los 3 rings cerrados'},
+      {name:'NETRUNNER MAX',  desc:'30 días seguidos — chrome total'},
+      {name:'CORPO LOYAL',    desc:'5 sesiones en Neon Noir'},
+      {name:'FLATLINE >90',   desc:'Composite ≥ 90%'},
+      {name:'OVERCLOCK',      desc:'Día perfecto — todos los objetivos'}
     ]
   },
   mc:{
     title:'[!] ACHIEVEMENTS UNLOCKED',
     list:[
-      {name:'NEW WORLD', desc:'Primer día en Minecraft mode'},
+      {name:'NEW WORLD',    desc:'Primer día en Minecraft mode'},
       {name:'IRON PICKAXE', desc:'Primera meta alcanzada'},
-      {name:'DIAMOND HAUL', desc:'Los 3 rings al 100%'},
-      {name:'3-DAY GRIND', desc:'3 días seguidos'},
-      {name:'WEEK STREAK', desc:'7 días de racha'},
-      {name:'VETERAN', desc:'5 sesiones en Minecraft'},
-      {name:'MAX LEVEL', desc:'Composite ≥ 90%'},
-      {name:'FULL CLEAR', desc:'Día perfecto'}
+      {name:'DIAMOND HAUL', desc:'3 rings al 100%'},
+      {name:'3-DAY GRIND',  desc:'3 días seguidos con los 3 rings cerrados'},
+      {name:'WEEK STREAK',  desc:'7 días seguidos con los 3 rings cerrados'},
+      {name:'HALF MONTH',   desc:'15 días seguidos con los 3 rings cerrados'},
+      {name:'LEGEND MODE',  desc:'30 días seguidos — nivel leyenda'},
+      {name:'VETERAN',      desc:'5 sesiones en Minecraft'},
+      {name:'MAX LEVEL',    desc:'Composite ≥ 90%'},
+      {name:'FULL CLEAR',   desc:'Día perfecto'}
     ]
   },
   fut:{
     title:'◈ MISSION LOG',
     list:[
-      {name:'INITIALIZED', desc:'Sistema Aether activado'},
-      {name:'TARGET HIT', desc:'Primera meta alcanzada'},
-      {name:'TRIPLE LOCK', desc:'Los 3 rings al 100%'},
-      {name:'SEQUENCE ×3', desc:'3 días seguidos'},
-      {name:'PROTOCOL 7', desc:'7 días de racha'},
-      {name:'CORE BOUND', desc:'5 sesiones en Aether'},
-      {name:'APEX SIGNAL', desc:'Composite ≥ 90%'},
-      {name:'MISSION CLEAR', desc:'Día perfecto'}
+      {name:'INITIALIZED',  desc:'Sistema Aether activado'},
+      {name:'TARGET HIT',   desc:'Primera meta alcanzada'},
+      {name:'TRIPLE LOCK',  desc:'3 rings al 100%'},
+      {name:'SEQUENCE ×3',  desc:'3 días seguidos con los 3 rings cerrados'},
+      {name:'PROTOCOL 7',   desc:'7 días seguidos con los 3 rings cerrados'},
+      {name:'SIGMA ×15',    desc:'15 días seguidos con los 3 rings cerrados'},
+      {name:'OMEGA PROTOCOL',desc:'30 días seguidos — misión absoluta'},
+      {name:'CORE BOUND',   desc:'5 sesiones en Aether'},
+      {name:'APEX SIGNAL',  desc:'Composite ≥ 90%'},
+      {name:'MISSION CLEAR',desc:'Día perfecto'}
     ]
   },
   bloom:{
     title:'🌸 JARDÍN DE LOGROS',
     list:[
-      {name:'Primer Brote', desc:'Bloom despertó por primera vez'},
-      {name:'Primera Flor', desc:'Primera meta alcanzada'},
-      {name:'Florecer', desc:'Los 3 rings al 100%'},
-      {name:'Raíces', desc:'3 días seguidos'},
-      {name:'Árbol Pleno', desc:'7 días de racha'},
-      {name:'Jardinera Fiel', desc:'5 sesiones en Bloom'},
-      {name:'Sakura Máx.', desc:'Composite ≥ 90%'},
+      {name:'Primer Brote',    desc:'Bloom despertó por primera vez'},
+      {name:'Primera Flor',    desc:'Primera meta alcanzada'},
+      {name:'Florecer',        desc:'3 rings al 100%'},
+      {name:'Raíces',          desc:'3 días seguidos con los 3 rings cerrados'},
+      {name:'Árbol Pleno',     desc:'7 días seguidos con los 3 rings cerrados'},
+      {name:'Luna en Flor',    desc:'15 días seguidos con los 3 rings cerrados'},
+      {name:'Jardín Eterno',   desc:'30 días seguidos — florecimiento total'},
+      {name:'Jardinera Fiel',  desc:'5 sesiones en Bloom'},
+      {name:'Sakura Máx.',     desc:'Composite ≥ 90%'},
       {name:'Jardín Perfecto', desc:'Día perfecto'}
     ]
   }
@@ -10015,11 +10027,29 @@ function _recordThemeDay(t) {
   }
 }
 
+function _updateTripleStreak() {
+  var s = _loadAchStats();
+  var today = new Date().toISOString().slice(0,10);
+  if (s.lastTripleDate === today) return; // ya contó hoy
+  var yest = new Date(Date.now()-86400000).toISOString().slice(0,10);
+  var cur = (s.lastTripleDate === yest) ? (s.tripleStreakCur||0)+1 : 1;
+  s.tripleStreakCur = cur;
+  s.tripleStreakMax = Math.max(s.tripleStreakMax||0, cur);
+  s.lastTripleDate = today;
+  _saveAchStats(s);
+}
+
 function recordGoalHit(allThree) {
   var s = _loadAchStats();
   s.goalsHit = (s.goalsHit||0) + 1;
-  if (allThree) { s.tripleHit = (s.tripleHit||0) + 1; s.allGoalsDays = (s.allGoalsDays||0) + 1; }
-  _saveAchStats(s);
+  if (allThree) {
+    s.tripleHit = (s.tripleHit||0) + 1;
+    s.allGoalsDays = (s.allGoalsDays||0) + 1;
+    _saveAchStats(s);
+    _updateTripleStreak();
+  } else {
+    _saveAchStats(s);
+  }
   checkAchievements();
 }
 
