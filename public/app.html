@@ -7585,11 +7585,18 @@ function _onDragEnd(e) {
   document.removeEventListener('mousemove',  _onDragMove);
   document.removeEventListener('mouseup',    _onDragEnd);
   var vg = document.querySelector('.vg');
-  // Land the real card in the slot's place, then settle the ghost onto it.
+  // Snapshot the drop zone from the slot BEFORE any DOM mutation.
+  // After insertBefore(card, slot) both occupy the same grid row and the card
+  // is pushed down by the slot's own height — reading getBoundingClientRect()
+  // on the card after that gives a wrong dest. Reading the slot first is exact.
+  var dest = d.slot.getBoundingClientRect();
+  // Land the real card in the slot's place, animating siblings into new positions.
   _flipReorder(vg, function(){ vg.insertBefore(d.card, d.slot); });
-  var dest = d.card.getBoundingClientRect();
   d.slot.remove();
-  // Settle: glide ghost into the landed card's position with a spring, then swap.
+  // Settle: clear the inline transition that _dragFrame set so .wm-settling CSS
+  // takes effect (transform spring + opacity fade). Without this the ghost jumps
+  // to dest instantly and users perceive the card as landing in the wrong spot.
+  d.ghost.style.transition = '';
   d.ghost.classList.remove('wm-lift');
   d.ghost.classList.add('wm-settling');
   d.ghost.style.opacity = '0';
