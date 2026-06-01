@@ -4265,7 +4265,7 @@ let theme = localStorage.getItem('fb_t') || null;
 let lang = localStorage.getItem('fb_lang') || 'es';
 let isReal = false, token = localStorage.getItem('fb_tok') || '';
 const REDIR = location.href.split('?')[0];
-let pSec = 60, cd = 60, ptmr = null, cdtmr = null;
+let pSec = 60, cd = 60, ptmr = null, cdtmr = null, slowTmr = null;
 let hrHist = [62,60,58,57,56,58,60,65,72,78,82,75,68,71,74,70,68,72,69,67,70,69,68,68];
 
 // ══════ TRANSLATIONS ══════
@@ -5512,7 +5512,7 @@ function goBack() {
   document.getElementById('bnav').style.display = 'none';
   document.getElementById('sel').style.display = 'flex';
   document.body.className = '';
-  clearInterval(ptmr); clearInterval(cdtmr);
+  clearInterval(ptmr); clearInterval(cdtmr); clearInterval(slowTmr);
   document.querySelectorAll('.nring').forEach(e => e.remove());
   // Clear ambient layers + injected Neon Noir sweep line
   var ba = document.getElementById('bloom-ambient'); if (ba) ba.innerHTML = '';
@@ -6824,7 +6824,7 @@ function disconnectFitbit() {
   localStorage.removeItem('fb_display_name');   // clear persisted name
   token = ''; HS = FitbitSource;
   isReal = false;
-  clearInterval(ptmr);
+  clearInterval(ptmr); clearInterval(slowTmr);
   // Reset name display and restore Connect button
   const _unEl = document.getElementById('uname');
   if (_unEl) _unEl.textContent = lang === 'es' ? 'USUARIO' : 'USER';
@@ -7111,7 +7111,7 @@ function updateClock() {
 function p2(n) { return String(n).padStart(2,'0'); }
 
 function buildWeeks(vals) {
-  const D = ['L','M','X','J','V','S','H'], V = vals || [8200,6100,9800,7500,10200,5300,7842];
+  const D = lang==='es' ? ['L','M','X','J','V','S','H'] : ['M','T','W','T','F','S','S'], V = vals || [8200,6100,9800,7500,10200,5300,7842];
   const mx = Math.max(...V), c = document.getElementById('wbrs'); if (!c) return;
   c.innerHTML = D.map((d,i) => `<div class="wb"><div class="wbar${i===6?' td':''}" style="height:${(V[i]/mx)*100}%"></div><div class="wdl">${d}</div></div>`).join('');
 }
@@ -7814,19 +7814,18 @@ function updateZoneDots({ hrv=48, spo2=98, temp=36.4 } = {}) {
     const s = hrv >= 60 ? (lang==='en'?'OPTIMAL':'ÓPTIMO') : hrv >= 40 ? (lang==='en'?'GOOD':'BUENO') : (lang==='en'?'LOW':'BAJO');
     u.textContent = 'RMSSD — ' + s;
   }
-  // Sub-métricas enriquecidas — derivadas del valor de cabecera para que SIEMPRE
-  // muestren dato (el historial no guarda HRV/SpO2/temp, así que no hay baseline real).
+  // Sub-métricas — solo mostramos datos reales o "—" si no están disponibles.
+  // HRV base personal y SDNN requieren historial de 7d que la API no entrega en este endpoint.
   const setV = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
-  // HRV: base personal (~7d) + variación SDNN
-  setV('hrv-base-val', Math.round(hrv * 0.94));
-  setV('hrv-sdnn-val', Math.round(hrv * 0.82));
-  // SpO2: mínimo del día + promedio nocturno
-  setV('spo2-low-val', Math.max(88, Math.round(spo2 - 4)));
-  setV('spo2-avg-val', Math.max(90, Math.round(spo2 - 1)));
-  // Temp: variación vs base 36.6 °C + promedio 7d
+  setV('hrv-base-val', '—');
+  setV('hrv-sdnn-val', '—');
+  // SpO2: mínimo y promedio nocturno requieren historial intraday — no disponible aquí.
+  setV('spo2-low-val', '—');
+  setV('spo2-avg-val', '—');
+  // Temp: variación vs baseline clínico 36.6°C es un cálculo real; promedio 7d no disponible.
   const tDelta = tempVal - 36.6;
   setV('temp-delta-val', (tDelta >= 0 ? '+' : '') + tDelta.toFixed(1));
-  setV('temp-avg-val', (tempVal - 0.1).toFixed(1));
+  setV('temp-avg-val', '—');
 }
 
 function setStressBars({ hrv=68, rhr=61, br=14 }) {
@@ -8152,7 +8151,7 @@ function renderDailyRings() {
   var strk=getDailyStreak();
   mc.innerHTML='<div class="drw">'
     +'<div class="drw-hd">'
-      +'<div class="drw-lbl">// PROGRESO DIARIO</div>'
+      +'<div class="drw-lbl">// '+(lang==='es'?'PROGRESO DIARIO':'DAILY PROGRESS')+'</div>'
       +'<div style="display:flex;align-items:center;gap:6px;">'
         +'<div class="drw-stk"><span style="font-size:10px">🔥</span>'
           +'<span class="drw-stk-val" id="dr-stk">'+strk+(lang==='es'?' DÍAS':' DAYS')+'</span>'
@@ -9133,7 +9132,7 @@ function showToast(msg, type) {
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.classList.remove('sh'), 2800);
 }
-function startPoll() { document.getElementById('swrap').style.display='flex'; startCd(); animSBar(); clearInterval(ptmr); const _pf=HS.id==='google'?pollFastGoogle:pollFast; const _ps=HS.id==='google'?pollSlowGoogle:pollSlow; ptmr=setInterval(_pf,pSec*1000); setInterval(_ps,5*60*1000); }
+function startPoll() { document.getElementById('swrap').style.display='flex'; startCd(); animSBar(); clearInterval(ptmr); clearInterval(slowTmr); const _pf=HS.id==='google'?pollFastGoogle:pollFast; const _ps=HS.id==='google'?pollSlowGoogle:pollSlow; ptmr=setInterval(_pf,pSec*1000); slowTmr=setInterval(_ps,5*60*1000); }
 async function pollFast() {
   if (!token) return;
   const ring=document.getElementById('sring'); ring.classList.add('on'); document.body.classList.add('is-syncing'); startCd();
@@ -9169,7 +9168,7 @@ async function pollSlow() {
     renderHypnogram(main);
   } catch(e) {}
 }
-function stopPoll() { clearInterval(ptmr);clearInterval(cdtmr);isReal=false;token='';localStorage.removeItem('fb_tok'); }
+function stopPoll() { clearInterval(ptmr);clearInterval(cdtmr);clearInterval(slowTmr);isReal=false;token='';localStorage.removeItem('fb_tok'); }
 async function loadReal() {
   showLoad();
   try {
@@ -10289,117 +10288,122 @@ var _ACH_DEFS = [
 var _ACH_LABELS = {
   naruto:{
     title:'忍者の道 · LOGROS',
+    titleEn:'忍者の道 · ACHIEVEMENTS',
     list:[
-      {name:'新道を開く',  desc:'Descubriste el camino del Shinobi'},
-      {name:'目標達成',   desc:'Primera meta alcanzada'},
-      {name:'千歩の道',  desc:'10,000 pasos en un día'},
-      {name:'三位一体',   desc:'3 rings al 100% en un día'},
-      {name:'万歩の覇者',desc:'20,000 pasos — resistencia de jōnin'},
-      {name:'鍛錬の士',  desc:'Minutos activos al 100% en 5 ocasiones'},
-      {name:'義士',      desc:'Fiel al camino — 5 sesiones'},
-      {name:'限界突破',  desc:'Superar el 150% de cualquier objetivo'},
-      {name:'無双',      desc:'Todos los objetivos — día perfecto'},
-      {name:'影の力',    desc:'Composite ≥ 90% — Rango Kage'},
-      {name:'炎の修行',  desc:'Calorías al 100% durante 5 días seguidos'},
-      {name:'七日の陣',  desc:'7 días seguidos con al menos 1 ring cerrado'},
-      {name:'修行3日',   desc:'3 días seguidos con los 3 rings cerrados'},
-      {name:'不眠修行',   desc:'7 días seguidos con los 3 rings cerrados'},
-      {name:'鉄の月',   desc:'30 días seguidos con al menos 1 ring cerrado'},
-      {name:'半月修行',  desc:'15 días seguidos con los 3 rings cerrados'},
-      {name:'一ヶ月修行',desc:'30 días seguidos — rango legendario'},
-      {name:'忍の極み',  desc:'Todos los logros desbloqueados — maestro absoluto'}
+      {name:'新道を開く',  nameEn:'New Path',          desc:'Descubriste el camino del Shinobi',               descEn:'Discovered the Shinobi way'},
+      {name:'目標達成',   nameEn:'Goal Achieved',      desc:'Primera meta alcanzada',                          descEn:'First goal reached'},
+      {name:'千歩の道',  nameEn:'Thousand Steps',     desc:'10,000 pasos en un día',                          descEn:'10,000 steps in one day'},
+      {name:'三位一体',   nameEn:'Trinity',            desc:'3 rings al 100% en un día',                       descEn:'All 3 rings at 100% in one day'},
+      {name:'万歩の覇者', nameEn:'Ten-K Master',       desc:'20,000 pasos — resistencia de jōnin',             descEn:'20,000 steps — jōnin endurance'},
+      {name:'鍛錬の士',  nameEn:'Iron Trainee',       desc:'Minutos activos al 100% en 5 ocasiones',          descEn:'Active minutes at 100% on 5 occasions'},
+      {name:'義士',      nameEn:'Loyal Warrior',      desc:'Fiel al camino — 5 sesiones',                     descEn:'Faithful to the path — 5 sessions'},
+      {name:'限界突破',  nameEn:'Limit Break',        desc:'Superar el 150% de cualquier objetivo',           descEn:'Surpass 150% of any goal'},
+      {name:'無双',      nameEn:'Peerless',           desc:'Todos los objetivos — día perfecto',              descEn:'All goals — perfect day'},
+      {name:'影の力',    nameEn:'Shadow Power',       desc:'Composite ≥ 90% — Rango Kage',                    descEn:'Composite ≥ 90% — Kage rank'},
+      {name:'炎の修行',  nameEn:'Flame Training',     desc:'Calorías al 100% durante 5 días seguidos',        descEn:'Calories at 100% for 5 consecutive days'},
+      {name:'七日の陣',  nameEn:'Seven-Day Front',    desc:'7 días seguidos con al menos 1 ring cerrado',     descEn:'7 consecutive days with at least 1 ring closed'},
+      {name:'修行3日',   nameEn:'3-Day Training',     desc:'3 días seguidos con los 3 rings cerrados',        descEn:'3 consecutive days with all 3 rings closed'},
+      {name:'不眠修行',  nameEn:'Sleepless Training', desc:'7 días seguidos con los 3 rings cerrados',        descEn:'7 consecutive days with all 3 rings closed'},
+      {name:'鉄の月',   nameEn:'Iron Moon',          desc:'30 días seguidos con al menos 1 ring cerrado',    descEn:'30 consecutive days with at least 1 ring closed'},
+      {name:'半月修行',  nameEn:'Half-Moon Training', desc:'15 días seguidos con los 3 rings cerrados',       descEn:'15 consecutive days with all 3 rings closed'},
+      {name:'一ヶ月修行',nameEn:'One-Month Training', desc:'30 días seguidos — rango legendario',             descEn:'30 consecutive days — legendary rank'},
+      {name:'忍の極み',  nameEn:'Pinnacle of Ninja',  desc:'Todos los logros desbloqueados — maestro absoluto',descEn:'All achievements unlocked — absolute master'}
     ]
   },
   halo:{
-    title:'// NEURAL ACHIEVEMENTS',
+    title:'// LOGROS NEURALES',
+    titleEn:'// NEURAL ACHIEVEMENTS',
     list:[
-      {name:'JACK IN',        desc:'Primer acceso al sistema Neon Noir'},
-      {name:'CHROME I',       desc:'Primera meta alcanzada'},
-      {name:'PEDESTRIAN',     desc:'10,000 pasos en un día'},
-      {name:'FULL SYNC',      desc:'3 rings al 100%'},
-      {name:'GHOST RUNNER',   desc:'20,000 pasos — chrome al límite'},
-      {name:'REFLEX ARC ×5',  desc:'Minutos activos al 100% en 5 ocasiones'},
-      {name:'CORPO LOYAL',    desc:'5 sesiones en Neon Noir'},
-      {name:'OVERCAP >150',   desc:'Superar el 150% de cualquier objetivo'},
-      {name:'OVERCLOCK',      desc:'Día perfecto — todos los objetivos'},
-      {name:'FLATLINE >90',   desc:'Composite ≥ 90%'},
-      {name:'THERMAL BURN ×5',desc:'Calorías al 100% durante 5 días seguidos'},
-      {name:'7-DAY UPLINK',   desc:'7 días seguidos con al menos 1 ring cerrado'},
-      {name:'NET-RUN ×3',     desc:'3 días seguidos con los 3 rings cerrados'},
-      {name:'GHOST PROTOCOL', desc:'7 días seguidos con los 3 rings cerrados'},
-      {name:'IRON MONTH',     desc:'30 días seguidos con al menos 1 ring cerrado'},
-      {name:'BLACKWALL ×15',  desc:'15 días seguidos con los 3 rings cerrados'},
-      {name:'NETRUNNER MAX',  desc:'30 días seguidos — chrome total'},
-      {name:'FULL CHROME',    desc:'Todos los logros — implantes al máximo'}
+      {name:'JACK IN',         desc:'Primer acceso al sistema Neon Noir',               descEn:'First access to the Neon Noir system'},
+      {name:'CHROME I',        desc:'Primera meta alcanzada',                           descEn:'First goal reached'},
+      {name:'PEDESTRIAN',      desc:'10,000 pasos en un día',                           descEn:'10,000 steps in one day'},
+      {name:'FULL SYNC',       desc:'3 rings al 100%',                                  descEn:'All 3 rings at 100%'},
+      {name:'GHOST RUNNER',    desc:'20,000 pasos — chrome al límite',                  descEn:'20,000 steps — chrome at the limit'},
+      {name:'REFLEX ARC ×5',   desc:'Minutos activos al 100% en 5 ocasiones',           descEn:'Active minutes at 100% on 5 occasions'},
+      {name:'CORPO LOYAL',     desc:'5 sesiones en Neon Noir',                          descEn:'5 sessions in Neon Noir'},
+      {name:'OVERCAP >150',    desc:'Superar el 150% de cualquier objetivo',            descEn:'Surpass 150% of any goal'},
+      {name:'OVERCLOCK',       desc:'Día perfecto — todos los objetivos',               descEn:'Perfect day — all goals completed'},
+      {name:'FLATLINE >90',    desc:'Composite ≥ 90%',                                  descEn:'Composite ≥ 90%'},
+      {name:'THERMAL BURN ×5', desc:'Calorías al 100% durante 5 días seguidos',         descEn:'Calories at 100% for 5 consecutive days'},
+      {name:'7-DAY UPLINK',    desc:'7 días seguidos con al menos 1 ring cerrado',      descEn:'7 consecutive days with at least 1 ring closed'},
+      {name:'NET-RUN ×3',      desc:'3 días seguidos con los 3 rings cerrados',         descEn:'3 consecutive days with all 3 rings closed'},
+      {name:'GHOST PROTOCOL',  desc:'7 días seguidos con los 3 rings cerrados',         descEn:'7 consecutive days with all 3 rings closed'},
+      {name:'IRON MONTH',      desc:'30 días seguidos con al menos 1 ring cerrado',     descEn:'30 consecutive days with at least 1 ring closed'},
+      {name:'BLACKWALL ×15',   desc:'15 días seguidos con los 3 rings cerrados',        descEn:'15 consecutive days with all 3 rings closed'},
+      {name:'NETRUNNER MAX',   desc:'30 días seguidos — chrome total',                  descEn:'30 consecutive days — full chrome'},
+      {name:'FULL CHROME',     desc:'Todos los logros — implantes al máximo',           descEn:'All achievements — implants maxed out'}
     ]
   },
   mc:{
-    title:'[!] ACHIEVEMENTS UNLOCKED',
+    title:'[!] LOGROS DESBLOQUEADOS',
+    titleEn:'[!] ACHIEVEMENTS UNLOCKED',
     list:[
-      {name:'NEW WORLD',    desc:'Primer día en Minecraft mode'},
-      {name:'IRON PICKAXE', desc:'Primera meta alcanzada'},
-      {name:'10K WALKER',   desc:'10,000 pasos en un día'},
-      {name:'DIAMOND HAUL', desc:'3 rings al 100%'},
-      {name:'SPEEDRUNNER',  desc:'20,000 pasos — no-hit run'},
-      {name:'GRINDER ×5',   desc:'Minutos activos al 100% en 5 ocasiones'},
-      {name:'VETERAN',      desc:'5 sesiones en Minecraft'},
-      {name:'>150% BUFF',   desc:'Superar el 150% de cualquier objetivo'},
-      {name:'FULL CLEAR',   desc:'Día perfecto'},
-      {name:'MAX LEVEL',    desc:'Composite ≥ 90%'},
-      {name:'FURNACE ×5',   desc:'Calorías al 100% durante 5 días seguidos'},
-      {name:'WEEK ACTIVE',  desc:'7 días seguidos con al menos 1 ring cerrado'},
-      {name:'3-DAY GRIND',  desc:'3 días seguidos con los 3 rings cerrados'},
-      {name:'WEEK STREAK',  desc:'7 días seguidos con los 3 rings cerrados'},
-      {name:'IRON MONTH',   desc:'30 días seguidos con al menos 1 ring cerrado'},
-      {name:'HALF MONTH',   desc:'15 días seguidos con los 3 rings cerrados'},
-      {name:'LEGEND MODE',  desc:'30 días seguidos — nivel leyenda'},
-      {name:'NETHERITE',    desc:'Todos los logros — el material más duro'}
+      {name:'NEW WORLD',     desc:'Primer día en Minecraft mode',                       descEn:'First day in Minecraft mode'},
+      {name:'IRON PICKAXE',  desc:'Primera meta alcanzada',                             descEn:'First goal reached'},
+      {name:'10K WALKER',    desc:'10,000 pasos en un día',                             descEn:'10,000 steps in one day'},
+      {name:'DIAMOND HAUL',  desc:'3 rings al 100%',                                    descEn:'All 3 rings at 100%'},
+      {name:'SPEEDRUNNER',   desc:'20,000 pasos — no-hit run',                          descEn:'20,000 steps — no-hit run'},
+      {name:'GRINDER ×5',    desc:'Minutos activos al 100% en 5 ocasiones',             descEn:'Active minutes at 100% on 5 occasions'},
+      {name:'VETERAN',       desc:'5 sesiones en Minecraft',                            descEn:'5 sessions in Minecraft mode'},
+      {name:'>150% BUFF',    desc:'Superar el 150% de cualquier objetivo',              descEn:'Surpass 150% of any goal'},
+      {name:'FULL CLEAR',    desc:'Día perfecto',                                        descEn:'Perfect day — all goals'},
+      {name:'MAX LEVEL',     desc:'Composite ≥ 90%',                                    descEn:'Composite ≥ 90%'},
+      {name:'FURNACE ×5',    desc:'Calorías al 100% durante 5 días seguidos',           descEn:'Calories at 100% for 5 consecutive days'},
+      {name:'WEEK ACTIVE',   desc:'7 días seguidos con al menos 1 ring cerrado',        descEn:'7 consecutive days with at least 1 ring closed'},
+      {name:'3-DAY GRIND',   desc:'3 días seguidos con los 3 rings cerrados',           descEn:'3 consecutive days with all 3 rings closed'},
+      {name:'WEEK STREAK',   desc:'7 días seguidos con los 3 rings cerrados',           descEn:'7 consecutive days with all 3 rings closed'},
+      {name:'IRON MONTH',    desc:'30 días seguidos con al menos 1 ring cerrado',       descEn:'30 consecutive days with at least 1 ring closed'},
+      {name:'HALF MONTH',    desc:'15 días seguidos con los 3 rings cerrados',          descEn:'15 consecutive days with all 3 rings closed'},
+      {name:'LEGEND MODE',   desc:'30 días seguidos — nivel leyenda',                   descEn:'30 consecutive days — legend level'},
+      {name:'NETHERITE',     desc:'Todos los logros — el material más duro',            descEn:'All achievements — the hardest material'}
     ]
   },
   fut:{
-    title:'◈ MISSION LOG',
+    title:'◈ REGISTRO DE MISIONES',
+    titleEn:'◈ MISSION LOG',
     list:[
-      {name:'INITIALIZED',   desc:'Sistema Aether activado'},
-      {name:'TARGET HIT',    desc:'Primera meta alcanzada'},
-      {name:'PATROL ROUTE',  desc:'10,000 pasos en un día'},
-      {name:'TRIPLE LOCK',   desc:'3 rings al 100%'},
-      {name:'SIGMA RUNNER',  desc:'20,000 pasos — velocidad máxima'},
-      {name:'ACTIVE CORE ×5',desc:'Minutos activos al 100% en 5 ocasiones'},
-      {name:'CORE BOUND',    desc:'5 sesiones en Aether'},
-      {name:'OVERCLOCK 150', desc:'Superar el 150% de cualquier objetivo'},
-      {name:'MISSION CLEAR', desc:'Día perfecto'},
-      {name:'APEX SIGNAL',   desc:'Composite ≥ 90%'},
-      {name:'BURN CYCLE ×5', desc:'Calorías al 100% durante 5 días seguidos'},
-      {name:'7-CYCLE LOCK',  desc:'7 días seguidos con al menos 1 ring cerrado'},
-      {name:'SEQUENCE ×3',   desc:'3 días seguidos con los 3 rings cerrados'},
-      {name:'PROTOCOL 7',    desc:'7 días seguidos con los 3 rings cerrados'},
-      {name:'IRON PROTOCOL', desc:'30 días seguidos con al menos 1 ring cerrado'},
-      {name:'SIGMA ×15',     desc:'15 días seguidos con los 3 rings cerrados'},
-      {name:'OMEGA PROTOCOL',desc:'30 días seguidos — misión absoluta'},
-      {name:'SINGULARITY',   desc:'Todos los logros — convergencia total'}
+      {name:'INITIALIZED',    desc:'Sistema Aether activado',                            descEn:'Aether system activated'},
+      {name:'TARGET HIT',     desc:'Primera meta alcanzada',                             descEn:'First goal reached'},
+      {name:'PATROL ROUTE',   desc:'10,000 pasos en un día',                             descEn:'10,000 steps in one day'},
+      {name:'TRIPLE LOCK',    desc:'3 rings al 100%',                                    descEn:'All 3 rings at 100%'},
+      {name:'SIGMA RUNNER',   desc:'20,000 pasos — velocidad máxima',                    descEn:'20,000 steps — maximum velocity'},
+      {name:'ACTIVE CORE ×5', desc:'Minutos activos al 100% en 5 ocasiones',             descEn:'Active minutes at 100% on 5 occasions'},
+      {name:'CORE BOUND',     desc:'5 sesiones en Aether',                               descEn:'5 sessions in Aether'},
+      {name:'OVERCLOCK 150',  desc:'Superar el 150% de cualquier objetivo',              descEn:'Surpass 150% of any goal'},
+      {name:'MISSION CLEAR',  desc:'Día perfecto',                                        descEn:'Perfect day — all goals'},
+      {name:'APEX SIGNAL',    desc:'Composite ≥ 90%',                                    descEn:'Composite ≥ 90%'},
+      {name:'BURN CYCLE ×5',  desc:'Calorías al 100% durante 5 días seguidos',           descEn:'Calories at 100% for 5 consecutive days'},
+      {name:'7-CYCLE LOCK',   desc:'7 días seguidos con al menos 1 ring cerrado',        descEn:'7 consecutive days with at least 1 ring closed'},
+      {name:'SEQUENCE ×3',    desc:'3 días seguidos con los 3 rings cerrados',           descEn:'3 consecutive days with all 3 rings closed'},
+      {name:'PROTOCOL 7',     desc:'7 días seguidos con los 3 rings cerrados',           descEn:'7 consecutive days with all 3 rings closed'},
+      {name:'IRON PROTOCOL',  desc:'30 días seguidos con al menos 1 ring cerrado',       descEn:'30 consecutive days with at least 1 ring closed'},
+      {name:'SIGMA ×15',      desc:'15 días seguidos con los 3 rings cerrados',          descEn:'15 consecutive days with all 3 rings closed'},
+      {name:'OMEGA PROTOCOL', desc:'30 días seguidos — misión absoluta',                 descEn:'30 consecutive days — absolute mission'},
+      {name:'SINGULARITY',    desc:'Todos los logros — convergencia total',              descEn:'All achievements — total convergence'}
     ]
   },
   bloom:{
     title:'🌸 JARDÍN DE LOGROS',
+    titleEn:'🌸 ACHIEVEMENT GARDEN',
     list:[
-      {name:'Primer Brote',    desc:'Bloom despertó por primera vez'},
-      {name:'Primera Flor',    desc:'Primera meta alcanzada'},
-      {name:'Caminante',       desc:'10,000 pasos en un día'},
-      {name:'Florecer',        desc:'3 rings al 100%'},
-      {name:'Maratonista',     desc:'20,000 pasos — plenitud total'},
-      {name:'Raíz Fuerte ×5',  desc:'Minutos activos al 100% en 5 ocasiones'},
-      {name:'Jardinera Fiel',  desc:'5 sesiones en Bloom'},
-      {name:'Floración Plena', desc:'Superar el 150% de cualquier objetivo'},
-      {name:'Jardín Perfecto', desc:'Día perfecto'},
-      {name:'Sakura Máx.',     desc:'Composite ≥ 90%'},
-      {name:'Llama Viva ×5',   desc:'Calorías al 100% durante 5 días seguidos'},
-      {name:'Semana en Flor',  desc:'7 días seguidos con al menos 1 ring cerrado'},
-      {name:'Raíces',          desc:'3 días seguidos con los 3 rings cerrados'},
-      {name:'Árbol Pleno',     desc:'7 días seguidos con los 3 rings cerrados'},
-      {name:'Mes de Hierro',   desc:'30 días seguidos con al menos 1 ring cerrado'},
-      {name:'Luna en Flor',    desc:'15 días seguidos con los 3 rings cerrados'},
-      {name:'Jardín Eterno',   desc:'30 días seguidos — florecimiento total'},
-      {name:'Flor Inmortal',   desc:'Todos los logros — jardín completo'}
+      {name:'Primer Brote',    nameEn:'First Sprout',      desc:'Bloom despertó por primera vez',                   descEn:'Bloom awakened for the first time'},
+      {name:'Primera Flor',    nameEn:'First Bloom',       desc:'Primera meta alcanzada',                           descEn:'First goal reached'},
+      {name:'Caminante',       nameEn:'Walker',            desc:'10,000 pasos en un día',                           descEn:'10,000 steps in one day'},
+      {name:'Florecer',        nameEn:'Flourish',          desc:'3 rings al 100%',                                  descEn:'All 3 rings at 100%'},
+      {name:'Maratonista',     nameEn:'Marathon',          desc:'20,000 pasos — plenitud total',                    descEn:'20,000 steps — full vitality'},
+      {name:'Raíz Fuerte ×5',  nameEn:'Strong Root ×5',   desc:'Minutos activos al 100% en 5 ocasiones',           descEn:'Active minutes at 100% on 5 occasions'},
+      {name:'Jardinera Fiel',  nameEn:'Loyal Gardener',   desc:'5 sesiones en Bloom',                              descEn:'5 sessions in Bloom'},
+      {name:'Floración Plena', nameEn:'Full Bloom',        desc:'Superar el 150% de cualquier objetivo',            descEn:'Surpass 150% of any goal'},
+      {name:'Jardín Perfecto', nameEn:'Perfect Garden',   desc:'Día perfecto',                                     descEn:'Perfect day — all goals'},
+      {name:'Sakura Máx.',     nameEn:'Sakura Peak',      desc:'Composite ≥ 90%',                                  descEn:'Composite ≥ 90%'},
+      {name:'Llama Viva ×5',   nameEn:'Living Flame ×5',  desc:'Calorías al 100% durante 5 días seguidos',         descEn:'Calories at 100% for 5 consecutive days'},
+      {name:'Semana en Flor',  nameEn:'Week in Bloom',    desc:'7 días seguidos con al menos 1 ring cerrado',      descEn:'7 consecutive days with at least 1 ring closed'},
+      {name:'Raíces',          nameEn:'Roots',             desc:'3 días seguidos con los 3 rings cerrados',         descEn:'3 consecutive days with all 3 rings closed'},
+      {name:'Árbol Pleno',     nameEn:'Full Tree',         desc:'7 días seguidos con los 3 rings cerrados',         descEn:'7 consecutive days with all 3 rings closed'},
+      {name:'Mes de Hierro',   nameEn:'Iron Month',        desc:'30 días seguidos con al menos 1 ring cerrado',     descEn:'30 consecutive days with at least 1 ring closed'},
+      {name:'Luna en Flor',    nameEn:'Moon Bloom',        desc:'15 días seguidos con los 3 rings cerrados',        descEn:'15 consecutive days with all 3 rings closed'},
+      {name:'Jardín Eterno',   nameEn:'Eternal Garden',   desc:'30 días seguidos — florecimiento total',           descEn:'30 consecutive days — full flourishing'},
+      {name:'Flor Inmortal',   nameEn:'Immortal Flower',  desc:'Todos los logros — jardín completo',               descEn:'All achievements — garden complete'}
     ]
   }
 };
@@ -10647,7 +10651,7 @@ function openAch() {
   var unlocked = u[t] || [];
   var list = document.getElementById('ach-list');
   var title = document.getElementById('ach-drawer-title');
-  if (title) title.textContent = labels.title;
+  if (title) title.textContent = (lang==='en' && labels.titleEn) ? labels.titleEn : labels.title;
   if (list) {
     list.innerHTML = _ACH_DEFS.map(function(def, i) {
       var lbl = labels.list[i];
@@ -10657,8 +10661,8 @@ function openAch() {
         +(done?' onclick="_replayAchAnim('+i+')" role="button" aria-label="'+(es?'Ver animación':'Replay animation')+'"':'')+'>'
         +'<div class="ach-icon">'+def.icon+'</div>'
         +'<div class="ach-info">'
-          +'<div class="ach-name">'+lbl.name+'</div>'
-          +'<div class="ach-desc">'+lbl.desc+'</div>'
+          +'<div class="ach-name">'+(es?lbl.name:(lbl.nameEn||lbl.name))+'</div>'
+          +'<div class="ach-desc">'+(es?lbl.desc:(lbl.descEn||lbl.desc))+'</div>'
           +(done?'<div class="ach-unlocked-lbl">✓ '+(es?'DESBLOQUEADO':'UNLOCKED')+'<span class="ach-replay-hint">· ▶ '+(es?'VER':'PLAY')+'</span></div>':'')
         +'</div>'
       +'</div>';
