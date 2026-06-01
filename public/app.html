@@ -1803,7 +1803,7 @@ body.t-naruto span.vval{
    for the FLIP spring that flows siblings out of the way (iOS behaviour). */
 .jiggle-mode.wm-reordering .vc:not(.wm-dragging){animation:none;}
 .jiggle-mode.wm-reordering .vc.wm-flip{
-  transition:transform 0.46s var(--ease-settle);
+  transition:transform 0.22s var(--ease-out);
   will-change:transform;
 }
 /* X delete badge */
@@ -7618,13 +7618,38 @@ function _onDragEnd(e) {
 
 function _jiggleOutsideTap(e) {
   if (!_jiggleActive) return;
+  if (e.target.closest('#jiggle-done')) return;
   var vg = document.querySelector('.vg');
-  if (vg && !vg.contains(e.target) && !e.target.closest('#jiggle-done')) exitJiggle();
+  if (!vg || vg.contains(e.target)) return;
+  // Distinguish tap (exits jiggle) from scroll (keep jiggle active).
+  // Wait for touchend; if the finger moved > 8px it was a scroll, not a tap.
+  var t0 = e.touches ? e.touches[0] : e;
+  var sx = t0.clientX, sy = t0.clientY, scrolled = false;
+  function onMove(ev) {
+    var t = ev.touches ? ev.touches[0] : ev;
+    if (Math.abs(t.clientX - sx) > 8 || Math.abs(t.clientY - sy) > 8) {
+      scrolled = true; cleanup();
+    }
+  }
+  function onEnd() { cleanup(); if (!scrolled) exitJiggle(); }
+  function cleanup() {
+    document.removeEventListener('touchmove',   onMove,  {capture:true});
+    document.removeEventListener('touchend',    onEnd,   {capture:true});
+    document.removeEventListener('touchcancel', cleanup, {capture:true});
+    document.removeEventListener('mousemove',   onMove);
+    document.removeEventListener('mouseup',     onEnd);
+  }
+  document.addEventListener('touchmove',   onMove,  {capture:true, passive:true});
+  document.addEventListener('touchend',    onEnd,   {capture:true, passive:true});
+  document.addEventListener('touchcancel', cleanup, {capture:true, passive:true});
+  document.addEventListener('mousemove',   onMove);
+  document.addEventListener('mouseup',     onEnd);
 }
 
 function _jiggleScrollCancel() {
+  // Only cancel any pending drag-arm — do NOT exit jiggle.
+  // iOS keeps jiggle active while scrolling; exiting here felt jarring to users.
   _disarmDrag();
-  exitJiggle();
 }
 
 function exitJiggle() {
