@@ -7360,6 +7360,8 @@ function enterJiggle() {
     document.addEventListener('touchstart', _jiggleOutsideTap, {passive:true});
     document.addEventListener('mousedown',  _jiggleOutsideTap);
   }, 350);
+  // Any scroll cancels jiggle — same behaviour as iOS
+  document.addEventListener('scroll', _jiggleScrollCancel, {capture:true, passive:true});
 }
 
 function _refreshJiggleBadges() {
@@ -7609,9 +7611,15 @@ function _jiggleOutsideTap(e) {
   if (vg && !vg.contains(e.target) && !e.target.closest('#jiggle-done')) exitJiggle();
 }
 
+function _jiggleScrollCancel() {
+  _disarmDrag();
+  exitJiggle();
+}
+
 function exitJiggle() {
   if (!_jiggleActive) return;
   _jiggleActive = false;
+  _disarmDrag();
   if (_dragState) _onDragEnd();
   var vg = document.querySelector('.vg');
   if (vg) {
@@ -7626,6 +7634,7 @@ function exitJiggle() {
   document.getElementById('jiggle-done')?.classList.remove('jd-visible');
   document.removeEventListener('touchstart', _jiggleOutsideTap);
   document.removeEventListener('mousedown',  _jiggleOutsideTap);
+  document.removeEventListener('scroll', _jiggleScrollCancel, {capture:true});
 }
 
 // ══════ WIDGET DRAG-TO-REORDER ══════
