@@ -5796,6 +5796,17 @@ function _cycData() { try { return JSON.parse(localStorage.getItem('fb_cycle') |
 function _dParse(s) { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
 function _dFmt(dt) { return dt.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { day:'2-digit', month:'short' }); }
 function _daysBetween(a, b) { return Math.round((b - a) / 86400000); }
+// ── Shared cycle math — single source of truth for phase boundaries ──────────
+// Both computeCycle() and _cycPhaseForDate() use this to stay in sync.
+function _cycMath(len, period) {
+  const ov        = Math.max(period + 2, len - 14); // luteal phase = 14d (Clue/Wilcox)
+  const fertStart = Math.max(period + 1, ov - 5);   // 5 days before ov, never inside period
+  const fertEnd   = ov + 1;
+  const peakStart = ov - 2;
+  const peakEnd   = ov - 1;
+  return { ov, fertStart, fertEnd, peakStart, peakEnd };
+}
+
 // Cycle math: ovulation ≈ length−14; fertile window = 5 days before ovulation through 1 day after.
 // NO auto-advance: dates are always relative to the last LOGGED period.
 // The user must log a new period to reset the cycle. This matches Clue's behavior.
@@ -5813,14 +5824,8 @@ function computeCycle() {
   // Once dayOfCycle > len the period is overdue; user must log to reset.
   const dayOfCycle = diff + 1;
 
-  // ── Ovulation: luteal phase mean = 14 days (Clue/Wilcox)
-  const ov = Math.max(period + 2, len - 14);
-
-  // ── Fertile window (Clue / Wilcox 1995 NEJM): 5 days before → 1 day after ovulation
-  const fertStart = Math.max(period + 1, ov - 5);
-  const fertEnd   = ov + 1;
-  const peakStart = ov - 2;
-  const peakEnd   = ov - 1;
+  // ── Ovulation + fertile window via shared helper
+  const { ov, fertStart, fertEnd, peakStart, peakEnd } = _cycMath(len, period);
 
   // ── All dates relative to `last` (always cycle 1 — no offset)
   const D = (n) => { const x = new Date(last); x.setDate(x.getDate() + (n - 1)); return x; };
@@ -6278,15 +6283,16 @@ function _cycPhaseForDate(dateStr) {
   const target = new Date(dateStr + 'T00:00:00');
   const elapsed = Math.floor((target - last) / 86400000);
   if (elapsed < 0) return null; // before first logged period
-  const cycDay  = elapsed % len;          // 0-based day within current cycle
-  const ovDay   = len - 14;              // ovulation day (0-based)
-  const fertStart = Math.max(period, ovDay - 5);
-  if (cycDay < period)           return 'menstrual';
-  if (cycDay < fertStart)        return 'follicular';
-  if (cycDay < ovDay - 1)        return 'fertile';
-  if (cycDay === ovDay - 1)      return 'peak';
-  if (cycDay === ovDay)          return 'ovulation';
-  return 'luteal';
+  // 1-based day within current cycle (auto-advance for calendar display)
+  const cycDay = (elapsed % len) + 1;
+  // Use shared math helper — identical boundaries to computeCycle()
+  const { ov, fertStart, fertEnd, peakStart, peakEnd } = _cycMath(len, period);
+  if (cycDay <= period)                              return 'menstrual';
+  if (cycDay === ov)                                 return 'ovulation';
+  if (cycDay >= peakStart && cycDay <= peakEnd)      return 'peak';
+  if (cycDay >= fertStart && cycDay <= fertEnd)      return 'fertile';
+  if (cycDay > fertEnd)                              return 'luteal';
+  return 'follicular';
 }
 
 function _calMove(delta) {
@@ -8764,6 +8770,7 @@ function _decodeJwt(jwt) {
   try { return JSON.parse(atob((jwt.split('.')[1] || '').replace(/-/g, '+').replace(/_/g, '/'))); } catch (e) { return {}; }
 }
 async function handleGoogleOAuth(code) {
+  if (!code || typeof code !== 'string' || code.trim() === '') { hideLoad(); return; }
   HS = GoogleHealthSource; showLoad();
   try {
     const r = await fetch(GoogleHealthSource.oauth.token, {
