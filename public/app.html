@@ -7918,16 +7918,7 @@ function updateScores({ rec, strain, sleepPct }) {
   }, 200);
   // Naruto Easter Egg: shinobi rank badge (Stats + Profile)
   nrtUpdateRank(rec);
-  // Neon Noir 3-node ring — 3 category chips + center composite score
-  animN('nn-nv-rec', 0, rec, 1200);
-  animN('nn-nv-slp', 0, sleepPct, 1200);
-  animN('nn-nv-str', 0, strain, 1200);
-  // nn-nv-avg → driven by activity composite in updateDailyRings()
-  // Bloom flower ring — node chips (rec/slp/str stay biometric)
-  animN('blm-nv-rec', 0, rec, 1200);
-  animN('blm-nv-slp', 0, sleepPct, 1200);
-  animN('blm-nv-str', 0, strain, 1200);
-  // blm-nv-avg + updateBloomFlower → driven by activity composite in updateDailyRings()
+  // nn-nv-rec/slp/str + blm-nv-rec/slp/str → driven by activity in updateDailyRings()
   // Bloom bars — live data (Recuperación + Sueño)
   setTimeout(function() {
     var br = document.getElementById('bloom-bar-rec');
