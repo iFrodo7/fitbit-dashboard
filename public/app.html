@@ -7466,7 +7466,11 @@ function _startDrag(card, cx, cy, rect) {
   _dragState = {
     card:card, ghost:ghost, slot:slot,
     ox:cx-rect.left, oy:cy-rect.top,
-    x:cx-rect.left, y:cy-rect.top, lift:1,
+    // x/y = posición del ghost (top-left del widget en viewport).
+    // ox/oy son el offset del dedo dentro del widget y se usan en _onDragMove
+    // para mantener esa distancia relativa.  Usar rect.left/top aquí —
+    // NO cx-rect.left — evita que el ghost salte al origen al iniciar el drag.
+    x:rect.left, y:rect.top,
     lastBefore:null, lastRef:card, raf:0, pending:false
   };
   // Spring lift on pickup: pop scale up, settle to drag scale.
