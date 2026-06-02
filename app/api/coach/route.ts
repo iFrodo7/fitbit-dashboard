@@ -222,34 +222,52 @@ async function callGemini(
     })),
     { role: "user", parts: [{ text: q }] },
   ];
+
+  // Gemini 2.5-series models share the token budget between thinking and output.
+  // We disable thinking for chat coaching (not a reasoning task) and give the
+  // full 8192-token budget to the visible response.
+  const isThinkingModel = GEMINI_MODEL.startsWith("gemini-2.5");
+  const generationConfig: Record<string, unknown> = {
+    temperature: 0.65,
+    maxOutputTokens: 8192,
+  };
+  if (isThinkingModel) {
+    generationConfig.thinkingConfig = { thinkingBudget: 0, includeThoughts: false };
+  }
+
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: systemPrompt(m, lang) }] },
       contents,
-      generationConfig: {
-        temperature: 0.65,
-        maxOutputTokens: 3000,
-        // Disable thinking: AIRA is a chat coach, not a reasoning task.
-        // With thinking ON, the model expends its "ideas" internally and
-        // writes a short visible response. With it OFF, the full answer
-        // goes directly into the output tokens.
-        thinkingConfig: { thinkingBudget: 0 },
-      },
+      generationConfig,
     }),
   });
-  if (!res.ok) return null;
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => "");
+    console.error(`[AIRA] Gemini API error ${res.status}:`, errText.slice(0, 300));
+    return null;
+  }
+
   const data = await res.json();
   const candidate = data?.candidates?.[0];
+
+  // Filter out thinking parts (thought:true) — only return the visible response
   const text = candidate?.content?.parts
     ?.filter((p: { thought?: boolean }) => !p.thought)
     .map((p: { text?: string }) => p.text || "")
     .join("")
     .trim();
-  if (!text) return null;
+
+  if (!text) {
+    console.error("[AIRA] Empty response. finishReason:", candidate?.finishReason, "parts:", JSON.stringify(candidate?.content?.parts?.map((p: {thought?: boolean, text?: string}) => ({ thought: p.thought, len: p.text?.length }))));
+    return null;
+  }
+
   if (candidate?.finishReason === "MAX_TOKENS") {
-    return text + "\n\n_(Respuesta larga — reformula la pregunta en partes si necesitas más detalle.)_";
+    return text + "\n\n_(Respuesta muy larga — prueba a dividir la pregunta en partes.)_";
   }
   return text;
 }
