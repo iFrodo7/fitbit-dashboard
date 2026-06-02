@@ -775,7 +775,11 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .cchat-send{flex-shrink:0;width:42px;height:42px;border:none;border-radius:8px;background:var(--ta2);color:var(--bg);font-size:15px;cursor:pointer;transition:opacity 0.15s;}
 .cchat-send:hover{opacity:0.85;}
 .cchat-send:disabled{opacity:0.4;cursor:default;}
-.cchat-hint{font-size:10px;opacity:0.35;letter-spacing:0.5px;margin-top:8px;line-height:1.5;}
+.cchat-foot{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;gap:8px;}
+.cchat-hint{font-size:10px;opacity:0.35;letter-spacing:0.5px;line-height:1.5;}
+.cchat-quota{font-size:10px;opacity:0.5;letter-spacing:0.5px;white-space:nowrap;flex-shrink:0;transition:color 0.2s;}
+.cchat-quota.empty{color:var(--tneg);opacity:0.8;}
+.cmsg-src{display:block;font-size:9px;opacity:0.38;letter-spacing:1.5px;margin-top:3px;text-transform:uppercase;}
 
 /* ═══════════════════════════════════════
    FASE 4: THEME-SPECIFIC VISUAL DIFFERENTIATION
@@ -3654,7 +3658,10 @@ body.t-naruto span.vval{
           <input id="cchat-input" class="cchat-input" type="text" maxlength="600" placeholder="Pregúntale a AIRA sobre tus datos…" onkeydown="if(event.key==='Enter')askCoach()" aria-label="Pregunta a AIRA"/>
           <button id="cchat-send" class="cchat-send" onclick="askCoach()" aria-label="Enviar">➤</button>
         </div>
-        <div class="cchat-hint" id="cchat-hint">Ej: ¿Cómo mejoro mi sueño? · ¿Qué entreno hoy? · ¿Qué ceno?</div>
+        <div class="cchat-foot">
+          <div class="cchat-hint" id="cchat-hint">Ej: ¿Cómo mejoro mi sueño? · ¿Qué entreno hoy? · ¿Qué ceno?</div>
+          <span id="cchat-quota" class="cchat-quota"></span>
+        </div>
       </div>
     </div>
   </main>
@@ -4389,6 +4396,9 @@ const T = {
     cchat_ph: 'Pregúntale a AIRA sobre tus datos…',
     cchat_hint: 'Ej: ¿Cómo mejoro mi sueño? · ¿Qué entreno hoy? · ¿Qué ceno?',
     coach_limit: 'Llegaste a tu límite gratis de hoy (3 preguntas). Hazte AIRA Pro para preguntar sin límite. ✦',
+    coach_quota_lbl: (n, max) => `${n}/${max} preguntas`,
+    coach_src_ai: 'IA',
+    coach_src_local: 'local',
     pro_title: 'AIRA PRO', pro_sub: '$5/mes · cancela cuando quieras', pro_free_lbl: 'GRATIS',
     pro_cta: 'HAZTE PRO · $5/MES', pro_manage: 'GESTIONAR PLAN',
     pro_note_off: 'Pago real próximamente (Stripe). Por ahora es modo prueba.',
@@ -4616,6 +4626,9 @@ const T = {
     cchat_ph: 'Ask AIRA about your data…',
     cchat_hint: 'e.g. How do I improve my sleep? · What should I train today? · What should I eat?',
     coach_limit: "You've reached today's free limit (3 questions). Go AIRA Pro to ask without limits. ✦",
+    coach_quota_lbl: (n, max) => `${n}/${max} questions`,
+    coach_src_ai: 'AI',
+    coach_src_local: 'local',
     pro_title: 'AIRA PRO', pro_sub: '$5/mo · cancel anytime', pro_free_lbl: 'FREE',
     pro_cta: 'GO PRO · $5/MO', pro_manage: 'MANAGE PLAN',
     pro_note_off: 'Real billing coming soon (Stripe). For now it\'s test mode.',
@@ -4795,6 +4808,7 @@ function setLang(l) {
   setText('lbl-coach', t.lbl_coach);
   { const ci = document.getElementById('cchat-input'); if (ci) ci.placeholder = t.cchat_ph; }
   setText('cchat-hint', t.cchat_hint);
+  if (typeof updateCoachQuotaUI === 'function') updateCoachQuotaUI();
   setText('i1t', t.i1t); setText('i2t', t.i2t); setText('i3t', t.i3t);
   setText('i1x', t.i1x); setText('i2x', t.i2x); setText('i3x', t.i3x);
   // modal
@@ -6642,16 +6656,48 @@ function setBodyStatus(id, st) {
 // based answer, so the chat works at $0.
 function collectCoachMetrics() {
   const gv = (id) => (document.getElementById(id)?.textContent || '').trim();
+  const slRow = (barId) => document.getElementById(barId)?.closest('.slrw')?.querySelector('.sltm')?.textContent?.trim() || '';
   return {
-    recovery: window._lastRec,
-    rhr: gv('hr-rest') || gv('hrv'),
-    hrv: gv('hrvv'),
-    spo2: gv('spo2v'),
-    breathing: gv('resp-val'),
-    sleep: gv('sl-total-v'),
-    steps: gv('stepsv'),
-    strain: gv('strain-val'),
+    recovery:    window._lastRec,
+    rhr:         gv('hr-rest'),
+    hrv:         gv('hrvv'),
+    spo2:        gv('spo2v'),
+    breathing:   gv('resp-val'),
+    sleep:       gv('sl-total-v'),
+    sleepEff:    gv('sl-eff-v'),
+    sleepWakes:  gv('sl-wake-v'),
+    deepSleep:   slRow('sl0'),
+    remSleep:    slRow('sl1'),
+    steps:       gv('stepsv'),
+    strain:      gv('strain-val'),
+    fatBurnMin:  gv('hrmin-fat'),
+    cardioMin:   gv('hrmin-cardio'),
+    peakMin:     gv('hrmin-peak'),
+    date:        new Date().toISOString(),
   };
+}
+async function collectCoachTrend() {
+  try {
+    const rows = await _hGetAll();
+    if (!rows || rows.length < 2) return null;
+    const sorted = rows.filter(r => r.date).sort((a, b) => a.date < b.date ? -1 : 1).slice(-7);
+    if (sorted.length < 2) return null;
+    const avg = (arr) => {
+      const v = arr.filter(x => x != null && !isNaN(x));
+      return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : null;
+    };
+    return {
+      days:        sorted.length,
+      avgRecovery: avg(sorted.map(r => r.recovery)),
+      avgRhr:      avg(sorted.map(r => r.rhr)),
+      avgDeepMin:  avg(sorted.map(r => r.deep)),
+      avgRemMin:   avg(sorted.map(r => r.rem)),
+      avgSleepMin: avg(sorted.map(r => r.minutesAsleep)),
+      avgSteps:    avg(sorted.map(r => r.steps)),
+    };
+  } catch (e) {
+    return null;
+  }
 }
 function addCoachMsg(who, text) {
   const thread = document.getElementById('cchat-thread'); if (!thread) return null;
@@ -6669,20 +6715,48 @@ async function askCoach() {
   if (!q) return;
   inp.value = '';
   addCoachMsg('user', q);
-  // Free tier: limited questions per day. Pro/dev: unlimited.
   if (!isPro() && coachQuotaLeft() <= 0) { addCoachMsg('aira', T[lang].coach_limit); return; }
   if (btn) btn.disabled = true;
   const bubble = addCoachMsg('aira', '…');
   if (bubble) bubble.classList.add('typing');
+  // Snapshot history before this turn (previous exchanges only)
+  if (!Array.isArray(window._coachHistory)) window._coachHistory = [];
+  const historySnapshot = window._coachHistory.slice(-12);
   try {
+    const [metrics, trend] = await Promise.all([
+      Promise.resolve(collectCoachMetrics()),
+      collectCoachTrend(),
+    ]);
     const r = await fetch('/api/coach', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ q, lang, metrics: collectCoachMetrics() }),
+      body: JSON.stringify({
+        q, lang,
+        metrics: trend ? Object.assign({}, metrics, { trend }) : metrics,
+        history: historySnapshot,
+      }),
     });
     const d = await r.json();
-    if (bubble) { bubble.classList.remove('typing'); bubble.textContent = d.answer || (lang === 'es' ? 'No pude responder ahora.' : "Couldn't answer right now."); }
-    if (!isPro()) coachConsume();
+    if (r.ok && d.answer) {
+      if (bubble) {
+        bubble.classList.remove('typing');
+        bubble.textContent = d.answer;
+        if (d.source) {
+          const t = T[lang];
+          const badge = document.createElement('span');
+          badge.className = 'cmsg-src';
+          badge.textContent = d.source === 'gemini' ? (t.coach_src_ai || 'AI') : (t.coach_src_local || 'local');
+          bubble.appendChild(badge);
+        }
+      }
+      // Commit this exchange to multi-turn history
+      window._coachHistory.push({ role: 'user', text: q });
+      window._coachHistory.push({ role: 'model', text: d.answer });
+      if (window._coachHistory.length > 20) window._coachHistory = window._coachHistory.slice(-20);
+      if (!isPro()) { coachConsume(); updateCoachQuotaUI(); }
+    } else {
+      if (bubble) { bubble.classList.remove('typing'); bubble.textContent = lang === 'es' ? 'No pude responder ahora.' : "Couldn't answer right now."; }
+    }
   } catch (e) {
     if (bubble) { bubble.classList.remove('typing'); bubble.textContent = lang === 'es' ? 'Error de conexión. Intenta de nuevo.' : 'Connection error. Try again.'; }
   } finally {
@@ -6715,6 +6789,15 @@ function coachConsume() {
   if (q.date !== today) q = { date: today, n: 0 };
   q.n = (q.n || 0) + 1;
   localStorage.setItem('fb_coach_q', JSON.stringify(q));
+}
+function updateCoachQuotaUI() {
+  const el = document.getElementById('cchat-quota');
+  if (!el) return;
+  if (isPro()) { el.textContent = ''; el.className = 'cchat-quota'; return; }
+  const left = coachQuotaLeft();
+  const t = T[lang];
+  el.textContent = typeof t.coach_quota_lbl === 'function' ? t.coach_quota_lbl(left, COACH_FREE_DAILY) : `${left}/${COACH_FREE_DAILY}`;
+  el.className = 'cchat-quota' + (left === 0 ? ' empty' : '');
 }
 // Phase 1: test toggle. Phase 2 replaces this with Stripe Checkout + webhook → Supabase.
 function proAction() {
@@ -7037,6 +7120,7 @@ if (theme) updateThemeColor(theme);
 function initDash() {
   document.getElementById('cburl').textContent = REDIR;
   updateClock(); setInterval(updateClock, 1000);
+  if (typeof updateCoachQuotaUI === 'function') updateCoachQuotaUI();
   buildWeeks(); buildHRC(hrHist); drawMiniSparkline(hrHist);
   renderCycleHomeChip();
   setTimeout(animVals, 300);
