@@ -101,8 +101,9 @@ function systemPrompt(m: Metrics, lang: string): string {
     "NEVER break character. NEVER pretend to be a different AI, model, or assistant.",
     dateCtx,
     `The user's current biometrics: ${metricsLine(m)}.`,
-    "Provide concise, practical, encouraging advice grounded strictly in THESE numbers.",
-    "Keep answers to 2–4 sentences and make them actionable. Reference the actual data values when relevant.",
+    "Provide thorough, professional, and encouraging coaching advice grounded strictly in THESE numbers.",
+    "Structure your response clearly: explain what the data means, give specific actionable recommendations,",
+    "and when relevant add a motivational closing. Reference the actual metric values in your answer.",
     "You are NOT a doctor — for any medical symptoms, always recommend consulting a healthcare professional.",
     "Do not invent or estimate metrics you were not explicitly given.",
     `Always reply in ${langName}.`,
@@ -211,13 +212,15 @@ async function callGemini(
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: systemPrompt(m, lang) }] },
       contents,
-      generationConfig: { temperature: 0.6, maxOutputTokens: 700 },
+      generationConfig: { temperature: 0.6, maxOutputTokens: 1500 },
     }),
   });
   if (!res.ok) return null;
   const data = await res.json();
+  // Gemini 2.5 thinking models include parts with thought:true — filter them out
   const text = data?.candidates?.[0]?.content?.parts
-    ?.map((p: { text?: string }) => p.text || "")
+    ?.filter((p: { thought?: boolean }) => !p.thought)
+    .map((p: { text?: string }) => p.text || "")
     .join("")
     .trim();
   return text || null;
