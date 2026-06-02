@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 // answer so the chat always works at $0. Add a free key from Google AI Studio
 // (aistudio.google.com, no credit card) in Vercel env to enable real answers.
 
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 const MAX_Q = 600;       // cap question length (abuse / cost guard)
 const MAX_HISTORY = 12;  // max history entries (6 turns) sent to Gemini
 
