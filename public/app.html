@@ -180,6 +180,13 @@ body{
 .mc-ov .tn{font-family:'VT323',monospace;font-size:clamp(28px,5vw,42px);color:#6aff3a;text-shadow:3px 3px 0 #003800,0 0 18px rgba(106,255,58,0.4);letter-spacing:3px;line-height:1;}
 .mc-ov .ts{font-family:'Silkscreen',monospace;font-size:10px;color:#4aaa2a;letter-spacing:3px;margin-top:6px;}
 
+/* ── SYNTHWAVE card preview ── */
+.tc-synth{background:#0a0015;border:1px solid rgba(255,0,255,0.35);box-shadow:inset 0 1px 0 rgba(255,0,255,0.08);}
+.synth-pv{width:100%;height:100%;position:relative;overflow:hidden;background:linear-gradient(180deg,#0a0015 0%,#1a0030 45%,#0a0015 100%);}
+.synth-pv-svg{position:absolute;inset:0;width:100%;height:100%;}
+.synth-ov .tn{font-family:'Rajdhani',sans-serif;font-size:clamp(20px,3.6vw,30px);font-weight:700;color:#ff00ff;letter-spacing:6px;text-shadow:0 0 18px rgba(255,0,255,0.9),0 0 36px rgba(255,0,255,0.4),0 0 54px rgba(0,255,255,0.2);}
+.synth-ov .ts{font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(0,255,255,0.65);letter-spacing:3px;margin-top:6px;}
+
 /* ── BLOOM card preview ── */
 .tc-bloom{background:#110610;border:1px solid rgba(232,92,138,0.32);box-shadow:inset 0 1px 0 rgba(232,92,138,0.06);}
 .bloom-pv{
@@ -1594,6 +1601,58 @@ body.t-naruto span.vval{
 .t-naruto .rfil{filter:none;}
 /* ── Whoop-style scores dentro del ring card ── */
 .wsrow{display:none;}
+/* ═══════════════════════════════════════
+   THEME: SYNTHWAVE
+   Rajdhani (HUD numerics) + IBM Plex Mono (terminal labels)
+   Palette: neon magenta #ff00ff · neon cyan #00ffff · deep purple #0a0015
+═══════════════════════════════════════ */
+body.t-synth{
+  --ta:#ff00ff;--ta2:#00ffff;--tpos:#00ff88;--tneg:#ff3366;
+  --bg:#0a0015;--bg2:#130025;--bdr:rgba(255,0,255,0.18);
+  --sub:rgba(255,0,255,0.07);--cbg:rgba(255,0,255,0.022);
+  --cbdr:1px solid rgba(255,0,255,0.13);--rbg:rgba(255,0,255,0.055);--txt:#f0e0ff;
+  background:linear-gradient(180deg,#0a0015 0%,#150028 50%,#0a0015 100%);
+  color:var(--txt);font-family:'Rajdhani',sans-serif;
+}
+/* Perspective grid */
+body.t-synth::before{content:'';position:fixed;inset:0;
+  background-image:
+    repeating-linear-gradient(0deg,rgba(255,0,255,0.055) 0,rgba(255,0,255,0.055) 1px,transparent 1px,transparent 32px),
+    repeating-linear-gradient(90deg,rgba(255,0,255,0.055) 0,rgba(255,0,255,0.055) 1px,transparent 1px,transparent 32px);
+  pointer-events:none;z-index:0;}
+/* Neon horizon glow + CRT scanlines */
+body.t-synth::after{content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 70% 35% at 50% 100%,rgba(255,0,255,0.12) 0%,rgba(0,255,255,0.06) 40%,transparent 70%),
+    repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);
+  pointer-events:none;z-index:999;}
+.t-synth .db-hdr{background:rgba(10,0,21,0.94);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,0,255,0.14);}
+.t-synth .db-name,.t-synth .rnum,.t-synth .snum,.t-synth .vval{font-family:'Rajdhani',sans-serif;font-weight:700;}
+.t-synth .db-name{letter-spacing:8px;}
+.t-synth .vval{font-size:34px;}
+.t-synth .rnum{font-size:44px;}
+.t-synth #logo-t{font-family:'Rajdhani',sans-serif;font-weight:800;letter-spacing:5px;}
+.t-synth .cbtn{font-family:'IBM Plex Mono',monospace;letter-spacing:2px;}
+.t-synth .clbl,.t-synth .vlbl,.t-synth .vunit{font-family:'IBM Plex Mono',monospace;}
+/* Top gradient on vitals */
+.t-synth .vc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,rgba(255,0,255,0.8),rgba(0,255,255,0.5),transparent);}
+/* Left neon stripe */
+.t-synth .vc::after{content:'';position:absolute;top:0;left:0;width:2px;height:100%;background:linear-gradient(180deg,#ff00ff,#00ffff);opacity:0.55;}
+/* Ring glow */
+.t-synth .rfil{filter:drop-shadow(0 0 6px #ff00ff) drop-shadow(0 0 12px rgba(0,255,255,0.4));}
+/* Card corner mark */
+.t-synth .card::before{content:'';position:absolute;top:0;left:0;width:16px;height:2px;background:rgba(255,0,255,0.7);box-shadow:0 0 6px rgba(255,0,255,0.5);}
+/* Nav */
+.t-synth .bnav{border-top:1px solid rgba(255,0,255,0.22);background:rgba(10,0,21,0.97);}
+/* Cards */
+.t-synth .iitm{background:rgba(255,0,255,0.04);border-color:rgba(255,0,255,0.14);}
+.t-synth .iitm::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,0,255,0.7),transparent);animation:sw-scanline 5s ease-in-out infinite;pointer-events:none;}
+@keyframes sw-scanline{0%,100%{transform:translateY(0);opacity:0;}40%{opacity:0;}50%{transform:translateY(200%);opacity:0.8;}60%{opacity:0;}}
+.t-synth .card:hover,.t-synth .vc:hover{border-color:rgba(255,0,255,0.48);box-shadow:0 0 18px rgba(255,0,255,0.14),0 0 4px rgba(0,255,255,0.1);}
+/* AIRA message */
+.t-synth .aira-msg{font-family:'Rajdhani',sans-serif;font-style:normal;font-size:13px;font-weight:600;letter-spacing:1px;}
+.t-synth .rc{display:none;}
+
 /* ── Daily Progress Rings ────────────────────────────────────────── */
 .drw{border-top:1px solid rgba(255,255,255,0.07);margin-top:14px;padding-top:13px;}
 .drw-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
@@ -2132,7 +2191,7 @@ body.t-naruto span.vval{
   <div class="sel-stats">
     <span class="sel-st-free">4</span>&nbsp;<span id="sel-lbl-free">GRATIS</span>
     <span class="sel-st-sep"></span>
-    <span class="sel-st-pro">1</span>&nbsp;<span id="sel-lbl-soon">PRÓXIMAMENTE</span>
+    <span class="sel-st-pro">2</span>&nbsp;<span id="sel-lbl-soon">PRO</span>
   </div>
 
   <!-- Theme grid -->
@@ -2416,6 +2475,59 @@ body.t-naruto span.vval{
       <div class="tc-ach" id="tc-ach-mc">
         <span class="tc-ach-count">0/18</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#6aff3a;width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- ── SYNTHWAVE PRO (80s retrowave — PRO tier) ── -->
+    <div class="t-card tc-synth t-locked" onclick="proAction()">
+      <div class="synth-pv">
+        <svg class="synth-pv-svg" viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="sw-sun" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ff6ec7"/>
+              <stop offset="45%" stop-color="#ff00ff"/>
+              <stop offset="100%" stop-color="#ff6600"/>
+            </linearGradient>
+            <clipPath id="sw-sunclip"><rect x="0" y="0" width="200" height="60"/></clipPath>
+          </defs>
+          <!-- Stars -->
+          <circle cx="18" cy="8" r="0.8" fill="rgba(255,255,255,0.7)"/>
+          <circle cx="44" cy="15" r="0.5" fill="rgba(255,255,255,0.5)"/>
+          <circle cx="78" cy="5" r="0.9" fill="rgba(255,255,255,0.8)"/>
+          <circle cx="128" cy="12" r="0.6" fill="rgba(255,255,255,0.6)"/>
+          <circle cx="163" cy="7" r="0.8" fill="rgba(255,255,255,0.7)"/>
+          <circle cx="185" cy="19" r="0.5" fill="rgba(255,255,255,0.5)"/>
+          <circle cx="58" cy="22" r="0.6" fill="rgba(255,0,255,0.9)"/>
+          <circle cx="148" cy="18" r="0.6" fill="rgba(0,255,255,0.9)"/>
+          <!-- Sun -->
+          <circle cx="100" cy="60" r="26" fill="url(#sw-sun)" clip-path="url(#sw-sunclip)"/>
+          <!-- Sun horizontal stripes -->
+          <rect x="74" y="44" width="52" height="3" fill="#0a0015"/>
+          <rect x="74" y="50" width="52" height="3" fill="#0a0015"/>
+          <rect x="74" y="55.5" width="52" height="2.5" fill="#0a0015"/>
+          <!-- Horizon glow line -->
+          <line x1="0" y1="60" x2="200" y2="60" stroke="#ff00ff" stroke-width="1.2" opacity="0.9"/>
+          <!-- Grid floor: horizontal lines -->
+          <line x1="0" y1="70" x2="200" y2="70" stroke="rgba(255,0,255,0.5)" stroke-width="0.8"/>
+          <line x1="0" y1="80" x2="200" y2="80" stroke="rgba(255,0,255,0.38)" stroke-width="0.7"/>
+          <line x1="0" y1="90" x2="200" y2="90" stroke="rgba(255,0,255,0.28)" stroke-width="0.6"/>
+          <line x1="0" y1="100" x2="200" y2="100" stroke="rgba(255,0,255,0.2)" stroke-width="0.6"/>
+          <!-- Grid floor: vertical lines (perspective) -->
+          <line x1="100" y1="60" x2="0"   y2="110" stroke="rgba(255,0,255,0.32)" stroke-width="0.7"/>
+          <line x1="100" y1="60" x2="38"  y2="110" stroke="rgba(255,0,255,0.27)" stroke-width="0.6"/>
+          <line x1="100" y1="60" x2="76"  y2="110" stroke="rgba(255,0,255,0.22)" stroke-width="0.6"/>
+          <line x1="100" y1="60" x2="124" y2="110" stroke="rgba(255,0,255,0.22)" stroke-width="0.6"/>
+          <line x1="100" y1="60" x2="162" y2="110" stroke="rgba(255,0,255,0.27)" stroke-width="0.6"/>
+          <line x1="100" y1="60" x2="200" y2="110" stroke="rgba(255,0,255,0.32)" stroke-width="0.7"/>
+          <!-- Sky glow behind sun -->
+          <ellipse cx="100" cy="58" rx="55" ry="18" fill="rgba(255,0,255,0.07)"/>
+        </svg>
+      </div>
+      <div class="t-badge t-badge-pro">PRO</div>
+      <div class="t-lock-ov">
+        <div class="t-lock-ico">▶</div>
+        <div class="t-lock-nm">SYNTHWAVE</div>
+        <div class="t-lock-tag">PRO</div>
       </div>
     </div>
 
@@ -4280,10 +4392,11 @@ const T = {
     sel_eye: '// elige tu interfaz de monitoreo biométrico',
     sel_sub: 'Elige la experiencia que refleja tu estilo',
     sel_badge_free: 'GRATIS',
-    sel_badge_soon: 'PRÓXIMAMENTE',
+    sel_badge_soon: 'PRO',
     sel_ft: 'AIRA v2.6 · FITBIT WEB API · BIOMETRIC CORE',
     bloom_sub: 'BIENESTAR · RENDIMIENTO',
     mc_sub: 'MONITOR DE DATOS DE SUPERVIVENCIA',
+    synth_sub: 'OUTRUN · NEON GRID · 1986',
     halo_sub: 'NIGHT CITY UPLINK',
     naruto_sub: '気 · MONITOR DE ENERGÍA',
     fut_sub: 'NÚCLEO BIOMÉTRICO v2.6',
@@ -4510,10 +4623,11 @@ const T = {
     sel_eye: '// choose your biometric monitoring interface',
     sel_sub: 'Choose the interface that reflects your style',
     sel_badge_free: 'FREE',
-    sel_badge_soon: 'COMING SOON',
+    sel_badge_soon: 'PRO',
     sel_ft: 'AIRA v2.6 · FITBIT WEB API · BIOMETRIC CORE',
     bloom_sub: 'WELLNESS · PERFORMANCE',
     mc_sub: 'SURVIVAL DATA MONITOR',
+    synth_sub: 'OUTRUN · NEON GRID · 1986',
     halo_sub: 'NIGHT CITY UPLINK',
     naruto_sub: '気 · KI ENERGY MONITOR',
     fut_sub: 'BIOMETRIC CORE v2.6',
@@ -8629,6 +8743,28 @@ function genAiraMsg() {
       floor: {
         es:['SISTEMA CRÍTICO. El SPARTAN necesita evacuación — combate suspendido hasta nuevo aviso.','AIRA detecta fallo sistémico múltiple. Protocolo de emergencia: descanso total, sin excepciones.'],
         en:['CRITICAL SYSTEM. The SPARTAN needs evacuation — combat suspended until further notice.','AIRA detects multiple system failure. Emergency protocol: full rest, no exceptions.']
+      }
+    },
+    synth: {
+      peak: {
+        es:['PROTOCOLO OUTRUN: ACTIVO. Corres a máxima potencia esta noche — domina el grid.','Señales en verde neón. Es tu noche — pisa el acelerador sin mirar atrás.','Sistema en peak absoluto. El neon highway está libre para ti hoy.'],
+        en:['OUTRUN PROTOCOL: ACTIVE. Running at full power tonight — own the grid.','All signals neon green. This is your night — put the pedal down.','System at absolute peak. The neon highway is clear for you today.']
+      },
+      high: {
+        es:['Cruzando la zona neón. Buen ritmo, líneas limpias — este trayecto cuenta.','Motor caliente y velocímetro en azul. Sesión sólida lista para ejecutar.','Energía en rango óptimo. El drive de hoy construye el de mañana.'],
+        en:['Crossing the neon zone. Solid pace, clean lines — this drive counts.','Engine warm and speedometer in blue. Solid session ready to execute.','Energy in optimal range. Today\'s drive builds tomorrow\'s.']
+      },
+      mid: {
+        es:['Medio acelerador en la autopista. Ritmo sobre velocidad — mantén el motor caliente.','El grid sigue ahí, pero no al máximo hoy. Constancia beats intensidad.','Velocidad de crucero. Un kilómetro limpio vale más que diez forzados.'],
+        en:['Half throttle on the highway. Rhythm over speed — keep the engine warm.','The grid is still there, just not at max today. Consistency beats intensity.','Cruising speed. One clean mile is worth more than ten forced ones.']
+      },
+      low: {
+        es:['Luces titilando en el tablero. Es hora de parar y dejar que el motor se enfríe.','Combustible bajo en el sistema. Este no es día de sprint — es de mantenimiento.','El neon falla cuando el piloto no descansa. Recupérate para la próxima carrera.'],
+        en:['Dashboard lights flickering. Time to pull over and let the engine cool down.','System fuel running low. This isn\'t a sprint day — it\'s a maintenance day.','The neon fades when the driver doesn\'t rest. Recover for the next run.']
+      },
+      floor: {
+        es:['Sin combustible en el tanque. Esta es una parada obligatoria — sin excepciones.','Motor frío y luces apagadas. El grid puede esperar — tú no puedes saltarte el descanso.'],
+        en:['Tank on empty. This is a mandatory pit stop — no exceptions.','Engine cold, lights out. The grid can wait — you can\'t skip the rest.']
       }
     },
     bloom: {
