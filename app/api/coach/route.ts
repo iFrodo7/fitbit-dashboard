@@ -261,15 +261,20 @@ async function callGemini(
     .join("")
     .trim();
 
+  // DEBUG TEMPORAL — eliminar después de diagnosticar
+  const allParts = candidate?.content?.parts ?? [];
+  const thoughtParts = allParts.filter((p: {thought?: boolean}) => p.thought);
+  const debugLine = `\n\n[DEBUG] model:${GEMINI_MODEL} | finish:${candidate?.finishReason} | parts:${allParts.length} | thoughtParts:${thoughtParts.length} | thoughtTokens:~${thoughtParts.reduce((acc: number, p: {text?: string}) => acc + (p.text?.length ?? 0), 0)} | visibleChars:${text?.length ?? 0}`;
+
   if (!text) {
-    console.error("[AIRA] Empty response. finishReason:", candidate?.finishReason, "parts:", JSON.stringify(candidate?.content?.parts?.map((p: {thought?: boolean, text?: string}) => ({ thought: p.thought, len: p.text?.length }))));
-    return null;
+    console.error("[AIRA] Empty response.", debugLine);
+    return `[Sin respuesta]${debugLine}`;
   }
 
   if (candidate?.finishReason === "MAX_TOKENS") {
-    return text + "\n\n_(Respuesta muy larga — prueba a dividir la pregunta en partes.)_";
+    return text + "\n\n_(Respuesta muy larga — prueba dividir la pregunta.)_" + debugLine;
   }
-  return text;
+  return text + debugLine;
 }
 
 export async function POST(request: NextRequest) {
