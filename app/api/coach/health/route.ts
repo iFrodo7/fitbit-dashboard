@@ -28,7 +28,7 @@ export async function GET() {
       gemini_status: res.ok ? "ok" : "error",
       gemini_http: res.status,
       gemini_response: text,
-      gemini_error: res.ok ? null : JSON.stringify(body).slice(0, 300),
+      gemini_error: res.ok ? null : JSON.stringify(body, null, 2),
     });
   } catch (e) {
     return NextResponse.json({
