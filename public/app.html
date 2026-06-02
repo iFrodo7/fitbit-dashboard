@@ -7416,6 +7416,20 @@ function _armMove(e) {
     var a = _dragArm; _disarmDrag();
     if (e.cancelable) e.preventDefault();
     _startDrag(a.card, t.clientX, t.clientY);
+    // Fast-gesture fix: on a quick swipe the touchend can arrive before the
+    // first requestAnimationFrame fires. _dragHitTest never runs, the slot
+    // stays at the card's original position and the drop lands there.
+    // Fix: synchronously paint the ghost at the finger and run the first
+    // hit-test right here so the slot is already in the right place if
+    // touchend fires immediately after this touchmove.
+    if (_dragState) {
+      _dragState.x  = t.clientX - _dragState.ox;
+      _dragState.y  = t.clientY - _dragState.oy;
+      _dragState.px = t.clientX;
+      _dragState.py = t.clientY;
+      _dragPaint(_dragState);
+      _dragHitTest(_dragState);
+    }
   }
 }
 function _disarmDrag() {
