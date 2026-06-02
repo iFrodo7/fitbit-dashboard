@@ -223,18 +223,10 @@ async function callGemini(
     { role: "user", parts: [{ text: q }] },
   ];
 
-  // Gemini 2.5-series models share the token budget between thinking and output.
-  // We disable thinking for chat coaching (not a reasoning task) and give the
-  // full 8192-token budget to the visible response.
-  const isThinkingModel = GEMINI_MODEL.startsWith("gemini-2.5");
-  const generationConfig: Record<string, unknown> = {
+  const generationConfig = {
     temperature: 0.65,
     maxOutputTokens: 8192,
   };
-  if (isThinkingModel) {
-    // thinkingBudget:0 disables internal reasoning so all 8192 tokens go to the response
-    generationConfig.thinkingConfig = { thinkingBudget: 0 };
-  }
 
   const res = await fetch(url, {
     method: "POST",
