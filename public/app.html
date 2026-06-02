@@ -6748,6 +6748,13 @@ async function askCoach() {
           badge.textContent = d.source === 'gemini' ? (t.coach_src_ai || 'AI') : (t.coach_src_local || 'local');
           bubble.appendChild(badge);
         }
+        // Re-scroll after bubble expands so user sees the start of AIRA's response
+        const thread = document.getElementById('cchat-thread');
+        if (thread) {
+          const tr = thread.getBoundingClientRect();
+          const br = bubble.getBoundingClientRect();
+          thread.scrollTop += br.top - tr.top;
+        }
       }
       // Commit this exchange to multi-turn history
       window._coachHistory.push({ role: 'user', text: q });
