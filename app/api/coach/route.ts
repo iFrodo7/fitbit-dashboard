@@ -63,7 +63,7 @@ function localFallback(q: string, m: Metrics, lang: string): string {
     if (!isNaN(rec) && rec >= 34) return es ? `Recovery ${rec}/100: intensidad moderada hoy. Cardio Zona 2 o técnica/movilidad rinden mejor que ir al máximo.` : `Recovery ${rec}/100: keep it moderate today. Zone 2 cardio or technique/mobility will pay off more than going all-out.`;
     return es ? `Recovery ${rec || "bajo"}/100: prioriza recuperación — caminata suave, estiramiento o descanso. Forzar hoy aumenta el riesgo de lesión.` : `Recovery ${rec || "low"}/100: prioritize recovery — easy walk, stretching or rest. Pushing today raises injury risk.`;
   }
-  if (has("com", "diet", "eat", "nutri", "aliment", "protein", "ceno", "cena")) {
+  if (has("comer", "comida", "diet", "eat", "nutri", "aliment", "protein", "ceno", "cena")) {
     return es
       ? `Para tu nivel de actividad (${m.steps || "—"} pasos), reparte proteína en cada comida (~1.6 g/kg/día), prioriza comida real y mantente hidratado. Tras entrenar fuerte, proteína + carbohidrato ayuda a recuperar.`
       : `For your activity level (${m.steps || "—"} steps), spread protein across meals (~1.6 g/kg/day), favor whole foods and stay hydrated. After hard training, protein + carbs aids recovery.`;

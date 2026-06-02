@@ -6644,7 +6644,7 @@ function collectCoachMetrics() {
   const gv = (id) => (document.getElementById(id)?.textContent || '').trim();
   return {
     recovery: window._lastRec,
-    rhr: gv('hr-rest') || gv('hrv'),
+    rhr: gv('hr-rest'),
     hrv: gv('hrvv'),
     spo2: gv('spo2v'),
     breathing: gv('resp-val'),
@@ -6681,8 +6681,12 @@ async function askCoach() {
       body: JSON.stringify({ q, lang, metrics: collectCoachMetrics() }),
     });
     const d = await r.json();
-    if (bubble) { bubble.classList.remove('typing'); bubble.textContent = d.answer || (lang === 'es' ? 'No pude responder ahora.' : "Couldn't answer right now."); }
-    if (!isPro()) coachConsume();
+    if (r.ok && d.answer) {
+      if (bubble) { bubble.classList.remove('typing'); bubble.textContent = d.answer; }
+      if (!isPro()) coachConsume();
+    } else {
+      if (bubble) { bubble.classList.remove('typing'); bubble.textContent = lang === 'es' ? 'No pude responder ahora.' : "Couldn't answer right now."; }
+    }
   } catch (e) {
     if (bubble) { bubble.classList.remove('typing'); bubble.textContent = lang === 'es' ? 'Error de conexión. Intenta de nuevo.' : 'Connection error. Try again.'; }
   } finally {
