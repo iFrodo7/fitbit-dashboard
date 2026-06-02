@@ -7446,14 +7446,23 @@ function _onCardMouseStart(e) {
 // moved card glides from its old position instead of teleporting.
 function _flipReorder(vg, mutate) {
   var cards = Array.from(vg.querySelectorAll('.vc:not(.wm-widget-hidden):not(.wm-dragging)'));
+
+  // Step 1 — ALL reads before mutation (no writes between reads = no layout thrashing).
   var first = new Map();
   cards.forEach(function(c){ first.set(c, c.getBoundingClientRect()); });
+
+  // Step 2 — DOM mutation.
   mutate();
-  // Bug #9 fix: batch FLIP to a single reflow instead of one per card.
-  // Phase 1 — read all "last" rects and write all inverted transforms (no reflow yet).
+
+  // Step 3 — ALL "last" reads batched before any writes (ONE reflow here).
+  var last = new Map();
+  cards.forEach(function(c){ last.set(c, c.getBoundingClientRect()); });
+
+  // Step 4 — Pure writes: apply inverted transforms so cards appear to stay put.
+  // No reads between writes → zero additional reflows in this pass.
   var toAnimate = [];
   cards.forEach(function(c){
-    var f = first.get(c), l = c.getBoundingClientRect();
+    var f = first.get(c), l = last.get(c);
     var dx = f.left - l.left, dy = f.top - l.top;
     if (!dx && !dy) return;
     c.classList.remove('wm-flip');
@@ -7461,15 +7470,22 @@ function _flipReorder(vg, mutate) {
     c.style.transform  = 'translate3d(' + dx + 'px,' + dy + 'px,0)';
     toAnimate.push(c);
   });
-  // Phase 2 — ONE reflow commits all inverted positions at once, then play.
-  if (toAnimate.length) {
-    vg.offsetWidth; // single forced reflow for all cards
-    toAnimate.forEach(function(c){
-      c.classList.add('wm-flip');
-      c.style.transition = '';
-      c.style.transform  = '';
-    });
-  }
+
+  if (!toAnimate.length) return;
+
+  // Step 5 — Flush: read offsetWidth FROM THE ELEMENT ITSELF (not the parent).
+  // Reading from the card directly is the only cross-browser reliable way to commit
+  // transition:none + transform on that element before we remove them.
+  // vg.offsetWidth is NOT enough on Safari/iOS — it doesn't flush child compositor
+  // layers, leaving cards stuck at their inverted position with no animation playing.
+  void toAnimate[0].offsetWidth; // ONE forced flush, covers the whole batch
+
+  // Step 6 — Pure writes: remove inverted transforms → CSS transition fires.
+  toAnimate.forEach(function(c){
+    c.classList.add('wm-flip');
+    c.style.transition = '';
+    c.style.transform  = '';
+  });
 }
 
 function _startDrag(card, cx, cy, rect) {
