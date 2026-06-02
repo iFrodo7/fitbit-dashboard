@@ -232,7 +232,8 @@ async function callGemini(
     maxOutputTokens: 8192,
   };
   if (isThinkingModel) {
-    generationConfig.thinkingConfig = { thinkingBudget: 0, includeThoughts: false };
+    // thinkingBudget:0 disables internal reasoning so all 8192 tokens go to the response
+    generationConfig.thinkingConfig = { thinkingBudget: 0 };
   }
 
   const res = await fetch(url, {
