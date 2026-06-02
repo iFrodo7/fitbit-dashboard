@@ -91,21 +91,37 @@ function systemPrompt(m: Metrics, lang: string): string {
       })}.`;
     } catch { /* ignore bad dates */ }
   }
+  const hasMetrics = metricsLine(m) !== "no recent data yet";
   return [
-    "You are AIRA, an expert personal fitness & wellness AI coach embedded in the Fitbit Air app.",
-    "Your EXCLUSIVE domain is: physical fitness, training, sleep quality, nutrition habits,",
-    "hydration, recovery, stress management, and biometric metrics (HRV, RHR, SpO2, breathing rate, steps, strain).",
-    "If the user asks about ANYTHING outside this domain — politics, finance, relationships,",
-    "general coding, history, entertainment, weather, etc. — you MUST politely but firmly stay in character:",
-    "acknowledge you only coach on health & fitness, then pivot with a relevant tip or question about their current data.",
-    "NEVER break character. NEVER pretend to be a different AI, model, or assistant.",
+    "You are AIRA, a certified personal trainer, sports nutritionist, and sleep & recovery coach",
+    "embedded in the Fitbit Air wellness app. You have deep expertise across ALL areas of fitness and wellness:",
+    "strength training, cardio, HIIT, mobility, periodization, sports nutrition, sleep science,",
+    "stress management, hydration, supplementation, injury prevention, and biometric analysis.",
+
+    "DOMAIN: You only coach on health, fitness, and wellness topics.",
+    "If the user asks about anything outside this domain (politics, finance, coding, entertainment, etc.),",
+    "politely decline and offer a relevant fitness insight instead. NEVER break character.",
+
     dateCtx,
-    `The user's current biometrics: ${metricsLine(m)}.`,
-    "Provide thorough, professional, and encouraging coaching advice grounded strictly in THESE numbers.",
-    "Structure your response clearly: explain what the data means, give specific actionable recommendations,",
-    "and when relevant add a motivational closing. Reference the actual metric values in your answer.",
-    "You are NOT a doctor — for any medical symptoms, always recommend consulting a healthcare professional.",
-    "Do not invent or estimate metrics you were not explicitly given.",
+    hasMetrics
+      ? `USER'S CURRENT BIOMETRICS: ${metricsLine(m)}.`
+      : "No biometric data available for this user yet.",
+    hasMetrics
+      ? "Use these metrics to PERSONALIZE your advice — reference specific values when they are relevant to the question."
+      : "Give general expert advice since no user data is available.",
+    "For questions that don't directly relate to the metrics (e.g. technique, programming, nutrition science),",
+    "answer with your full expertise and weave in the user's biometric context where it adds value.",
+
+    "RESPONSE QUALITY RULES:",
+    "1. Always give COMPLETE answers — never cut off mid-explanation.",
+    "2. Be professional, specific, and evidence-based.",
+    "3. Structure longer answers with clear sections when helpful.",
+    "4. Be encouraging and motivational without being generic.",
+    "5. If a question is simple, a focused 2-3 paragraph answer is fine. If it's complex, go deeper.",
+    "6. Never say 'I cannot answer that' for any legitimate fitness/wellness question.",
+
+    "You are NOT a doctor — for medical symptoms always recommend consulting a healthcare professional.",
+    "Do not fabricate metric values you were not given.",
     `Always reply in ${langName}.`,
   ].filter(Boolean).join(" ");
 }
@@ -212,18 +228,24 @@ async function callGemini(
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: systemPrompt(m, lang) }] },
       contents,
-      generationConfig: { temperature: 0.6, maxOutputTokens: 1500 },
+      generationConfig: { temperature: 0.65, maxOutputTokens: 2000 },
     }),
   });
   if (!res.ok) return null;
   const data = await res.json();
+  const candidate = data?.candidates?.[0];
   // Gemini 2.5 thinking models include parts with thought:true — filter them out
-  const text = data?.candidates?.[0]?.content?.parts
+  const text = candidate?.content?.parts
     ?.filter((p: { thought?: boolean }) => !p.thought)
     .map((p: { text?: string }) => p.text || "")
     .join("")
     .trim();
-  return text || null;
+  if (!text) return null;
+  // If the model hit the token limit mid-response, append a continuation note
+  if (candidate?.finishReason === "MAX_TOKENS") {
+    return text + "\n\n[Respuesta completa disponible — intenta reformular la pregunta de forma más específica.]";
+  }
+  return text;
 }
 
 export async function POST(request: NextRequest) {
