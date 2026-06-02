@@ -228,22 +228,28 @@ async function callGemini(
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: systemPrompt(m, lang) }] },
       contents,
-      generationConfig: { temperature: 0.65, maxOutputTokens: 2000 },
+      generationConfig: {
+        temperature: 0.65,
+        maxOutputTokens: 3000,
+        // Disable thinking: AIRA is a chat coach, not a reasoning task.
+        // With thinking ON, the model expends its "ideas" internally and
+        // writes a short visible response. With it OFF, the full answer
+        // goes directly into the output tokens.
+        thinkingConfig: { thinkingBudget: 0 },
+      },
     }),
   });
   if (!res.ok) return null;
   const data = await res.json();
   const candidate = data?.candidates?.[0];
-  // Gemini 2.5 thinking models include parts with thought:true — filter them out
   const text = candidate?.content?.parts
     ?.filter((p: { thought?: boolean }) => !p.thought)
     .map((p: { text?: string }) => p.text || "")
     .join("")
     .trim();
   if (!text) return null;
-  // If the model hit the token limit mid-response, append a continuation note
   if (candidate?.finishReason === "MAX_TOKENS") {
-    return text + "\n\n[Respuesta completa disponible — intenta reformular la pregunta de forma más específica.]";
+    return text + "\n\n_(Respuesta larga — reformula la pregunta en partes si necesitas más detalle.)_";
   }
   return text;
 }
