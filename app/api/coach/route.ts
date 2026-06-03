@@ -298,27 +298,130 @@ function localFallback(q: string, m: Metrics, lang: string): string {
       : `Last sleep: ${m.sleep || "—"}${sleepDetails ? ` (${sleepDetails})` : ""}${m.sleepEff ? `, efficiency ${m.sleepEff}% — ${effComment}` : ""}${wakes}.${crossNote} To improve quality: fixed schedule, cool room (63–66°F), no alcohol, no screens 1 h before bed.`;
   }
 
-  // Training
-  if (has("entren", "train", "rutina", "routine", "ejercici", "workout", "gym", "cardio", "fuerza", "strength", "hiit", "interval")) {
+  // Training — exercises, body parts, movement, improvement questions
+  if (has(
+    "entren", "train", "rutina", "routine", "ejercici", "workout", "gym",
+    "cardio", "fuerza", "strength", "hiit", "interval",
+    // lower body
+    "pierna", "leg", "sentadilla", "squat", "lunge", "zancada", "glúteo", "glute",
+    "peso muerto", "deadlift", "prensa", "isquio", "femoral", "pantorrilla", "calf",
+    // upper body
+    "pecho", "chest", "press", "lagartija", "push",
+    "espalda", "back", "dominada", "pullup", "pull up", "remo", "row",
+    "hombro", "shoulder", "militar", "lateral",
+    "bícep", "bicep", "trícep", "tricep", "curl",
+    // core
+    "abdomen", "core", "abs", "plancha", "plank",
+    // cardio / sports
+    "correr", "run", "nadar", "swim", "sprint", "velocidad", "speed",
+    "calistenia", "bodyweight", "yoga", "pilates",
+    // mobility & technique
+    "movilidad", "mobility", "estira", "stretch", "calenta", "warm",
+    "técnica", "tecnica", "form",
+    // intent keywords that point to training
+    "mejorar", "improve", "recomend",
+  )) {
+    // Detect body part / focus for specific advice
+    const isLegs  = has("pierna", "leg", "sentadilla", "squat", "lunge", "zancada",
+                        "glúteo", "glute", "peso muerto", "deadlift", "prensa",
+                        "isquio", "femoral", "pantorrilla", "calf");
+    const isUpper = has("pecho", "chest", "press", "lagartija", "push",
+                        "espalda", "back", "dominada", "pullup", "pull up", "remo", "row",
+                        "hombro", "shoulder", "bícep", "bicep", "trícep", "tricep", "curl");
+    const isCore  = has("abdomen", "core", "abs", "plancha", "plank");
+    const isCardio = has("correr", "run", "nadar", "swim", "sprint", "cardio", "hiit", "interval");
+    const isTech  = has("mejorar", "improve", "técnica", "tecnica", "form", "recomend");
+
+    const alreadyActive = m.cardioMin || m.peakMin
+      ? (es ? ` Ya llevas tiempo en zona cardio/pico hoy — ajusta el volumen total.`
+            : ` You already have cardio/peak zone time today — adjust total volume accordingly.`)
+      : "";
+
     if (accumulatedFatigue) {
+      const bodyNote = isLegs
+        ? (es ? "Para piernas: solo movilidad de cadera y estiramiento de cuádriceps/isquios — sin carga."
+               : "For legs: hip mobility and quad/hamstring stretching only — no load.")
+        : isUpper
+        ? (es ? "Para tren superior: foam rolling de espalda y movilidad de hombros."
+               : "For upper body: back foam rolling and shoulder mobility.")
+        : (es ? "Movilidad suave, caminata o descanso activo es lo máximo para hoy."
+               : "Light mobility, a walk, or active rest is your ceiling today.");
       return es
-        ? `Tus métricas muestran fatiga acumulada: recovery ${m.recovery || "—"}/100, HRV ${m.hrv || "—"} ms${!isNaN(eff) && eff < 75 ? `, eficiencia de sueño ${m.sleepEff}%` : ""}. Entrenar duro hoy no suma — puede retrasarte. Movilidad suave, caminata o descanso activo es lo máximo para hoy. Mañana será mejor.`
-        : `Your metrics show accumulated fatigue: recovery ${m.recovery || "—"}/100, HRV ${m.hrv || "—"} ms${!isNaN(eff) && eff < 75 ? `, sleep efficiency ${m.sleepEff}%` : ""}. Pushing hard today won't help — it can set you back. Light mobility, a walk, or active rest is your ceiling today. Tomorrow will be better.`;
+        ? `Tus métricas muestran fatiga acumulada: recovery ${m.recovery || "—"}/100, HRV ${m.hrv || "—"} ms${!isNaN(eff) && eff < 75 ? `, eficiencia de sueño ${m.sleepEff}%` : ""}. Entrenar duro hoy no suma — puede retrasarte. ${bodyNote} Mañana será mejor.`
+        : `Your metrics show accumulated fatigue: recovery ${m.recovery || "—"}/100, HRV ${m.hrv || "—"} ms${!isNaN(eff) && eff < 75 ? `, sleep efficiency ${m.sleepEff}%` : ""}. Pushing hard today won't help — it can set you back. ${bodyNote} Tomorrow will be better.`;
     }
+
     if (!isNaN(rec) && rec >= 67) {
-      const alreadyActive = m.cardioMin || m.peakMin ? (es ? ` Ya llevas tiempo en zona cardio/pico hoy, ajusta el volumen total.` : ` You already have cardio/peak zone time logged today, adjust total volume accordingly.`) : "";
+      // Green zone — actual exercise content by body part
+      if (isLegs && isTech) {
+        return es
+          ? `Para mejorar la sentadilla con recovery ${rec}/100 (verde): trabaja 5×3 al 75–80%, foco total en profundidad y control de rodillas sobre el pie. Antes de cada serie: 10 activaciones de glúteo en suelo + movilidad de tobillo en círculos. Los dos limitantes más comunes son la dorsiflexión de tobillo y la activación del glúteo — trabájalos primero. Graba un set de lado para revisarte.`
+          : `To improve your squat with recovery ${rec}/100 (green): work 5×3 at 75–80%, full focus on depth and knees tracking over the foot. Before each set: 10 glute bridges + ankle circles. The two most common limiters are ankle dorsiflexion and glute activation — address those first. Record a set from the side to self-review.`;
+      }
+      if (isLegs) {
+        return es
+          ? `Recovery ${rec}/100 — verde. Rutina de piernas: sentadilla 4×5 al 80–85% (descanso 2–3 min), peso muerto rumano 3×8, prensa 3×10, curl de isquios 3×12, elevaciones de pantorrilla 3×15.${alreadyActive} Finaliza con 10 min de movilidad de cadera y estiramiento de cuádriceps.`
+          : `Recovery ${rec}/100 — green. Leg day: back squat 4×5 at 80–85% (2–3 min rest), Romanian deadlift 3×8, leg press 3×10, hamstring curl 3×12, calf raises 3×15.${alreadyActive} Finish with 10 min hip mobility and quad stretching.`;
+      }
+      if (isUpper && isTech) {
+        return es
+          ? `Para mejorar el press o fuerza de tren superior con recovery ${rec}/100 (verde): 5×3 al 80% con foco en retracción escapular y control en la bajada (3 s excéntrico). Agrega remo con barra 4×6 para equilibrar el empuje con tracción. Finaliza con rotadores externos: 3×15 con banda.`
+          : `To improve press or upper body strength with recovery ${rec}/100 (green): 5×3 at 80% focusing on scapular retraction and controlled descent (3 s eccentric). Add barbell row 4×6 to balance push with pull. Finish with band external rotations 3×15.`;
+      }
+      if (isUpper) {
+        return es
+          ? `Recovery ${rec}/100 — verde. Tren superior: press de banca o press militar 4×5 al 80%, dominadas 4×máx (o remo con barra 4×6), fondos o aperturas 3×10, curl de bíceps 3×12.${alreadyActive} Descansa 90 s–2 min entre series pesadas. Finaliza con estiramiento de pecho y hombros.`
+          : `Recovery ${rec}/100 — green. Upper body: bench or overhead press 4×5 at 80%, pull-ups 4×max (or barbell row 4×6), dips or flyes 3×10, bicep curl 3×12.${alreadyActive} Rest 90 s–2 min between heavy sets. Finish with chest and shoulder stretching.`;
+      }
+      if (isCore) {
+        return es
+          ? `Recovery ${rec}/100 — verde para core. Circuito: plancha 3×45–60 s, plancha lateral 3×30 s por lado, rueda abdominal 3×10 (o hollow body hold 3×30 s), hip thrust 3×15.${alreadyActive} El core se recupera en 24–48 h — puedes entrenarlo 3–4 veces por semana sin problema.`
+          : `Recovery ${rec}/100 — green for core. Circuit: plank 3×45–60 s, side plank 3×30 s per side, ab wheel 3×10 (or hollow body hold 3×30 s), hip thrust 3×15.${alreadyActive} Core recovers in 24–48 h — you can train it 3–4 times per week without issue.`;
+      }
+      if (isCardio) {
+        return es
+          ? `Recovery ${rec}/100 y HRV ${m.hrv || "—"} ms — verde para alta intensidad. Para correr: 10 min suave → 5–6 × 400 m al 90% con 90 s de descanso → 10 min de enfriamiento. O 30–40 min en Zona 3 (ritmo sostenido y desafiante).${alreadyActive} Hidrátate bien y no saltees el calentamiento.`
+          : `Recovery ${rec}/100 and HRV ${m.hrv || "—"} ms — green for high intensity. Running: 10 min easy → 5–6 × 400 m at 90% with 90 s rest → 10 min cool-down. Or 30–40 min at Zone 3 (comfortably hard).${alreadyActive} Hydrate well and don't skip the warm-up.`;
+      }
+      // Generic green
       return es
-        ? `Recovery ${rec}/100 y HRV ${m.hrv || "—"} ms — estás en verde. Hoy puedes ir fuerte: fuerza pesada, intervalos o una sesión de alta demanda.${alreadyActive} Calienta bien, hidrátate y deja que el esfuerzo hable.`
-        : `Recovery ${rec}/100 and HRV ${m.hrv || "—"} ms — you're in the green. Today you can push: heavy strength, intervals, or a high-demand session.${alreadyActive} Warm up well, hydrate, and let the effort speak.`;
+        ? `Recovery ${rec}/100 y HRV ${m.hrv || "—"} ms — verde. Hoy puedes ir fuerte.${alreadyActive} Dime qué quieres trabajar — pierna, tren superior, core o cardio — y te armo una rutina adaptada a tu estado actual.`
+        : `Recovery ${rec}/100 and HRV ${m.hrv || "—"} ms — green. Today you can push.${alreadyActive} Tell me what you want to work — legs, upper body, core, or cardio — and I'll give you a routine built around your current state.`;
     }
+
     if (!isNaN(rec) && rec >= 34) {
+      // Yellow zone — technique / moderate volume
+      if (isLegs && isTech) {
+        return es
+          ? `Recovery ${rec}/100 — zona amarilla, perfecto para técnica. Sentadilla: 5×3–5 al 65–70%, foco total en profundidad y control. Agrega movilidad de tobillo y activación de glúteo antes de cada serie. Sin cargas máximas — el sistema nervioso aprende mejor con carga moderada.`
+          : `Recovery ${rec}/100 — yellow zone, ideal for technique. Squat: 5×3–5 at 65–70%, full focus on depth and control. Add ankle mobility and glute activation before each set. No max loads — motor learning works best at moderate intensity.`;
+      }
+      if (isLegs) {
+        return es
+          ? `Recovery ${rec}/100 — zona amarilla. Piernas de volumen moderado: sentadilla goblet 4×10 (técnica perfecta), split squat búlgaro 3×10 por lado, curl de isquios 3×12, puente de glúteos 3×15. Sin sets al fallo — termina cada serie sintiéndote bien.`
+          : `Recovery ${rec}/100 — yellow zone. Moderate leg volume: goblet squat 4×10 (perfect form), Bulgarian split squat 3×10 per side, hamstring curl 3×12, glute bridge 3×15. No failure sets — end each set feeling strong.`;
+      }
+      if (isCardio) {
+        return es
+          ? `Recovery ${rec}/100 — zona amarilla. Ideal para Zona 2: 30–45 min a ritmo conversacional (puedes hablar sin jadear). Este cardio aeróbico mejora la base sin profundizar la fatiga — suma sin restar.`
+          : `Recovery ${rec}/100 — yellow zone. Ideal for Zone 2: 30–45 min at conversational pace (you can talk without gasping). Aerobic base training improves fitness without deepening fatigue — all gain, no drain.`;
+      }
       return es
-        ? `Recovery ${rec}/100 — zona amarilla. Funciona bien para cardio Zona 2 (ritmo conversacional), técnica o movilidad. No es día de récords, pero es perfecto para acumular volumen de calidad sin profundizar la fatiga.`
-        : `Recovery ${rec}/100 — yellow zone. Works well for Zone 2 cardio (conversational pace), technique work, or mobility. Not a PR day, but perfect for quality volume without deepening fatigue.`;
+        ? `Recovery ${rec}/100 — zona amarilla. Ideal para técnica, volumen moderado o cardio Zona 2. No es día de récords, pero es perfecto para acumular trabajo de calidad. ¿Quieres rutina de pierna, tren superior, core o cardio?`
+        : `Recovery ${rec}/100 — yellow zone. Good for technique, moderate volume, or Zone 2 cardio. Not a PR day, but perfect for quality work. Want a leg, upper body, core, or cardio routine?`;
     }
+
+    // Red zone
+    const redBodyNote = isLegs
+      ? (es ? "Para piernas: solo estiramiento de cuádriceps, isquios y movilidad de cadera — sin carga hoy."
+             : "For legs: quad/hamstring stretching and hip mobility only — no load today.")
+      : isUpper
+      ? (es ? "Para tren superior: foam rolling de espalda y movilidad de hombros."
+             : "For upper body: back foam rolling and shoulder mobility.")
+      : (es ? "Caminata suave, estiramiento o foam rolling." : "Easy walk, stretching, or foam rolling.");
     return es
-      ? `Recovery ${m.recovery || "—"}/100 — zona roja. El cuerpo está enviando una señal clara. Caminata suave, estiramiento o foam rolling es lo máximo para hoy. Forzarlo ahora eleva el riesgo de lesión y alarga la recuperación.`
-      : `Recovery ${m.recovery || "—"}/100 — red zone. Your body is sending a clear signal. Easy walk, stretching, or foam rolling is your ceiling today. Pushing raises injury risk and extends recovery time.`;
+      ? `Recovery ${m.recovery || "—"}/100 — zona roja. El cuerpo pide pausa. ${redBodyNote} Forzarlo ahora eleva el riesgo de lesión y alarga la recuperación. Mañana rendirás mejor.`
+      : `Recovery ${m.recovery || "—"}/100 — red zone. Your body needs a pause. ${redBodyNote} Pushing raises injury risk and extends recovery time. You'll perform better tomorrow.`;
   }
 
   // Nutrition
