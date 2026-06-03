@@ -11311,8 +11311,12 @@ function _updateTripleStreak() {
 
 function recordGoalHit(allThree) {
   var s = _loadAchStats();
-  s.goalsHit = (s.goalsHit||0) + 1;
-  if (allThree) {
+  var today = new Date().toISOString().slice(0,10);
+  if (s._lastGoalDate !== today) {
+    s.goalsHit = (s.goalsHit||0) + 1;
+    s._lastGoalDate = today;
+  }
+  if (allThree && s.lastTripleDate !== today) {
     s.tripleHit = (s.tripleHit||0) + 1;
     s.allGoalsDays = (s.allGoalsDays||0) + 1;
     _saveAchStats(s);
