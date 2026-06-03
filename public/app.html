@@ -4953,6 +4953,7 @@ function setLang(l) {
   if (typeof renderCoachAccess === 'function') renderCoachAccess();
   setText('i1t', t.i1t); setText('i2t', t.i2t); setText('i3t', t.i3t);
   setText('i1x', t.i1x); setText('i2x', t.i2x); setText('i3x', t.i3x);
+  if (typeof renderAiraInsights === 'function') renderAiraInsights();
   // modal
   setText('modal-title', t.modal_title); setText('modal-sub', t.modal_sub);
   setHTML('m-s1', t.m_s1); setHTML('m-s2', t.m_s2); setHTML('m-s3', t.m_s3);
@@ -5711,6 +5712,77 @@ function applyThemeText(t) {
   };
   if (map[t]) Object.entries(map[t]).forEach(([id,v]) => setText(id, v));
   updateStatusLabel();
+  if (typeof renderAiraInsights === 'function') renderAiraInsights();
+}
+
+// Generates i1x/i2x/i3x from actual biometric data so insights reflect the
+// user's real state instead of the static demo strings in applyThemeText().
+function renderAiraInsights() {
+  const es = lang !== 'en';
+  const nv = (id) => parseFloat((document.getElementById(id)?.textContent || '').replace(/[^0-9.]/g, ''));
+  const sv = (id) => (document.getElementById(id)?.textContent || '').trim();
+  const slRow = (barId) => document.getElementById(barId)?.closest('.slrw')?.querySelector('.sltm')?.textContent?.trim() || '';
+
+  const rec     = window._lastRec != null ? window._lastRec : NaN;
+  const hrv     = nv('hrvv');
+  const sleep   = sv('sl-total-v');
+  const sleepEff= nv('sl-eff-v');
+  const deepSl  = slRow('sl0');
+  const steps   = parseInt((sv('stepsv') || '0').replace(/\D/g, '')) || 0;
+  const goalRaw = sv('sv-steps-goal').replace(/\D/g, '');
+  const goal    = parseInt(goalRaw) || 10000;
+
+  // ── Card 1: Recovery / HRV ──────────────────────────────────────────
+  let i1x = '';
+  if (!isNaN(rec)) {
+    const zone = rec >= 67 ? (es ? 'zona verde' : 'green zone') : rec >= 34 ? (es ? 'zona moderada' : 'moderate zone') : (es ? 'zona roja' : 'red zone');
+    const advice = rec >= 67
+      ? (es ? 'Hoy puedes entrenar fuerte.' : 'You can train hard today.')
+      : rec >= 34
+        ? (es ? 'Esfuerzo moderado — zona 2 o técnica ideal.' : 'Moderate effort — zone 2 or technique work ideal.')
+        : (es ? 'Prioriza descanso activo hoy.' : 'Prioritize active rest today.');
+    const hrvPart = !isNaN(hrv) ? (es ? ` · HRV ${hrv} ms` : ` · HRV ${hrv} ms`) : '';
+    i1x = `Recovery ${rec}/100${hrvPart} — ${zone}. ${advice}`;
+  } else if (!isNaN(hrv)) {
+    const q = hrv >= 60 ? (es ? 'excelente' : 'excellent') : hrv >= 40 ? (es ? 'bueno' : 'good') : (es ? 'bajo' : 'low');
+    i1x = es ? `HRV ${hrv} ms — ${q}. Sin datos de recovery todavía.` : `HRV ${hrv} ms — ${q}. No recovery data yet.`;
+  }
+
+  // ── Card 2: Sleep ───────────────────────────────────────────────────
+  let i2x = '';
+  if (sleep && sleep !== '—' && sleep !== '') {
+    const deep = deepSl ? (es ? ` Sueño profundo: ${deepSl}.` : ` Deep sleep: ${deepSl}.`) : '';
+    let effNote = '';
+    if (!isNaN(sleepEff)) {
+      effNote = sleepEff >= 85
+        ? (es ? ` Eficiencia ${sleepEff}% — sólida.` : ` Efficiency ${sleepEff}% — solid.`)
+        : sleepEff >= 75
+          ? (es ? ` Eficiencia ${sleepEff}% — mejorable.` : ` Efficiency ${sleepEff}% — fair.`)
+          : (es ? ` Eficiencia ${sleepEff}% — baja. Prioriza calidad esta noche.` : ` Efficiency ${sleepEff}% — low. Focus on quality tonight.`);
+    }
+    i2x = (es ? `Último sueño: ${sleep}.` : `Last sleep: ${sleep}.`) + deep + effNote;
+  }
+
+  // ── Card 3: Steps / Activity ────────────────────────────────────────
+  let i3x = '';
+  if (steps > 0) {
+    const pct = Math.min(Math.round(steps / goal * 100), 100);
+    const remaining = Math.max(0, goal - steps);
+    if (remaining === 0) {
+      i3x = es
+        ? `Meta de ${goal.toLocaleString()} pasos alcanzada. ¡Consistencia que paga!`
+        : `${goal.toLocaleString()} step goal reached. Consistency pays off!`;
+    } else {
+      const restNote = !isNaN(rec) && rec < 34
+        ? (es ? ` Con recovery bajo, una caminata suave es lo ideal para llegar.` : ` With low recovery, an easy walk is ideal to close the gap.`)
+        : (es ? ` Faltan ${remaining.toLocaleString()} para tu meta de ${goal.toLocaleString()}.` : ` ${remaining.toLocaleString()} steps left to your goal of ${goal.toLocaleString()}.`);
+      i3x = (es ? `${steps.toLocaleString()} pasos — ${pct}% de la meta.` : `${steps.toLocaleString()} steps — ${pct}% of goal.`) + restNote;
+    }
+  }
+
+  if (i1x) setText('i1x', i1x);
+  if (i2x) setText('i2x', i2x);
+  if (i3x) setText('i3x', i3x);
 }
 
 // Readiness status label — themed flavor that reflects the real recovery score.
@@ -8260,6 +8332,7 @@ function updateScores({ rec, strain, sleepPct }) {
   window._lastSleepPct = sleepPct;
   setText('wrec', recTextFor(rec));
   updateStatusLabel();
+  if (typeof renderAiraInsights === 'function') renderAiraInsights();
   setTimeout(genAiraMsg, 80);
   updateDailyRings();
   if (!window._drAnimDone) { window._drAnimDone = true; setTimeout(animateDailyRings, 200); }
@@ -9316,6 +9389,7 @@ async function loadRealGoogleData() {
     const pct=Math.min((tot/10000)*100,100);
     document.getElementById('stepsprog').style.width=pct+'%';
     document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY');
+    if (typeof renderAiraInsights === 'function') renderAiraInsights();
   }
   if (calD?.dataPoints?.length) {
     const totCal=Math.round(calD.dataPoints.reduce((s,p)=>s+(parseFloat(p.totalCalories?.kilocalories??p.totalCalories?.value??p.totalCalories?.count??0)),0));
