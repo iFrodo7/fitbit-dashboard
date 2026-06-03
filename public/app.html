@@ -11231,6 +11231,8 @@ function checkAchievements(t) {
   if (!t) t = (typeof theme !== 'undefined') ? theme : 'naruto';
   var s = _loadAchStats();
   var u = _loadAchUnlocked();
+  // Detect first-time theme use before initializing the array
+  var isNewTheme = !u[t];
   if (!u[t]) u[t] = new Array(_ACH_DEFS.length).fill(false);
   // update stats
   s.maxStreak = Math.max(s.maxStreak||0, getDailyStreak());
@@ -11240,7 +11242,12 @@ function checkAchievements(t) {
   var newUnlocks = [];
   _ACH_DEFS.forEach(function(def, i) {
     if (u[t][i]) return;
-    if (def.check(s, t, u)) { u[t][i] = true; newUnlocks.push(i); }
+    if (def.check(s, t, u)) {
+      u[t][i] = true;
+      // First theme use: silently seed already-earned achievements; only animate
+      // explorer (idx 0) since it's genuinely "discovered this theme right now".
+      if (!isNewTheme || i === 0) newUnlocks.push(i);
+    }
   });
   _saveAchStats(s); _saveAchUnlocked(u);
   newUnlocks.forEach(function(i) { _showAchToast(t, i); });
