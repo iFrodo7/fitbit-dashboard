@@ -769,6 +769,14 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .ityp{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--ta2);margin-bottom:6px;font-weight:700;}
 .itxt{font-size:13px;line-height:1.6;opacity:0.7;}
 /* AIRA chat */
+/* Coach PRO paywall */
+.coach-paywall{margin-top:14px;border-top:1px solid var(--sub);padding-top:16px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;}
+.cpw-icon{font-size:26px;opacity:0.7;line-height:1;}
+.cpw-title{font-size:13px;font-weight:700;letter-spacing:3px;color:var(--ta2);text-transform:uppercase;}
+.cpw-desc{font-size:11px;opacity:0.55;line-height:1.65;max-width:300px;letter-spacing:0.3px;}
+.cpw-features{display:flex;flex-direction:column;gap:4px;font-size:10px;opacity:0.4;letter-spacing:0.5px;}
+.cpw-btn{margin-top:4px;padding:11px 24px;background:var(--ta2);color:var(--bg);border:none;border-radius:7px;font-family:inherit;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:12px;cursor:pointer;transition:opacity 0.15s;-webkit-tap-highlight-color:transparent;}
+.cpw-btn:active{opacity:0.75;}
 .cchat{margin-top:14px;border-top:1px solid var(--sub);padding-top:12px;}
 .cchat-thread{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;margin-bottom:10px;overscroll-behavior:contain;}
 .cchat-thread:empty{display:none;}
@@ -3763,8 +3771,19 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         <div class="iitm"><div class="ityp" id="i2t">◆ SUEÑO</div><div class="itxt" id="i2x">Tu sueño profundo aumentó 12% esta semana. Consistencia de horario: ±20min de tu ventana óptima.</div></div>
         <div class="iitm"><div class="ityp" id="i3t">◆ ACTIVIDAD</div><div class="itxt" id="i3x">4 días consecutivos cumpliendo tu meta. Si terminas hoy, será tu racha más larga del mes.</div></div>
       </div>
-      <!-- AIRA chat — ask the coach about your data -->
-      <div class="cchat">
+      <!-- AIRA coach — PRO only -->
+      <div class="coach-paywall" id="coach-paywall" style="display:none">
+        <div class="cpw-icon">✦</div>
+        <div class="cpw-title" id="cpw-title">COACH AIRA PRO</div>
+        <div class="cpw-desc" id="cpw-desc">Análisis personalizado de tus métricas, planes de entrenamiento y respuestas en tiempo real basadas en tus datos de hoy.</div>
+        <button class="cpw-btn" id="cpw-btn" onclick="proAction()">DESBLOQUEAR · PRO</button>
+        <div class="cpw-features" id="cpw-features">
+          <span id="cpw-f1">· Preguntas ilimitadas a AIRA</span>
+          <span id="cpw-f2">· Análisis de sueño y recovery</span>
+          <span id="cpw-f3">· Planes de entrenamiento personalizados</span>
+        </div>
+      </div>
+      <div class="cchat" id="coach-chat" style="display:none">
         <div class="cchat-thread" id="cchat-thread"></div>
         <div class="cchat-row">
           <input id="cchat-input" class="cchat-input" type="text" maxlength="600" placeholder="Pregúntale a AIRA sobre tus datos…" onkeydown="if(event.key==='Enter')askCoach()" aria-label="Pregunta a AIRA"/>
@@ -3772,7 +3791,6 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         </div>
         <div class="cchat-foot">
           <div class="cchat-hint" id="cchat-hint">Ej: ¿Cómo mejoro mi sueño? · ¿Qué entreno hoy? · ¿Qué ceno?</div>
-          <span id="cchat-quota" class="cchat-quota"></span>
         </div>
       </div>
     </div>
@@ -4508,16 +4526,21 @@ const T = {
     lbl_coach: 'AIRA',
     cchat_ph: 'Pregúntale a AIRA sobre tus datos…',
     cchat_hint: 'Ej: ¿Cómo mejoro mi sueño? · ¿Qué entreno hoy? · ¿Qué ceno?',
-    coach_limit: 'Llegaste a tu límite gratis de hoy (3 preguntas). Hazte AIRA Pro para preguntar sin límite. ✦',
-    coach_quota_lbl: (n, max) => `${n}/${max} preguntas`,
+    coach_pro_only: 'El coach AIRA es exclusivo de PRO.',
     coach_src_ai: 'IA',
     coach_src_local: 'local',
+    coach_paywall_title: 'COACH AIRA PRO',
+    coach_paywall_desc: 'Análisis personalizado de tus métricas, planes de entrenamiento y respuestas en tiempo real basadas en tus datos de hoy.',
+    coach_paywall_btn: 'DESBLOQUEAR · PRO',
+    coach_paywall_f1: '· Preguntas ilimitadas a AIRA',
+    coach_paywall_f2: '· Análisis de sueño y recovery',
+    coach_paywall_f3: '· Planes de entrenamiento personalizados',
     pro_title: 'AIRA PRO', pro_sub: '$5/mes · cancela cuando quieras', pro_free_lbl: 'GRATIS',
     pro_cta: 'HAZTE PRO · $5/MES', pro_manage: 'GESTIONAR PLAN',
     pro_note_off: 'Pago real próximamente (Stripe). Por ahora es modo prueba.',
     pro_note_on: 'Plan PRO activo (modo prueba).',
     pro_features: [
-      { f:'Coach AIRA', free:'3/día', pro:'Ilimitado + planes' },
+      { f:'Coach AIRA', free:'—', pro:'✓ Ilimitado + planes' },
       { f:'Temas', free:'4 mundos', pro:'Exclusivos + 1/mes' },
       { f:'Reporte semanal IA', free:'—', pro:'✓' },
       { f:'Métricas y vistas', free:'Todas', pro:'Todas' },
@@ -4739,16 +4762,21 @@ const T = {
     lbl_coach: 'AIRA',
     cchat_ph: 'Ask AIRA about your data…',
     cchat_hint: 'e.g. How do I improve my sleep? · What should I train today? · What should I eat?',
-    coach_limit: "You've reached today's free limit (3 questions). Go AIRA Pro to ask without limits. ✦",
-    coach_quota_lbl: (n, max) => `${n}/${max} questions`,
+    coach_pro_only: 'AIRA coach is a PRO exclusive feature.',
     coach_src_ai: 'AI',
     coach_src_local: 'local',
+    coach_paywall_title: 'AIRA COACH PRO',
+    coach_paywall_desc: 'Personalized analysis of your metrics, training plans, and real-time answers based on your data.',
+    coach_paywall_btn: 'UNLOCK · GO PRO',
+    coach_paywall_f1: '· Unlimited questions to AIRA',
+    coach_paywall_f2: '· Sleep & recovery analysis',
+    coach_paywall_f3: '· Personalized training plans',
     pro_title: 'AIRA PRO', pro_sub: '$5/mo · cancel anytime', pro_free_lbl: 'FREE',
     pro_cta: 'GO PRO · $5/MO', pro_manage: 'MANAGE PLAN',
     pro_note_off: 'Real billing coming soon (Stripe). For now it\'s test mode.',
     pro_note_on: 'PRO plan active (test mode).',
     pro_features: [
-      { f:'AIRA coach', free:'3/day', pro:'Unlimited + plans' },
+      { f:'AIRA coach', free:'—', pro:'✓ Unlimited + plans' },
       { f:'Themes', free:'4 worlds', pro:'Exclusive + 1/mo' },
       { f:'Weekly AI report', free:'—', pro:'✓' },
       { f:'Metrics & views', free:'All', pro:'All' },
@@ -4922,7 +4950,7 @@ function setLang(l) {
   setText('lbl-coach', t.lbl_coach);
   { const ci = document.getElementById('cchat-input'); if (ci) ci.placeholder = t.cchat_ph; }
   setText('cchat-hint', t.cchat_hint);
-  if (typeof updateCoachQuotaUI === 'function') updateCoachQuotaUI();
+  if (typeof renderCoachAccess === 'function') renderCoachAccess();
   setText('i1t', t.i1t); setText('i2t', t.i2t); setText('i3t', t.i3t);
   setText('i1x', t.i1x); setText('i2x', t.i2x); setText('i3x', t.i3x);
   // modal
@@ -6823,19 +6851,21 @@ function addCoachMsg(who, text) {
   return el;
 }
 async function askCoach() {
+  if (!isPro()) { return; }
   const inp = document.getElementById('cchat-input');
   const btn = document.getElementById('cchat-send');
   const q = (inp?.value || '').trim();
   if (!q) return;
   inp.value = '';
   addCoachMsg('user', q);
-  if (!isPro() && coachQuotaLeft() <= 0) { addCoachMsg('aira', T[lang].coach_limit); return; }
   if (btn) btn.disabled = true;
   const bubble = addCoachMsg('aira', '…');
   if (bubble) bubble.classList.add('typing');
   // Snapshot history before this turn (previous exchanges only)
   if (!Array.isArray(window._coachHistory)) window._coachHistory = [];
   const historySnapshot = window._coachHistory.slice(-12);
+  const ctrl = new AbortController();
+  const fetchTimeout = setTimeout(() => ctrl.abort(), 28000);
   try {
     const [metrics, trend] = await Promise.all([
       Promise.resolve(collectCoachMetrics()),
@@ -6849,8 +6879,11 @@ async function askCoach() {
         metrics: trend ? Object.assign({}, metrics, { trend }) : metrics,
         history: historySnapshot,
       }),
+      signal: ctrl.signal,
     });
-    const d = await r.json();
+    clearTimeout(fetchTimeout);
+    let d = {};
+    try { d = await r.json(); } catch { /* non-JSON response (e.g. 504 HTML) — treat as empty */ }
     if (r.ok && d.answer) {
       if (bubble) {
         bubble.classList.remove('typing');
@@ -6874,12 +6907,18 @@ async function askCoach() {
       window._coachHistory.push({ role: 'user', text: q });
       window._coachHistory.push({ role: 'model', text: d.answer });
       if (window._coachHistory.length > 20) window._coachHistory = window._coachHistory.slice(-20);
-      if (!isPro()) { coachConsume(); updateCoachQuotaUI(); }
     } else {
-      if (bubble) { bubble.classList.remove('typing'); bubble.textContent = lang === 'es' ? 'No pude responder ahora.' : "Couldn't answer right now."; }
+      if (bubble) { bubble.classList.remove('typing'); bubble.textContent = lang === 'es' ? 'AIRA no pudo responder ahora. Intenta de nuevo.' : "AIRA couldn't respond right now. Try again."; }
     }
   } catch (e) {
-    if (bubble) { bubble.classList.remove('typing'); bubble.textContent = lang === 'es' ? 'Error de conexión. Intenta de nuevo.' : 'Connection error. Try again.'; }
+    clearTimeout(fetchTimeout);
+    const isTimeout = e && e.name === 'AbortError';
+    if (bubble) {
+      bubble.classList.remove('typing');
+      bubble.textContent = isTimeout
+        ? (lang === 'es' ? 'AIRA tardó demasiado. Intenta de nuevo.' : 'AIRA took too long. Try again.')
+        : (lang === 'es' ? 'Sin conexión. Verifica tu red e intenta de nuevo.' : 'No connection. Check your network and try again.');
+    }
   } finally {
     if (btn) btn.disabled = false;
     inp?.focus();
@@ -6887,6 +6926,30 @@ async function askCoach() {
 }
 
 // ══════ AIRA PRO (subscription) ══════
+function renderCoachAccess() {
+  const pro = isPro();
+  const paywall = document.getElementById('coach-paywall');
+  const chat = document.getElementById('coach-chat');
+  if (!paywall || !chat) return;
+  paywall.style.display = pro ? 'none' : 'flex';
+  chat.style.display = pro ? 'block' : 'none';
+  if (!pro) {
+    const t = T[lang] || T['es'];
+    const title = document.getElementById('cpw-title');
+    const desc  = document.getElementById('cpw-desc');
+    const btn   = document.getElementById('cpw-btn');
+    const f1    = document.getElementById('cpw-f1');
+    const f2    = document.getElementById('cpw-f2');
+    const f3    = document.getElementById('cpw-f3');
+    if (title) title.textContent = t.coach_paywall_title || 'COACH AIRA PRO';
+    if (desc)  desc.textContent  = t.coach_paywall_desc  || '';
+    if (btn)   btn.textContent   = t.coach_paywall_btn   || 'UNLOCK · GO PRO';
+    if (f1)    f1.textContent    = t.coach_paywall_f1    || '';
+    if (f2)    f2.textContent    = t.coach_paywall_f2    || '';
+    if (f3)    f3.textContent    = t.coach_paywall_f3    || '';
+  }
+}
+
 const COACH_FREE_DAILY = 3;
 // Paste the 2 developers' Fitbit user-ids here → Pro free forever (no payment).
 const DEV_FITBIT_IDS = [];
@@ -6926,13 +6989,13 @@ function proAction() {
     const msg = lang === 'es' ? '¿Cancelar AIRA Pro? (modo prueba)' : 'Cancel AIRA Pro? (test mode)';
     if (confirm(msg)) {
       localStorage.removeItem('fb_pro');
-      renderProfile(); renderDailyRings();
+      renderProfile(); renderDailyRings(); renderCoachAccess();
       window._drAnimDone = true; setTimeout(animateDailyRings, 60);
       showToast(lang === 'es' ? 'Plan cancelado' : 'Plan cancelled', 'info');
     }
   } else {
     localStorage.setItem('fb_pro', '1');
-    renderProfile(); renderDailyRings();
+    renderProfile(); renderDailyRings(); renderCoachAccess();
     window._drAnimDone = true; setTimeout(animateDailyRings, 60);
     showToast(lang === 'es' ? 'AIRA Pro activado (prueba)' : 'AIRA Pro activated (test)', 'success');
   }
@@ -7241,7 +7304,7 @@ if (theme) updateThemeColor(theme);
 function initDash() {
   document.getElementById('cburl').textContent = REDIR;
   updateClock(); setInterval(updateClock, 1000);
-  if (typeof updateCoachQuotaUI === 'function') updateCoachQuotaUI();
+  if (typeof renderCoachAccess === 'function') renderCoachAccess();
   buildWeeks(); buildHRC(hrHist); drawMiniSparkline(hrHist);
   renderCycleHomeChip();
   setTimeout(animVals, 300);
