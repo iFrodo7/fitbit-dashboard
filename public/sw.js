@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'fitbit-air-v16';
+const CACHE_VERSION = 'fitbit-air-v17';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -48,8 +48,11 @@ self.addEventListener('push', (event) => {
 });
 
 // Client-triggered notifications (no backend needed)
+let _stkNotifTimer = null;
+
 self.addEventListener('message', (event) => {
   const msg = event.data || {};
+
   if (msg.type === 'SHOW_NOTIFICATION' && self.registration) {
     const { title, body, tag, url } = msg.payload || {};
     self.registration.showNotification(title || 'Fitbit Air', {
@@ -60,6 +63,36 @@ self.addEventListener('message', (event) => {
       data: { url: url || '/app.html' },
       vibrate: [40, 30, 40]
     });
+  }
+
+  if (msg.type === 'SCHEDULE_STREAK_NOTIF') {
+    const { streak, fireAt, es } = msg.payload || {};
+    if (_stkNotifTimer) clearTimeout(_stkNotifTimer);
+    const delay = fireAt - Date.now();
+    if (delay > 0 && delay < 86400000) {
+      const title = es
+        ? `🔥 Tu racha de ${streak} días peligra`
+        : `🔥 Your ${streak}-day streak is at risk`;
+      const body = es
+        ? '¡Abre la app y completa tus metas antes de medianoche!'
+        : 'Complete your goals before midnight to keep it!';
+      _stkNotifTimer = setTimeout(() => {
+        self.registration.showNotification(title, {
+          body,
+          icon: '/icons/icon-192.png',
+          badge: '/icons/icon-192.png',
+          tag: 'streak-reminder',
+          data: { url: '/app.html' },
+          vibrate: [80, 40, 80, 40, 80],
+          requireInteraction: true
+        });
+        _stkNotifTimer = null;
+      }, delay);
+    }
+  }
+
+  if (msg.type === 'CANCEL_STREAK_NOTIF') {
+    if (_stkNotifTimer) { clearTimeout(_stkNotifTimer); _stkNotifTimer = null; }
   }
 });
 

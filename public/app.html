@@ -1706,6 +1706,104 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .ach-badge.has-new .ach-badge-val{color:#ffd700;}
 .ach-badge.has-new .ach-badge-pre{color:rgba(255,215,0,0.55);}
 .ach-badge.has-new .ach-badge-bar-fill{background:#ffd700;}
+/* ── Motivation block: achievement strip only (streak is a corner badge) ── */
+.drw-motivation{display:flex;flex-direction:column;gap:0;margin-top:12px;}
+
+/* ── STREAK CORNER BADGE (top-right of drw-hd) ──────────────────── */
+.drw-stk-badge{display:flex;align-items:center;gap:4px;background:rgba(245,158,11,0.09);border:1px solid rgba(245,158,11,0.32);border-radius:20px;padding:4px 10px 4px 7px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color var(--dur-base) var(--ease-std),background var(--dur-base) var(--ease-std);}
+.drw-stk-badge:active{opacity:0.68;}
+.drw-stk-badge-fire{font-size:15px;line-height:1;}
+.drw-stk-badge-num{font-size:17px;font-weight:800;color:#f59e0b;font-family:'Rajdhani',sans-serif;line-height:1;letter-spacing:-0.5px;}
+.drw-stk-badge-unit{font-size:7px;font-weight:700;color:rgba(245,158,11,0.55);letter-spacing:1.5px;align-self:flex-end;margin-bottom:1px;}
+@keyframes stkBadgePop{0%{transform:scale(0.7);opacity:0}55%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.drw-stk-badge.badge-pop{animation:stkBadgePop 0.5s var(--ease-spring) both;}
+/* Level tinting */
+.drw-stk-badge.stk-3{border-color:rgba(249,115,22,0.38);background:rgba(249,115,22,0.09);}
+.drw-stk-badge.stk-3 .drw-stk-badge-num{color:#f97316;}
+.drw-stk-badge.stk-7{border-color:rgba(234,179,8,0.42);background:rgba(234,179,8,0.09);}
+.drw-stk-badge.stk-7 .drw-stk-badge-num{color:#eab308;}
+.drw-stk-badge.stk-15{border-color:rgba(167,139,250,0.42);background:rgba(167,139,250,0.09);}
+.drw-stk-badge.stk-15 .drw-stk-badge-num{color:#a78bfa;}
+.drw-stk-badge.stk-30{border-color:rgba(103,232,249,0.48);background:rgba(103,232,249,0.09);}
+.drw-stk-badge.stk-30 .drw-stk-badge-num{color:#67e8f9;}
+
+/* ── STREAK DETAIL SHEET ─────────────────────────────────────────── */
+#stk-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:8200;opacity:0;pointer-events:none;transition:opacity 0.22s;}
+#stk-overlay.stk-open{opacity:1;pointer-events:all;}
+#stk-drawer{position:fixed;bottom:0;left:0;right:0;z-index:8201;background:var(--bg);border-top:1px solid var(--bdr);border-radius:20px 20px 0 0;transform:translateY(110%);transition:transform 0.34s cubic-bezier(0.34,1.56,0.64,1);padding-bottom:env(safe-area-inset-bottom,20px);}
+#stk-drawer.stk-open{transform:translateY(0);}
+.stk-drawer-handle{width:36px;height:4px;background:rgba(255,255,255,0.14);border-radius:2px;margin:12px auto 18px;}
+.stk-drawer-content{padding:0 22px 20px;}
+/* Hero inside the sheet */
+.stk-drawer-hero{display:flex;align-items:center;justify-content:center;gap:8px;position:relative;margin-bottom:20px;}
+.stk-sparks-wrap{position:absolute;top:50%;left:50%;pointer-events:none;z-index:1;}
+.stk-spark{position:absolute;width:6px;height:6px;border-radius:50%;transform:translate(-50%,-50%);opacity:0;pointer-events:none;}
+.stk-drawer-fire{font-size:44px;line-height:1;display:inline-block;position:relative;z-index:2;transform-origin:bottom center;}
+@keyframes stkFireIn{from{transform:scale(0.15) rotate(-20deg);opacity:0}45%{transform:scale(1.12) rotate(5deg);opacity:1}to{transform:scale(1) rotate(0deg);opacity:1}}
+@keyframes stkFirePulse{0%,100%{transform:scale(1) rotate(0)}35%{transform:scale(1.1) rotate(4deg)}70%{transform:scale(0.95) rotate(-2deg)}}
+.stk-drawer-fire.intro{animation:stkFireIn 0.7s var(--ease-spring) both;}
+.stk-drawer-fire.pulse-loop{animation:stkFirePulse 2.6s ease-in-out infinite;}
+.stk-drawer-fire.intro.pulse-loop{animation:stkFireIn 0.7s var(--ease-spring) both,stkFirePulse 2.6s ease-in-out 0.7s infinite;}
+.stk-drawer-num{font-size:64px;font-weight:800;color:#f59e0b;font-family:'Rajdhani',sans-serif;line-height:1;letter-spacing:-3px;position:relative;z-index:2;}
+@keyframes stkNumIn{from{transform:translateY(18px) scale(0.5);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+.stk-drawer-num.intro{animation:stkNumIn 0.55s var(--ease-out) 0.1s both;}
+.stk-drawer-unit-col{display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:8px;position:relative;z-index:2;}
+.stk-drawer-unit{font-size:10px;font-weight:700;color:rgba(245,158,11,0.62);letter-spacing:2.5px;}
+/* Level color variants for the sheet */
+#stk-drawer.stk-3 .stk-drawer-num,#stk-drawer.stk-3 .stk-drawer-unit{color:#f97316;}
+#stk-drawer.stk-7 .stk-drawer-num,#stk-drawer.stk-7 .stk-drawer-unit{color:#eab308;}
+#stk-drawer.stk-15 .stk-drawer-num,#stk-drawer.stk-15 .stk-drawer-unit{color:#a78bfa;}
+#stk-drawer.stk-30 .stk-drawer-num,#stk-drawer.stk-30 .stk-drawer-unit{color:#67e8f9;}
+/* Milestone dots (shared with badge) */
+.drw-stk-milestones{display:flex;align-items:center;gap:0;margin-bottom:14px;padding:0 4px;}
+.stk-mile-dot{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;}
+.stk-mile-dot-circle{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;border:1.5px solid rgba(245,158,11,0.18);background:rgba(245,158,11,0.05);transition:border-color 0.35s,background 0.35s,box-shadow 0.35s;}
+.stk-mile-dot-lbl{font-size:7.5px;color:rgba(245,158,11,0.3);letter-spacing:0.5px;font-family:'IBM Plex Mono',monospace;}
+.stk-mile-dot.done .stk-mile-dot-circle{border-color:rgba(245,158,11,0.58);background:rgba(245,158,11,0.14);}
+.stk-mile-dot.done .stk-mile-dot-lbl{color:rgba(245,158,11,0.58);}
+@keyframes stk-mile-glow{0%,100%{box-shadow:0 0 8px rgba(245,158,11,0.4)}50%{box-shadow:0 0 18px rgba(245,158,11,0.75)}}
+.stk-mile-dot.current .stk-mile-dot-circle{border-color:#f59e0b;background:rgba(245,158,11,0.18);animation:stk-mile-glow 1.9s ease-in-out infinite;}
+.stk-mile-dot.current .stk-mile-dot-lbl{color:#f59e0b;}
+.stk-mile-line{flex:1;height:1.5px;background:rgba(245,158,11,0.12);border-radius:1px;}
+.stk-mile-line.done{background:rgba(245,158,11,0.45);}
+/* Bar + message */
+.stk-drawer-barrow{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.stk-drawer-bar{flex:1;height:6px;background:rgba(245,158,11,0.12);border-radius:3px;overflow:hidden;}
+.stk-drawer-bar-fill{height:100%;background:#f59e0b;border-radius:3px;transition:width 1.5s var(--ease-out);}
+#stk-drawer.stk-7 .stk-drawer-bar-fill{background:linear-gradient(90deg,#f59e0b,#eab308);}
+#stk-drawer.stk-15 .stk-drawer-bar-fill{background:linear-gradient(90deg,#f59e0b,#a78bfa);}
+#stk-drawer.stk-30 .stk-drawer-bar-fill{background:linear-gradient(90deg,#a78bfa,#67e8f9);}
+.stk-drawer-frac{font-size:9px;color:rgba(245,158,11,0.5);letter-spacing:0.3px;font-family:'IBM Plex Mono',monospace;white-space:nowrap;flex-shrink:0;}
+.stk-drawer-msg{font-size:14px;color:rgba(245,158,11,0.72);letter-spacing:0.2px;line-height:1.5;text-align:center;margin-top:8px;padding:0 8px;}
+/* ── Streak LOST sheet variant ───────────────────────────────────── */
+#stk-drawer.streak-lost{border-top-color:rgba(255,80,80,0.25);}
+.stk-lost-icon{font-size:44px;line-height:1;position:relative;z-index:2;}
+.stk-lost-icon.intro{animation:stkFireIn 0.65s var(--ease-spring) both;}
+.stk-lost-num{font-size:64px;font-weight:800;color:rgba(255,255,255,0.22);font-family:'Rajdhani',sans-serif;line-height:1;letter-spacing:-3px;position:relative;z-index:2;text-decoration:line-through;text-decoration-color:rgba(255,80,80,0.55);}
+.stk-lost-num.intro{animation:stkNumIn 0.5s var(--ease-out) 0.1s both;}
+.stk-lost-unit-col{display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:8px;position:relative;z-index:2;}
+.stk-lost-unit{font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);letter-spacing:2.5px;}
+.stk-lost-label{font-size:11px;letter-spacing:2.5px;color:rgba(255,80,80,0.65);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;text-align:center;margin-bottom:10px;}
+.stk-lost-msg{font-size:14px;color:rgba(255,255,255,0.58)!important;letter-spacing:0.2px;line-height:1.55;text-align:center;margin-top:4px;padding:0 8px;}
+.stk-lost-cta{display:block;width:100%;margin-top:18px;padding:14px;background:var(--ta);color:var(--bg);border:none;border-radius:12px;font-family:inherit;font-size:14px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.stk-lost-cta:active{opacity:0.8;}
+
+/* ── ACHIEVEMENT STRIP — compact 2-line ───────────────────────────── */
+.drw-next-ach{display:flex;flex-direction:column;gap:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:10px 14px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color var(--dur-base) var(--ease-std),background var(--dur-base) var(--ease-std);}
+.drw-next-ach:active{opacity:0.72;}
+.drw-next-ach-top{display:flex;align-items:center;gap:8px;}
+.drw-next-ach-icon{font-size:18px;line-height:1;flex-shrink:0;}
+.drw-next-ach-name{font-size:13px;font-weight:700;color:rgba(255,255,255,0.72);font-family:'Rajdhani',sans-serif;letter-spacing:0.5px;flex:1;}
+.drw-next-ach-eyebrow{font-size:7px;letter-spacing:2px;color:rgba(255,255,255,0.28);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;white-space:nowrap;}
+.drw-next-ach-arr{font-size:11px;color:rgba(255,255,255,0.2);flex-shrink:0;}
+.drw-next-ach-bar{width:100%;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;}
+.drw-next-ach-fill{height:100%;background:rgba(255,215,0,0.6);border-radius:2px;transition:width 1.3s var(--ease-out);}
+.drw-next-ach-prog{font-size:8.5px;color:rgba(255,255,255,0.36);letter-spacing:0.2px;line-height:1.4;}
+.drw-next-ach.has-new{border-color:rgba(255,215,0,0.45);background:rgba(255,215,0,0.06);}
+.drw-next-ach.has-new .drw-next-ach-eyebrow,.drw-next-ach.has-new .drw-next-ach-arr{color:rgba(255,215,0,0.5);}
+.drw-next-ach.has-new .drw-next-ach-name{color:#ffd700;}
+.drw-next-ach.has-new .drw-next-ach-fill{background:#ffd700;}
+.drw-next-ach.has-new .drw-next-ach-prog{color:rgba(255,215,0,0.58);}
 .dr-daytype{display:flex;align-items:center;gap:5px;margin-bottom:10px;font-size:8.5px;letter-spacing:1.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;opacity:0;transition:opacity 0.4s ease;}
 .dr-daytype.live{opacity:1;}
 .dr-daytype-mult{opacity:0.4;font-size:7.5px;margin-left:4px;}
@@ -8539,9 +8637,221 @@ function getDailyStreak() {
     if (s.date===today) return s.count||1;
     var yest=new Date(Date.now()-86400000).toISOString().slice(0,10);
     var cnt=s.date===yest?(s.count||1)+1:1;
+    // Detect loss: had a streak >1 that just got reset
+    if (cnt===1 && (s.count||0)>1) window._streakLost = s.count;
     localStorage.setItem('fb_streak',JSON.stringify({date:today,count:cnt}));
     return cnt;
   } catch(e){return 1;}
+}
+
+function _stkMotivMsg(strk, stkMile) {
+  var es = lang === 'es';
+  if (strk >= 30) return es ? '¡Racha legendaria! Eres imparable 💎' : 'Legendary streak! You\'re unstoppable 💎';
+  var left = stkMile ? stkMile - strk : 0;
+  if (left === 1) return es ? ('¡UN DÍA MÁS para llegar a ' + stkMile + '! No faltes 🔥') : ('ONE MORE DAY to reach ' + stkMile + '! Don\'t miss it 🔥');
+  if (strk === 1) return es ? 'Vuelve mañana para mantener tu racha 🔥' : 'Come back tomorrow to keep it going 🔥';
+  if (left <= 3) return es ? ('¡Casi llegas! Solo ' + left + ' días más 🔥') : ('Almost there! ' + left + ' more days 🔥');
+  return es ? ('→ ' + left + ' días más para el siguiente badge') : ('→ ' + left + ' more days for the next badge');
+}
+
+function _animStreakBadge() {
+  var badge = document.getElementById('drw-stk-badge');
+  if (!badge) return;
+  badge.classList.remove('badge-pop');
+  requestAnimationFrame(function() { badge.classList.add('badge-pop'); });
+}
+
+function openStreakSheet(autoClose) {
+  var d = window._stkAnimData; if (!d) return;
+  var es = lang === 'es';
+  var strk = d.strk, stkPct = d.stkPct, stkMile = d.stkMile, stkMsg = d.stkMsg;
+  var stkFire = d.stkFire, stkLvlCls = d.stkLvlCls, doPulse = d.stkPulse;
+  var stkDayLbl = strk === 1 ? (es?'DÍA':'DAY') : (es?'DÍAS':'DAYS');
+  var _MILE = [3, 7, 15, 30]; // must be defined locally — not in scope from renderDailyRings
+  // Milestone dots
+  var _MILE_ICO = ['🔥','💎','🌟','👑'];
+  var milesHtml = '<div class="drw-stk-milestones">';
+  _MILE.forEach(function(m, i) {
+    var isDone = strk >= m, isCurrent = m === stkMile;
+    var cls = isDone ? ' done' : (isCurrent ? ' current' : '');
+    if (i > 0) milesHtml += '<div class="stk-mile-line'+(isDone?' done':'')+'"></div>';
+    milesHtml += '<div class="stk-mile-dot'+cls+'"><div class="stk-mile-dot-circle">'+_MILE_ICO[i]+'</div><div class="stk-mile-dot-lbl">'+m+'d</div></div>';
+  });
+  milesHtml += '</div>';
+  // Sparks
+  var sparksHtml = '<div class="stk-sparks-wrap">'
+    +'<span class="stk-spark" style="background:#f59e0b"></span>'
+    +'<span class="stk-spark" style="background:#ff7b3a"></span>'
+    +'<span class="stk-spark" style="background:#ffd700"></span>'
+    +'<span class="stk-spark" style="background:#f97316"></span>'
+    +'<span class="stk-spark" style="background:#f59e0b"></span>'
+    +'<span class="stk-spark" style="background:#ffd700"></span>'
+  +'</div>';
+  // Remove any existing sheet
+  var old = document.getElementById('stk-sheet-wrap'); if (old) old.remove();
+  var wrap = document.createElement('div'); wrap.id = 'stk-sheet-wrap';
+  wrap.innerHTML =
+    '<div id="stk-overlay" onclick="closeStreakSheet()"></div>'
+    +'<div id="stk-drawer" class="'+(stkLvlCls||'')+'">'
+      +'<div class="stk-drawer-handle"></div>'
+      +'<div class="stk-drawer-content">'
+        +'<div class="stk-drawer-hero">'
+          +sparksHtml
+          +'<span class="stk-drawer-fire'+(doPulse?' pulse-loop':'')+'">'+stkFire+'</span>'
+          +'<span class="stk-drawer-num" id="stk-drawer-num">0</span>'
+          +'<div class="stk-drawer-unit-col"><span class="stk-drawer-unit">'+stkDayLbl+'</span></div>'
+        +'</div>'
+        +milesHtml
+        +'<div class="stk-drawer-barrow">'
+          +'<div class="stk-drawer-bar"><div class="stk-drawer-bar-fill" id="stk-drawer-fill" style="width:0%"></div></div>'
+          +(stkMile?'<span class="stk-drawer-frac">'+strk+'/'+stkMile+'</span>':'')
+        +'</div>'
+        +'<div class="stk-drawer-msg">'+stkMsg+'</div>'
+      +'</div>'
+    +'</div>';
+  document.body.appendChild(wrap);
+  // Trigger open + animations
+  requestAnimationFrame(function() {
+    document.getElementById('stk-overlay').classList.add('stk-open');
+    document.getElementById('stk-drawer').classList.add('stk-open');
+    setTimeout(function() {
+      // Count-up
+      var numEl = document.getElementById('stk-drawer-num');
+      if (numEl) {
+        var dur = Math.min(800, 100 + strk * 50);
+        var t0 = Date.now();
+        (function tick() {
+          var p = Math.min(1, (Date.now()-t0)/dur);
+          var e = 1 - Math.pow(1-p, 3);
+          numEl.textContent = p < 1 ? Math.round(e*strk) : strk;
+          if (p < 1) requestAnimationFrame(tick);
+        })();
+        numEl.classList.add('intro');
+      }
+      // Fire entrance
+      var fireEl = document.querySelector('#stk-drawer .stk-drawer-fire');
+      if (fireEl) fireEl.classList.add('intro');
+      // Bar fill
+      var fillEl = document.getElementById('stk-drawer-fill');
+      if (fillEl) setTimeout(function(){ fillEl.style.width = stkPct+'%'; }, 100);
+      // Sparks
+      var dirs = [{tx:-22,ty:-38},{tx:-6,ty:-44},{tx:10,ty:-42},{tx:26,ty:-32},{tx:28,ty:-14},{tx:-30,ty:-20}];
+      document.querySelectorAll('#stk-drawer .stk-spark').forEach(function(sp, i) {
+        var pos = dirs[i]||dirs[0];
+        setTimeout(function(){
+          sp.style.transition='none'; sp.style.opacity='1'; sp.style.transform='translate(-50%,-50%) scale(1)';
+          requestAnimationFrame(function(){
+            sp.style.transition='transform 0.9s ease-out,opacity 0.8s ease-out';
+            sp.style.transform='translate(calc(-50% + '+pos.tx+'px),calc(-50% + '+pos.ty+'px)) scale(0)';
+            sp.style.opacity='0';
+          });
+        }, 220 + i*70);
+      });
+    }, 220);
+  });
+  if (autoClose) {
+    if (window._stkSheetTimer) clearTimeout(window._stkSheetTimer);
+    window._stkSheetTimer = setTimeout(closeStreakSheet, 3200);
+  }
+}
+
+function closeStreakSheet() {
+  if (window._stkSheetTimer) { clearTimeout(window._stkSheetTimer); window._stkSheetTimer = null; }
+  var ov = document.getElementById('stk-overlay');
+  var dr = document.getElementById('stk-drawer');
+  if (ov) ov.classList.remove('stk-open');
+  if (dr) dr.classList.remove('stk-open');
+  setTimeout(function(){ var w=document.getElementById('stk-sheet-wrap'); if(w) w.remove(); }, 420);
+}
+
+function openStreakLostSheet(prevStreak) {
+  var es = lang === 'es';
+  var old = document.getElementById('stk-sheet-wrap'); if (old) old.remove();
+  var wrap = document.createElement('div'); wrap.id = 'stk-sheet-wrap';
+  var prevLbl = prevStreak === 1 ? (es?'DÍA':'DAY') : (es?'DÍAS':'DAYS');
+  var msg = es
+    ? 'Fue una buena racha. Vuelve mañana y empieza de nuevo — cada día cuenta 🔥'
+    : 'It was a good run. Come back tomorrow and start fresh — every day counts 🔥';
+  wrap.innerHTML =
+    '<div id="stk-overlay" onclick="closeStreakSheet()"></div>'
+    +'<div id="stk-drawer" class="streak-lost">'
+      +'<div class="stk-drawer-handle"></div>'
+      +'<div class="stk-drawer-content">'
+        +'<div class="stk-drawer-hero">'
+          +'<span class="stk-lost-icon">💔</span>'
+          +'<span class="stk-lost-num">'+prevStreak+'</span>'
+          +'<div class="stk-lost-unit-col"><span class="stk-lost-unit">'+prevLbl+'</span></div>'
+        +'</div>'
+        +'<div class="stk-lost-label">'+(es?'Racha perdida':'Streak lost')+'</div>'
+        +'<div class="stk-lost-msg">'+msg+'</div>'
+        +'<button class="stk-lost-cta" onclick="closeStreakSheet()">'+(es?'¡Empezar de nuevo hoy!':'Start fresh today!')+'</button>'
+      +'</div>'
+    +'</div>';
+  document.body.appendChild(wrap);
+  requestAnimationFrame(function() {
+    document.getElementById('stk-overlay').classList.add('stk-open');
+    document.getElementById('stk-drawer').classList.add('stk-open');
+    setTimeout(function() {
+      var icon = document.querySelector('.stk-lost-icon');
+      var num  = document.querySelector('.stk-lost-num');
+      if (icon) icon.classList.add('intro');
+      if (num)  num.classList.add('intro');
+    }, 220);
+  });
+  // Don't auto-close — let the user dismiss it deliberately
+}
+
+function _checkDailyStreakAnim() {
+  var today = new Date().toISOString().slice(0,10);
+  var last; try { last = localStorage.getItem('fb_streak_anim_date'); } catch(e) {}
+  cancelStreakReminder(); // user is here, cancel any pending reminder
+  if (last === today) return; // already animated today
+  var d = window._stkAnimData; if (!d) return; // not ready yet
+  try { localStorage.setItem('fb_streak_anim_date', today); } catch(e) {}
+  var lost = window._streakLost || 0;
+  window._streakLost = 0; // consume it
+  scheduleStreakReminder(d.strk); // schedule tonight's reminder
+  setTimeout(function() {
+    if (lost > 1) {
+      openStreakLostSheet(lost);       // show "you lost X days" screen
+    } else {
+      openStreakSheet(true);           // show streak celebration
+    }
+  }, 950);
+}
+
+function scheduleStreakReminder(strk) {
+  if (!notifEnabled() || strk < 1) return;
+  try { localStorage.setItem('fb_last_open_date', new Date().toISOString().slice(0,10)); } catch(e) {}
+  var now = new Date();
+  var h = now.getHours();
+  if (h >= 22) return; // too late tonight
+  var fireH = h >= 20 ? 21 : 20; // 8pm, or 9pm if already past 8
+  var fireAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), fireH, 0, 0, 0).getTime();
+  var delay = fireAt - Date.now();
+  if (delay < 60000) return;
+  var es = lang === 'es';
+  if (window._streakNotifTimer) clearTimeout(window._streakNotifTimer);
+  window._streakNotifTimer = setTimeout(function() {
+    showLocalNotification(
+      '🔥 ' + (es ? 'Tu racha de ' + strk + ' días peligra' : strk + '-day streak at risk'),
+      es ? '¡Abre la app y completa tus metas antes de medianoche!' : 'Complete your goals before midnight to keep it!',
+      'streak-reminder'
+    );
+  }, delay);
+  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: 'SCHEDULE_STREAK_NOTIF',
+      payload: { streak: strk, fireAt: fireAt, es: es }
+    });
+  }
+}
+
+function cancelStreakReminder() {
+  if (window._streakNotifTimer) { clearTimeout(window._streakNotifTimer); window._streakNotifTimer = null; }
+  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({ type: 'CANCEL_STREAK_NOTIF' });
+  }
 }
 
 function renderDailyRings() {
@@ -8598,30 +8908,43 @@ function renderDailyRings() {
   else if(strk>=3){stkLvlCls='stk-3';stkFire='🔥';stkHint=(lang==='es'?'→ 7 días 💎':'→ 7 days 💎');}
   else{stkLvlCls='';stkFire='🔥';stkHint=(lang==='es'?'→ 3 días 🔥':'→ 3 days 🔥');stkPulse=' pulse';}
 
+  var _es = lang === 'es';
+  var stkMsg = _stkMotivMsg(strk, stkMile);
+  var stkDayLbl = strk === 1 ? (_es ? 'DÍA' : 'DAY') : (_es ? 'DÍAS' : 'DAYS');
+  window._stkAnimData = {strk:strk, stkPct:stkPct, stkPulse:stkPulse, stkMile:stkMile, stkMsg:stkMsg, stkFire:stkFire, stkLvlCls:stkLvlCls};
   mc.innerHTML='<div class="drw">'
     +'<div class="drw-hd">'
-      +'<div class="drw-lbl">// '+(lang==='es'?'PROGRESO DIARIO':'DAILY PROGRESS')+'</div>'
-      +'<div style="display:flex;align-items:center;gap:6px;">'
-        +'<div class="drw-stk '+stkLvlCls+'">'
-          +'<div class="drw-stk-main">'
-            +'<span class="drw-stk-fire'+stkPulse+'">'+stkFire+'</span>'
-            +'<span class="drw-stk-num" id="dr-stk">'+strk+'</span>'
-            +'<span class="drw-stk-unit">'+(lang==='es'?'DÍAS':'DAYS')+'</span>'
-          +'</div>'
-          +'<div class="drw-stk-bar"><div class="drw-stk-fill" style="width:'+stkPct+'%"></div></div>'
-          +'<div class="drw-stk-hint">'+stkHint+'</div>'
-        +'</div>'
-        +'<div class="ach-badge" id="ach-ring-badge" onclick="openAch()">'
-          +'<div class="ach-badge-pre">'+(lang==='es'?'PRÓXIMO':'NEXT')+'</div>'
-          +'<span class="ach-badge-val" id="ach-badge-val">🏆</span>'
-          +'<div class="ach-badge-bar"><div class="ach-badge-bar-fill" id="ach-badge-fill" style="width:0%"></div></div>'
-        +'</div>'
+      +'<div class="drw-lbl">// '+(_es?'PROGRESO DIARIO':'DAILY PROGRESS')+'</div>'
+      +'<div class="drw-stk-badge '+(stkLvlCls||'')+' badge-pop" id="drw-stk-badge" onclick="openStreakSheet(false)">'
+        +'<span class="drw-stk-badge-fire">'+stkFire+'</span>'
+        +'<span class="drw-stk-badge-num" id="dr-stk">'+strk+'</span>'
+        +'<span class="drw-stk-badge-unit">'+stkDayLbl+'</span>'
       +'</div>'
     +'</div>'
     +'<div id="dr-daytype" class="dr-daytype"></div>'
     +'<div class="drw-row">'+_DR_DEFS.map(makeRing).join('')+'</div>'
+    +'<div class="drw-motivation">'
+      +'<div class="drw-next-ach" id="drw-next-ach" onclick="openAch()">'
+        +'<div class="drw-next-ach-top">'
+          +'<span class="drw-next-ach-icon" id="drw-na-icon">🏆</span>'
+          +'<span class="drw-next-ach-name" id="drw-na-name">—</span>'
+          +'<span class="drw-next-ach-eyebrow">'+(_es?'PRÓXIMO LOGRO':'NEXT ACHIEVEMENT')+'</span>'
+          +'<span class="drw-next-ach-arr">›</span>'
+        +'</div>'
+        +'<div class="drw-next-ach-bar"><div class="drw-next-ach-fill" id="drw-na-fill" style="width:0%"></div></div>'
+        +'<div class="drw-next-ach-prog" id="drw-na-prog">'+(_es?'Calculando...':'Calculating...')+'</div>'
+      +'</div>'
+    +'</div>'
   +'</div>';
   updateDailyRings();
+  // Always schedule streak animations independently of the rings animation path.
+  // In demo mode (no Fitbit data) animateDailyRings() never fires, so we drive
+  // the badge pop and daily-open celebration directly from here.
+  clearTimeout(window._stkAnimTimer);
+  window._stkAnimTimer = setTimeout(function() {
+    _animStreakBadge();
+    _checkDailyStreakAnim();
+  }, 350);
 }
 
 function updateDailyRings() {
@@ -8759,6 +9082,8 @@ function updateDailyRings() {
 
 function animateDailyRings() {
   if (!document.getElementById('dr-stp-arc')) return;
+  _animStreakBadge();
+  _checkDailyStreakAnim();
   var C=_DR_C, cx=_DR_CX, cy=_DR_CY, R=_DR_R;
   // reset all arcs to empty instantly
   _DR_DEFS.forEach(function(d){
@@ -11105,33 +11430,42 @@ function _updateAchBadges(activeTheme) {
       badge.querySelector('.tc-ach-fill').style.width = Math.round(count/total*100)+'%';
     }
   });
-  // ring card badge → muestra próximo logro con nombre, progreso y barra
-  var ringBadge = document.getElementById('ach-ring-badge');
-  if (ringBadge) {
+  // next achievement card (new Duolingo-style design)
+  var naCard = document.getElementById('drw-next-ach');
+  if (naCard) {
     var _at = activeTheme||theme;
     var c = _achCountForTheme(_at);
     var total = _ACH_DEFS.length;
     var next = _getNextAchievement(_at);
-    var valEl = document.getElementById('ach-badge-val') || ringBadge.querySelector('.ach-badge-val');
-    var fillEl = document.getElementById('ach-badge-fill') || ringBadge.querySelector('.ach-badge-bar-fill');
-    var preEl = ringBadge.querySelector('.ach-badge-pre');
-    var badgeText, fillPct = 0, hasNew = false;
+    var naIcon = document.getElementById('drw-na-icon');
+    var naName = document.getElementById('drw-na-name');
+    var naFill = document.getElementById('drw-na-fill');
+    var naProg = document.getElementById('drw-na-prog');
+    var es = lang === 'es';
+    var fillPct = 0, hasNew = false;
     if (c >= total) {
-      badgeText = '🏆 ' + total + '/' + total;
+      if (naIcon) naIcon.textContent = '🏆';
+      if (naName) naName.textContent = es ? '¡Todo desbloqueado!' : 'All unlocked!';
       fillPct = 100; hasNew = true;
-      if (preEl) preEl.textContent = lang === 'es' ? 'COMPLETADO' : 'COMPLETE';
+      if (naProg) naProg.textContent = total + '/' + total + (es ? ' logros completos' : ' achievements complete');
     } else if (next) {
       hasNew = next.cur > 0;
-      badgeText = next.icon + ' ' + next.label;
       fillPct = next.total > 0 ? Math.round(next.cur / next.total * 100) : 0;
-      if (preEl) preEl.textContent = (lang === 'es' ? 'PRÓXIMO' : 'NEXT') + (next.cur > 0 ? ' · ' + next.cur + '/' + next.total : '');
+      var gap = next.total - next.cur;
+      if (naIcon) naIcon.textContent = next.icon;
+      if (naName) naName.textContent = next.name || next.label;
+      if (naProg) {
+        var progLine = next.cur + ' / ' + next.total + ' ' + next.label;
+        var gapLine = gap > 0 ? (es ? ' · Faltan ' + gap + ' más' : ' · ' + gap + ' to go') : (es ? ' · ¡Listo!' : ' · Done!');
+        naProg.textContent = progLine + gapLine;
+      }
     } else {
-      badgeText = '🏆 ' + c + '/' + total;
-      if (preEl) preEl.textContent = lang === 'es' ? 'LOGROS' : 'ACHIEVEMENTS';
+      if (naIcon) naIcon.textContent = '🏆';
+      if (naName) naName.textContent = c + '/' + total;
+      if (naProg) naProg.textContent = es ? 'Ver todos los logros →' : 'View all achievements →';
     }
-    ringBadge.classList.toggle('has-new', hasNew);
-    if (valEl) valEl.textContent = badgeText;
-    if (fillEl) fillEl.style.width = fillPct + '%';
+    naCard.classList.toggle('has-new', hasNew);
+    if (naFill) naFill.style.width = fillPct + '%';
   }
 }
 
