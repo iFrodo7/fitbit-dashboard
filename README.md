@@ -1,6 +1,6 @@
 # Fitbit Air Dashboard
 
-Panel biométrico personal con **4 temas visuales** (Minecraft, Halo, Naruto, Futuristic), datos reales de Fitbit y un **coach de IA conversacional (AIRA)**. PWA instalable en el móvil y accesible vía web. Pensado para competir visual y funcionalmente con Whoop / Oura / Apple Fitness.
+Panel biométrico personal con **5 temas visuales** (Minecraft, Halo, Naruto, Futuristic, Bloom) + **1 tema PRO exclusivo** (Synthwave), datos reales de Fitbit/Google Health y un **coach de IA conversacional (AIRA)** exclusivo para usuarios Pro. PWA instalable en el móvil y accesible vía web. Pensado para competir visual y funcionalmente con Whoop / Oura / Apple Fitness.
 
 ![themes](public/icons/icon-192.png)
 
@@ -17,17 +17,25 @@ Arranca en modo **demo** (sin login). Para datos reales, toca **Conectar** (ver 
 
 ## ✨ Features
 
-- **Coach AIRA conversacional** — pregúntale sobre tus datos (sueño, entreno, rutinas, nutrición). Gratis; usa Gemini si hay key, si no responde con un motor local
+- **Coach AIRA** ✦ PRO — análisis personalizado de tus métricas en tiempo real. Pregúntale sobre sueño, entrenamiento, nutrición o recovery. Usa Gemini si hay key configurada; si no, responde con motor local inteligente. Respuestas adaptadas a tu estado real del día con análisis cruzado de métricas
 - **Recovery Score** (0–100) estilo Whoop · **Hipnograma** de sueño estilo Oura
+- **Insights AIRA dinámicos** — 3 tarjetas de estado (Recovery/Sueño/Actividad) que reflejan tus datos reales, no texto demo
 - **Stats** con apartados dedicados de **Fitness** (pasos, min. activos, calorías) y **Sueño** (etapas + calidad), badges de estado (HRV/SpO₂/Temp/Estrés)
 - **Historial** 7d / 30d / 90d con SVG + flechas de tendencia + caché IndexedDB
 - **Datos reales de Fitbit/Google**: FC, RHR, sueño, pasos, zonas + SpO₂, HRV (RMSSD) y ritmo respiratorio
-- **AIRA Pro** ($5/mes): coach ilimitado + planes, tema nuevo cada mes, reporte semanal IA (menú comparativo Free/Pro en Perfil)
+- **AIRA Pro** ($5/mes): coach conversacional ilimitado, planes personalizados, tema Synthwave exclusivo, reporte semanal IA (menú comparativo Free/Pro en Perfil)
 - **Emparejamiento un-toque** (PKCE, app compartida) — sin que el usuario cree cuenta de desarrollador
-- **4 temas** con identidad visual fuerte (incluye easter eggs del tema Naruto) · **Bilingüe** ES/EN
+- **5 temas** con identidad visual fuerte + **1 tema PRO** (Synthwave) · **Bilingüe** ES/EN
 - **PWA** instalable, offline, pull-to-refresh, **safe-area para Dynamic Island**, touch optimizado
 - **Notificaciones** locales + server push (Web Push/VAPID)
 - **App nativa** iOS/Android vía Capacitor (scaffolding listo)
+
+### 🤖 Coach AIRA — detalle técnico (2026-06-03)
+- **Análisis cruzado de métricas**: recovery bajo + HRV bajo + sueño pobre = fatiga acumulada → consejo ajustado
+- **Tono por tema**: energético para entrenamiento, calmado para sueño/recovery, empático para estrés
+- **Off-topic con humor**: si preguntas algo fuera de salud, AIRA responde con un chiste fitness ("La única pump que monitoreo es la frecuencia cardíaca")
+- **Fallback local robusto**: respuestas inteligentes sin necesidad de API key
+- **Engine**: Gemini 2.0 Flash (configurable vía `GEMINI_MODEL`)
 
 ### 🎨 UI / Performance (2026-05-30)
 - **Design token system** — escala 8px, radios, motion tokens (`--dur-fast/base/slow`), easing tokens (`--ease-spring/out/std/settle`) en `:root`
@@ -110,7 +118,7 @@ npm run db:push     # aplicar migraciones Supabase
 
 ## 📍 Estado
 
-Todo el código en `main` y desplegado. Coach IA conversacional, datos reales (SpO₂/HRV/ritmo respiratorio), Stats con Fitness/Sueño, emparejamiento un-toque, suscripción AIRA Pro (Fase 1) y **UI polish Apple-level** están **vivos**. Pendiente de **activación/infra** (no de código): pegar key gratis de Gemini, registrar la app Client de Fitbit, conectar Stripe para cobros reales, y el build nativo (`CAPACITOR.md`). Ver `HANDOFF.md`.
+Todo el código en `main` y desplegado en Vercel. Último sprint (2026-06-03): **Coach AIRA pasó a ser exclusivo PRO** con paywall integrado, **insights dinámicos** basados en datos reales del usuario (ya no texto demo), mejoras en calidad de respuestas del coach y fix del error de conexión. Pendiente de **activación/infra** (no de código): pegar key gratis de Gemini, registrar la app Client de Fitbit, conectar Stripe para cobros reales PRO, y el build nativo (`CAPACITOR.md`). Ver `HANDOFF.md`.
 
 ---
 
