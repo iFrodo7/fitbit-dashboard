@@ -522,14 +522,22 @@ function localFallback(q: string, m: Metrics, lang: string): string {
     : `Today you're ${stateLabel || "in the system"}: recovery ${m.recovery || "—"}/100, HRV ${m.hrv || "—"} ms, ${m.steps || "—"} steps. Ask me something specific — sleep, training, HRV, nutrition, steps, stress, or hydration — and I'll give you a direct analysis based on your actual state.`;
 }
 
+// Model cascade: primary (from env) → free fallbacks if primary returns 429/quota error
+const GEMINI_MODEL_CASCADE = [
+  GEMINI_MODEL,
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
+].filter((m, i, arr) => arr.indexOf(m) === i); // deduplicate
+
 async function callGemini(
   q: string,
   m: Metrics,
   lang: string,
   key: string,
   history: HistoryEntry[],
-): Promise<string | null> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`;
+  model: string,
+): Promise<{ text: string | null; httpStatus: number }> {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
   const contents = [
     ...history.slice(-MAX_HISTORY).map((h) => ({
       role: h.role,
@@ -538,25 +546,29 @@ async function callGemini(
     { role: "user", parts: [{ text: q }] },
   ];
 
-  const generationConfig = {
-    temperature: 0.65,
-    maxOutputTokens: 8192,
-  };
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 25000); // 25 s hard timeout
 
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: systemPrompt(m, lang) }] },
-      contents,
-      generationConfig,
-    }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemPrompt(m, lang) }] },
+        contents,
+        generationConfig: { temperature: 0.65, maxOutputTokens: 8192 },
+      }),
+      signal: ctrl.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 
   if (!res.ok) {
     const errText = await res.text().catch(() => "");
-    console.error(`[AIRA] Gemini API error ${res.status}:`, errText.slice(0, 300));
-    return null;
+    console.error(`[AIRA] Gemini ${model} error ${res.status}:`, errText.slice(0, 200));
+    return { text: null, httpStatus: res.status };
   }
 
   const data = await res.json();
@@ -570,14 +582,15 @@ async function callGemini(
     .trim();
 
   if (!text) {
-    console.error("[AIRA] Empty response. finishReason:", candidate?.finishReason);
-    return null;
+    console.error("[AIRA] Empty response from", model, "finishReason:", candidate?.finishReason);
+    return { text: null, httpStatus: 200 };
   }
 
-  if (candidate?.finishReason === "MAX_TOKENS") {
-    return text + "\n\n_(Respuesta muy larga — prueba dividir la pregunta.)_";
-  }
-  return text;
+  const final = candidate?.finishReason === "MAX_TOKENS"
+    ? text + "\n\n_(Respuesta muy larga — prueba dividir la pregunta.)_"
+    : text;
+
+  return { text: final, httpStatus: 200 };
 }
 
 export async function POST(request: NextRequest) {
@@ -598,10 +611,17 @@ export async function POST(request: NextRequest) {
 
   const key = process.env.GEMINI_API_KEY;
   if (key) {
-    try {
-      const answer = await callGemini(q, metrics, lang, key, history);
-      if (answer) return NextResponse.json({ answer, source: "gemini" });
-    } catch { /* fall through to local */ }
+    for (const model of GEMINI_MODEL_CASCADE) {
+      try {
+        const { text, httpStatus } = await callGemini(q, metrics, lang, key, history, model);
+        if (text) return NextResponse.json({ answer: text, source: "gemini", model });
+        // 429 = quota/credits exhausted → try next model in cascade
+        // Any other error → stop trying (auth error, bad request, etc.)
+        if (httpStatus !== 429 && httpStatus !== 503) break;
+      } catch {
+        break; // network / timeout error — skip to local
+      }
+    }
   }
   return NextResponse.json({ answer: localFallback(q, metrics, lang), source: "local" });
 }
