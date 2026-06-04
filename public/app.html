@@ -10186,7 +10186,7 @@ async function loadReal() {
   try {
     const h={'Authorization':'Bearer '+token}, td=new Date().toISOString().split('T')[0];
     const after7=new Date(Date.now()-7*864e5).toISOString().split('T')[0];
-    const [pr,ac,hr,sl,wl] = await Promise.all([fetch(HS.ep.profile(),{headers:h}).then(r=>r.json()),fetch(HS.ep.activities(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.heartIntraday(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.sleepToday(),{headers:h}).then(r=>r.json()),fetch(HS.ep.workoutList(after7,3),{headers:h}).then(r=>r.ok?r.json():null).catch(()=>null)]);
+    const [pr,ac,hr,sl,wl] = await Promise.all([fetch(HS.ep.profile(),{headers:h}).then(r=>r.json()),fetch(HS.ep.activities(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.heartIntraday(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.sleepToday(),{headers:h}).then(r=>r.json()),Promise.race([fetch(HS.ep.workoutList(after7,3),{headers:h}).then(r=>r.ok?r.json():null),new Promise(r=>setTimeout(()=>r(null),4000))]).catch(()=>null)]);
     if (pr?.user) {
       const _dn = (pr.user.displayName||pr.user.firstName||'').toUpperCase() || (lang==='es'?'USUARIO':'USER');
       document.getElementById('uname').textContent = _dn;
@@ -11144,8 +11144,8 @@ function _wktFmtDate(startTime) {
   }
   const prefix = date === today ? (t.wkt_today || 'HOY') :
     date === yesterday ? (t.wkt_yesterday || 'AYER') :
-    date.slice(5).replace('-', '/');
-  return prefix + ' ' + time;
+    date ? date.slice(5).replace('-', '/') : '—';
+  return (prefix + ' ' + time).trim();
 }
 
 function renderDemoActivities() {
