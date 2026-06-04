@@ -753,6 +753,20 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .acit:hover{transform:translateX(4px);filter:brightness(1.1);}
 .acio{width:40px;height:40px;border:1px solid var(--sub);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border-radius:4px;transition:border-color var(--dur-base) var(--ease-std),background var(--dur-base) var(--ease-std);background:rgba(0,0,0,0.1);}
 .acit:hover .acio{border-color:var(--ta);background:rgba(0,0,0,0.2);}
+/* Workout history items (History tab) */
+.wkt-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--sub);}
+.wkt-item:last-child{border:none;}
+.wkt-ico{width:32px;height:32px;border:1px solid var(--sub);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border-radius:var(--r-xs);background:rgba(0,0,0,0.1);}
+.wkt-body{flex:1;min-width:0;}
+.wkt-name{font-size:11px;font-weight:700;letter-spacing:1.5px;}
+.wkt-meta{font-size:10px;opacity:0.5;letter-spacing:0.5px;margin-top:2px;}
+.wkt-zones{display:flex;gap:3px;margin-top:6px;height:3px;border-radius:2px;overflow:hidden;}
+.wkt-zone{min-width:2px;}
+.wkt-sub{font-size:9px;letter-spacing:1px;opacity:0.5;margin-top:4px;}
+.wkt-right{text-align:right;flex-shrink:0;}
+.wkt-val{font-size:13px;font-weight:700;color:var(--ta);}
+.wkt-unit{font-size:9px;letter-spacing:1px;opacity:0.5;margin-top:1px;}
+.act-empty{padding:20px 0;text-align:center;font-size:10px;letter-spacing:2px;opacity:0.4;}
 .acnm{font-size:14px;font-weight:700;letter-spacing:1px;}
 .acmt{font-size:11px;opacity:0.35;letter-spacing:1px;margin-top:2px;}
 .acvl{font-size:13px;font-weight:700;text-align:right;color:var(--ta);margin-left:auto;}
@@ -1660,6 +1674,22 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 /* AIRA message */
 .t-synth .aira-msg{font-family:'Rajdhani',sans-serif;font-style:normal;font-size:13px;font-weight:600;letter-spacing:1px;}
 .t-synth .rc{display:none;}
+/* ── Synthwave EQ ── */
+.synth-eq{display:none;flex-direction:column;align-items:center;gap:10px;}
+.t-synth .synth-eq{display:flex;}
+.synth-eq-screen{position:relative;width:196px;height:112px;background:rgba(6,0,18,0.92);border:1px solid rgba(255,0,255,0.35);border-radius:2px;overflow:hidden;box-shadow:0 0 18px rgba(255,0,255,0.18),inset 0 0 24px rgba(0,0,0,0.6);}
+.synth-eq-svg{display:block;width:100%;height:100%;}
+/* CRT scanlines */
+.synth-eq-screen::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.18) 3px,rgba(0,0,0,0.18) 4px);pointer-events:none;z-index:2;}
+/* Corner brackets */
+.synth-eq-screen::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,0,255,0.25) 0%,transparent 8%),linear-gradient(225deg,rgba(0,255,255,0.15) 0%,transparent 8%);pointer-events:none;z-index:1;}
+/* Score + label row */
+.synth-eq-info{display:flex;align-items:baseline;gap:8px;}
+.synth-eq-num{font-family:'Rajdhani',sans-serif;font-size:48px;font-weight:700;line-height:1;color:#ff00ff;text-shadow:0 0 14px rgba(255,0,255,0.8),0 0 28px rgba(255,0,255,0.4);}
+.synth-eq-denom{font-size:12px;letter-spacing:2px;opacity:0.35;color:#f0e0ff;}
+/* Idle bar shimmer */
+@keyframes swBarShimmer{0%,100%{opacity:0.85;}50%{opacity:1;}}
+.synth-eq-bar{animation:swBarShimmer var(--dur,2.4s) ease-in-out infinite;}
 
 /* ── Daily Progress Rings ────────────────────────────────────────── */
 .drw{border-top:1px solid rgba(255,255,255,0.07);margin-top:14px;padding-top:13px;}
@@ -2609,10 +2639,10 @@ body.t-synth::after{content:'';position:fixed;inset:0;
     </div>
 
     <!-- ── VOXEL PRO (block-world aesthetics — PRO tier) ── -->
-    <div class="t-card tc-mc t-locked">
+    <div class="t-card tc-mc t-locked" id="tc-voxel" onclick="onProThemeClick('mc')">
       <div class="mc-pg" id="mc-pg"></div>
       <div class="t-badge t-badge-pro">PRO</div>
-      <div class="t-lock-ov">
+      <div class="t-lock-ov" id="tc-voxel-ov">
         <div class="t-lock-ico">⛏</div>
         <div class="t-lock-nm">VOXEL</div>
         <div class="t-lock-tag">PRO</div>
@@ -2624,7 +2654,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
     </div>
 
     <!-- ── SYNTHWAVE PRO (80s retrowave — PRO tier) ── -->
-    <div class="t-card tc-synth t-locked" onclick="proAction()">
+    <div class="t-card tc-synth t-locked" id="tc-synthwave" onclick="onProThemeClick('synth')">
       <div class="synth-pv">
         <svg class="synth-pv-svg" viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
           <defs>
@@ -2669,7 +2699,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         </svg>
       </div>
       <div class="t-badge t-badge-pro">PRO</div>
-      <div class="t-lock-ov">
+      <div class="t-lock-ov" id="tc-synthwave-ov">
         <div class="t-lock-ico">▶</div>
         <div class="t-lock-nm">SYNTHWAVE</div>
         <div class="t-lock-tag">PRO</div>
@@ -2846,6 +2876,24 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           <span class="hud-dot" style="background:#00f5ff;box-shadow:0 0 5px #00f5ff;"></span>STP
           <span class="hud-dot" style="background:#a855f7;box-shadow:0 0 5px #a855f7;margin-left:8px;"></span>CALS
           <span class="hud-dot" style="background:#f59e0b;box-shadow:0 0 5px #f59e0b;margin-left:8px;"></span>MIN
+        </div>
+
+        <!-- Synthwave EQ — synthwave theme only -->
+        <div class="synth-eq" id="synth-eq">
+          <div class="synth-eq-screen">
+            <svg class="synth-eq-svg" id="synth-eq-svg" viewBox="0 0 196 112" preserveAspectRatio="xMidYMid meet">
+              <!-- Grid horizontals -->
+              <line x1="0" y1="28" x2="196" y2="28" stroke="rgba(255,0,255,0.08)" stroke-width="0.8"/>
+              <line x1="0" y1="56" x2="196" y2="56" stroke="rgba(255,0,255,0.08)" stroke-width="0.8"/>
+              <line x1="0" y1="84" x2="196" y2="84" stroke="rgba(255,0,255,0.08)" stroke-width="0.8"/>
+              <!-- Bars rendered by JS -->
+              <g id="synth-eq-bars"></g>
+            </svg>
+          </div>
+          <div class="synth-eq-info">
+            <span class="synth-eq-num" id="synth-eq-num">80</span>
+            <span class="synth-eq-denom">/ 100</span>
+          </div>
         </div>
 
         <!-- MC Ring — Minecraft theme only -->
@@ -3893,9 +3941,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
     <div class="bot" id="bot">
       <div class="card">
         <span class="clbl" id="lbl-activity">// ACTIVIDADES</span>
-        <div class="acit"><div class="acio">🏃</div><div><div class="acnm" id="ac1n">CARRERA</div><div class="acmt" id="ac1m">HOY 06:15 · 4.2KM</div></div><div class="acvl">287 kcal</div></div>
-        <div class="acit"><div class="acio">🧘</div><div><div class="acnm" id="ac2n">MEDITACIÓN</div><div class="acmt" id="ac2m">AYER 22:10 · 15min</div></div><div class="acvl">58 bpm</div></div>
-        <div class="acit"><div class="acio">🚴</div><div><div class="acnm" id="ac3n">CICLISMO</div><div class="acmt" id="ac3m">AYER 17:30 · 18KM</div></div><div class="acvl">420 kcal</div></div>
+        <div id="act-list"><div class="act-empty" id="act-empty">SIN ENTRENAMIENTOS RECIENTES</div></div>
       </div>
       <div class="card">
       <div style="display:flex;align-items:center;gap:9px;margin-bottom:4px;">
@@ -4020,6 +4066,12 @@ body.t-synth::after{content:'';position:fixed;inset:0;
     <div class="card hv-card">
       <div class="clbl"><span id="hv-steps-lbl">// PASOS DIARIOS</span><span class="hv-stat" id="hv-steps-stat"></span></div>
       <div class="hv-chart-wrap"><div id="hv-steps-skel" class="hv-skel"></div><svg class="hv-chart" id="hv-steps-svg" style="display:none"></svg><div class="hv-tt" id="hv-steps-tt"></div></div>
+    </div>
+
+    <!-- ── Workout History ── -->
+    <div class="card hv-card" id="hv-wkt-card">
+      <div class="clbl"><span id="hv-wkt-lbl">// ENTRENAMIENTOS</span><span class="hv-stat" id="hv-wkt-stat"></span></div>
+      <div id="hv-wkt-body"><div class="hv-skel" id="hv-wkt-skel" style="display:none;"></div></div>
     </div>
 
     <!-- ── Cycle History Calendar (only rendered when cycle tracking is on) ── -->
@@ -4313,6 +4365,8 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         <button class="pv-t-btn" id="pvt-halo" onclick="selectTheme('halo');navigate('profile')">▲ N·NOIR</button>
         <button class="pv-t-btn" id="pvt-naruto" onclick="selectTheme('naruto');navigate('profile')">気 SHINOBI</button>
         <button class="pv-t-btn" id="pvt-fut" onclick="selectTheme('fut');navigate('profile')">⬡ AETHER</button>
+        <button class="pv-t-btn" id="pvt-mc" onclick="selectTheme('mc');navigate('profile')" style="display:none;">⛏ VOXEL</button>
+        <button class="pv-t-btn" id="pvt-synth" onclick="selectTheme('synth');navigate('profile')" style="display:none;">▶ SYNTH</button>
       </div>
       <div class="pv-row" style="margin-top:8px;">
         <div class="pv-rlbl" id="pv-lang-lbl">IDIOMA</div>
@@ -4649,6 +4703,10 @@ const T = {
     lbl_activity: '// ACTIVIDADES',
     ac1: 'CARRERA', ac2: 'MEDITACIÓN', ac3: 'CICLISMO',
     ac1m: 'HOY 06:15 · 4.2KM', ac2m: 'AYER 22:10 · 15MIN', ac3m: 'AYER 17:30 · 18KM',
+    act_empty: 'SIN ENTRENAMIENTOS RECIENTES',
+    hv_wkt_lbl: '// ENTRENAMIENTOS', hv_wkt_empty: 'SIN ENTRENAMIENTOS EN ESTE PERÍODO',
+    wkt_today: 'HOY', wkt_yesterday: 'AYER', wkt_kcal: 'kcal', wkt_bpm: 'bpm', wkt_km: 'km',
+    wkt_sessions: 'SESIONES', wkt_steps: 'pasos', wkt_avg: 'prom.',
     user_demo: 'USUARIO',
     u_hrv: 'ms — BUENO', u_temp: '°C PIEL',
     nav_home: 'Inicio', nav_stats: 'Stats', nav_history: 'Historial', nav_profile: 'Perfil',
@@ -4885,6 +4943,10 @@ const T = {
     lbl_activity: '// ACTIVITIES',
     ac1: 'RUN', ac2: 'MEDITATION', ac3: 'CYCLING',
     ac1m: 'TODAY 06:15 · 4.2KM', ac2m: 'YESTERDAY 22:10 · 15MIN', ac3m: 'YESTERDAY 17:30 · 18KM',
+    act_empty: 'NO RECENT WORKOUTS',
+    hv_wkt_lbl: '// WORKOUTS', hv_wkt_empty: 'NO WORKOUTS IN THIS PERIOD',
+    wkt_today: 'TODAY', wkt_yesterday: 'YESTERDAY', wkt_kcal: 'kcal', wkt_bpm: 'bpm', wkt_km: 'km',
+    wkt_sessions: 'SESSIONS', wkt_steps: 'steps', wkt_avg: 'avg.',
     user_demo: 'USER',
     u_hrv: 'ms — GOOD', u_temp: '°C SKIN',
     nav_home: 'Home', nav_stats: 'Stats', nav_history: 'History', nav_profile: 'Profile',
@@ -5081,7 +5143,7 @@ function setLang(l) {
   setText('cal-basal-lbl', t.cal_basal_lbl); setText('cal-active-lbl', t.cal_active_lbl);
   setText('cbar-sed-lbl', t.cbar_sed_lbl); setText('cbar-lig-lbl', t.cbar_lig_lbl); setText('cbar-mod-lbl', t.cbar_mod_lbl); setText('cbar-int-lbl', t.cbar_int_lbl);
   // Valores dinámicos: solo en modo demo (no pisar datos reales conectados)
-  if (!isReal) { setText('stepspct', t.pct_lbl); setText('uname', t.user_demo); }
+  if (!isReal) { setText('stepspct', t.pct_lbl); setText('uname', t.user_demo); renderDemoActivities(); }
   // Re-render piezas dependientes del idioma que se calculan en runtime
   if (window._lastRec != null) setText('wrec', recTextFor(window._lastRec));
   setText('lbl-coach', t.lbl_coach);
@@ -7198,17 +7260,52 @@ function proAction() {
     const msg = lang === 'es' ? '¿Cancelar AIRA Pro? (modo prueba)' : 'Cancel AIRA Pro? (test mode)';
     if (confirm(msg)) {
       localStorage.removeItem('fb_pro');
-      renderProfile(); renderDailyRings(); renderCoachAccess();
+      renderProfile(); renderDailyRings(); renderCoachAccess(); refreshProThemeCards();
       window._drAnimDone = true; setTimeout(animateDailyRings, 60);
       showToast(lang === 'es' ? 'Plan cancelado' : 'Plan cancelled', 'info');
     }
   } else {
     localStorage.setItem('fb_pro', '1');
-    renderProfile(); renderDailyRings(); renderCoachAccess();
+    renderProfile(); renderDailyRings(); renderCoachAccess(); refreshProThemeCards();
     window._drAnimDone = true; setTimeout(animateDailyRings, 60);
     showToast(lang === 'es' ? 'AIRA Pro activado (prueba)' : 'AIRA Pro activated (test)', 'success');
   }
 }
+function refreshProThemeCards() {
+  const pro = isPro();
+  // Selector cards
+  ['voxel','synthwave'].forEach(id => {
+    const card = document.getElementById('tc-' + id);
+    const ov   = document.getElementById('tc-' + id + '-ov');
+    if (!card) return;
+    if (pro) {
+      card.classList.remove('t-locked');
+      if (ov) ov.style.display = 'none';
+    } else {
+      card.classList.add('t-locked');
+      if (ov) ov.style.display = '';
+    }
+  });
+  // Profile switcher buttons
+  const mcBtn    = document.getElementById('pvt-mc');
+  const synthBtn = document.getElementById('pvt-synth');
+  if (mcBtn)    mcBtn.style.display    = pro ? '' : 'none';
+  if (synthBtn) synthBtn.style.display = pro ? '' : 'none';
+  // Active checkmark for pro themes
+  ['pvt-mc','pvt-synth'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.toggle('active', theme === (id === 'pvt-mc' ? 'mc' : 'synth'));
+  });
+}
+
+function onProThemeClick(themeId) {
+  if (isPro()) {
+    openThemePreview ? openThemePreview(themeId) : selectTheme(themeId);
+  } else {
+    proAction();
+  }
+}
+
 function renderProUI() {
   const t = T[lang], pro = isPro();
   setText('pro-title', t.pro_title); setText('pro-sub', t.pro_sub);
@@ -7223,6 +7320,7 @@ function renderProUI() {
   const btn = document.getElementById('pro-btn');
   if (btn) { btn.textContent = pro ? t.pro_manage : t.pro_cta; btn.classList.toggle('owned', pro); }
   setText('pro-note', pro ? t.pro_note_on : t.pro_note_off);
+  refreshProThemeCards();
 }
 
 // ══════ PROFILE VIEW ══════
@@ -8428,11 +8526,45 @@ function calcScores(opts) {
   return { rec, strain, sleepPct };
 }
 
+function updateSynthEQ(score) {
+  const g = document.getElementById('synth-eq-bars');
+  const numEl = document.getElementById('synth-eq-num');
+  if (!g) return;
+  if (numEl) numEl.textContent = Math.round(score);
+  // 13-bar frequency envelope — classic EQ bell curve
+  const ENV = [0.42,0.58,0.70,0.82,0.91,0.97,1.00,0.96,0.88,0.76,0.64,0.54,0.44];
+  const W = 10, GAP = 5, MAXY = 100, MINY = 8, BASEY = 108;
+  const ratio = Math.max(0, Math.min(1, score / 100));
+  let bars = '';
+  ENV.forEach((env, i) => {
+    const x = 8 + i * (W + GAP);
+    const barH = Math.round(MINY + (MAXY - MINY) * env * ratio);
+    const y = BASEY - barH;
+    // Segment the bar into LED-style slots (4px on, 2px gap)
+    const segH = 4, segGap = 2, slotH = segH + segGap;
+    const nSegs = Math.floor(barH / slotH);
+    // Color: bottom magenta → top cyan, top 20% cyan for peak
+    const peakSegs = Math.max(1, Math.round(nSegs * 0.20));
+    let segs = '';
+    for (let s = 0; s < nSegs; s++) {
+      const sy = BASEY - (s + 1) * slotH + segGap;
+      const isPeak = s >= nSegs - peakSegs;
+      const color = isPeak ? '#00ffff' : (s >= nSegs - Math.round(nSegs*0.45) ? '#cc00ff' : '#ff00ff');
+      const glow  = isPeak ? '0 0 5px #00ffff' : '0 0 4px #ff00ff';
+      segs += `<rect x="${x}" y="${sy}" width="${W}" height="${segH}" fill="${color}" rx="1" style="filter:drop-shadow(${glow})"/>`;
+    }
+    const delay = (0.12 * i).toFixed(2);
+    bars += `<g class="synth-eq-bar" style="--dur:${(2.2 + i * 0.18).toFixed(2)}s;animation-delay:-${delay}s">${segs}</g>`;
+  });
+  g.innerHTML = bars;
+}
+
 function updateScores({ rec, strain, sleepPct }) {
   // Anillo estándar (otros temas)
   const rf = document.getElementById('rfil');
   if (rf) rf.style.strokeDashoffset = (339*(1-rec/100)).toFixed(1);
   animN('rscore', 0, rec, 1200);
+  updateSynthEQ(rec);
   // HUD ring arcs + number → all driven by activity composite in updateDailyRings()
   // MC ring — iconos de pixel art
   setMCHearts('r', Math.round(rec/10));
@@ -9470,6 +9602,7 @@ const FitbitSource = {
     heartRange:    (s,e) => `${FitbitSource.base}/1/user/-/activities/heart/date/${s}/${e}.json`,
     sleepRange:    (s,e) => `${FitbitSource.base}/1.2/user/-/sleep/date/${s}/${e}.json`,
     stepsRange:    (s,e) => `${FitbitSource.base}/1/user/-/activities/steps/date/${s}/${e}.json`,
+    workoutList:   (after, limit) => `${FitbitSource.base}/1/user/-/activities/list.json?afterDate=${after}&sort=desc&limit=${limit||10}&offset=0`,
   },
 };
 // Google Health API source (Fitbit Web API shuts down Sep 2026; new app
@@ -9519,6 +9652,7 @@ const GoogleHealthSource = {
     heartRange:    ()   => `${GoogleHealthSource.base}/users/me/dataTypes/daily-resting-heart-rate/dataPoints`,
     sleepRange:    ()   => `${GoogleHealthSource.base}/users/me/dataTypes/sleep/dataPoints`,
     stepsRange:    ()   => `${GoogleHealthSource.base}/users/me/dataTypes/steps/dataPoints`,
+    exerciseSessions: (start, end) => `${GoogleHealthSource.base}/users/me/dataTypes/exercise-session/dataPoints?filter=${encodeURIComponent('exercise_session.interval.civil_start_time >= "'+start+'" AND exercise_session.interval.civil_start_time < "'+end+'"')}&pageSize=20`,
     identity:      ()   => `${GoogleHealthSource.base}/users/me:getIdentity`,
   },
 };
@@ -9751,12 +9885,14 @@ async function loadRealGoogleData() {
   const nd=_ghNextDay(td); // tomorrow
   const _ydx=new Date(td+'T12:00:00Z'); _ydx.setDate(_ydx.getDate()-1);
   const yd=_ydx.toISOString().split('T')[0]; // yesterday — sleep look-back
-  const [hrD,rhrD,stD,slD,calD] = await Promise.all([
+  const after7=new Date(Date.now()-7*864e5).toISOString().split('T')[0];
+  const [hrD,rhrD,stD,slD,calD,exD] = await Promise.all([
     _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=1440`),
     _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?filter=${enc('daily_resting_heart_rate.date = "'+td+'"')}`),
     _ghGet(`${B}/users/me/dataTypes/steps/dataPoints?filter=${enc('steps.interval.civil_start_time >= "'+td+'" AND steps.interval.civil_start_time < "'+nd+'"')}&pageSize=1440`),
     _ghGet(`${B}/users/me/dataTypes/sleep/dataPoints?filter=${enc('sleep.interval.civil_end_time >= "'+yd+'" AND sleep.interval.civil_end_time < "'+nd+'"')}&pageSize=5`),
     _ghGet(`${B}/users/me/dataTypes/total-calories/dataPoints?filter=${enc('total_calories.interval.civil_start_time >= "'+td+'" AND total_calories.interval.civil_start_time < "'+nd+'"')}&pageSize=1440`),
+    _ghGet(GoogleHealthSource.ep.exerciseSessions(after7, nd)),
   ]);
   let rhr_v=65, maxHR_v=0;
   if (hrD?.dataPoints?.length) {
@@ -9798,6 +9934,26 @@ async function loadRealGoogleData() {
   setHRZones({zones:[],restHR:rhr_v,maxHR:maxHR_v||140});
   syncTicker();
   loadHealthMetricsGoogle(td, rhr_v);
+  // Render recent workouts from exercise session data
+  if (exD?.dataPoints?.length) {
+    const ghSessions = exD.dataPoints.map(p => {
+      const ex = p.exerciseSession || p;
+      const start = ex.startTime || (p.interval?.civilStartTime) || '';
+      const end = ex.endTime || (p.interval?.civilEndTime) || '';
+      return {
+        activityTypeId: null,
+        activityName: ex.exerciseType || ex.activityType || '',
+        startTime: start,
+        duration: start && end ? new Date(end)-new Date(start) : (ex.durationMs||0),
+        calories: Math.round(ex.calories?.kilocalories||ex.calories?.value||0),
+        distance: ex.distance?.meters ? ex.distance.meters/1000 : (ex.distance?.kilometers||null),
+        averageHeartRate: ex.averageHeartRate?.beatsPerMinute||null,
+        steps: ex.steps?.countSum||null,
+        heartRateZones: ex.heartRateZones||null,
+      };
+    });
+    renderRecentActivities(ghSessions);
+  }
 }
 // ── SpO2 / HRV / Breathing rate ───────────────────────────────────────────
 async function loadHealthMetricsGoogle(td, rhr_v) {
@@ -9979,7 +10135,8 @@ async function loadReal() {
   showLoad();
   try {
     const h={'Authorization':'Bearer '+token}, td=new Date().toISOString().split('T')[0];
-    const [pr,ac,hr,sl] = await Promise.all([fetch(HS.ep.profile(),{headers:h}).then(r=>r.json()),fetch(HS.ep.activities(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.heartIntraday(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.sleepToday(),{headers:h}).then(r=>r.json())]);
+    const after7=new Date(Date.now()-7*864e5).toISOString().split('T')[0];
+    const [pr,ac,hr,sl,wl] = await Promise.all([fetch(HS.ep.profile(),{headers:h}).then(r=>r.json()),fetch(HS.ep.activities(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.heartIntraday(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.sleepToday(),{headers:h}).then(r=>r.json()),fetch(HS.ep.workoutList(after7,3),{headers:h}).then(r=>r.ok?r.json():null).catch(()=>null)]);
     if (pr?.user) {
       const _dn = (pr.user.displayName||pr.user.firstName||'').toUpperCase() || (lang==='es'?'USUARIO':'USER');
       document.getElementById('uname').textContent = _dn;
@@ -10003,6 +10160,8 @@ async function loadReal() {
       const activeMin=(s.fairlyActiveMinutes||0)+(s.veryActiveMinutes||0);
       const el_a=document.getElementById('steps-active-val'); if(el_a) el_a.textContent=activeMin;
     }
+    // Render recent workouts (last 3, from dedicated list endpoint)
+    if (wl?.activities) renderRecentActivities(wl.activities);
     let maxHR_real=0, minHR_real=999, sumHR_real=0, cntHR=0;
     if (hr?.['activities-heart-intraday']?.dataset?.length) {
       const ds=hr['activities-heart-intraday'].dataset;
@@ -10882,6 +11041,183 @@ function _hRenderCoachAnalysis(rows) {
   body.innerHTML = html;
 }
 
+// ══════ WORKOUT HELPERS ══════
+function _wktTypeInfo(typeId, name) {
+  const id = typeId || 0;
+  const nm = (name || '').toLowerCase();
+  const MAP = {
+    90009:'🏃', 90013:'🚶', 90024:'🥾', 90025:'🏔️',
+    1071:'🚴',  1072:'🚴',
+    52001:'🧘', 53000:'🧘', 55001:'🧘',
+    91045:'🏊', 91046:'🏊',
+    3000:'💪',  57:'🏋️',  3010:'🥊',
+    20047:'⚡', 15040:'🎾', 3001:'🏀', 15580:'⚽',
+  };
+  const emoji = MAP[id] || (
+    nm.includes('run') ? '🏃' : nm.includes('walk') ? '🚶' :
+    nm.includes('bik') || nm.includes('cycl') ? '🚴' :
+    nm.includes('swim') ? '🏊' :
+    nm.includes('yoga') || nm.includes('medit') || nm.includes('mindful') ? '🧘' :
+    nm.includes('hik') ? '🥾' :
+    nm.includes('weight') || nm.includes('strength') ? '🏋️' : '🏅'
+  );
+  const label = name ? name.toUpperCase() : (window.lang === 'es' ? 'EJERCICIO' : 'WORKOUT');
+  return { emoji, label };
+}
+
+function _wktFmtDuration(ms) {
+  const min = Math.round((ms || 0) / 60000);
+  if (min < 60) return min + 'min';
+  const h = Math.floor(min / 60), m = min % 60;
+  return h + 'h' + (m ? (' ' + m + 'min') : '');
+}
+
+function _wktIsLowIntensity(typeId, name) {
+  const id = typeId || 0;
+  const nm = (name || '').toLowerCase();
+  return [52001, 53000, 55001].includes(id) ||
+    nm.includes('medit') || nm.includes('yoga') || nm.includes('mindful') ||
+    nm.includes('pilat') || nm.includes('stretch');
+}
+
+function _wktFmtDate(startTime) {
+  const t = T[window.lang || 'es'];
+  const today = new Date().toISOString().split('T')[0];
+  const yesterday = new Date(Date.now() - 864e5).toISOString().split('T')[0];
+  let date = '', time = '';
+  if (startTime && startTime.includes('T')) {
+    date = startTime.split('T')[0];
+    time = startTime.split('T')[1].slice(0, 5);
+  } else if (startTime) {
+    date = today;
+    time = (startTime + '').slice(0, 5);
+  }
+  const prefix = date === today ? (t.wkt_today || 'HOY') :
+    date === yesterday ? (t.wkt_yesterday || 'AYER') :
+    date.slice(5).replace('-', '/');
+  return prefix + ' ' + time;
+}
+
+function renderDemoActivities() {
+  const today = new Date();
+  const yd = new Date(today); yd.setDate(yd.getDate() - 1);
+  const fmt = d => d.toISOString().split('T')[0];
+  renderRecentActivities([
+    { activityTypeId: 90009, activityName: lang==='es'?'Carrera':'Running',    startTime: fmt(today)+'T06:15:00.000', duration: 1800000, calories: 287, distance: 4.2,  averageHeartRate: 155, steps: 5200, heartRateZones: [{name:'Out of Range',minutes:2},{name:'Fat Burn',minutes:8},{name:'Cardio',minutes:18},{name:'Peak',minutes:2}] },
+    { activityTypeId: 52001, activityName: lang==='es'?'Meditación':'Meditation', startTime: fmt(yd)+'T22:10:00.000', duration: 900000,  calories: 45,  distance: null, averageHeartRate: 58,  steps: null, heartRateZones: null },
+    { activityTypeId: 1071,  activityName: lang==='es'?'Ciclismo':'Cycling',    startTime: fmt(yd)+'T17:30:00.000', duration: 3600000, calories: 420, distance: 18.0, averageHeartRate: 142, steps: null, heartRateZones: [{name:'Out of Range',minutes:5},{name:'Fat Burn',minutes:20},{name:'Cardio',minutes:30},{name:'Peak',minutes:5}] },
+  ]);
+}
+
+function renderRecentActivities(sessions) {
+  const el = document.getElementById('act-list');
+  if (!el) return;
+  const t = T[window.lang || 'es'];
+  if (!sessions || !sessions.length) {
+    el.innerHTML = '<div class="act-empty">' + (t.act_empty || 'SIN ENTRENAMIENTOS RECIENTES') + '</div>';
+    return;
+  }
+  el.innerHTML = sessions.slice(0, 3).map(s => {
+    const { emoji, label } = _wktTypeInfo(s.activityTypeId, s.activityName);
+    const dur = _wktFmtDuration(s.duration);
+    const dist = s.distance ? s.distance.toFixed(1) + (t.wkt_km || 'km') : null;
+    const meta = _wktFmtDate(s.startTime) + ' · ' + (dist || dur);
+    const lowInt = _wktIsLowIntensity(s.activityTypeId, s.activityName);
+    const rightVal = (lowInt && s.averageHeartRate) ? s.averageHeartRate : (s.calories || 0);
+    const rightUnit = (lowInt && s.averageHeartRate) ? (t.wkt_bpm || 'bpm') : (t.wkt_kcal || 'kcal');
+    return `<div class="acit"><div class="acio">${emoji}</div><div><div class="acnm">${label}</div><div class="acmt">${meta}</div></div><div class="acvl">${rightVal} ${rightUnit}</div></div>`;
+  }).join('');
+}
+
+function renderWorkoutHistory(sessions) {
+  const body = document.getElementById('hv-wkt-body');
+  const skel = document.getElementById('hv-wkt-skel');
+  const stat = document.getElementById('hv-wkt-stat');
+  if (!body) return;
+  if (skel) skel.style.display = 'none';
+  const t = T[window.lang || 'es'];
+  const lg = window.lang || 'es';
+  if (!sessions || !sessions.length) {
+    body.innerHTML = '<div class="hv-empty"><span>' + (t.hv_wkt_empty || 'SIN ENTRENAMIENTOS EN ESTE PERÍODO') + '</span></div>';
+    if (stat) stat.textContent = '';
+    return;
+  }
+  if (stat) stat.textContent = sessions.length + ' ' + (t.wkt_sessions || 'SESIONES');
+  const ZONE_COLORS = ['rgba(128,128,128,0.35)', 'var(--ta)', 'var(--ta2)', 'var(--tneg)'];
+  body.innerHTML = sessions.map(s => {
+    const { emoji, label } = _wktTypeInfo(s.activityTypeId, s.activityName);
+    const dur = _wktFmtDuration(s.duration);
+    const dist = s.distance ? s.distance.toFixed(1) + ' ' + (t.wkt_km || 'km') : '';
+    const meta = [_wktFmtDate(s.startTime), dur, dist].filter(Boolean).join(' · ');
+    const lowInt = _wktIsLowIntensity(s.activityTypeId, s.activityName);
+    const rightVal = (lowInt && s.averageHeartRate) ? s.averageHeartRate : (s.calories || 0);
+    const rightUnit = (lowInt && s.averageHeartRate) ? (t.wkt_bpm || 'bpm') : (t.wkt_kcal || 'kcal');
+    let zonesHtml = '';
+    if (s.heartRateZones && s.heartRateZones.length) {
+      const total = s.heartRateZones.reduce((a, z) => a + (z.minutes || 0), 0) || 1;
+      zonesHtml = '<div class="wkt-zones">' +
+        s.heartRateZones.map((z, i) =>
+          `<div class="wkt-zone" style="flex:${((z.minutes||0)/total)*100};background:${ZONE_COLORS[i]}" title="${z.name}: ${z.minutes||0}min"></div>`
+        ).join('') + '</div>';
+    }
+    const subs = [
+      s.averageHeartRate ? s.averageHeartRate + ' bpm ' + (t.wkt_avg || 'prom.') : '',
+      s.steps ? (s.steps).toLocaleString() + ' ' + (t.wkt_steps || 'pasos') : '',
+    ].filter(Boolean).join(' · ');
+    return `<div class="wkt-item">
+      <div class="wkt-ico">${emoji}</div>
+      <div class="wkt-body">
+        <div class="wkt-name">${label}</div>
+        <div class="wkt-meta">${meta}</div>
+        ${zonesHtml}
+        ${subs ? '<div class="wkt-sub">' + subs + '</div>' : ''}
+      </div>
+      <div class="wkt-right"><div class="wkt-val">${rightVal}</div><div class="wkt-unit">${rightUnit}</div></div>
+    </div>`;
+  }).join('');
+}
+
+async function fetchAndRenderWorkoutHistory(range) {
+  const skel = document.getElementById('hv-wkt-skel');
+  const body = document.getElementById('hv-wkt-body');
+  if (skel) { skel.style.display = 'block'; }
+  if (!token) { renderWorkoutHistory([]); return; }
+  try {
+    const afterDate = new Date(Date.now() - (range || 7) * 864e5).toISOString().split('T')[0];
+    const h = { 'Authorization': 'Bearer ' + token };
+    if (HS.id === 'fitbit') {
+      const url = HS.ep.workoutList(afterDate, 30);
+      const r = await fetch(url, { headers: h });
+      if (!r.ok) { renderWorkoutHistory([]); return; }
+      const d = await r.json();
+      renderWorkoutHistory(d.activities || []);
+    } else {
+      // Google Health: exercise-session data type
+      const today = new Date().toISOString().split('T')[0];
+      const nd = new Date(Date.now() + 864e5).toISOString().split('T')[0];
+      const url = HS.ep.exerciseSessions(afterDate, nd);
+      const d = await _ghGet(url);
+      if (!d?.dataPoints?.length) { renderWorkoutHistory([]); return; }
+      const sessions = d.dataPoints.map(p => {
+        const ex = p.exerciseSession || p;
+        return {
+          activityTypeId: null,
+          activityName: ex.exerciseType || ex.activityType || '',
+          startTime: ex.startTime || (p.interval && (p.interval.civilStartTime || '')),
+          duration: ex.endTime && ex.startTime
+            ? new Date(ex.endTime) - new Date(ex.startTime) : (ex.durationMs || 0),
+          calories: Math.round(ex.calories?.kilocalories || ex.calories?.value || 0),
+          distance: ex.distance?.meters ? ex.distance.meters / 1000 : (ex.distance?.kilometers || null),
+          averageHeartRate: ex.averageHeartRate?.beatsPerMinute || null,
+          steps: ex.steps?.countSum || null,
+          heartRateZones: ex.heartRateZones || null,
+        };
+      });
+      renderWorkoutHistory(sessions);
+    }
+  } catch (e) { renderWorkoutHistory([]); }
+}
+
 async function renderHistory() {
   if (window._histRange == null) window._histRange = 7;
   const t = T[lang];
@@ -10946,6 +11282,10 @@ async function renderHistory() {
   _hBindSleepTooltip(slpSvg, 'hv-sleep-tt');
   // Coach analysis
   _hRenderCoachAnalysis(rows);
+  // Workout history
+  setText('hv-wkt-lbl', t.hv_wkt_lbl || '// ENTRENAMIENTOS');
+  fetchAndRenderWorkoutHistory(window._histRange).catch(e => console.warn('[wkt-history]', e));
+
   // Cycle history calendar (only shown when cycle tracking is active)
   try { renderCycleHistory(); } catch(e) { console.warn('[cyc-history]', e); }
 }
