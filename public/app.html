@@ -9751,12 +9751,13 @@ async function loadRealGoogleData() {
   const nd=_ghNextDay(td); // tomorrow
   const _ydx=new Date(td+'T12:00:00Z'); _ydx.setDate(_ydx.getDate()-1);
   const yd=_ydx.toISOString().split('T')[0]; // yesterday — sleep look-back
-  const [hrD,rhrD,stD,slD,calD] = await Promise.all([
+  const [hrD,rhrD,stD,slD,calD,azD] = await Promise.all([
     _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=1440`),
     _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?filter=${enc('daily_resting_heart_rate.date = "'+td+'"')}`),
     _ghGet(`${B}/users/me/dataTypes/steps/dataPoints?filter=${enc('steps.interval.civil_start_time >= "'+td+'" AND steps.interval.civil_start_time < "'+nd+'"')}&pageSize=1440`),
     _ghGet(`${B}/users/me/dataTypes/sleep/dataPoints?filter=${enc('sleep.interval.civil_end_time >= "'+yd+'" AND sleep.interval.civil_end_time < "'+nd+'"')}&pageSize=5`),
     _ghGet(`${B}/users/me/dataTypes/total-calories/dataPoints?filter=${enc('total_calories.interval.civil_start_time >= "'+td+'" AND total_calories.interval.civil_start_time < "'+nd+'"')}&pageSize=1440`),
+    _ghGet(`${B}/users/me/dataTypes/active-zone-minutes/dataPoints?filter=${enc('active_zone_minutes.interval.civil_start_time >= "'+td+'" AND active_zone_minutes.interval.civil_start_time < "'+nd+'"')}&pageSize=1440`),
   ]);
   let rhr_v=65, maxHR_v=0;
   if (hrD?.dataPoints?.length) {
@@ -9782,6 +9783,11 @@ async function loadRealGoogleData() {
     const totCal=Math.round(calD.dataPoints.reduce((s,p)=>s+(parseFloat(p.totalCalories?.kilocalories??p.totalCalories?.value??p.totalCalories?.count??0)),0));
     if (totCal){document.getElementById('calv').textContent=totCal; document.getElementById('cal-act').textContent=totCal.toLocaleString();}
   }
+  // Google Health API doesn't expose distance, floors or BMR separately — clear demo values.
+  { const el=document.getElementById('cal-bmr'); if(el) el.textContent='—'; }
+  { const el=document.getElementById('steps-dist-val'); if(el) el.textContent='—'; }
+  { const el=document.getElementById('steps-floors-val'); if(el) el.textContent='—'; }
+
   const slDP=slD?.dataPoints?.[0]; let sleepMin=0,sleepEff=85,deepMin=0,remMin=0;
   if (slDP?.sleep) {
     const sm={};
@@ -9791,11 +9797,30 @@ async function loadRealGoogleData() {
     const tib=parseInt(slDP.sleep.summary?.minutesInSleepPeriod)||0;
     sleepEff=tib>0?Math.round(sleepMin/tib*100):85;
     deepMin=sm.deep||0; remMin=sm.rem||0;
+    // Populate efficiency and awakenings that updSl() doesn't set
+    const el_eff=document.getElementById('sl-eff-v'); if(el_eff) el_eff.textContent=sleepEff;
+    const wakeSegs=(slDP.sleep.stages||[]).filter(s=>s.type==='AWAKE').length;
+    const el_wk=document.getElementById('sl-wake-v'); if(el_wk) el_wk.textContent=wakeSegs||'—';
   }
-  updateScores(calcScores({sleepMin,sleepEff,deep:deepMin,rem:remMin,rhr:rhr_v,zones:[]}));
+
+  // Active Zone Minutes → HR zone bars + active-minutes sub-field + strain
+  let azZones=[];
+  if (azD?.dataPoints?.length) {
+    let fatMin=0, cardioMin=0, peakMin=0;
+    azD.dataPoints.forEach(dp=>{
+      const az=dp.activeZoneMinutes||dp.activeZones||{};
+      fatMin  +=parseInt(az.fatBurnActiveZoneMinutes??az.fatBurn??0)||0;
+      cardioMin+=parseInt(az.cardioActiveZoneMinutes??az.cardio??0)||0;
+      peakMin +=parseInt(az.peakActiveZoneMinutes??az.peak??0)||0;
+    });
+    azZones=[{name:'Fat Burn',minutes:fatMin},{name:'Cardio',minutes:cardioMin},{name:'Peak',minutes:peakMin}];
+    const el_a=document.getElementById('steps-active-val'); if(el_a) el_a.textContent=fatMin+cardioMin+peakMin;
+  }
+
+  updateScores(calcScores({sleepMin,sleepEff,deep:deepMin,rem:remMin,rhr:rhr_v,zones:azZones}));
   notifCheckRHR(rhr_v); notifMarkSync();
   setStressBars({hrv:68,rhr:rhr_v,br:14});
-  setHRZones({zones:[],restHR:rhr_v,maxHR:maxHR_v||140});
+  setHRZones({zones:azZones,restHR:rhr_v,maxHR:maxHR_v||140});
   syncTicker();
   loadHealthMetricsGoogle(td, rhr_v);
 }
@@ -9809,7 +9834,6 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
       _ghGet(`${B}/users/me/dataTypes/daily-heart-rate-variability/dataPoints?filter=${enc('daily_heart_rate_variability.date = "'+td+'"')}`),
       _ghGet(`${B}/users/me/dataTypes/daily-respiratory-rate/dataPoints?filter=${enc('daily_respiratory_rate.date = "'+td+'"')}`),
     ]);
-    console.debug('[gh metrics raw]', spo2?.dataPoints?.[0], hrv?.dataPoints?.[0], br?.dataPoints?.[0]);
     const sp=spo2?.dataPoints?.[0]?.dailyOxygenSaturation; set('spo2v', sp?.avg??sp?.avgPercent??sp?.value);
     const hv=hrv?.dataPoints?.[0]?.dailyHeartRateVariability;  set('hrvv',  hv?.rmssd??hv?.dailyRmssd??hv?.value);
     const bv=br?.dataPoints?.[0]?.dailyRespiratoryRate;         set('resp-val', bv?.rate??bv?.breathingRate??bv?.value);
@@ -9865,6 +9889,12 @@ async function pollSlowGoogle() {
       const sleepMin=(dp.sleep.stagesSummary||[]).reduce((a,s)=>s.type!=='AWAKE'?a+(parseInt(s.minutes)||0):a,0);
       if(sleepMin) window._lastSleepPct=Math.min(100,Math.round(sleepMin/480*100));
       updSl(sm); renderHypnogram(_ghSleepToFitbit(dp));
+      // Sync efficiency + wakes on every slow poll (same logic as initial load)
+      const tib=parseInt(dp.sleep.summary?.minutesInSleepPeriod)||0;
+      const eff=tib>0?Math.round(sleepMin/tib*100):0;
+      if(eff){const el=document.getElementById('sl-eff-v');if(el)el.textContent=eff;}
+      const wakeSegs=(dp.sleep.stages||[]).filter(s=>s.type==='AWAKE').length;
+      const el_wk=document.getElementById('sl-wake-v'); if(el_wk&&wakeSegs) el_wk.textContent=wakeSegs;
       updateDailyRings();
     }
   } catch(e){}
