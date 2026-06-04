@@ -549,6 +549,18 @@ async function callGemini(
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 25000); // 25 s hard timeout
 
+  // Gemini 2.5-series models share the token budget between thinking and output.
+  // Disable thinking for chat coaching (not a reasoning task) to give the full
+  // 8192-token budget to the visible response.
+  const isThinkingModel = model.startsWith("gemini-2.5");
+  const generationConfig: Record<string, unknown> = {
+    temperature: 0.65,
+    maxOutputTokens: 8192,
+  };
+  if (isThinkingModel) {
+    generationConfig.thinkingConfig = { thinkingBudget: 0, includeThoughts: false };
+  }
+
   let res: Response;
   try {
     res = await fetch(url, {
@@ -557,7 +569,7 @@ async function callGemini(
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: systemPrompt(m, lang) }] },
         contents,
-        generationConfig: { temperature: 0.65, maxOutputTokens: 8192 },
+        generationConfig,
       }),
       signal: ctrl.signal,
     });
