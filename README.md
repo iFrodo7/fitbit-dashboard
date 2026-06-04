@@ -1,125 +1,162 @@
 # Fitbit Air Dashboard
 
-Panel biométrico personal con **5 temas visuales** (Minecraft, Halo, Naruto, Futuristic, Bloom) + **1 tema PRO exclusivo** (Synthwave), datos reales de Fitbit/Google Health y un **coach de IA conversacional (AIRA)** exclusivo para usuarios Pro. PWA instalable en el móvil y accesible vía web. Pensado para competir visual y funcionalmente con Whoop / Oura / Apple Fitness.
+Panel biométrico personal con **5 temas visuales** (Minecraft, Neon Noir, Shinobi, Futuristic, Bloom) + **1 tema PRO** (Synthwave), datos reales vía **Google Health API** y un **coach de IA conversacional (AIRA)** exclusivo PRO. PWA instalable sin tienda de apps. Pensado para competir visual y funcionalmente con Whoop / Oura / Apple Fitness.
 
-![themes](public/icons/icon-192.png)
+## 🔗 Links
 
-## 📲 Probar / Instalar en el teléfono
+| | |
+|---|---|
+| **App (producción)** | **[fitbit-dashboard-zeta.vercel.app](https://fitbit-dashboard-zeta.vercel.app)** |
+| **Repositorio** | [github.com/iFrodo7/fitbit-dashboard](https://github.com/iFrodo7/fitbit-dashboard) |
 
-**Producción:** **https://fitbit-dashboard-zeta.vercel.app**
+## 📲 Instalar en el teléfono
 
-Es una PWA — se instala sin tienda de apps:
+La app es una PWA — sin tienda de apps:
 
 - **iPhone (Safari):** abre el link → **Compartir** → **Añadir a pantalla de inicio**
-- **Android (Chrome):** abre el link → menú **⋮** → **Instalar app** / **Añadir a pantalla de inicio**
+- **Android (Chrome):** abre el link → menú **⋮** → **Instalar app**
 
-Arranca en modo **demo** (sin login). Para datos reales, toca **Conectar** (ver "Conectar tu Fitbit" abajo).
+Arranca en **modo demo** (sin login). Para datos reales → toca **Conectar con Google**.
 
 ## ✨ Features
 
-- **Coach AIRA** ✦ PRO — análisis personalizado de tus métricas en tiempo real. Pregúntale sobre sueño, entrenamiento, nutrición o recovery. Usa Gemini si hay key configurada; si no, responde con motor local inteligente. Respuestas adaptadas a tu estado real del día con análisis cruzado de métricas
-- **Recovery Score** (0–100) estilo Whoop · **Hipnograma** de sueño estilo Oura
-- **Insights AIRA dinámicos** — 3 tarjetas de estado (Recovery/Sueño/Actividad) que reflejan tus datos reales, no texto demo
-- **Stats** con apartados dedicados de **Fitness** (pasos, min. activos, calorías) y **Sueño** (etapas + calidad), badges de estado (HRV/SpO₂/Temp/Estrés)
-- **Historial** 7d / 30d / 90d con SVG + flechas de tendencia + caché IndexedDB
-- **Datos reales de Fitbit/Google**: FC, RHR, sueño, pasos, zonas + SpO₂, HRV (RMSSD) y ritmo respiratorio
-- **AIRA Pro** ($5/mes): coach conversacional ilimitado, planes personalizados, tema Synthwave exclusivo, reporte semanal IA (menú comparativo Free/Pro en Perfil)
-- **Emparejamiento un-toque** (PKCE, app compartida) — sin que el usuario cree cuenta de desarrollador
-- **5 temas** con identidad visual fuerte + **1 tema PRO** (Synthwave) · **Bilingüe** ES/EN
-- **PWA** instalable, offline, pull-to-refresh, **safe-area para Dynamic Island**, touch optimizado
-- **Notificaciones** locales + server push (Web Push/VAPID)
-- **App nativa** iOS/Android vía Capacitor (scaffolding listo)
+### Coach AIRA ✦ PRO
+- Análisis personalizado de tus métricas en tiempo real — recovery, sueño, entrenamiento, nutrición, HRV, estrés
+- **Análisis cruzado**: recovery bajo + HRV bajo + sueño pobre = fatiga acumulada → consejo específico por zona (rojo/amarillo/verde)
+- **Respuestas por músculo**: pregunta "qué entreno hoy — piernas" y recibe una rutina adaptada a tu estado real del día
+- **Historial multi-turno**: recuerda los últimos 6 intercambios de la conversación
+- **Tono adaptivo**: energético para entreno, calmado para sueño/recovery, empático para estrés
+- **Off-topic con humor en personaje**: si preguntas fuera de salud, AIRA responde con un chiste fitness
+- **Motor**: Gemini 2.5/2.0 Flash (con cascade automático) · fallback local inteligente sin necesidad de API key
+- **Fix Gemini 2.5**: `thinkingBudget: 0` desactiva el modo "thinking" para respuestas completas en el coach
 
-### 🤖 Coach AIRA — detalle técnico (2026-06-03)
-- **Análisis cruzado de métricas**: recovery bajo + HRV bajo + sueño pobre = fatiga acumulada → consejo ajustado
-- **Tono por tema**: energético para entrenamiento, calmado para sueño/recovery, empático para estrés
-- **Off-topic con humor**: si preguntas algo fuera de salud, AIRA responde con un chiste fitness ("La única pump que monitoreo es la frecuencia cardíaca")
-- **Fallback local robusto**: respuestas inteligentes sin necesidad de API key
-- **Engine**: Gemini 2.0 Flash (configurable vía `GEMINI_MODEL`)
+### Métricas y datos
+- **Recovery Score** (0–100) estilo Whoop con etiquetas cualitativas (verde/amarillo/rojo)
+- **Hipnograma** de sueño estilo Oura con timeline por etapa
+- **FC intraday** + RHR · **HRV (RMSSD)** · **SpO₂** · **Ritmo respiratorio** · **Strain**
+- **Zonas HR** (fat-burn / cardio / pico) con barras de intensidad y minutos activos
+- **Etapas de sueño**: profundo, REM, ligero, despertares + eficiencia
+- **Historial** 7d / 30d / 90d con gráficas SVG + flechas de tendencia · caché IndexedDB
 
-### 🎨 UI / Performance (2026-05-30)
-- **Design token system** — escala 8px, radios, motion tokens (`--dur-fast/base/slow`), easing tokens (`--ease-spring/out/std/settle`) en `:root`
-- **Zero `transition:all`** — todas reemplazadas por propiedades específicas; cero `cubic-bezier` raw fuera de las definiciones de tokens
-- **Apple touch feel** — active states con spring-back solo en touch (`@media hover:none`), indicador dot animado en bottom nav, pull-to-refresh con pop-in spring
-- **`-webkit-font-smoothing: antialiased`** en body + `font-optical-sizing:auto` en números grandes — texto nativo en iOS/Mac
-- **`contain:layout`** en cards, **`contain:layout paint`** en overlays — repaint aislado por componente
-- **WCAG 2.1 AA** — tablist/tab/tabpanel completo en nav, `:focus-visible` universal, `prefers-reduced-motion` global
-- **Landscape safe areas** — `env(safe-area-inset-left/right)` en header, content y nav
-- **~60KB menos** de payload — fuentes Oxanium y Electrolize eliminadas (no se usaban)
+### Google Health API (migración completada)
+- Autenticación OAuth 2.0 con Google (token exchange server-side vía `/api/google/token`)
+- **Fuente activa**: `FitbitSource` ↔ `GoogleHealthSource` — intercambiables con una línea
+- Todos los endpoints implementados: HR intraday, RHR, steps, sleep, SpO₂, HRV, BR, active zone minutes, calories
+- Polling rápido (30s) y lento (5min) ambos tienen implementación Google
+- Historial de fechas desde Google Health API
 
-### 🧩 Sistema de widgets (nuevo)
-- **Long-press** en cualquier widget → modo edición estilo iPhone (animación jiggle + badge × para eliminar)
-- **Drag & drop** para reordenar widgets (touch y mouse) — orden persiste entre sesiones
-- **Resize** por widget: badge ⊞ alterna entre ancho completo (2 col) y medio (1 col)
-- **Tarjeta +** siempre visible para reactivar widgets ocultos
-- **Grid proporcional**: todos los widgets se estiran para ocupar la misma altura por fila, sin espacios muertos
-- **Widgets enriquecidos**: cada métrica tiene barras de zona, sub-métricas secundarias y botón `?` con explicación
+### UI / Animaciones
+- **Sistema de tokens completo** — escala 8px, motion tokens (`--dur-fast/base/slow`), easing tokens (`--ease-spring/out/std/settle`)
+- **Zero `transition:all`** · **Zero `cubic-bezier` raw** fuera de las definiciones de tokens
+- **Race condition en Daily Rings resuelta** — flag `_drAnimInProgress` bloquea `updateDailyRings()` durante stagger
+- **Apple touch feel** — spring-back solo en touch, indicador de nav animado, pull-to-refresh con pop-in
+- **`contain:layout`** en cards · **`contain:layout paint`** en overlays · `will-change` donde aplica
+- **WCAG 2.1 AA** — tablist completo, `:focus-visible` universal, `prefers-reduced-motion` global
+
+### Widget system
+- **Long-press** → modo edición estilo iPhone (jiggle + badge ×)
+- **Drag & drop** para reordenar (touch y mouse) — persiste entre sesiones
+- **Resize** por widget (1 col / 2 col)
+- **Tarjeta +** para reactivar widgets ocultos
+
+### Plataforma
+- **PWA** instalable · offline · pull-to-refresh · safe-area para Dynamic Island
+- **Bilingüe** ES / EN con paridad total
+- **Notificaciones** — push local + server push (Web Push / VAPID) · cron diario 08:00
+- **App nativa** iOS/Android vía Capacitor (scaffolding listo — ver `CAPACITOR.md`)
 
 ## 🏗️ Arquitectura
 
-Frontend vivo: **`public/app.html`** — SPA en JS vanilla con OAuth client-side, IndexedDB y charts SVG. Next.js sirve la SPA y aporta las **API routes** (`app/api/*`). El coach es la primera pieza que consume el backend (`/api/coach`).
-
 ```
-public/app.html          ← el único frontend (SPA, OAuth, IndexedDB, charts, chat AIRA)
+public/app.html          ← único frontend (SPA vanilla, OAuth, IndexedDB, charts SVG, chat AIRA)
 public/{sw.js,manifest}  ← PWA
-app/api/coach            ← proxy del coach IA (Gemini, key solo en server) + fallback local
-app/api/*                ← push, fitbit proxy, auth, prefs
-lib/{push,fitbit,supabase}.ts · supabase/migrations/ · capacitor.config.ts
+app/api/coach/           ← proxy coach IA (Gemini + fallback local, key solo server-side)
+app/api/google/token/    ← token exchange Google OAuth (añade client_secret server-side)
+app/api/{push,fitbit,auth,user}/
+lib/{push,fitbit,supabase}.ts
+supabase/migrations/
+capacitor.config.ts
 ```
 
-> Ver **`CLAUDE.md`** (referencia técnica) y **`HANDOFF.md`** (estado actual + próximos pasos).
+### Capa de datos (`public/app.html`)
+
+```js
+const FitbitSource      = { id:'fitbit',  oauth:{...}, ep:{...} }  // Fitbit Web API
+const GoogleHealthSource = { id:'google', oauth:{...}, ep:{...} }  // Google Health API v4
+let HS = FitbitSource;  // ← fuente activa (restaurada desde localStorage.fb_provider)
+```
+
+Migrar a Google = ya está implementado. `localStorage.setItem('fb_provider','google')` activa el path Google completo.
+
+> Ver `CLAUDE.md` (referencia técnica) y `HANDOFF.md` (estado de sprint + próximos pasos).
+> Ver `MIGRATION.md` para el runbook completo de la migración Fitbit → Google (deadline: sep 2026).
 
 ## 🚀 Quickstart
 
 ```bash
-source ~/.nvm/nvm.sh   # nvm
-nvm use                # Node 20+
+source ~/.nvm/nvm.sh && nvm use   # Node 20+
 npm install
-npm run dev            # http://localhost:3000  (redirige a /app.html)
+npm run dev                        # http://localhost:3000  →  /app.html
+npm run typecheck                  # tsc --noEmit (correr antes de cada PR)
 ```
 
-## 🔌 Conectar tu Fitbit
+## 🔌 Conectar tu Fitbit Air
 
-- **Un-toque (recomendado):** registra UNA app Fitbit tipo **"Client"** con PKCE, pega su Client ID en `SHARED_CLIENT_ID` (en `app.html`) → los usuarios solo tocan "Conectar" (sin cuenta de dev). Pide acceso **Intraday** para HR en vivo.
-- **Manual (fallback):** "Opciones avanzadas" → el usuario pega el Client ID de su propia app "Personal".
+El Fitbit Air sincroniza datos a través de **Google Health API**:
 
-## ⚙️ Variables de entorno (todas opcionales; sin ellas todo cae a fallback/demo)
+1. Configura el Fitbit Air en la **app Fitbit** (iOS/Android)
+2. En Fitbit app → Settings → **Connected Apps** → activa sincronización con Google
+3. Abre la app → toca **Conectar con Google** → autoriza los scopes de salud
+4. Los datos aparecen en tiempo real (polling cada 30s / 5min para sueño)
 
-| Variable | Para qué | Dónde sacarla |
+## ⚙️ Variables de entorno
+
+Todas en Vercel → Settings → Environment Variables.
+
+| Variable | Requerida | Para qué |
 |---|---|---|
-| `GEMINI_API_KEY` | Activa el coach IA real (si falta → fallback local) | aistudio.google.com (gratis, sin tarjeta) |
-| `GEMINI_MODEL` | Modelo (default `gemini-2.0-flash`) | — |
-| Supabase / VAPID | Server push, prefs en nube | ver `PUSH.md` |
-
-En código: `SHARED_CLIENT_ID` (pairing un-toque) y `DEV_FITBIT_IDS` (Pro gratis para devs) en `public/app.html`.
+| `GOOGLE_CLIENT_ID` | ✅ | OAuth Google (mismo que en `GoogleHealthSource.clientId`) |
+| `GOOGLE_CLIENT_SECRET` | ✅ | Token exchange server-side Google |
+| `GEMINI_API_KEY` | Opcional | Coach IA real (sin key → fallback local) |
+| `GEMINI_MODEL` | Opcional | Modelo (default `gemini-2.0-flash`) |
+| `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` | Opcional | Server push |
+| Supabase vars | Opcional | Prefs en nube, webhooks |
 
 ## 📦 Stack
 
-Next.js 15 · TypeScript · Tailwind · Supabase · Fitbit OAuth 2.0 (PKCE) · Gemini API · Capacitor · Web Push
+Next.js 15 · TypeScript · Tailwind · Supabase · Google Health API · Google OAuth 2.0 · Gemini API · Capacitor · Web Push
 
-## 📚 Docs
+## 📚 Docs internas
 
 | Archivo | Para qué |
 |---|---|
-| `CLAUDE.md` | Referencia técnica (sistemas de app.html, endpoints, convenciones) |
-| `HANDOFF.md` | Estado actual, qué falta, cómo continuar |
-| `PUSH.md` | Server push (✅ desplegado) — VAPID/deploy/cron |
+| `CLAUDE.md` | Referencia técnica (arquitectura, endpoints, convenciones de código) |
+| `HANDOFF.md` | Estado del sprint, PRs, bugs conocidos, qué hacer ahora |
+| `MIGRATION.md` | Runbook Fitbit → Google Health API (deadline sep 2026) |
+| `PUSH.md` | Server push (VAPID, deploy, cron) |
 | `CAPACITOR.md` | Build nativo iOS/Android |
 
 ## 🧪 Scripts
 
 ```bash
-npm run dev         # dev server
+npm run dev         # servidor de desarrollo
 npm run build       # next build
 npm run typecheck   # tsc --noEmit
 npm run cap:sync    # sincronizar web → nativo (Capacitor)
 npm run db:push     # aplicar migraciones Supabase
 ```
 
-## 📍 Estado
+## 📍 Estado (2026-06-04)
 
-Todo el código en `main` y desplegado en Vercel. Último sprint (2026-06-03): **Coach AIRA pasó a ser exclusivo PRO** con paywall integrado, **insights dinámicos** basados en datos reales del usuario (ya no texto demo), mejoras en calidad de respuestas del coach y fix del error de conexión. Pendiente de **activación/infra** (no de código): pegar key gratis de Gemini, registrar la app Client de Fitbit, conectar Stripe para cobros reales PRO, y el build nativo (`CAPACITOR.md`). Ver `HANDOFF.md`.
+Todo el código en `main`, desplegado en Vercel. Sprint actual completado:
+
+- ✅ **Google Health API** — integración completa auditada y corregida (active zone minutes, sleep efficiency/wakes, sub-métricas)
+- ✅ **Coach AIRA** — fix Gemini 2.5 (respuestas completas), historial multi-turno, métricas enriquecidas, system prompt expert-level
+- ✅ **Animaciones** — 11 bugs resueltos (race condition rings, z-index modales, conflictos CSS, tokenización completa)
+- ✅ **Merge `fix/aira-critical-bugs`** (Jorge) — integrado con resolución de conflictos
+
+**Pendiente de infra** (no de código): conectar Stripe para cobros PRO reales · build nativo (`CAPACITOR.md`) · verificación OAuth de Google Health scopes (gratis pero lenta — iniciar ya).
 
 ---
 
-Hecho por [@iFrodo7](https://github.com/iFrodo7) · 🤖 con [Claude Code](https://claude.com/claude-code)
+Hecho por [@iFrodo7](https://github.com/iFrodo7) · colaborador [@Jorge-Contreras06](https://github.com/Jorge-Contreras06) · 🤖 con [Claude Code](https://claude.com/claude-code)
