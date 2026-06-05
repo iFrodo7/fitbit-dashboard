@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%"   stop-color="#020810"/>
+    <stop offset="100%" stop-color="#0a1828"/>
+  </linearGradient>
+    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%"   stop-color="#00f5ff"/>
+    <stop offset="100%" stop-color="#7b2fff"/>
+  </linearGradient>
+    <filter id="glow-lg" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="16" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+    <filter id="glow-sm" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="6" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+    <linearGradient id="vignette" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%"   stop-color="#00f5ff" stop-opacity="0.14"/>
+      <stop offset="70%"  stop-color="#00f5ff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Decorative background rings -->
+  <circle cx="1060" cy="70"  r="310" fill="none" stroke="#00f5ff" stroke-width="1" opacity="0.05"/>
+  <circle cx="1060" cy="70"  r="220" fill="none" stroke="#00f5ff" stroke-width="1" opacity="0.08"/>
+  <circle cx="140"  cy="570" r="210" fill="none" stroke="#7b2fff" stroke-width="1" opacity="0.06"/>
+  <circle cx="140"  cy="570" r="140" fill="none" stroke="#7b2fff" stroke-width="1" opacity="0.04"/>
+
+  <!-- Subtle grid -->
+  <line x1="0" y1="0" x2="0" y2="630" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="100" y1="0" x2="100" y2="630" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="200" y1="0" x2="200" y2="630" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="300" y1="0" x2="300" y2="630" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="400" y1="0" x2="400" y2="630" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="500" y1="0" x2="500" y2="630" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="600" y1="0" x2="600" y2="630" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="700" y1="0" x2="700" y2="630" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="800" y1="0" x2="800" y2="630" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="900" y1="0" x2="900" y2="630" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="1000" y1="0" x2="1000" y2="630" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="1100" y1="0" x2="1100" y2="630" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="1200" y1="0" x2="1200" y2="630" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+  <line x1="0" y1="0" x2="1200" y2="0" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="0" y1="90" x2="1200" y2="90" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="0" y1="180" x2="1200" y2="180" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="0" y1="270" x2="1200" y2="270" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="0" y1="360" x2="1200" y2="360" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="0" y1="450" x2="1200" y2="450" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="0" y1="540" x2="1200" y2="540" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+    <line x1="0" y1="630" x2="1200" y2="630" stroke="#00f5ff" stroke-width="0.5" opacity="0.04"/>
+
+  <!-- Top accent glow -->
+  <ellipse cx="600" cy="0" rx="460" ry="210" fill="url(#vignette)"/>
+
+  <!-- Center icon (320×320) -->
+  <g transform="translate(600,268) scale(0.625) translate(-256,-256)">
+    <circle cx="256" cy="256" r="180" fill="none" stroke="#00f5ff1a" stroke-width="20"/>
+    <circle cx="256" cy="256" r="180" fill="none" stroke="url(#ring)" stroke-width="20"
+            stroke-linecap="round" stroke-dasharray="850 1131"
+            transform="rotate(-90 256 256)" filter="url(#glow-lg)" opacity="0.95"/>
+    <g filter="url(#glow-lg)" fill="none" stroke="url(#ring)" stroke-width="34"
+       stroke-linecap="round" stroke-linejoin="round">
+      <path d="M188 346 L256 176 L324 346"/>
+      <path d="M214 282 H298"/>
+    </g>
+  </g>
+
+  <!-- AIRA wordmark -->
+  <text x="600" y="472" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="700" font-size="96" letter-spacing="24" fill="#00f5ff"
+        filter="url(#glow-sm)">AIRA</text>
+
+  <!-- Tagline -->
+  <text x="600" y="518" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="300" font-size="20" letter-spacing="6" fill="#00f5ffaa">BIOMETRIC DASHBOARD</text>
+
+  <!-- Metrics subtitle -->
+  <text x="600" y="560" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="300" font-size="15" letter-spacing="3" fill="#00f5ff55">Recovery · Sleep · Heart Rate · Strain · Steps</text>
+
+  <!-- Bottom accent line -->
+  <rect x="545" y="594" width="110" height="2" rx="1" fill="#00f5ff" opacity="0.45"/>
+</svg>

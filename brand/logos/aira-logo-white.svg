@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360">
+  <defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="5" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter></defs>
+  <g transform="translate(300,148) scale(0.3125) translate(-256,-256)">
+    <circle cx="256" cy="256" r="180" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="20"/>
+    <circle cx="256" cy="256" r="180" fill="none" stroke="white" stroke-width="20"
+            stroke-linecap="round" stroke-dasharray="850 1131"
+            transform="rotate(-90 256 256)" filter="url(#glow)" opacity="0.9"/>
+    <g filter="url(#glow)" fill="none" stroke="white" stroke-width="34"
+       stroke-linecap="round" stroke-linejoin="round">
+      <path d="M188 346 L256 176 L324 346"/>
+      <path d="M214 282 H298"/>
+    </g>
+  </g>
+  <text x="300" y="270" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="700" font-size="56" letter-spacing="14" fill="white">AIRA</text>
+  <text x="300" y="302" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="300" font-size="13" letter-spacing="5" fill="rgba(255,255,255,0.6)">BIOMETRIC DASHBOARD</text>
+</svg>

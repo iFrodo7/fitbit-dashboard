@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 500" width="850" height="500">
+  <rect width="850" height="500" fill="#020810"/>
+  <text x="425" y="42" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" letter-spacing="5" font-weight="400" fill="white" opacity="0.3">AIRA — COLOR PALETTE</text>
+  
+  <!-- Futuristic column -->
+  <rect x="41" y="68"  width="144" height="108" rx="8" fill="#00f5ff"/>
+  <text x="113" y="196" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#00f5ff" letter-spacing="0.5" font-weight="600">#00F5FF</text>
+
+  <rect x="41" y="212" width="144" height="68" rx="8" fill="#7b2fff"/>
+  <text x="113" y="298" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#7b2fff" letter-spacing="0.5" font-weight="600">#7B2FFF</text>
+
+  <rect x="41" y="314" width="144" height="48" rx="8"
+        fill="#020810" stroke="#00f5ff" stroke-width="1" stroke-opacity="0.35"/>
+  <text x="113" y="380" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" fill="white" opacity="0.4" letter-spacing="0.5">#020810</text>
+
+  <text x="113" y="426" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#00f5ff" letter-spacing="2" font-weight="600">FUTURISTIC</text>
+  <line x1="41" y1="442" x2="185" y2="442" stroke="#00f5ff" stroke-width="2" stroke-opacity="0.5"/>
+  <text x="113" y="468" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" fill="#00f5ff88" letter-spacing="0.5">Accent · Secondary · BG</text>
+  <!-- Neon Noir column -->
+  <rect x="197" y="68"  width="144" height="108" rx="8" fill="#ff2d78"/>
+  <text x="269" y="196" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#ff2d78" letter-spacing="0.5" font-weight="600">#FF2D78</text>
+
+  <rect x="197" y="212" width="144" height="68" rx="8" fill="#bd00ff"/>
+  <text x="269" y="298" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#bd00ff" letter-spacing="0.5" font-weight="600">#BD00FF</text>
+
+  <rect x="197" y="314" width="144" height="48" rx="8"
+        fill="#0a0010" stroke="#ff2d78" stroke-width="1" stroke-opacity="0.35"/>
+  <text x="269" y="380" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" fill="white" opacity="0.4" letter-spacing="0.5">#0A0010</text>
+
+  <text x="269" y="426" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#ff2d78" letter-spacing="2" font-weight="600">NEON NOIR</text>
+  <line x1="197" y1="442" x2="341" y2="442" stroke="#ff2d78" stroke-width="2" stroke-opacity="0.5"/>
+  <text x="269" y="468" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" fill="#ff2d7888" letter-spacing="0.5">Accent · Secondary · BG</text>
+  <!-- Shinobi column -->
+  <rect x="353" y="68"  width="144" height="108" rx="8" fill="#7ab0d0"/>
+  <text x="425" y="196" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#7ab0d0" letter-spacing="0.5" font-weight="600">#7AB0D0</text>
+
+  <rect x="353" y="212" width="144" height="68" rx="8" fill="#c0d0e0"/>
+  <text x="425" y="298" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#c0d0e0" letter-spacing="0.5" font-weight="600">#C0D0E0</text>
+
+  <rect x="353" y="314" width="144" height="48" rx="8"
+        fill="#0c1520" stroke="#7ab0d0" stroke-width="1" stroke-opacity="0.35"/>
+  <text x="425" y="380" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" fill="white" opacity="0.4" letter-spacing="0.5">#0C1520</text>
+
+  <text x="425" y="426" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#7ab0d0" letter-spacing="2" font-weight="600">SHINOBI</text>
+  <line x1="353" y1="442" x2="497" y2="442" stroke="#7ab0d0" stroke-width="2" stroke-opacity="0.5"/>
+  <text x="425" y="468" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" fill="#7ab0d088" letter-spacing="0.5">Accent · Secondary · BG</text>
+  <!-- Minecraft column -->
+  <rect x="509" y="68"  width="144" height="108" rx="8" fill="#6aff3a"/>
+  <text x="581" y="196" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#6aff3a" letter-spacing="0.5" font-weight="600">#6AFF3A</text>
+
+  <rect x="509" y="212" width="144" height="68" rx="8" fill="#ffaa00"/>
+  <text x="581" y="298" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#ffaa00" letter-spacing="0.5" font-weight="600">#FFAA00</text>
+
+  <rect x="509" y="314" width="144" height="48" rx="8"
+        fill="#0a1220" stroke="#6aff3a" stroke-width="1" stroke-opacity="0.35"/>
+  <text x="581" y="380" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" fill="white" opacity="0.4" letter-spacing="0.5">#0A1220</text>
+
+  <text x="581" y="426" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#6aff3a" letter-spacing="2" font-weight="600">MINECRAFT</text>
+  <line x1="509" y1="442" x2="653" y2="442" stroke="#6aff3a" stroke-width="2" stroke-opacity="0.5"/>
+  <text x="581" y="468" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" fill="#6aff3a88" letter-spacing="0.5">Accent · Secondary · BG</text>
+  <!-- Bloom column -->
+  <rect x="665" y="68"  width="144" height="108" rx="8" fill="#e85c8a"/>
+  <text x="737" y="196" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#e85c8a" letter-spacing="0.5" font-weight="600">#E85C8A</text>
+
+  <rect x="665" y="212" width="144" height="68" rx="8" fill="#c47fb5"/>
+  <text x="737" y="298" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#c47fb5" letter-spacing="0.5" font-weight="600">#C47FB5</text>
+
+  <rect x="665" y="314" width="144" height="48" rx="8"
+        fill="#1a0a10" stroke="#e85c8a" stroke-width="1" stroke-opacity="0.35"/>
+  <text x="737" y="380" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" fill="white" opacity="0.4" letter-spacing="0.5">#1A0A10</text>
+
+  <text x="737" y="426" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#e85c8a" letter-spacing="2" font-weight="600">BLOOM</text>
+  <line x1="665" y1="442" x2="809" y2="442" stroke="#e85c8a" stroke-width="2" stroke-opacity="0.5"/>
+  <text x="737" y="468" text-anchor="middle"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" fill="#e85c8a88" letter-spacing="0.5">Accent · Secondary · BG</text>
+</svg>

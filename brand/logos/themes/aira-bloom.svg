@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 240" width="500" height="240">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%"   stop-color="#1a0a10"/>
+    <stop offset="100%" stop-color="#280f1a"/>
+  </linearGradient>
+    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%"   stop-color="#e85c8a"/>
+    <stop offset="100%" stop-color="#c47fb5"/>
+  </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="4" result="blur"/>
+    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  </defs>
+  <rect width="500" height="240" fill="url(#bg)" rx="12"/>
+  <g transform="translate(90,120) scale(0.195) translate(-256,-256)">
+    <circle cx="256" cy="256" r="180" fill="none" stroke="#e85c8a1a" stroke-width="20"/>
+    <circle cx="256" cy="256" r="180" fill="none" stroke="url(#ring)" stroke-width="20"
+            stroke-linecap="round" stroke-dasharray="850 1131"
+            transform="rotate(-90 256 256)" filter="url(#glow)" opacity="0.95"/>
+    <g filter="url(#glow)" fill="none" stroke="url(#ring)" stroke-width="34"
+       stroke-linecap="round" stroke-linejoin="round">
+      <path d="M188 346 L256 176 L324 346"/>
+      <path d="M214 282 H298"/>
+    </g>
+  </g>
+  <line x1="150" y1="65" x2="150" y2="175" stroke="#e85c8a33" stroke-width="1"/>
+  <text x="174" y="112"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="700" font-size="40" letter-spacing="10" fill="#e85c8a">AIRA</text>
+  <text x="176" y="140"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="300" font-size="12" letter-spacing="4" fill="#e85c8a99">BIOMETRIC DASHBOARD</text>
+  <rect x="174" y="157" width="58" height="22" rx="5"
+        fill="#e85c8a22" stroke="#e85c8a55" stroke-width="1"/>
+  <text x="184" y="172"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="500" font-size="10" letter-spacing="2" fill="#e85c8acc">BLOOM</text>
+</svg>
