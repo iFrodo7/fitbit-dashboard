@@ -478,6 +478,23 @@ nav {
 .t-shin { background: linear-gradient(160deg, #0c1520, #1a2030); }
 .t-mc   { background: linear-gradient(160deg, #0a1220, #182030); }
 .t-bloom{ background: linear-gradient(160deg, #1a0a10, #280f1a); }
+.t-synth { background: linear-gradient(160deg, #0a0015, #150025); }
+
+/* ── Lang toggle ─────────────────────────────────────────────────── */
+#langBtn {
+  padding: 8px 14px;
+  font-size: 12px;
+  font-family: var(--mono);
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  border-radius: 9999px;
+  border: 1px solid var(--card-b);
+  background: transparent;
+  color: var(--txt-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#langBtn:hover { border-color: rgba(0,245,255,0.3); color: var(--c1); }
 
 /* ── How it works ────────────────────────────────────────────────── */
 #how { background: linear-gradient(180deg, transparent, rgba(123,47,255,0.03) 50%, transparent); }
@@ -704,19 +721,20 @@ footer {
     </a>
 
     <ul class="nav-links">
-      <li><a href="#features">Características</a></li>
-      <li><a href="#innovation">Innovación</a></li>
-      <li><a href="#themes">Temas</a></li>
-      <li><a href="#pricing">Precios</a></li>
-      <li><a href="#how">Cómo funciona</a></li>
+      <li><a href="#features" data-i18n="navFeatures">Características</a></li>
+      <li><a href="#innovation" data-i18n="navInnovation">Innovación</a></li>
+      <li><a href="#themes" data-i18n="navThemes">Temas</a></li>
+      <li><a href="#pricing" data-i18n="navPricing">Precios</a></li>
+      <li><a href="#how" data-i18n="navHow">Cómo funciona</a></li>
     </ul>
 
     <div class="nav-cta">
-      <a href="/privacy.html" class="btn btn-ghost" style="padding:10px 20px;font-size:13px;">Privacidad</a>
-      <a href="/app.html" class="btn btn-primary" style="padding:10px 22px;font-size:13px;">Abrir App →</a>
+      <button id="langBtn" onclick="toggleLang()">EN</button>
+      <a href="/privacy.html" class="btn btn-ghost" style="padding:10px 20px;font-size:13px;" data-i18n="navPrivacy">Privacidad</a>
+      <a href="/app.html" class="btn btn-primary" style="padding:10px 22px;font-size:13px;" data-i18n="navOpenApp">Abrir App →</a>
     </div>
 
-    <button class="nav-burger" id="burgerBtn" aria-label="Menú">
+    <button class="nav-burger" id="burgerBtn" aria-label="Menú" data-i18n-label="navMenu">
       <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <line x1="2" y1="6" x2="20" y2="6"/><line x1="2" y1="11" x2="20" y2="11"/><line x1="2" y1="16" x2="20" y2="16"/>
       </svg>
@@ -725,13 +743,13 @@ footer {
 </nav>
 
 <div class="mobile-menu" id="mobileMenu">
-  <a href="#features"   onclick="closeMobile()">Características</a>
-  <a href="#innovation" onclick="closeMobile()">Innovación</a>
-  <a href="#themes"     onclick="closeMobile()">Temas visuales</a>
-  <a href="#pricing"    onclick="closeMobile()">Precios</a>
-  <a href="#how"        onclick="closeMobile()">Cómo funciona</a>
-  <a href="/privacy.html" onclick="closeMobile()">Privacidad</a>
-  <a href="/app.html" class="btn btn-primary">Abrir App →</a>
+  <a href="#features"   onclick="closeMobile()" data-i18n="navFeatures">Características</a>
+  <a href="#innovation" onclick="closeMobile()" data-i18n="navInnovation">Innovación</a>
+  <a href="#themes"     onclick="closeMobile()" data-i18n="mobileThemes">Temas visuales</a>
+  <a href="#pricing"    onclick="closeMobile()" data-i18n="navPricing">Precios</a>
+  <a href="#how"        onclick="closeMobile()" data-i18n="navHow">Cómo funciona</a>
+  <a href="/privacy.html" onclick="closeMobile()" data-i18n="navPrivacy">Privacidad</a>
+  <a href="/app.html" class="btn btn-primary" data-i18n="navOpenApp">Abrir App →</a>
 </div>
 
 <!-- ── Hero ────────────────────────────────────────────────────────── -->
@@ -742,20 +760,20 @@ footer {
       <!-- Left: text -->
       <div>
         <div class="hero-badge reveal">
-          <span>NUEVO</span> Análisis biométrico con IA
+          <span data-i18n="heroBadgeNew">NUEVO</span> <span data-i18n="heroBadgeText">Análisis biométrico con IA</span>
         </div>
-        <h1 class="hero-h1 reveal reveal-d1">
+        <h1 class="hero-h1 reveal reveal-d1" data-i18n-html="heroH1">
           Tu cuerpo<br>habla.<br><span class="grad">AIRA lo<br>traduce.</span>
         </h1>
-        <p class="hero-p reveal reveal-d2">
+        <p class="hero-p reveal reveal-d2" data-i18n="heroP">
           AIRA conecta con tu cuenta de Google y convierte tus datos biométricos en insights accionables. 7 días de AIRA PRO gratis al registrarte — sin tarjeta cobrada hoy.
         </p>
         <div class="hero-btns reveal reveal-d3">
           <a href="/app.html" class="btn btn-primary" style="font-size:16px;padding:16px 32px;">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 1.75a5.25 5.25 0 110 10.5A5.25 5.25 0 018 2.75zm-.875 2.625v4.375l3.5 2.1.525-.875-3-1.8V5.375h-1.025z"/></svg>
-            Empezar gratis
+            <span data-i18n="heroCTAPrimary">Empezar gratis</span>
           </a>
-          <a href="#features" class="btn btn-ghost" style="font-size:16px;padding:16px 28px;">
+          <a href="#features" class="btn btn-ghost" style="font-size:16px;padding:16px 28px;" data-i18n="heroCTASecondary">
             Ver características
           </a>
         </div>
@@ -763,7 +781,7 @@ footer {
           <div class="hero-social-avatars">
             <span>A</span><span>B</span><span>C</span><span>+</span>
           </div>
-          <span>7 días PRO gratis · Sin tarjeta cobrada hoy · Datos locales</span>
+          <span data-i18n="heroSocial">7 días PRO gratis · Sin tarjeta cobrada hoy · Datos locales</span>
         </div>
       </div>
 
@@ -800,11 +818,11 @@ footer {
             <div class="mf-label">Recovery</div>
             <div class="mf-val">87<sup>%</sup></div>
             <div class="mf-bar"><div class="mf-bar-fill" style="width:87%"></div></div>
-            <div class="mf-delta">↑ +5 vs ayer</div>
+            <div class="mf-delta" data-i18n="mfDeltaYesterday">↑ +5 vs ayer</div>
           </div>
 
           <div class="metric-float mf-2">
-            <div class="mf-label">Sueño</div>
+            <div class="mf-label" data-i18n="mfSleep">Sueño</div>
             <div class="mf-val">7<sup>h 22m</sup></div>
             <div class="mf-bar"><div class="mf-bar-fill" style="width:74%"></div></div>
           </div>
@@ -812,11 +830,11 @@ footer {
           <div class="metric-float mf-3">
             <div class="mf-label">RHR</div>
             <div class="mf-val">54<sup> bpm</sup></div>
-            <div class="mf-delta">↓ Óptimo</div>
+            <div class="mf-delta" data-i18n="mfOptimal">↓ Óptimo</div>
           </div>
 
           <div class="metric-float mf-4">
-            <div class="mf-label">Pasos</div>
+            <div class="mf-label" data-i18n="mfSteps">Pasos</div>
             <div class="mf-val" style="font-size:18px;">8,420</div>
             <div class="mf-bar"><div class="mf-bar-fill" style="width:84%"></div></div>
           </div>
@@ -841,19 +859,19 @@ footer {
     <div class="stats-grid">
       <div class="stat-item reveal">
         <div class="stat-num">6</div>
-        <div class="stat-label">Métricas biométricas</div>
+        <div class="stat-label" data-i18n="statMetrics">Métricas biométricas</div>
       </div>
       <div class="stat-item reveal reveal-d1">
         <div class="stat-num">5</div>
-        <div class="stat-label">Temas visuales únicos</div>
+        <div class="stat-label" data-i18n="statThemes">Temas visuales únicos</div>
       </div>
       <div class="stat-item reveal reveal-d2">
         <div class="stat-num">7D</div>
-        <div class="stat-label">PRO gratis al registrarte</div>
+        <div class="stat-label" data-i18n="statProFree">PRO gratis al registrarte</div>
       </div>
       <div class="stat-item reveal reveal-d3">
         <div class="stat-num">$9.99</div>
-        <div class="stat-label">AIRA PRO / mes después</div>
+        <div class="stat-label" data-i18n="statProPrice">AIRA PRO / mes después</div>
       </div>
     </div>
   </div>
@@ -863,9 +881,9 @@ footer {
 <section id="features">
   <div class="container">
     <div class="section-header reveal">
-      <p class="eyebrow">Lo que monitoreamos</p>
-      <h2 class="section-title" style="margin-top:12px;">Tu salud, en <span>datos reales</span></h2>
-      <p class="section-sub">AIRA lee directamente de la API de Fitbit. Sin intermediarios, sin delays. Datos biométricos precisos actualizados cada 15 segundos.</p>
+      <p class="eyebrow" data-i18n="featEyebrow">Lo que monitoreamos</p>
+      <h2 class="section-title" style="margin-top:12px;" data-i18n-html="featTitle">Tu salud, en <span>datos reales</span></h2>
+      <p class="section-sub" data-i18n="featSub">AIRA lee directamente de la API de Fitbit. Sin intermediarios, sin delays. Datos biométricos precisos actualizados cada 15 segundos.</p>
     </div>
 
     <div class="features-grid">
@@ -876,9 +894,9 @@ footer {
             <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
           </svg>
         </div>
-        <div class="feat-title">Recovery Score</div>
-        <div class="feat-desc">Algoritmo propio que combina RHR, sueño profundo, eficiencia y variabilidad para calcular tu nivel de recuperación de 0 a 100. Sabe si tu cuerpo está listo para el esfuerzo.</div>
-        <div class="feat-tag">IA · Algoritmo propio</div>
+        <div class="feat-title" data-i18n="feat1Title">Recovery Score</div>
+        <div class="feat-desc" data-i18n="feat1Desc">Algoritmo propio que combina RHR, sueño profundo, eficiencia y variabilidad para calcular tu nivel de recuperación de 0 a 100. Sabe si tu cuerpo está listo para el esfuerzo.</div>
+        <div class="feat-tag" data-i18n="feat1Tag">IA · Algoritmo propio</div>
       </div>
 
       <div class="feat-card reveal reveal-d2">
@@ -887,9 +905,9 @@ footer {
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
         </div>
-        <div class="feat-title">Análisis del sueño</div>
-        <div class="feat-desc">Desglose completo por etapas: profundo, REM, ligero y despertar. Eficiencia, tiempo total y tendencias de los últimos 30 días en gráficas interactivas.</div>
-        <div class="feat-tag">Stages · Eficiencia · Tendencias</div>
+        <div class="feat-title" data-i18n="feat2Title">Análisis del sueño</div>
+        <div class="feat-desc" data-i18n="feat2Desc">Desglose completo por etapas: profundo, REM, ligero y despertar. Eficiencia, tiempo total y tendencias de los últimos 30 días en gráficas interactivas.</div>
+        <div class="feat-tag" data-i18n="feat2Tag">Stages · Eficiencia · Tendencias</div>
       </div>
 
       <div class="feat-card reveal reveal-d3">
@@ -898,9 +916,9 @@ footer {
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
         </div>
-        <div class="feat-title">Frecuencia cardíaca</div>
-        <div class="feat-desc">Monitoreo intraday en tiempo real con polling cada 15s. RHR histórico con detección de tendencias. Zonas cardíacas y alertas automáticas de anomalías.</div>
-        <div class="feat-tag">Intraday · RHR · Tiempo real</div>
+        <div class="feat-title" data-i18n="feat3Title">Frecuencia cardíaca</div>
+        <div class="feat-desc" data-i18n="feat3Desc">Monitoreo intraday en tiempo real con polling cada 15s. RHR histórico con detección de tendencias. Zonas cardíacas y alertas automáticas de anomalías.</div>
+        <div class="feat-tag" data-i18n="feat3Tag">Intraday · RHR · Tiempo real</div>
       </div>
 
       <div class="feat-card reveal reveal-d4">
@@ -909,9 +927,9 @@ footer {
             <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
           </svg>
         </div>
-        <div class="feat-title">Actividad & Strain</div>
-        <div class="feat-desc">Pasos, calorías quemadas y tiempo activo por zonas de intensidad. Strain Score diario calculado a partir de tu perfil cardíaco personal para saber cuánto te exigiste realmente.</div>
-        <div class="feat-tag">Pasos · Zonas · Strain</div>
+        <div class="feat-title" data-i18n="feat4Title">Actividad & Strain</div>
+        <div class="feat-desc" data-i18n="feat4Desc">Pasos, calorías quemadas y tiempo activo por zonas de intensidad. Strain Score diario calculado a partir de tu perfil cardíaco personal para saber cuánto te exigiste realmente.</div>
+        <div class="feat-tag" data-i18n="feat4Tag">Pasos · Zonas · Strain</div>
       </div>
 
       <div class="feat-card reveal reveal-d5">
@@ -921,9 +939,9 @@ footer {
             <path d="M19 3l1.5 1.5L22 3l-1.5-1.5L19 3z" stroke-width="1.5"/>
           </svg>
         </div>
-        <div class="feat-title">Coach IA</div>
-        <div class="feat-desc">Tu entrenador personal siempre disponible. Analiza tus patrones y genera recomendaciones accionables: "Tu RHR subió 8 bpm esta semana — considera reducir el entrenamiento mañana."</div>
-        <div class="feat-tag">GPT-4 · Personalizado · Contextual</div>
+        <div class="feat-title" data-i18n="feat5Title">Coach IA</div>
+        <div class="feat-desc" data-i18n="feat5Desc">Tu entrenador personal siempre disponible. Analiza tus patrones y genera recomendaciones accionables: "Tu RHR subió 8 bpm esta semana — considera reducir el entrenamiento mañana."</div>
+        <div class="feat-tag" data-i18n="feat5Tag">GPT-4 · Personalizado · Contextual</div>
       </div>
 
       <div class="feat-card reveal reveal-d6">
@@ -932,9 +950,9 @@ footer {
             <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
           </svg>
         </div>
-        <div class="feat-title">Historial gráfico</div>
-        <div class="feat-desc">Gráficas SVG construidas desde cero: líneas de tendencia, barras apiladas de sueño, HR histórico. Hasta 30 días cacheados en IndexedDB sin gastar el rate limit de Fitbit.</div>
-        <div class="feat-tag">SVG · IndexedDB · 30 días</div>
+        <div class="feat-title" data-i18n="feat6Title">Historial gráfico</div>
+        <div class="feat-desc" data-i18n="feat6Desc">Gráficas SVG construidas desde cero: líneas de tendencia, barras apiladas de sueño, HR histórico. Hasta 30 días cacheados en IndexedDB sin gastar el rate limit de Fitbit.</div>
+        <div class="feat-tag" data-i18n="feat6Tag">SVG · IndexedDB · 30 días</div>
       </div>
 
     </div>
@@ -945,9 +963,9 @@ footer {
 <section id="innovation">
   <div class="container">
     <div class="inno-header reveal">
-      <p class="eyebrow">Por qué innovamos</p>
-      <h2 class="section-title" style="margin-top:12px;">Diferente desde<br><span>los cimientos</span></h2>
-      <p class="section-sub">No somos otra app de fitness. AIRA es una apuesta radical por la privacidad, la personalización extrema y la honestidad técnica.</p>
+      <p class="eyebrow" data-i18n="innoEyebrow">Por qué innovamos</p>
+      <h2 class="section-title" style="margin-top:12px;" data-i18n-html="innoTitle">Diferente desde<br><span>los cimientos</span></h2>
+      <p class="section-sub" data-i18n="innoSub">No somos otra app de fitness. AIRA es una apuesta radical por la privacidad, la personalización extrema y la honestidad técnica.</p>
     </div>
 
     <div class="inno-grid">
@@ -955,26 +973,26 @@ footer {
       <div class="inno-card reveal reveal-d1">
         <div class="inno-num">01</div>
         <div>
-          <div class="inno-title">Tus datos nunca salen de tu dispositivo</div>
-          <div class="inno-desc">AIRA usa IndexedDB local para cachear todo el historial. No hay servidor nuestro recibiendo tus biometría. No hay perfil tuyo en ninguna nube. Sólo tú y Fitbit, con AIRA como intermediario visible y auditable.</div>
-          <div class="inno-pill">Privacy-first · IndexedDB · Sin telemetría</div>
+          <div class="inno-title" data-i18n="inno1Title">Tus datos nunca salen de tu dispositivo</div>
+          <div class="inno-desc" data-i18n="inno1Desc">AIRA usa IndexedDB local para cachear todo el historial. No hay servidor nuestro recibiendo tus biometría. No hay perfil tuyo en ninguna nube. Sólo tú y Fitbit, con AIRA como intermediario visible y auditable.</div>
+          <div class="inno-pill" data-i18n="inno1Pill">Privacy-first · IndexedDB · Sin telemetría</div>
         </div>
       </div>
 
       <div class="inno-card reveal reveal-d2">
         <div class="inno-num">02</div>
         <div>
-          <div class="inno-title">5 mundos visuales que ninguna app tiene</div>
-          <div class="inno-desc">Aether, Neon Noir, Shinobi o Bloom (gratis) — Voxel y Synthwave (PRO). Cada tema redefine completamente la UI: tipografías, colores, sombras, animaciones. Tu dashboard de salud, con tu identidad. Porque los datos también pueden ser bonitos.</div>
-          <div class="inno-pill">CSS Variables · 5 temas · Sin recargas</div>
+          <div class="inno-title" data-i18n="inno2Title">5 mundos visuales que ninguna app tiene</div>
+          <div class="inno-desc" data-i18n="inno2Desc">Aether, Neon Noir, Shinobi o Bloom (gratis) — Voxel y Synthwave (PRO). Cada tema redefine completamente la UI: tipografías, colores, sombras, animaciones. Tu dashboard de salud, con tu identidad. Porque los datos también pueden ser bonitos.</div>
+          <div class="inno-pill" data-i18n="inno2Pill">CSS Variables · 5 temas · Sin recargas</div>
         </div>
       </div>
 
       <div class="inno-card reveal reveal-d3">
         <div class="inno-num">03</div>
         <div>
-          <div class="inno-title">PWA instalable: nativa en iOS, Android y desktop</div>
-          <div class="inno-desc">AIRA es una Progressive Web App con service worker, manifest y soporte de notificaciones push. Se instala como app nativa desde el navegador, sin App Store. Funciona offline con los datos cacheados, incluso sin conexión.</div>
+          <div class="inno-title" data-i18n="inno3Title">PWA instalable: nativa en iOS, Android y desktop</div>
+          <div class="inno-desc" data-i18n="inno3Desc">AIRA es una Progressive Web App con service worker, manifest y soporte de notificaciones push. Se instala como app nativa desde el navegador, sin App Store. Funciona offline con los datos cacheados, incluso sin conexión.</div>
           <div class="inno-pill">PWA · Service Worker · Push notifications</div>
         </div>
       </div>
@@ -982,8 +1000,8 @@ footer {
       <div class="inno-card reveal reveal-d4">
         <div class="inno-num">04</div>
         <div>
-          <div class="inno-title">Preparados para cuando Fitbit Web API se apague</div>
-          <div class="inno-desc">Fitbit cierra su Web API en Septiembre 2026. Mientras otras apps entrarán en pánico, AIRA ya tiene la arquitectura lista: la capa de datos está blindada con un adaptador único. Migrar a Google Health API es reemplazar 30 líneas de código.</div>
+          <div class="inno-title" data-i18n="inno4Title">Preparados para cuando Fitbit Web API se apague</div>
+          <div class="inno-desc" data-i18n="inno4Desc">Fitbit cierra su Web API en Septiembre 2026. Mientras otras apps entrarán en pánico, AIRA ya tiene la arquitectura lista: la capa de datos está blindada con un adaptador único. Migrar a Google Health API es reemplazar 30 líneas de código.</div>
           <div class="inno-pill">Google Health API · Sep 2026 · Adapter pattern</div>
         </div>
       </div>
@@ -996,9 +1014,9 @@ footer {
 <section id="themes">
   <div class="container">
     <div class="section-header reveal">
-      <p class="eyebrow">Identidad visual</p>
-      <h2 class="section-title" style="margin-top:12px;">Elige tu <span>mundo</span></h2>
-      <p class="section-sub" style="margin:16px auto 0;text-align:center;">Cada tema es una experiencia visual completa. Cambia en tiempo real, sin recargar la página.</p>
+      <p class="eyebrow" data-i18n="themesEyebrow">Identidad visual</p>
+      <h2 class="section-title" style="margin-top:12px;" data-i18n-html="themesTitle">Elige tu <span>mundo</span></h2>
+      <p class="section-sub" style="margin:16px auto 0;text-align:center;" data-i18n="themesSub">Cada tema es una experiencia visual completa. Cambia en tiempo real, sin recargar la página.</p>
     </div>
 
     <!-- ── Free themes (4) ── -->
@@ -1021,7 +1039,7 @@ footer {
             <div class="theme-swatch" style="background:#020810;border:1px solid rgba(0,245,255,0.3)"></div>
           </div>
         </div>
-        <div class="theme-card-bot" style="color:rgba(0,245,255,0.6);">Cyan · Violeta · Oscuro</div>
+        <div class="theme-card-bot" style="color:rgba(0,245,255,0.6);" data-i18n="themeAetherColors">Cyan · Violeta · Oscuro</div>
       </div>
 
       <!-- NEON NOIR -->
@@ -1041,7 +1059,7 @@ footer {
             <div class="theme-swatch" style="background:#0a0010;border:1px solid rgba(255,45,120,0.3)"></div>
           </div>
         </div>
-        <div class="theme-card-bot" style="color:rgba(255,45,120,0.6);">Rosa neón · Violeta · Negro</div>
+        <div class="theme-card-bot" style="color:rgba(255,45,120,0.6);" data-i18n="themeNeonColors">Rosa neón · Violeta · Negro</div>
       </div>
 
       <!-- SHINOBI -->
@@ -1054,14 +1072,14 @@ footer {
             <g filter="url(#tsglow)" fill="none" stroke="url(#tsg)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"><path d="M188 346L256 176l68 170"/></g>
           </svg>
           <div class="theme-name" style="color:#7ab0d0;">Shinobi</div>
-          <div class="theme-sub" style="color:#7ab0d0;">気 Monitor de Energía</div>
+          <div class="theme-sub" style="color:#7ab0d0;" data-i18n="themeShinobiSub">気 Monitor de Energía</div>
           <div class="theme-colors">
             <div class="theme-swatch" style="background:#7ab0d0;"></div>
             <div class="theme-swatch" style="background:#c0d0e0;"></div>
             <div class="theme-swatch" style="background:#0c1520;border:1px solid rgba(122,176,208,0.3)"></div>
           </div>
         </div>
-        <div class="theme-card-bot" style="color:rgba(122,176,208,0.7);">Acero · Plata · Índigo</div>
+        <div class="theme-card-bot" style="color:rgba(122,176,208,0.7);" data-i18n="themeShinobiColors">Acero · Plata · Índigo</div>
       </div>
 
       <!-- BLOOM -->
@@ -1074,20 +1092,20 @@ footer {
             <g filter="url(#tbglow)" fill="none" stroke="url(#tbg)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"><path d="M188 346L256 176l68 170"/></g>
           </svg>
           <div class="theme-name" style="color:#e85c8a;">Bloom</div>
-          <div class="theme-sub" style="color:#e85c8a;">Wellness · Rendimiento</div>
+          <div class="theme-sub" style="color:#e85c8a;" data-i18n="themeBloomSub">Wellness · Rendimiento</div>
           <div class="theme-colors">
             <div class="theme-swatch" style="background:#e85c8a;"></div>
             <div class="theme-swatch" style="background:#c47fb5;"></div>
             <div class="theme-swatch" style="background:#1a0a10;border:1px solid rgba(232,92,138,0.3)"></div>
           </div>
         </div>
-        <div class="theme-card-bot" style="color:rgba(232,92,138,0.6);">Rosa · Malva · Borgoña</div>
+        <div class="theme-card-bot" style="color:rgba(232,92,138,0.6);" data-i18n="themeBloomColors">Rosa · Malva · Borgoña</div>
       </div>
 
     </div>
 
     <!-- ── PRO exclusive themes (2) ── -->
-    <div class="themes-pro-sep reveal">★ Exclusivos AIRA PRO</div>
+    <div class="themes-pro-sep reveal" data-i18n="themeProSep">★ Exclusivos AIRA PRO</div>
     <div class="themes-grid-pro">
 
       <!-- VOXEL PRO -->
@@ -1108,12 +1126,12 @@ footer {
             <div class="theme-swatch" style="background:#0a1220;border:1px solid rgba(106,255,58,0.3)"></div>
           </div>
         </div>
-        <div class="theme-card-bot" style="color:rgba(106,255,58,0.6);">Verde píxel · Ámbar · Bosque</div>
-        <a href="/app.html?subscribe=1" class="theme-cta-pro">🔓 Desbloquear con PRO</a>
+        <div class="theme-card-bot" style="color:rgba(106,255,58,0.6);" data-i18n="themeVoxelColors">Verde píxel · Ámbar · Bosque</div>
+        <a href="/app.html?subscribe=1" class="theme-cta-pro" data-i18n="themeUnlock">🔓 Desbloquear con PRO</a>
       </div>
 
       <!-- SYNTHWAVE PRO -->
-      <div class="theme-card theme-card-pro t-synth reveal reveal-d2" style="background:linear-gradient(160deg,#0a0015,#150025);">
+      <div class="theme-card theme-card-pro t-synth reveal reveal-d2">
         <div class="theme-pro-badge">PRO</div>
         <div class="theme-card-top">
           <svg class="theme-icon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1130,8 +1148,8 @@ footer {
             <div class="theme-swatch" style="background:#0a0015;border:1px solid rgba(255,0,255,0.3)"></div>
           </div>
         </div>
-        <div class="theme-card-bot" style="color:rgba(255,0,255,0.6);">Magenta · Cyan · Noche</div>
-        <a href="/app.html?subscribe=1" class="theme-cta-pro">🔓 Desbloquear con PRO</a>
+        <div class="theme-card-bot" style="color:rgba(255,0,255,0.6);" data-i18n="themeSynthColors">Magenta · Cyan · Noche</div>
+        <a href="/app.html?subscribe=1" class="theme-cta-pro" data-i18n="themeUnlock">🔓 Desbloquear con PRO</a>
       </div>
 
     </div>
@@ -1142,76 +1160,76 @@ footer {
 <section id="pricing">
   <div class="container">
     <div class="section-header reveal">
-      <p class="eyebrow">Planes</p>
-      <h2 class="section-title" style="margin-top:12px;text-align:center;">Empieza gratis.<br><span>Desbloquea tu potencial.</span></h2>
-      <p class="section-sub">7 días de AIRA PRO gratis con cualquier cuenta. Sin tarjeta cobrada hoy. Cancela cuando quieras.</p>
+      <p class="eyebrow" data-i18n="pricingEyebrow">Planes</p>
+      <h2 class="section-title" style="margin-top:12px;text-align:center;" data-i18n-html="pricingTitle">Empieza gratis.<br><span>Desbloquea tu potencial.</span></h2>
+      <p class="section-sub" data-i18n="pricingSub">7 días de AIRA PRO gratis con cualquier cuenta. Sin tarjeta cobrada hoy. Cancela cuando quieras.</p>
     </div>
 
     <div class="pricing-grid">
 
       <!-- FREE -->
       <div class="pricing-card reveal reveal-d1">
-        <div class="pc-plan">AIRA FREE</div>
+        <div class="pc-plan" data-i18n="pricingFreePlan">AIRA FREE</div>
         <div class="pc-price">
           <span class="pc-amount">$0</span>
-          <span class="pc-per">/mes</span>
+          <span class="pc-per" data-i18n="pricingPerMonth">/mes</span>
         </div>
-        <div class="pc-note-sub">Para siempre</div>
+        <div class="pc-note-sub" data-i18n="pricingFreeForever">Para siempre</div>
         <div class="pc-divider"></div>
         <ul class="pc-feats">
-          <li><span class="ci">✓</span><span class="ct">4 temas visuales — Aether, Bloom, Neon Noir, Shinobi</span></li>
-          <li><span class="ci">✓</span><span class="ct">Recovery Score diario</span></li>
-          <li><span class="ci">✓</span><span class="ct">Análisis de sueño por etapas</span></li>
-          <li><span class="ci">✓</span><span class="ct">Frecuencia cardíaca en tiempo real</span></li>
-          <li><span class="ci">✓</span><span class="ct">Actividad, pasos y strain básico</span></li>
-          <li><span class="ci">✓</span><span class="ct">Historial últimos 7 días</span></li>
-          <li><span class="ci">✓</span><span class="ct">PWA instalable en cualquier dispositivo</span></li>
+          <li><span class="ci">✓</span><span class="ct" data-i18n="pricingFreeF1">4 temas visuales — Aether, Bloom, Neon Noir, Shinobi</span></li>
+          <li><span class="ci">✓</span><span class="ct" data-i18n="pricingFreeF2">Recovery Score diario</span></li>
+          <li><span class="ci">✓</span><span class="ct" data-i18n="pricingFreeF3">Análisis de sueño por etapas</span></li>
+          <li><span class="ci">✓</span><span class="ct" data-i18n="pricingFreeF4">Frecuencia cardíaca en tiempo real</span></li>
+          <li><span class="ci">✓</span><span class="ct" data-i18n="pricingFreeF5">Actividad, pasos y strain básico</span></li>
+          <li><span class="ci">✓</span><span class="ct" data-i18n="pricingFreeF6">Historial últimos 7 días</span></li>
+          <li><span class="ci">✓</span><span class="ct" data-i18n="pricingFreeF7">PWA instalable en cualquier dispositivo</span></li>
         </ul>
         <div class="pc-cta">
-          <a href="/app.html" class="btn btn-ghost">Empezar gratis</a>
+          <a href="/app.html" class="btn btn-ghost" data-i18n="pricingFreeCTA">Empezar gratis</a>
         </div>
       </div>
 
       <!-- PRO -->
       <div class="pricing-card pricing-card-pro reveal reveal-d2">
-        <div class="pc-badge">★ MÁS POPULAR</div>
-        <div class="pc-plan" style="color:var(--c1);">AIRA PRO</div>
+        <div class="pc-badge" data-i18n="pricingProBadge">★ MÁS POPULAR</div>
+        <div class="pc-plan" style="color:var(--c1);" data-i18n="pricingProPlan">AIRA PRO</div>
         <div class="pc-price">
           <span class="pc-amount pc-amount-pro">$9.99</span>
-          <span class="pc-per">/mes</span>
+          <span class="pc-per" data-i18n="pricingPerMonth">/mes</span>
         </div>
-        <div class="pc-note-sub" style="color:var(--c1);opacity:0.7;">7 días gratis · Sin cargo hoy</div>
+        <div class="pc-note-sub" style="color:var(--c1);opacity:0.7;" data-i18n="pricingProNote">7 días gratis · Sin cargo hoy</div>
         <div class="pc-divider"></div>
         <ul class="pc-feats">
-          <li class="pc-all-free"><span class="ci" style="opacity:0.4;">↑</span><span class="ct" style="opacity:0.5;">Todo lo de FREE, más:</span></li>
+          <li class="pc-all-free"><span class="ci" style="opacity:0.4;">↑</span><span class="ct" style="opacity:0.5;" data-i18n="pricingProAllFree">Todo lo de FREE, más:</span></li>
           <li>
             <span class="ci">🧠</span>
-            <span class="ct"><strong>Coach AIRA ilimitado</strong> — preguntas sin límite, análisis de recovery y sueño, planes de entrenamiento personalizados</span>
+            <span class="ct" data-i18n-html="pricingProF1"><strong>Coach AIRA ilimitado</strong> — preguntas sin límite, análisis de recovery y sueño, planes de entrenamiento personalizados</span>
           </li>
           <li>
             <span class="ci">🎨</span>
-            <span class="ct"><strong>Temas PRO exclusivos</strong> — <strong>Voxel</strong> (Block World) + <strong>Synthwave</strong> (Retrowave 80s) + futuros drops</span>
+            <span class="ct" data-i18n-html="pricingProF2"><strong>Temas PRO exclusivos</strong> — <strong>Voxel</strong> (Block World) + <strong>Synthwave</strong> (Retrowave 80s) + futuros drops</span>
           </li>
           <li>
             <span class="ci">📊</span>
-            <span class="ct"><strong>Reporte semanal IA</strong> — resumen biométrico inteligente generado cada semana</span>
+            <span class="ct" data-i18n-html="pricingProF3"><strong>Reporte semanal IA</strong> — resumen biométrico inteligente generado cada semana</span>
           </li>
           <li>
             <span class="ci">🔔</span>
-            <span class="ct"><strong>Alertas inteligentes</strong> — notificaciones cuando tus métricas lo necesitan</span>
+            <span class="ct" data-i18n-html="pricingProF4"><strong>Alertas inteligentes</strong> — notificaciones cuando tus métricas lo necesitan</span>
           </li>
           <li>
             <span class="ci">⚡</span>
-            <span class="ct"><strong>Historial ilimitado</strong> — accede a todos tus datos sin restricción de fechas</span>
+            <span class="ct" data-i18n-html="pricingProF5"><strong>Historial ilimitado</strong> — accede a todos tus datos sin restricción de fechas</span>
           </li>
           <li>
             <span class="ci">📈</span>
-            <span class="ct"><strong>Strain adaptativo PRO</strong> — baseline personal de 7 días, multiplicador por recovery y overclock dorado al superar tu meta</span>
+            <span class="ct" data-i18n-html="pricingProF6"><strong>Strain adaptativo PRO</strong> — baseline personal de 7 días, multiplicador por recovery y overclock dorado al superar tu meta</span>
           </li>
         </ul>
         <div class="pc-cta">
-          <a href="/app.html?subscribe=1" class="btn btn-primary" style="font-size:15px;padding:16px;">Comenzar prueba gratis →</a>
-          <p class="pc-legal">Sin tarjeta cobrada hoy · Cancela antes de 7 días y no pagas nada · $9.99/mes después</p>
+          <a href="/app.html?subscribe=1" class="btn btn-primary" style="font-size:15px;padding:16px;" data-i18n="pricingProCTA">Comenzar prueba gratis →</a>
+          <p class="pc-legal" data-i18n="pricingProLegal">Sin tarjeta cobrada hoy · Cancela antes de 7 días y no pagas nada · $9.99/mes después</p>
         </div>
       </div>
 
@@ -1223,28 +1241,28 @@ footer {
 <section id="how">
   <div class="container">
     <div class="section-header reveal">
-      <p class="eyebrow">Proceso</p>
-      <h2 class="section-title" style="margin-top:12px;text-align:center;">En marcha en <span>3 pasos</span></h2>
+      <p class="eyebrow" data-i18n="howEyebrow">Proceso</p>
+      <h2 class="section-title" style="margin-top:12px;text-align:center;" data-i18n-html="howTitle">En marcha en <span>3 pasos</span></h2>
     </div>
 
     <div class="steps-grid">
 
       <div class="step reveal reveal-d1">
         <div class="step-num">1</div>
-        <div class="step-title">Inicia sesión con Google</div>
-        <div class="step-desc">Regístrate con tu cuenta de Google en un solo clic. Sin contraseñas adicionales, sin formularios. AIRA conecta de forma segura y solicita acceso a tus datos de salud.</div>
+        <div class="step-title" data-i18n="howStep1Title">Inicia sesión con Google</div>
+        <div class="step-desc" data-i18n="howStep1Desc">Regístrate con tu cuenta de Google en un solo clic. Sin contraseñas adicionales, sin formularios. AIRA conecta de forma segura y solicita acceso a tus datos de salud.</div>
       </div>
 
       <div class="step reveal reveal-d2">
         <div class="step-num">2</div>
-        <div class="step-title">AIRA sincroniza</div>
-        <div class="step-desc">En menos de 3 segundos ves tus datos reales. AIRA hace polling automático cada 15s para cardio, cada 5 min para sueño. El historial se cachea en IndexedDB para carga instantánea.</div>
+        <div class="step-title" data-i18n="howStep2Title">AIRA sincroniza</div>
+        <div class="step-desc" data-i18n="howStep2Desc">En menos de 3 segundos ves tus datos reales. AIRA hace polling automático cada 15s para cardio, cada 5 min para sueño. El historial se cachea en IndexedDB para carga instantánea.</div>
       </div>
 
       <div class="step reveal reveal-d3">
         <div class="step-num">3</div>
-        <div class="step-title">Recibe insights</div>
-        <div class="step-desc">El Coach IA analiza tus patrones y te da recomendaciones personalizadas. Elige tu tema visual favorito, instala la PWA en tu móvil y lleva AIRA a donde vayas.</div>
+        <div class="step-title" data-i18n="howStep3Title">Recibe insights</div>
+        <div class="step-desc" data-i18n="howStep3Desc">El Coach IA analiza tus patrones y te da recomendaciones personalizadas. Elige tu tema visual favorito, instala la PWA en tu móvil y lleva AIRA a donde vayas.</div>
       </div>
 
     </div>
@@ -1256,10 +1274,10 @@ footer {
   <div class="container">
     <div class="platform-inner reveal">
       <div class="platform-text">
-        <p class="eyebrow">Multi-plataforma</p>
-        <h2 class="section-title" style="margin-top:12px;">Una app.<br><span>Todos tus dispositivos.</span></h2>
-        <p class="section-sub">AIRA es una PWA que se adapta perfectamente a cualquier pantalla. Instálala como app nativa sin pasar por el App Store.</p>
-        <a href="/app.html" class="btn btn-primary" style="margin-top:28px;">Abrir AIRA ahora →</a>
+        <p class="eyebrow" data-i18n="platformEyebrow">Multi-plataforma</p>
+        <h2 class="section-title" style="margin-top:12px;" data-i18n-html="platformTitle">Una app.<br><span>Todos tus dispositivos.</span></h2>
+        <p class="section-sub" data-i18n="platformSub">AIRA es una PWA que se adapta perfectamente a cualquier pantalla. Instálala como app nativa sin pasar por el App Store.</p>
+        <a href="/app.html" class="btn btn-primary" style="margin-top:28px;" data-i18n="platformCTA">Abrir AIRA ahora →</a>
       </div>
 
       <div class="platform-icons">
@@ -1268,8 +1286,8 @@ footer {
             <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
           </svg>
           <div class="platform-row-text">
-            <strong>iOS (iPhone &amp; iPad)</strong>
-            <span>Safari → "Agregar a pantalla de inicio" → App nativa</span>
+            <strong data-i18n="platformiOS">iOS (iPhone &amp; iPad)</strong>
+            <span data-i18n="platformiOSDesc">Safari → "Agregar a pantalla de inicio" → App nativa</span>
           </div>
           <div class="pwa-badge">PWA</div>
         </div>
@@ -1279,8 +1297,8 @@ footer {
             <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
           </svg>
           <div class="platform-row-text">
-            <strong>Android</strong>
-            <span>Chrome → "Instalar app" → Icono en homescreen</span>
+            <strong data-i18n="platformAndroid">Android</strong>
+            <span data-i18n="platformAndroidDesc">Chrome → "Instalar app" → Icono en homescreen</span>
           </div>
           <div class="pwa-badge">PWA</div>
         </div>
@@ -1290,8 +1308,8 @@ footer {
             <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
           </svg>
           <div class="platform-row-text">
-            <strong>macOS &amp; Windows</strong>
-            <span>Chrome/Edge → Instalar → App de escritorio</span>
+            <strong data-i18n="platformDesktop">macOS &amp; Windows</strong>
+            <span data-i18n="platformDesktopDesc">Chrome/Edge → Instalar → App de escritorio</span>
           </div>
           <div class="pwa-badge">PWA</div>
         </div>
@@ -1302,8 +1320,8 @@ footer {
             <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
           </svg>
           <div class="platform-row-text">
-            <strong>Cualquier navegador</strong>
-            <span>Funciona en Chrome, Safari, Firefox y Edge</span>
+            <strong data-i18n="platformBrowser">Cualquier navegador</strong>
+            <span data-i18n="platformBrowserDesc">Funciona en Chrome, Safari, Firefox y Edge</span>
           </div>
         </div>
       </div>
@@ -1318,18 +1336,18 @@ footer {
   <div class="cta-ring"></div>
   <div class="container">
     <div class="cta-inner reveal">
-      <p class="eyebrow" style="margin-bottom:20px;">Empieza hoy</p>
-      <h2 class="section-title">Conoce tu cuerpo.<br><span>De verdad.</span></h2>
-      <p class="section-sub" style="margin-top:16px;">Recovery, sueño, frecuencia cardíaca y actividad. Todo en un panel que te habla en tu idioma, con tu estética y sin cobrarte un euro.</p>
+      <p class="eyebrow" style="margin-bottom:20px;" data-i18n="ctaEyebrow">Empieza hoy</p>
+      <h2 class="section-title" data-i18n-html="ctaTitle">Conoce tu cuerpo.<br><span>De verdad.</span></h2>
+      <p class="section-sub" style="margin-top:16px;" data-i18n="ctaSub">Recovery, sueño, frecuencia cardíaca y actividad. Todo en un panel que te habla en tu idioma, con tu estética y sin cobrarte nada.</p>
       <div class="cta-btns">
-        <a href="/app.html?subscribe=1" class="btn btn-primary" style="font-size:17px;padding:18px 40px;">
+        <a href="/app.html?subscribe=1" class="btn btn-primary" style="font-size:17px;padding:18px 40px;" data-i18n="ctaPrimary">
           Comenzar 7 días PRO gratis →
         </a>
-        <a href="#features" class="btn btn-ghost" style="font-size:17px;padding:18px 32px;">
+        <a href="#features" class="btn btn-ghost" style="font-size:17px;padding:18px 32px;" data-i18n="ctaSecondary">
           Ver características
         </a>
       </div>
-      <p class="cta-disclaimer">7 días PRO gratis · Luego $9.99/mes · Cancela cuando quieras · Datos 100% locales</p>
+      <p class="cta-disclaimer" data-i18n="ctaDisclaimer">7 días PRO gratis · Luego $9.99/mes · Cancela cuando quieras · Datos 100% locales</p>
     </div>
   </div>
 </section>
@@ -1348,13 +1366,13 @@ footer {
     </div>
 
     <div class="footer-links">
-      <a href="/app.html">Dashboard</a>
-      <a href="/privacy.html">Privacidad</a>
-      <a href="#features">Características</a>
+      <a href="/app.html" data-i18n="footerDashboard">Dashboard</a>
+      <a href="/privacy.html" data-i18n="navPrivacy">Privacidad</a>
+      <a href="#features" data-i18n="navFeatures">Características</a>
       <a href="https://github.com/iFrodo7/fitbit-dashboard" target="_blank" rel="noopener">GitHub</a>
     </div>
 
-    <div class="footer-copy">© 2025 AIRA Biometric Dashboard · Todos los derechos reservados</div>
+    <div class="footer-copy" data-i18n="footerCopy">© 2026 AIRA Biometric Dashboard · Todos los derechos reservados</div>
   </div>
 </footer>
 
@@ -1393,6 +1411,198 @@ window.addEventListener('scroll', () => {
   const nav = document.getElementById('navbar');
   nav.style.borderBottomColor = window.scrollY > 20 ? 'rgba(0,245,255,0.08)' : 'rgba(255,255,255,0.04)';
 }, { passive: true });
+
+// ── i18n ─────────────────────────────────────────────────────────────
+const T = {
+  es: {
+    navFeatures:'Características', navInnovation:'Innovación', navThemes:'Temas',
+    navPricing:'Precios', navHow:'Cómo funciona', navPrivacy:'Privacidad',
+    navOpenApp:'Abrir App →', navMenu:'Menú', mobileThemes:'Temas visuales',
+    footerDashboard:'Dashboard',
+    heroBadgeNew:'NUEVO', heroBadgeText:'Análisis biométrico con IA',
+    heroH1:'Tu cuerpo<br>habla.<br><span class="grad">AIRA lo<br>traduce.</span>',
+    heroP:'AIRA conecta con tu cuenta de Google y convierte tus datos biométricos en insights accionables. 7 días de AIRA PRO gratis al registrarte — sin tarjeta cobrada hoy.',
+    heroCTAPrimary:'Empezar gratis', heroCTASecondary:'Ver características',
+    heroSocial:'7 días PRO gratis · Sin tarjeta cobrada hoy · Datos locales',
+    mfSleep:'Sueño', mfSteps:'Pasos', mfDeltaYesterday:'↑ +5 vs ayer', mfOptimal:'↓ Óptimo',
+    statMetrics:'Métricas biométricas', statThemes:'Temas visuales únicos',
+    statProFree:'PRO gratis al registrarte', statProPrice:'AIRA PRO / mes después',
+    featEyebrow:'Lo que monitoreamos',
+    featTitle:'Tu salud, en <span>datos reales</span>',
+    featSub:'AIRA lee directamente de la API de Google Health. Sin intermediarios, sin delays. Datos biométricos precisos actualizados cada 15 segundos.',
+    feat1Title:'Recovery Score', feat1Desc:'Algoritmo propio que combina RHR, sueño profundo, eficiencia y variabilidad para calcular tu nivel de recuperación de 0 a 100. Sabe si tu cuerpo está listo para el esfuerzo.', feat1Tag:'IA · Algoritmo propio',
+    feat2Title:'Análisis del sueño', feat2Desc:'Desglose completo por etapas: profundo, REM, ligero y despertar. Eficiencia, tiempo total y tendencias de los últimos 30 días en gráficas interactivas.', feat2Tag:'Stages · Eficiencia · Tendencias',
+    feat3Title:'Frecuencia cardíaca', feat3Desc:'Monitoreo intraday en tiempo real con polling cada 15s. RHR histórico con detección de tendencias. Zonas cardíacas y alertas automáticas de anomalías.', feat3Tag:'Intraday · RHR · Tiempo real',
+    feat4Title:'Actividad & Strain', feat4Desc:'Pasos, calorías quemadas y tiempo activo por zonas de intensidad. Strain Score diario calculado a partir de tu perfil cardíaco personal para saber cuánto te exigiste realmente.', feat4Tag:'Pasos · Zonas · Strain',
+    feat5Title:'Coach IA', feat5Desc:'Tu entrenador personal siempre disponible. Analiza tus patrones y genera recomendaciones accionables: "Tu RHR subió 8 bpm esta semana — considera reducir el entrenamiento mañana."', feat5Tag:'GPT-4 · Personalizado · Contextual',
+    feat6Title:'Historial gráfico', feat6Desc:'Gráficas SVG construidas desde cero: líneas de tendencia, barras apiladas de sueño, HR histórico. Hasta 30 días cacheados en IndexedDB.', feat6Tag:'SVG · IndexedDB · 30 días',
+    innoEyebrow:'Por qué innovamos',
+    innoTitle:'Diferente desde<br><span>los cimientos</span>',
+    innoSub:'No somos otra app de fitness. AIRA es una apuesta radical por la privacidad, la personalización extrema y la honestidad técnica.',
+    inno1Title:'Tus datos nunca salen de tu dispositivo', inno1Desc:'AIRA usa IndexedDB local para cachear todo el historial. No hay servidor nuestro recibiendo tu biometría. No hay perfil tuyo en ninguna nube. Sólo tú y Google Health, con AIRA como intermediario visible y auditable.', inno1Pill:'Privacy-first · IndexedDB · Sin telemetría',
+    inno2Title:'5 mundos visuales que ninguna app tiene', inno2Desc:'Aether, Neon Noir, Shinobi o Bloom (gratis) — Voxel y Synthwave (PRO). Cada tema redefine completamente la UI: tipografías, colores, sombras, animaciones. Tu dashboard de salud, con tu identidad.', inno2Pill:'CSS Variables · 5 temas · Sin recargas',
+    inno3Title:'PWA instalable: nativa en iOS, Android y desktop', inno3Desc:'AIRA es una Progressive Web App con service worker, manifest y soporte de notificaciones push. Se instala como app nativa desde el navegador, sin App Store. Funciona offline con los datos cacheados.',
+    inno4Title:'Preparados para el futuro de los datos de salud', inno4Desc:'La arquitectura de AIRA está blindada con un adaptador único. Migrar entre APIs de salud es reemplazar 30 líneas de código, sin tocar el resto de la app.',
+    themesEyebrow:'Identidad visual',
+    themesTitle:'Elige tu <span>mundo</span>',
+    themesSub:'Cada tema es una experiencia visual completa. Cambia en tiempo real, sin recargar la página.',
+    themeAetherColors:'Cyan · Violeta · Oscuro',
+    themeNeonColors:'Rosa neón · Violeta · Negro',
+    themeShinobiSub:'気 Monitor de Energía', themeShinobiColors:'Acero · Plata · Índigo',
+    themeBloomSub:'Wellness · Rendimiento', themeBloomColors:'Rosa · Malva · Borgoña',
+    themeProSep:'★ Exclusivos AIRA PRO',
+    themeVoxelColors:'Verde píxel · Ámbar · Bosque',
+    themeSynthColors:'Magenta · Cyan · Noche',
+    themeUnlock:'🔓 Desbloquear con PRO',
+    pricingEyebrow:'Planes',
+    pricingTitle:'Empieza gratis.<br><span>Desbloquea tu potencial.</span>',
+    pricingSub:'7 días de AIRA PRO gratis con cualquier cuenta. Sin tarjeta cobrada hoy. Cancela cuando quieras.',
+    pricingFreePlan:'AIRA FREE', pricingPerMonth:'/mes', pricingFreeForever:'Para siempre',
+    pricingFreeF1:'4 temas visuales — Aether, Bloom, Neon Noir, Shinobi',
+    pricingFreeF2:'Recovery Score diario', pricingFreeF3:'Análisis de sueño por etapas',
+    pricingFreeF4:'Frecuencia cardíaca en tiempo real', pricingFreeF5:'Actividad, pasos y strain básico',
+    pricingFreeF6:'Historial últimos 7 días', pricingFreeF7:'PWA instalable en cualquier dispositivo',
+    pricingFreeCTA:'Empezar gratis',
+    pricingProBadge:'★ MÁS POPULAR', pricingProPlan:'AIRA PRO', pricingProNote:'7 días gratis · Sin cargo hoy',
+    pricingProAllFree:'Todo lo de FREE, más:',
+    pricingProF1:'<strong>Coach AIRA ilimitado</strong> — preguntas sin límite, análisis de recovery y sueño, planes de entrenamiento personalizados',
+    pricingProF2:'<strong>Temas PRO exclusivos</strong> — <strong>Voxel</strong> (Block World) + <strong>Synthwave</strong> (Retrowave 80s) + futuros drops',
+    pricingProF3:'<strong>Reporte semanal IA</strong> — resumen biométrico inteligente generado cada semana',
+    pricingProF4:'<strong>Alertas inteligentes</strong> — notificaciones cuando tus métricas lo necesitan',
+    pricingProF5:'<strong>Historial ilimitado</strong> — accede a todos tus datos sin restricción de fechas',
+    pricingProF6:'<strong>Strain adaptativo PRO</strong> — baseline personal de 7 días, multiplicador por recovery y overclock dorado al superar tu meta',
+    pricingProCTA:'Comenzar prueba gratis →',
+    pricingProLegal:'Sin tarjeta cobrada hoy · Cancela antes de 7 días y no pagas nada · $9.99/mes después',
+    howEyebrow:'Proceso',
+    howTitle:'En marcha en <span>3 pasos</span>',
+    howStep1Title:'Inicia sesión con Google', howStep1Desc:'Regístrate con tu cuenta de Google en un solo clic. Sin contraseñas adicionales, sin formularios. AIRA conecta de forma segura y solicita acceso a tus datos de salud.',
+    howStep2Title:'AIRA sincroniza', howStep2Desc:'En menos de 3 segundos ves tus datos reales. AIRA hace polling automático cada 15s para cardio, cada 5 min para sueño. El historial se cachea en IndexedDB para carga instantánea.',
+    howStep3Title:'Recibe insights', howStep3Desc:'El Coach IA analiza tus patrones y te da recomendaciones personalizadas. Elige tu tema visual favorito, instala la PWA en tu móvil y lleva AIRA a donde vayas.',
+    platformEyebrow:'Multi-plataforma',
+    platformTitle:'Una app.<br><span>Todos tus dispositivos.</span>',
+    platformSub:'AIRA es una PWA que se adapta perfectamente a cualquier pantalla. Instálala como app nativa sin pasar por el App Store.',
+    platformCTA:'Abrir AIRA ahora →',
+    platformiOS:'iOS (iPhone & iPad)', platformiOSDesc:'Safari → "Agregar a pantalla de inicio" → App nativa',
+    platformAndroid:'Android', platformAndroidDesc:'Chrome → "Instalar app" → Icono en homescreen',
+    platformDesktop:'macOS & Windows', platformDesktopDesc:'Chrome/Edge → Instalar → App de escritorio',
+    platformBrowser:'Cualquier navegador', platformBrowserDesc:'Funciona en Chrome, Safari, Firefox y Edge',
+    ctaEyebrow:'Empieza hoy',
+    ctaTitle:'Conoce tu cuerpo.<br><span>De verdad.</span>',
+    ctaSub:'Recovery, sueño, frecuencia cardíaca y actividad. Todo en un panel que te habla en tu idioma, con tu estética y sin cobrarte nada.',
+    ctaPrimary:'Comenzar 7 días PRO gratis →', ctaSecondary:'Ver características',
+    ctaDisclaimer:'7 días PRO gratis · Luego $9.99/mes · Cancela cuando quieras · Datos 100% locales',
+    footerCopy:'© 2026 AIRA Biometric Dashboard · Todos los derechos reservados',
+  },
+  en: {
+    navFeatures:'Features', navInnovation:'Innovation', navThemes:'Themes',
+    navPricing:'Pricing', navHow:'How it works', navPrivacy:'Privacy',
+    navOpenApp:'Open App →', navMenu:'Menu', mobileThemes:'Visual Themes',
+    footerDashboard:'Dashboard',
+    heroBadgeNew:'NEW', heroBadgeText:'AI Biometric Analysis',
+    heroH1:'Your body<br>speaks.<br><span class="grad">AIRA<br>translates.</span>',
+    heroP:'AIRA connects to your Google account and turns your biometric data into actionable insights. 7 days of AIRA PRO free when you sign up — no card charged today.',
+    heroCTAPrimary:'Start for free', heroCTASecondary:'See features',
+    heroSocial:'7 days PRO free · No card charged today · Local data',
+    mfSleep:'Sleep', mfSteps:'Steps', mfDeltaYesterday:'↑ +5 vs yesterday', mfOptimal:'↓ Optimal',
+    statMetrics:'Biometric Metrics', statThemes:'Unique Visual Themes',
+    statProFree:'Free PRO on signup', statProPrice:'AIRA PRO / mo after',
+    featEyebrow:'What we monitor',
+    featTitle:'Your health, in <span>real data</span>',
+    featSub:'AIRA reads directly from the Google Health API. No middlemen, no delays. Precise biometric data updated every 15 seconds.',
+    feat1Title:'Recovery Score', feat1Desc:'Proprietary algorithm combining RHR, deep sleep, efficiency and variability to calculate your recovery level from 0 to 100. Knows if your body is ready for effort.', feat1Tag:'AI · Proprietary Algorithm',
+    feat2Title:'Sleep Analysis', feat2Desc:'Complete breakdown by stage: deep, REM, light and awake. Efficiency, total time and 30-day trends in interactive charts.', feat2Tag:'Stages · Efficiency · Trends',
+    feat3Title:'Heart Rate', feat3Desc:'Real-time intraday monitoring with polling every 15s. Historical RHR with trend detection. Heart rate zones and automatic anomaly alerts.', feat3Tag:'Intraday · RHR · Real-time',
+    feat4Title:'Activity & Strain', feat4Desc:'Steps, calories burned and active time by intensity zone. Daily Strain Score calculated from your personal cardiac profile to know how hard you really pushed.', feat4Tag:'Steps · Zones · Strain',
+    feat5Title:'AI Coach', feat5Desc:'Your personal trainer, always available. Analyzes your patterns and generates actionable recommendations: "Your RHR went up 8 bpm this week — consider reducing tomorrow\'s training."', feat5Tag:'GPT-4 · Personalized · Contextual',
+    feat6Title:'Chart History', feat6Desc:'SVG charts built from scratch: trend lines, stacked sleep bars, historical HR. Up to 30 days cached in IndexedDB.', feat6Tag:'SVG · IndexedDB · 30 days',
+    innoEyebrow:'Why we innovate',
+    innoTitle:'Different from<br><span>the ground up</span>',
+    innoSub:'We\'re not another fitness app. AIRA is a radical bet on privacy, extreme personalization and technical honesty.',
+    inno1Title:'Your data never leaves your device', inno1Desc:'AIRA uses local IndexedDB to cache all history. No server of ours receives your biometrics. No profile of yours in any cloud. Just you and Google Health, with AIRA as a visible, auditable intermediary.', inno1Pill:'Privacy-first · IndexedDB · No telemetry',
+    inno2Title:'5 visual worlds no other app has', inno2Desc:'Aether, Neon Noir, Shinobi or Bloom (free) — Voxel and Synthwave (PRO). Each theme completely redefines the UI: typography, colors, shadows, animations. Your health dashboard, with your identity.', inno2Pill:'CSS Variables · 5 themes · No reloads',
+    inno3Title:'Installable PWA: native on iOS, Android and desktop', inno3Desc:'AIRA is a Progressive Web App with service worker, manifest and push notification support. Installs as a native app from the browser, without the App Store. Works offline with cached data.',
+    inno4Title:'Built for the future of health data', inno4Desc:'AIRA\'s architecture is protected by a single adapter layer. Switching between health APIs means replacing 30 lines of code, leaving the rest of the app untouched.',
+    themesEyebrow:'Visual Identity',
+    themesTitle:'Choose your <span>world</span>',
+    themesSub:'Each theme is a complete visual experience. Switch in real time, no page reload.',
+    themeAetherColors:'Cyan · Violet · Dark',
+    themeNeonColors:'Neon Pink · Violet · Black',
+    themeShinobiSub:'気 Energy Monitor', themeShinobiColors:'Steel · Silver · Indigo',
+    themeBloomSub:'Wellness · Performance', themeBloomColors:'Pink · Mauve · Burgundy',
+    themeProSep:'★ Exclusive AIRA PRO',
+    themeVoxelColors:'Pixel Green · Amber · Forest',
+    themeSynthColors:'Magenta · Cyan · Night',
+    themeUnlock:'🔓 Unlock with PRO',
+    pricingEyebrow:'Plans',
+    pricingTitle:'Start free.<br><span>Unlock your potential.</span>',
+    pricingSub:'7 days of AIRA PRO free with any account. No card charged today. Cancel anytime.',
+    pricingFreePlan:'AIRA FREE', pricingPerMonth:'/mo', pricingFreeForever:'Forever',
+    pricingFreeF1:'4 visual themes — Aether, Bloom, Neon Noir, Shinobi',
+    pricingFreeF2:'Daily Recovery Score', pricingFreeF3:'Sleep analysis by stages',
+    pricingFreeF4:'Real-time heart rate', pricingFreeF5:'Activity, steps and basic strain',
+    pricingFreeF6:'Last 7 days history', pricingFreeF7:'PWA installable on any device',
+    pricingFreeCTA:'Start for free',
+    pricingProBadge:'★ MOST POPULAR', pricingProPlan:'AIRA PRO', pricingProNote:'7 days free · No charge today',
+    pricingProAllFree:'Everything in FREE, plus:',
+    pricingProF1:'<strong>Unlimited AIRA Coach</strong> — unlimited questions, recovery and sleep analysis, personalized training plans',
+    pricingProF2:'<strong>Exclusive PRO Themes</strong> — <strong>Voxel</strong> (Block World) + <strong>Synthwave</strong> (Retrowave 80s) + future drops',
+    pricingProF3:'<strong>Weekly AI Report</strong> — intelligent biometric summary generated every week',
+    pricingProF4:'<strong>Smart Alerts</strong> — notifications when your metrics need attention',
+    pricingProF5:'<strong>Unlimited History</strong> — access all your data with no date restrictions',
+    pricingProF6:'<strong>Adaptive PRO Strain</strong> — 7-day personal baseline, recovery multiplier and golden overclock when you beat your goal',
+    pricingProCTA:'Start free trial →',
+    pricingProLegal:'No card charged today · Cancel within 7 days and pay nothing · $9.99/mo after',
+    howEyebrow:'Process',
+    howTitle:'Up in <span>3 steps</span>',
+    howStep1Title:'Sign in with Google', howStep1Desc:'Sign up with your Google account in one click. No extra passwords, no forms. AIRA connects securely and requests access to your health data.',
+    howStep2Title:'AIRA syncs', howStep2Desc:'In less than 3 seconds you see your real data. AIRA auto-polls every 15s for cardio, every 5 min for sleep. History is cached in IndexedDB for instant loading.',
+    howStep3Title:'Get insights', howStep3Desc:'The AI Coach analyzes your patterns and gives you personalized recommendations. Choose your favorite visual theme, install the PWA on your phone and take AIRA everywhere.',
+    platformEyebrow:'Multi-platform',
+    platformTitle:'One app.<br><span>All your devices.</span>',
+    platformSub:'AIRA is a PWA that adapts perfectly to any screen. Install it as a native app without going through the App Store.',
+    platformCTA:'Open AIRA now →',
+    platformiOS:'iOS (iPhone & iPad)', platformiOSDesc:'Safari → "Add to Home Screen" → Native App',
+    platformAndroid:'Android', platformAndroidDesc:'Chrome → "Install app" → Icon on homescreen',
+    platformDesktop:'macOS & Windows', platformDesktopDesc:'Chrome/Edge → Install → Desktop App',
+    platformBrowser:'Any browser', platformBrowserDesc:'Works in Chrome, Safari, Firefox and Edge',
+    ctaEyebrow:'Start today',
+    ctaTitle:'Know your body.<br><span>For real.</span>',
+    ctaSub:'Recovery, sleep, heart rate and activity. All in a dashboard that speaks your language, with your aesthetic and at no cost.',
+    ctaPrimary:'Start 7 days PRO free →', ctaSecondary:'See features',
+    ctaDisclaimer:'7 days PRO free · Then $9.99/mo · Cancel anytime · 100% local data',
+    footerCopy:'© 2026 AIRA Biometric Dashboard · All rights reserved',
+  }
+};
+
+let _lang = localStorage.getItem('aira_lang') || 'es';
+
+function setLang(lang) {
+  _lang = lang;
+  const t = T[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = t[el.dataset.i18n];
+    if (v !== undefined) el.textContent = v;
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const v = t[el.dataset.i18nHtml];
+    if (v !== undefined) el.innerHTML = v;
+  });
+  document.querySelectorAll('[data-i18n-label]').forEach(el => {
+    const v = t[el.dataset.i18nLabel];
+    if (v !== undefined) el.setAttribute('aria-label', v);
+  });
+  document.documentElement.lang = lang;
+  document.title = lang === 'es'
+    ? 'AIRA — Biometric Dashboard | Tu salud, analizada por IA'
+    : 'AIRA — Biometric Dashboard | Your health, analyzed by AI';
+  const btn = document.getElementById('langBtn');
+  if (btn) btn.textContent = lang === 'es' ? 'EN' : 'ES';
+  localStorage.setItem('aira_lang', lang);
+}
+
+function toggleLang() { setLang(_lang === 'es' ? 'en' : 'es'); }
+
+setLang(_lang);
 
 // ── Animated counter on stats ─────────────────────────────────────────
 function animateCount(el, target, suffix, duration = 1200) {
