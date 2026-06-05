@@ -603,6 +603,54 @@ footer {
   *, .hero-ring-anim, .hero-a-anim, .hero-glow, .mf-1, .mf-2, .mf-3, .mf-4, .ecg-path { animation: none !important; }
   .reveal { transition: none !important; opacity: 1; transform: none; }
 }
+
+/* ── Pricing ─────────────────────────────────────────────────────── */
+#pricing { background: linear-gradient(180deg, transparent, rgba(0,245,255,0.02) 50%, transparent); }
+#pricing .section-header { text-align: center; margin-bottom: 56px; }
+#pricing .section-header .section-sub { margin: 16px auto 0; text-align: center; }
+.pricing-grid {
+  display: grid; grid-template-columns: 1fr 1.12fr;
+  gap: 24px; align-items: start;
+  max-width: 860px; margin: 0 auto;
+}
+.pricing-card {
+  background: var(--card); border: 1px solid var(--card-b);
+  border-radius: 20px; padding: 36px;
+  display: flex; flex-direction: column;
+}
+.pricing-card-pro {
+  background: linear-gradient(150deg, rgba(0,245,255,0.05), rgba(123,47,255,0.05));
+  border-color: rgba(0,245,255,0.28);
+  box-shadow: 0 0 48px rgba(0,245,255,0.07), 0 0 0 1px rgba(0,245,255,0.1);
+  position: relative;
+}
+.pc-badge {
+  position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(90deg, var(--c1), var(--c2));
+  color: #000; font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 2.5px; padding: 5px 18px; border-radius: 9999px; white-space: nowrap;
+}
+.pc-plan { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--txt-dim); margin-bottom: 14px; }
+.pc-price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 4px; line-height: 1; }
+.pc-amount { font-family: var(--mono); font-size: 52px; font-weight: 700; color: var(--txt); }
+.pc-amount-pro { background: linear-gradient(135deg, var(--c1), var(--c2)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.pc-per { font-size: 16px; color: var(--txt-dim); align-self: flex-end; padding-bottom: 8px; }
+.pc-note-sub { font-size: 12px; color: var(--txt-sub); margin-bottom: 4px; }
+.pc-divider { height: 1px; background: var(--card-b); margin: 22px 0; }
+.pc-feats { list-style: none; display: flex; flex-direction: column; gap: 11px; flex: 1; margin-bottom: 28px; padding: 0; }
+.pc-feats li { font-size: 13.5px; color: var(--txt-dim); line-height: 1.5; display: flex; gap: 9px; align-items: flex-start; }
+.pc-feats li .ci { flex-shrink: 0; font-size: 15px; margin-top: 1px; }
+.pc-feats li .ct strong { color: var(--txt); font-weight: 600; }
+.pc-feats li .ct { color: var(--txt-dim); }
+.pc-free-check { color: rgba(255,255,255,0.3); font-size: 13px; }
+.pc-all-free { font-style: italic; color: var(--txt-sub) !important; padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.pc-cta { display: flex; flex-direction: column; gap: 10px; }
+.pc-cta .btn { justify-content: center; }
+.pc-legal { text-align: center; font-size: 11px; color: var(--txt-sub); line-height: 1.5; }
+@media (max-width: 640px) {
+  .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+  .pricing-card-pro { margin-top: 20px; }
+}
 </style>
 </head>
 <body>
@@ -630,6 +678,7 @@ footer {
       <li><a href="#features">Características</a></li>
       <li><a href="#innovation">Innovación</a></li>
       <li><a href="#themes">Temas</a></li>
+      <li><a href="#pricing">Precios</a></li>
       <li><a href="#how">Cómo funciona</a></li>
     </ul>
 
@@ -650,6 +699,7 @@ footer {
   <a href="#features"   onclick="closeMobile()">Características</a>
   <a href="#innovation" onclick="closeMobile()">Innovación</a>
   <a href="#themes"     onclick="closeMobile()">Temas visuales</a>
+  <a href="#pricing"    onclick="closeMobile()">Precios</a>
   <a href="#how"        onclick="closeMobile()">Cómo funciona</a>
   <a href="/privacy.html" onclick="closeMobile()">Privacidad</a>
   <a href="/app.html" class="btn btn-primary">Abrir App →</a>
@@ -669,7 +719,7 @@ footer {
           Tu cuerpo<br>habla.<br><span class="grad">AIRA lo<br>traduce.</span>
         </h1>
         <p class="hero-p reveal reveal-d2">
-          AIRA conecta con tu Fitbit y convierte tus datos de recovery, sueño, frecuencia cardíaca y actividad en insights accionables. Privado, gratuito y personalizable.
+          AIRA conecta con tu cuenta de Google y convierte tus datos biométricos en insights accionables. 7 días de AIRA PRO gratis al registrarte — sin tarjeta cobrada hoy.
         </p>
         <div class="hero-btns reveal reveal-d3">
           <a href="/app.html" class="btn btn-primary" style="font-size:16px;padding:16px 32px;">
@@ -684,7 +734,7 @@ footer {
           <div class="hero-social-avatars">
             <span>A</span><span>B</span><span>C</span><span>+</span>
           </div>
-          <span>100% gratuito · Sin registro · Datos locales</span>
+          <span>7 días PRO gratis · Sin tarjeta cobrada hoy · Datos locales</span>
         </div>
       </div>
 
@@ -769,12 +819,12 @@ footer {
         <div class="stat-label">Temas visuales únicos</div>
       </div>
       <div class="stat-item reveal reveal-d2">
-        <div class="stat-num">0€</div>
-        <div class="stat-label">Sin suscripción, siempre</div>
+        <div class="stat-num">7D</div>
+        <div class="stat-label">PRO gratis al registrarte</div>
       </div>
       <div class="stat-item reveal reveal-d3">
-        <div class="stat-num">100%</div>
-        <div class="stat-label">Datos en tu dispositivo</div>
+        <div class="stat-num">$9.99</div>
+        <div class="stat-label">AIRA PRO / mes después</div>
       </div>
     </div>
   </div>
@@ -1028,6 +1078,87 @@ footer {
   </div>
 </section>
 
+<!-- ── Pricing ───────────────────────────────────────────────────────── -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="eyebrow">Planes</p>
+      <h2 class="section-title" style="margin-top:12px;text-align:center;">Empieza gratis.<br><span>Desbloquea tu potencial.</span></h2>
+      <p class="section-sub">7 días de AIRA PRO gratis con cualquier cuenta. Sin tarjeta cobrada hoy. Cancela cuando quieras.</p>
+    </div>
+
+    <div class="pricing-grid">
+
+      <!-- FREE -->
+      <div class="pricing-card reveal reveal-d1">
+        <div class="pc-plan">AIRA FREE</div>
+        <div class="pc-price">
+          <span class="pc-amount">$0</span>
+          <span class="pc-per">/mes</span>
+        </div>
+        <div class="pc-note-sub">Para siempre</div>
+        <div class="pc-divider"></div>
+        <ul class="pc-feats">
+          <li><span class="ci">✓</span><span class="ct">4 temas visuales — Futuristic, Bloom, Neon Noir, Shinobi</span></li>
+          <li><span class="ci">✓</span><span class="ct">Recovery Score diario</span></li>
+          <li><span class="ci">✓</span><span class="ct">Análisis de sueño por etapas</span></li>
+          <li><span class="ci">✓</span><span class="ct">Frecuencia cardíaca en tiempo real</span></li>
+          <li><span class="ci">✓</span><span class="ct">Actividad, pasos y strain básico</span></li>
+          <li><span class="ci">✓</span><span class="ct">Historial últimos 7 días</span></li>
+          <li><span class="ci">✓</span><span class="ct">PWA instalable en cualquier dispositivo</span></li>
+        </ul>
+        <div class="pc-cta">
+          <a href="/app.html" class="btn btn-ghost">Empezar gratis</a>
+        </div>
+      </div>
+
+      <!-- PRO -->
+      <div class="pricing-card pricing-card-pro reveal reveal-d2">
+        <div class="pc-badge">★ MÁS POPULAR</div>
+        <div class="pc-plan" style="color:var(--c1);">AIRA PRO</div>
+        <div class="pc-price">
+          <span class="pc-amount pc-amount-pro">$9.99</span>
+          <span class="pc-per">/mes</span>
+        </div>
+        <div class="pc-note-sub" style="color:var(--c1);opacity:0.7;">7 días gratis · Sin cargo hoy</div>
+        <div class="pc-divider"></div>
+        <ul class="pc-feats">
+          <li class="pc-all-free"><span class="ci" style="opacity:0.4;">↑</span><span class="ct" style="opacity:0.5;">Todo lo de FREE, más:</span></li>
+          <li>
+            <span class="ci">🧠</span>
+            <span class="ct"><strong>Coach AIRA ilimitado</strong> — preguntas sin límite, análisis de recovery y sueño, planes de entrenamiento personalizados</span>
+          </li>
+          <li>
+            <span class="ci">🎨</span>
+            <span class="ct"><strong>Temas PRO exclusivos</strong> — Voxel (block-world) + Synthwave (Retrowave 80s) + futuros drops</span>
+          </li>
+          <li>
+            <span class="ci">📊</span>
+            <span class="ct"><strong>Reporte semanal IA</strong> — resumen biométrico inteligente generado cada semana</span>
+          </li>
+          <li>
+            <span class="ci">🔔</span>
+            <span class="ct"><strong>Alertas inteligentes</strong> — notificaciones cuando tus métricas lo necesitan</span>
+          </li>
+          <li>
+            <span class="ci">⚡</span>
+            <span class="ct"><strong>Historial ilimitado</strong> — accede a todos tus datos sin restricción de fechas</span>
+          </li>
+          <li>
+            <span class="ci">📈</span>
+            <span class="ct"><strong>Strain adaptativo PRO</strong> — baseline personal de 7 días, multiplicador por recovery y overclock dorado al superar tu meta</span>
+          </li>
+        </ul>
+        <div class="pc-cta">
+          <a href="/app.html" class="btn btn-primary" style="font-size:15px;padding:16px;">Comenzar prueba gratis →</a>
+          <p class="pc-legal">Sin tarjeta cobrada hoy · Cancela antes de 7 días y no pagas nada · $9.99/mes después</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <!-- ── How it works ──────────────────────────────────────────────────── -->
 <section id="how">
   <div class="container">
@@ -1138,7 +1269,7 @@ footer {
           Ver características
         </a>
       </div>
-      <p class="cta-disclaimer">Sin registro · Sin suscripción · Datos 100% locales</p>
+      <p class="cta-disclaimer">7 días PRO gratis · Luego $9.99/mes · Cancela cuando quieras · Datos 100% locales</p>
     </div>
   </div>
 </section>
@@ -1222,10 +1353,10 @@ const cIO = new IntersectionObserver((entries) => {
   entries.forEach(e => {
     if (e.isIntersecting) {
       const text = e.target.textContent.trim();
-      if (text === '6')    animateCount(e.target, 6,   '');
-      if (text === '5')    animateCount(e.target, 5,   '');
-      if (text === '0€')   { setTimeout(() => { e.target.textContent = '0€'; }, 400); }
-      if (text === '100%') animateCount(e.target, 100, '%');
+      if (text === '6')     animateCount(e.target, 6,    '');
+      if (text === '5')     animateCount(e.target, 5,    '');
+      if (text === '7D')    { setTimeout(() => { e.target.textContent = '7D'; }, 300); }
+      if (text === '$9.99') { setTimeout(() => { e.target.textContent = '$9.99'; }, 300); }
       cIO.unobserve(e.target);
     }
   });
