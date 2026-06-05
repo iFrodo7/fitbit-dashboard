@@ -694,22 +694,46 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .pv-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--sub);}
 .pv-row:last-child{border-bottom:none;}
 .pv-rlbl{font-size:10px;letter-spacing:1.5px;opacity:0.6;text-transform:uppercase;}
-.pro-card{border-color:var(--ta2);}
-.pro-hd{display:flex;justify-content:space-between;align-items:center;}
-.pro-title{font-size:15px;font-weight:800;letter-spacing:3px;color:var(--ta2);}
-.pro-plan{font-size:9px;font-weight:700;letter-spacing:2px;padding:3px 9px;border-radius:4px;border:1px solid var(--bdr);opacity:0.7;}
-.pro-plan.on{background:var(--ta2);color:var(--bg);border-color:var(--ta2);opacity:1;}
-.pro-sub{font-size:10px;opacity:0.45;letter-spacing:1px;margin:4px 0 12px;}
-.pro-tbl{display:flex;flex-direction:column;gap:1px;background:var(--sub);border:1px solid var(--bdr);border-radius:6px;overflow:hidden;margin-bottom:13px;}
-.pro-row{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:6px;padding:9px 11px;background:var(--bg);align-items:center;}
-.pro-row.head{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;opacity:0.5;}
-.pro-f{font-size:11px;}
-.pro-free{font-size:10px;opacity:0.6;text-align:center;}
-.pro-pro{font-size:10px;text-align:center;color:var(--ta2);font-weight:600;}
-.pro-btn{width:100%;padding:13px;background:var(--ta2);color:var(--bg);border:none;border-radius:6px;font-family:inherit;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:12px;cursor:pointer;transition:opacity 0.2s;-webkit-tap-highlight-color:transparent;}
-.pro-btn:active{opacity:0.7;}
-.pro-btn.owned{background:transparent;color:var(--ta2);border:1px solid var(--ta2);}
-.pro-note{font-size:9px;opacity:0.4;text-align:center;margin-top:8px;line-height:1.5;}
+/* ── AIRA PRO card — redesign ── */
+.pro-card{border-color:var(--ta2);padding:0;overflow:hidden;}
+.pro-hero{position:relative;padding:28px 20px 22px;text-align:center;overflow:hidden;background:linear-gradient(160deg,rgba(var(--ta2-rgb,120,80,255),0.18) 0%,rgba(var(--ta-rgb,0,200,255),0.08) 100%);}
+.pro-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(var(--ta2-rgb,120,80,255),0.22) 0%,transparent 70%);pointer-events:none;}
+.pro-trial-badge{display:inline-flex;align-items:center;gap:5px;background:var(--ta2);color:var(--bg);font-size:10px;font-weight:800;letter-spacing:2px;padding:5px 13px;border-radius:99px;margin-bottom:14px;text-transform:uppercase;box-shadow:0 0 18px rgba(var(--ta2-rgb,120,80,255),0.5);}
+.pro-trial-badge::before{content:'★';}
+.pro-hero-logo{font-size:22px;font-weight:900;letter-spacing:5px;color:var(--ta2);text-shadow:0 0 20px rgba(var(--ta2-rgb,120,80,255),0.6);margin-bottom:6px;}
+.pro-hero-tagline{font-size:11px;opacity:0.55;letter-spacing:1.5px;text-transform:uppercase;}
+.pro-price-row{display:flex;align-items:baseline;justify-content:center;gap:3px;padding:18px 20px 0;}
+.pro-price-free{font-size:13px;font-weight:700;color:var(--ta2);letter-spacing:1px;opacity:0.8;}
+.pro-price-amt{font-size:34px;font-weight:900;color:var(--ta2);line-height:1;letter-spacing:-1px;}
+.pro-price-cur{font-size:16px;font-weight:700;color:var(--ta2);align-self:flex-start;margin-top:6px;}
+.pro-price-period{font-size:13px;opacity:0.5;letter-spacing:1px;}
+.pro-price-then{font-size:9.5px;opacity:0.45;text-align:center;margin:4px 20px 0;letter-spacing:0.5px;}
+.pro-feats{display:flex;flex-direction:column;gap:0;margin:16px 20px 0;border:1px solid rgba(var(--ta2-rgb,120,80,255),0.2);border-radius:10px;overflow:hidden;}
+.pro-feat-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(var(--ta2-rgb,120,80,255),0.04);border-bottom:1px solid rgba(var(--ta2-rgb,120,80,255),0.08);}
+.pro-feat-row:last-child{border-bottom:none;}
+.pro-feat-icon{font-size:15px;flex-shrink:0;width:22px;text-align:center;}
+.pro-feat-text{font-size:11.5px;line-height:1.35;flex:1;}
+.pro-feat-text strong{color:var(--ta2);font-weight:700;}
+.pro-cta-wrap{padding:18px 20px 6px;}
+.pro-btn{width:100%;padding:15px;background:var(--ta2);color:var(--bg);border:none;border-radius:10px;font-family:inherit;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;font-size:12px;cursor:pointer;position:relative;overflow:hidden;transition:transform var(--dur-base) var(--ease-spring),box-shadow var(--dur-base) var(--ease-std);box-shadow:0 4px 24px rgba(var(--ta2-rgb,120,80,255),0.45);-webkit-tap-highlight-color:transparent;}
+.pro-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.18) 50%,transparent 100%);transform:translateX(-100%);transition:transform 0.55s ease;}
+.pro-btn:hover::after{transform:translateX(100%);}
+.pro-btn:active{transform:scale(0.97);}
+.pro-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.pro-btn.owned{background:transparent;color:var(--ta2);border:1.5px solid var(--ta2);box-shadow:none;letter-spacing:1.5px;}
+.pro-btn.owned::after{display:none;}
+.pro-trial-note{font-size:10px;opacity:0.45;text-align:center;margin-top:10px;letter-spacing:0.5px;padding-bottom:18px;}
+.pro-active-bar{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;background:rgba(var(--ta2-rgb,120,80,255),0.08);border-top:1px solid rgba(var(--ta2-rgb,120,80,255),0.15);}
+.pro-active-dot{width:7px;height:7px;border-radius:50%;background:var(--ta2);box-shadow:0 0 6px var(--ta2);animation:pulse-dot 2s ease-in-out infinite;}
+.pro-active-txt{font-size:10px;font-weight:700;color:var(--ta2);letter-spacing:2px;text-transform:uppercase;}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+/* theme RGB vars for glow effects */
+.t-fut  .pro-hero,.t-fut  .pro-feats,.t-fut  .pro-feat-row,.t-fut  .pro-active-bar{--ta2-rgb:123,47,255;--ta-rgb:0,245,255;}
+.t-halo .pro-hero,.t-halo .pro-feats,.t-halo .pro-feat-row,.t-halo .pro-active-bar{--ta2-rgb:189,0,255;--ta-rgb:255,45,120;}
+.t-mc   .pro-hero,.t-mc   .pro-feats,.t-mc   .pro-feat-row,.t-mc   .pro-active-bar{--ta2-rgb:255,170,0;--ta-rgb:106,255,58;}
+.t-naruto .pro-hero,.t-naruto .pro-feats,.t-naruto .pro-feat-row,.t-naruto .pro-active-bar{--ta2-rgb:192,208,224;--ta-rgb:74,106,132;}
+.t-bloom .pro-hero,.t-bloom .pro-feats,.t-bloom .pro-feat-row,.t-bloom .pro-active-bar{--ta2-rgb:196,127,181;--ta-rgb:232,92,138;}
+.t-synth .pro-hero,.t-synth .pro-feats,.t-synth .pro-feat-row,.t-synth .pro-active-bar{--ta2-rgb:255,0,255;--ta-rgb:0,255,255;}
 .pv-connect-btn{width:100%;padding:12px;background:var(--ta);color:var(--bg);border:none;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;border-radius:3px;transition:opacity 0.2s;-webkit-tap-highlight-color:transparent;}
 .pv-connect-btn:active{opacity:0.7;}
 .pv-disconnect-btn{width:100%;padding:11px;background:transparent;color:var(--tneg);border:1px solid var(--tneg);cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;border-radius:3px;transition:opacity 0.2s;margin-top:8px;-webkit-tap-highlight-color:transparent;}
@@ -792,13 +816,20 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 /* Coach PRO paywall */
 @keyframes coAccessFade{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
 .coaccess-enter{animation:coAccessFade 0.22s var(--ease-out) both;}
-.coach-paywall{margin-top:14px;border-top:1px solid var(--sub);padding-top:16px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;}
-.cpw-icon{font-size:26px;opacity:0.7;line-height:1;}
-.cpw-title{font-size:13px;font-weight:700;letter-spacing:3px;color:var(--ta2);text-transform:uppercase;}
-.cpw-desc{font-size:11px;opacity:0.55;line-height:1.65;max-width:300px;letter-spacing:0.3px;}
-.cpw-features{display:flex;flex-direction:column;gap:4px;font-size:10px;opacity:0.4;letter-spacing:0.5px;}
-.cpw-btn{margin-top:4px;padding:11px 24px;background:var(--ta2);color:var(--bg);border:none;border-radius:7px;font-family:inherit;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:12px;cursor:pointer;transition:opacity 0.15s;-webkit-tap-highlight-color:transparent;}
-.cpw-btn:active{opacity:0.75;}
+/* ── Coach PRO paywall — redesign ── */
+.coach-paywall{margin-top:14px;border-top:1px solid var(--sub);padding-top:20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:0;}
+.cpw-trial-badge{display:inline-flex;align-items:center;gap:5px;background:var(--ta2);color:var(--bg);font-size:9px;font-weight:800;letter-spacing:2px;padding:4px 12px;border-radius:99px;margin-bottom:14px;text-transform:uppercase;box-shadow:0 0 14px rgba(var(--ta2-rgb,120,80,255),0.45);}
+.cpw-icon{font-size:32px;line-height:1;margin-bottom:10px;}
+.cpw-title{font-size:14px;font-weight:900;letter-spacing:3px;color:var(--ta2);text-transform:uppercase;margin-bottom:6px;}
+.cpw-desc{font-size:11.5px;opacity:0.6;line-height:1.65;max-width:290px;letter-spacing:0.2px;margin-bottom:14px;}
+.cpw-features{display:flex;flex-direction:column;gap:7px;width:100%;max-width:280px;margin-bottom:18px;}
+.cpw-feat-row{display:flex;align-items:center;gap:9px;text-align:left;font-size:11px;opacity:0.75;}
+.cpw-feat-row span:first-child{font-size:14px;width:20px;text-align:center;flex-shrink:0;}
+.cpw-btn{width:100%;max-width:280px;padding:14px;background:var(--ta2);color:var(--bg);border:none;border-radius:10px;font-family:inherit;font-weight:800;letter-spacing:2px;text-transform:uppercase;font-size:12px;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(var(--ta2-rgb,120,80,255),0.4);transition:transform var(--dur-base) var(--ease-spring),box-shadow var(--dur-base) var(--ease-std);-webkit-tap-highlight-color:transparent;}
+.cpw-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);transform:translateX(-100%);transition:transform 0.55s ease;}
+.cpw-btn:hover::after{transform:translateX(100%);}
+.cpw-btn:active{transform:scale(0.97);}
+.cpw-trial-note{font-size:9.5px;opacity:0.38;margin-top:10px;letter-spacing:0.3px;line-height:1.5;}
 .cchat{margin-top:14px;border-top:1px solid var(--sub);padding-top:12px;}
 .cchat-thread{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;margin-bottom:10px;overscroll-behavior:contain;}
 .cchat-thread:empty{display:none;}
@@ -1854,15 +1885,20 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .dr-daytype.pro-lock:active{opacity:0.38;}
 /* Pro upsell sheet */
 #pro-ring-sheet{position:fixed;inset:0;z-index:8000;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);animation:achOvIn 0.2s ease both;}
-.prs-card{background:var(--bg2,#0d1117);border:1px solid var(--ta);border-radius:20px 20px 0 0;padding:28px 24px 40px;display:flex;flex-direction:column;gap:14px;}
-.prs-icon{font-size:32px;text-align:center;}
-.prs-title{font-size:17px;font-weight:800;letter-spacing:1px;color:var(--ta);text-align:center;}
-.prs-desc{font-size:13px;color:var(--txt);opacity:0.72;text-align:center;line-height:1.55;}
-.prs-feat{display:flex;flex-direction:column;gap:8px;}
-.prs-feat-row{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--txt);opacity:0.8;}
-.prs-feat-row span:first-child{font-size:16px;width:22px;text-align:center;}
-.prs-cta{width:100%;padding:14px;background:var(--ta);color:var(--bg);border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:4px;}
-.prs-skip{text-align:center;font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,0.35);cursor:pointer;padding:8px;font-family:'IBM Plex Mono',monospace;}
+.prs-card{background:var(--bg2,#0d1117);border:1px solid var(--ta2,var(--ta));border-radius:20px 20px 0 0;padding:28px 24px 44px;display:flex;flex-direction:column;align-items:center;gap:0;text-align:center;}
+.prs-trial-badge{display:inline-flex;align-items:center;gap:5px;background:var(--ta2,var(--ta));color:var(--bg);font-size:9px;font-weight:800;letter-spacing:2px;padding:4px 13px;border-radius:99px;margin-bottom:16px;text-transform:uppercase;box-shadow:0 0 14px rgba(var(--ta2-rgb,120,80,255),0.5);}
+.prs-icon{font-size:36px;text-align:center;margin-bottom:10px;}
+.prs-title{font-size:18px;font-weight:900;letter-spacing:1px;color:var(--ta2,var(--ta));text-align:center;margin-bottom:6px;}
+.prs-desc{font-size:12.5px;color:var(--txt);opacity:0.65;text-align:center;line-height:1.6;margin-bottom:18px;max-width:300px;}
+.prs-feat{display:flex;flex-direction:column;gap:9px;width:100%;max-width:300px;margin-bottom:20px;}
+.prs-feat-row{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--txt);opacity:0.82;text-align:left;}
+.prs-feat-row span:first-child{font-size:16px;width:22px;text-align:center;flex-shrink:0;}
+.prs-cta{width:100%;max-width:300px;padding:15px;background:var(--ta2,var(--ta));color:var(--bg);border:none;border-radius:11px;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 4px 22px rgba(var(--ta2-rgb,120,80,255),0.45);transition:transform var(--dur-base) var(--ease-spring);-webkit-tap-highlight-color:transparent;}
+.prs-cta::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);transform:translateX(-100%);transition:transform 0.55s ease;}
+.prs-cta:hover::after{transform:translateX(100%);}
+.prs-cta:active{transform:scale(0.97);}
+.prs-trial-note{font-size:9.5px;opacity:0.38;margin-top:10px;letter-spacing:0.3px;}
+.prs-skip{text-align:center;font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);cursor:pointer;padding:12px 8px 0;font-family:'IBM Plex Mono',monospace;}
 /* Overclock: ring supera el 100% de la meta */
 .dr-item.overclock .dr-lbl{color:#ffd700;}
 .dr-item.overclock .dr-val{color:#ffd700;font-weight:800;}
@@ -3992,15 +4028,17 @@ body.t-synth::after{content:'';position:fixed;inset:0;
       </div>
       <!-- AIRA coach — PRO only -->
       <div class="coach-paywall" id="coach-paywall" style="display:none">
-        <div class="cpw-icon">✦</div>
+        <div class="cpw-trial-badge" id="cpw-trial-badge">★ 7 DÍAS GRATIS</div>
+        <div class="cpw-icon">🧠</div>
         <div class="cpw-title" id="cpw-title">COACH AIRA PRO</div>
         <div class="cpw-desc" id="cpw-desc">Análisis personalizado de tus métricas, planes de entrenamiento y respuestas en tiempo real basadas en tus datos de hoy.</div>
-        <button class="cpw-btn" id="cpw-btn" onclick="proAction()">DESBLOQUEAR · PRO</button>
         <div class="cpw-features" id="cpw-features">
-          <span id="cpw-f1">· Preguntas ilimitadas a AIRA</span>
-          <span id="cpw-f2">· Análisis de sueño y recovery</span>
-          <span id="cpw-f3">· Planes de entrenamiento personalizados</span>
+          <div class="cpw-feat-row"><span>💬</span><span id="cpw-f1">Preguntas ilimitadas a AIRA</span></div>
+          <div class="cpw-feat-row"><span>😴</span><span id="cpw-f2">Análisis de sueño y recovery</span></div>
+          <div class="cpw-feat-row"><span>🏋️</span><span id="cpw-f3">Planes de entrenamiento personalizados</span></div>
         </div>
+        <button class="cpw-btn" id="cpw-btn" onclick="proAction()">COMENZAR PRUEBA GRATIS</button>
+        <div class="cpw-trial-note" id="cpw-trial-note">Sin cargo por 7 días · $9.99/mes después · Cancela cuando quieras</div>
       </div>
       <div class="cchat" id="coach-chat" style="display:none">
         <div class="cchat-thread" id="cchat-thread"></div>
@@ -4378,16 +4416,33 @@ body.t-synth::after{content:'';position:fixed;inset:0;
       </div>
     </div>
 
-    <!-- AIRA Pro — plan comparison -->
-    <div class="card hv-card pro-card">
-      <div class="pro-hd">
-        <div class="pro-title" id="pro-title">AIRA PRO</div>
-        <div class="pro-plan" id="pro-plan">GRATIS</div>
+    <!-- AIRA Pro — subscription card -->
+    <div class="card hv-card pro-card" id="pro-card">
+      <!-- Hero -->
+      <div class="pro-hero" id="pro-hero">
+        <div class="pro-trial-badge" id="pro-trial-badge">7 DÍAS GRATIS</div>
+        <div class="pro-hero-logo">AIRA PRO</div>
+        <div class="pro-hero-tagline" id="pro-hero-tagline">Tu coach biométrico personal</div>
       </div>
-      <div class="pro-sub" id="pro-sub">$5/mes · cancela cuando quieras</div>
-      <div class="pro-tbl" id="pro-tbl"></div>
-      <button class="pro-btn" id="pro-btn" onclick="proAction()">HAZTE PRO · $5/MES</button>
-      <div class="pro-note" id="pro-note"></div>
+      <!-- Price -->
+      <div class="pro-price-row" id="pro-price-row">
+        <span class="pro-price-cur">$</span>
+        <span class="pro-price-amt">9.99</span>
+        <span class="pro-price-period" id="pro-price-period">&nbsp;/ mes</span>
+      </div>
+      <div class="pro-price-then" id="pro-price-then">Luego $9.99/mes · Sin cargo los primeros 7 días</div>
+      <!-- Features -->
+      <div class="pro-feats" id="pro-feats"></div>
+      <!-- CTA -->
+      <div class="pro-cta-wrap">
+        <button class="pro-btn" id="pro-btn" onclick="proAction()" id="pro-btn">COMENZAR PRUEBA GRATIS</button>
+        <div class="pro-trial-note" id="pro-trial-note">Sin tarjeta cobrada hoy · Cancela antes de 7 días y no pagas nada</div>
+      </div>
+      <!-- Active state bar (hidden when free) -->
+      <div class="pro-active-bar" id="pro-active-bar" style="display:none">
+        <span class="pro-active-dot"></span>
+        <span class="pro-active-txt" id="pro-active-txt">PLAN PRO ACTIVO</span>
+      </div>
     </div>
 
     <!-- Appearance -->
@@ -4766,15 +4821,20 @@ const T = {
     coach_paywall_f1: '· Preguntas ilimitadas a AIRA',
     coach_paywall_f2: '· Análisis de sueño y recovery',
     coach_paywall_f3: '· Planes de entrenamiento personalizados',
-    pro_title: 'AIRA PRO', pro_sub: '$5/mes · cancela cuando quieras', pro_free_lbl: 'GRATIS',
-    pro_cta: 'HAZTE PRO · $5/MES', pro_manage: 'GESTIONAR PLAN',
-    pro_note_off: 'Pago real próximamente (Stripe). Por ahora es modo prueba.',
-    pro_note_on: 'Plan PRO activo (modo prueba).',
+    pro_trial_badge: '7 DÍAS GRATIS',
+    pro_hero_tagline: 'Tu coach biométrico personal',
+    pro_price_period: '/ mes',
+    pro_price_then: 'Luego $9.99/mes · Sin cargo los primeros 7 días',
+    pro_cta_free: 'COMENZAR PRUEBA GRATIS',
+    pro_cta_manage: 'GESTIONAR SUSCRIPCIÓN',
+    pro_trial_note: 'Sin tarjeta cobrada hoy · Cancela antes de 7 días y no pagas nada',
+    pro_active_txt: 'PLAN PRO ACTIVO',
     pro_features: [
-      { f:'Coach AIRA', free:'—', pro:'✓ Ilimitado + planes' },
-      { f:'Temas', free:'4 mundos', pro:'Exclusivos + 1/mes' },
-      { f:'Reporte semanal IA', free:'—', pro:'✓' },
-      { f:'Métricas y vistas', free:'Todas', pro:'Todas' },
+      { icon:'🧠', text:'<strong>Coach AIRA ilimitado</strong> — análisis y planes personalizados' },
+      { icon:'🎨', text:'<strong>Temas exclusivos</strong> — Voxel, Synthwave y futuros lanzamientos' },
+      { icon:'📊', text:'<strong>Reporte semanal IA</strong> — resumen de tu semana biométrica' },
+      { icon:'🔔', text:'<strong>Alertas inteligentes</strong> — notificaciones basadas en tus métricas' },
+      { icon:'⚡', text:'<strong>Historial ilimitado</strong> — accede a todos tus datos históricos' },
     ],
     i1t: '◆ RECUPERACIÓN', i2t: '◆ SUEÑO', i3t: '◆ ACTIVIDAD',
     i1x: 'Tu HRV subió 6ms desde ayer. Señales sólidas de recuperación. Día ideal para entrenamiento moderado-alto.',
@@ -5006,15 +5066,20 @@ const T = {
     coach_paywall_f1: '· Unlimited questions to AIRA',
     coach_paywall_f2: '· Sleep & recovery analysis',
     coach_paywall_f3: '· Personalized training plans',
-    pro_title: 'AIRA PRO', pro_sub: '$5/mo · cancel anytime', pro_free_lbl: 'FREE',
-    pro_cta: 'GO PRO · $5/MO', pro_manage: 'MANAGE PLAN',
-    pro_note_off: 'Real billing coming soon (Stripe). For now it\'s test mode.',
-    pro_note_on: 'PRO plan active (test mode).',
+    pro_trial_badge: '7 DAYS FREE',
+    pro_hero_tagline: 'Your personal biometric coach',
+    pro_price_period: '/ month',
+    pro_price_then: 'Then $9.99/mo · No charge for the first 7 days',
+    pro_cta_free: 'START FREE TRIAL',
+    pro_cta_manage: 'MANAGE SUBSCRIPTION',
+    pro_trial_note: 'No charge today · Cancel within 7 days and pay nothing',
+    pro_active_txt: 'PRO PLAN ACTIVE',
     pro_features: [
-      { f:'AIRA coach', free:'—', pro:'✓ Unlimited + plans' },
-      { f:'Themes', free:'4 worlds', pro:'Exclusive + 1/mo' },
-      { f:'Weekly AI report', free:'—', pro:'✓' },
-      { f:'Metrics & views', free:'All', pro:'All' },
+      { icon:'🧠', text:'<strong>Unlimited AIRA Coach</strong> — personalized analysis & plans' },
+      { icon:'🎨', text:'<strong>Exclusive themes</strong> — Voxel, Synthwave & future drops' },
+      { icon:'📊', text:'<strong>Weekly AI report</strong> — your biometric week in review' },
+      { icon:'🔔', text:'<strong>Smart alerts</strong> — notifications based on your metrics' },
+      { icon:'⚡', text:'<strong>Unlimited history</strong> — access all your historical data' },
     ],
     i1t: '◆ RECOVERY', i2t: '◆ SLEEP', i3t: '◆ ACTIVITY',
     i1x: 'Your HRV rose 6ms since yesterday. Strong recovery signals. Ideal day for moderate-high intensity training.',
@@ -7275,18 +7340,22 @@ function renderCoachAccess() {
   }
   if (!pro) {
     const t = T[lang] || T['es'];
+    const badge = document.getElementById('cpw-trial-badge');
     const title = document.getElementById('cpw-title');
     const desc  = document.getElementById('cpw-desc');
     const btn   = document.getElementById('cpw-btn');
+    const note  = document.getElementById('cpw-trial-note');
     const f1    = document.getElementById('cpw-f1');
     const f2    = document.getElementById('cpw-f2');
     const f3    = document.getElementById('cpw-f3');
+    if (badge) badge.textContent = '★ ' + (t.pro_trial_badge || '7 DÍAS GRATIS');
     if (title) title.textContent = t.coach_paywall_title || 'COACH AIRA PRO';
     if (desc)  desc.textContent  = t.coach_paywall_desc  || '';
-    if (btn)   btn.textContent   = t.coach_paywall_btn   || 'UNLOCK · GO PRO';
-    if (f1)    f1.textContent    = t.coach_paywall_f1    || '';
-    if (f2)    f2.textContent    = t.coach_paywall_f2    || '';
-    if (f3)    f3.textContent    = t.coach_paywall_f3    || '';
+    if (btn)   btn.textContent   = t.pro_cta_free || 'COMENZAR PRUEBA GRATIS';
+    if (note)  note.textContent  = t.pro_trial_note || '';
+    if (f1)    f1.textContent    = t.coach_paywall_f1 || '';
+    if (f2)    f2.textContent    = t.coach_paywall_f2 || '';
+    if (f3)    f3.textContent    = t.coach_paywall_f3 || '';
   }
 }
 
@@ -7294,10 +7363,20 @@ const COACH_FREE_DAILY = 3;
 // Paste the 2 developers' Fitbit user-ids here → Pro free forever (no payment).
 const DEV_FITBIT_IDS = [];
 function isPro() {
+  // Never trust localStorage alone — checkProStatus() validates with server on every load.
+  // DEV_FITBIT_IDS can be used for dev accounts only.
   if (localStorage.getItem('fb_pro') === '1') return true;
   const uid = localStorage.getItem('fb_uid');
   return !!(uid && DEV_FITBIT_IDS.includes(uid));
 }
+// On fresh install or when there's no confirmed Stripe subscription, ensure FREE state.
+(function clearStaleProState() {
+  // If we have fb_pro=1 but no aira_uid that has a subscription, clear it.
+  // checkProStatus() will re-validate with the server on load and restore if valid.
+  if (!localStorage.getItem('aira_uid') && localStorage.getItem('fb_pro') === '1') {
+    localStorage.removeItem('fb_pro');
+  }
+})();
 // Free coach quota tracked per day in localStorage. NOTE: client-side only for
 // Phase 1; real enforcement moves into /api/coach (per user) once accounts land.
 function coachQuotaLeft() {
@@ -7323,21 +7402,98 @@ function updateCoachQuotaUI() {
   el.textContent = typeof t.coach_quota_lbl === 'function' ? t.coach_quota_lbl(left, COACH_FREE_DAILY) : `${left}/${COACH_FREE_DAILY}`;
   el.className = 'cchat-quota' + (left === 0 ? ' empty' : '');
 }
-// Phase 1: test toggle. Phase 2 replaces this with Stripe Checkout + webhook → Supabase.
-function proAction() {
-  if (isPro()) {
-    const msg = lang === 'es' ? '¿Cancelar AIRA Pro? (modo prueba)' : 'Cancel AIRA Pro? (test mode)';
-    if (confirm(msg)) {
+// ── Stable anonymous user ID (persists across sessions) ──
+function getAiraUid() {
+  let uid = localStorage.getItem('aira_uid');
+  if (!uid) {
+    uid = crypto.randomUUID ? crypto.randomUUID() : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
+    localStorage.setItem('aira_uid', uid);
+  }
+  return uid;
+}
+
+// Check PRO status from server (validates Stripe subscription is still active)
+async function checkProStatus() {
+  try {
+    const uid = getAiraUid();
+    const res = await fetch('/api/stripe/status?user_id=' + uid);
+    const data = await res.json();
+    if (data.plan === 'pro' && data.status === 'active') {
+      localStorage.setItem('fb_pro', '1');
+    } else {
       localStorage.removeItem('fb_pro');
-      renderProfile(); renderDailyRings(); renderCoachAccess(); refreshProThemeCards();
-      window._drAnimDone = true; setTimeout(animateDailyRings, 60);
-      showToast(lang === 'es' ? 'Plan cancelado' : 'Plan cancelled', 'info');
     }
-  } else {
-    localStorage.setItem('fb_pro', '1');
-    renderProfile(); renderDailyRings(); renderCoachAccess(); refreshProThemeCards();
-    window._drAnimDone = true; setTimeout(animateDailyRings, 60);
-    showToast(lang === 'es' ? 'AIRA Pro activado (prueba)' : 'AIRA Pro activated (test)', 'success');
+  } catch (e) { /* offline — trust localStorage */ }
+}
+
+async function proAction() {
+  // Require login before subscribing
+  if (!localStorage.getItem('fb_tok')) {
+    const msg = lang === 'es'
+      ? 'Conecta tu cuenta primero para suscribirte a AIRA PRO'
+      : 'Connect your account first to subscribe to AIRA PRO';
+    showToast(msg, 'info');
+    // Navigate to profile view and open connect modal
+    setTimeout(() => { openModal && openModal(); }, 400);
+    return;
+  }
+  if (isPro()) {
+    // Open Stripe customer portal to manage / cancel
+    try {
+      const btn = document.getElementById('pro-btn') || document.getElementById('cpw-btn');
+      if (btn) btn.textContent = lang === 'es' ? 'Abriendo portal...' : 'Opening portal...';
+      const res = await fetch('/api/stripe/portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: getAiraUid() }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        showToast(lang === 'es' ? 'No se encontró suscripción activa' : 'No active subscription found', 'error');
+      }
+    } catch (e) {
+      showToast(lang === 'es' ? 'Error al abrir portal' : 'Error opening portal', 'error');
+    }
+    return;
+  }
+  // Redirect to Stripe Checkout
+  try {
+    const btns = ['pro-btn','cpw-btn'].map(id => document.getElementById(id)).filter(Boolean);
+    btns.forEach(b => { b.disabled = true; b.textContent = lang === 'es' ? 'Redirigiendo...' : 'Redirecting...'; });
+    const res = await fetch('/api/stripe/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: getAiraUid() }),
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      throw new Error(data.error || 'checkout failed');
+    }
+  } catch (e) {
+    showToast(lang === 'es' ? 'Error al iniciar pago: ' + e.message : 'Payment error: ' + e.message, 'error');
+    ['pro-btn','cpw-btn'].map(id => document.getElementById(id)).filter(Boolean).forEach(b => { b.disabled = false; });
+    renderProBtnLabel();
+  }
+}
+
+function renderProBtnLabel() {
+  const pro = isPro();
+  const t = T[lang] || T['es'];
+  const proBtn = document.getElementById('pro-btn');
+  if (proBtn) {
+    proBtn.textContent = pro ? (t.pro_cta_manage || 'GESTIONAR SUSCRIPCIÓN') : (t.pro_cta_free || 'COMENZAR PRUEBA GRATIS');
+    proBtn.classList.toggle('owned', pro);
+    proBtn.disabled = false;
+  }
+  const cpwBtn = document.getElementById('cpw-btn');
+  if (cpwBtn) {
+    cpwBtn.textContent = pro ? (t.pro_cta_manage || 'GESTIONAR SUSCRIPCIÓN') : (t.coach_paywall_btn || 'UNLOCK · GO PRO');
+    cpwBtn.classList.toggle('owned', pro);
+    cpwBtn.disabled = false;
   }
 }
 function refreshProThemeCards() {
@@ -7380,28 +7536,30 @@ function onProThemeClick(themeId) {
 
 function _showProThemeUpsell(themeId) {
   var es = lang === 'es';
+  var t = T[lang] || T['es'];
   var themes = {
-    mc:    { icon: '⛏', name: 'VOXEL',     desc: es ? 'Mundo pixelado de bloques. Donde cada dato es un bloque de construcción.' : 'Pixel block world. Where every metric is a building block.' },
-    synth: { icon: '▶', name: 'SYNTHWAVE', desc: es ? 'Retrowave 80s. Neones, grillas y datos que brillan en la oscuridad.'       : '80s retrowave. Neons, grids, and data that glows in the dark.' }
+    mc:    { icon: '⛏️', name: 'VOXEL',     desc: es ? 'Mundo pixelado de bloques. Donde cada dato es un bloque de construcción.' : 'Pixel block world. Where every metric is a building block.' },
+    synth: { icon: '🌆', name: 'SYNTHWAVE', desc: es ? 'Retrowave 80s. Neones, grillas y datos que brillan en la oscuridad.' : '80s retrowave. Neons, grids, and data that glows in the dark.' }
   };
   var th = themes[themeId] || { icon: '✦', name: 'PRO', desc: es ? 'Desbloquea todos los temas premium.' : 'Unlock all premium themes.' };
   var old = document.getElementById('pro-ring-sheet'); if (old) old.remove();
   var sh = document.createElement('div'); sh.id = 'pro-ring-sheet';
+  var trialBadge = t.pro_trial_badge || (es ? '7 DÍAS GRATIS' : '7 DAYS FREE');
+  var ctaText    = t.pro_cta_free   || (es ? 'COMENZAR PRUEBA GRATIS' : 'START FREE TRIAL');
+  var trialNote  = t.pro_trial_note || (es ? 'Sin cargo por 7 días · $9.99/mes después' : 'No charge for 7 days · $9.99/mo after');
   sh.innerHTML = '<div class="prs-card">'
+    + '<div class="prs-trial-badge">★ ' + trialBadge + '</div>'
     + '<div class="prs-icon">' + th.icon + '</div>'
     + '<div class="prs-title">' + th.name + ' · PRO</div>'
     + '<div class="prs-desc">' + th.desc + '</div>'
     + '<div class="prs-feat">'
-      + '<div class="prs-feat-row"><span>🎨</span><span>' + (es ? 'Temas visuales exclusivos PRO' : 'Exclusive PRO visual themes') + '</span></div>'
-      + '<div class="prs-feat-row"><span>🤖</span><span>' + (es ? 'Coach AIRA ilimitado' : 'Unlimited AIRA coach') + '</span></div>'
-      + '<div class="prs-feat-row"><span>⚡</span><span>' + (es ? 'Metas adaptativas y más' : 'Adaptive goals and more') + '</span></div>'
+      + '<div class="prs-feat-row"><span>🎨</span><span>' + (es ? 'Temas exclusivos: Voxel, Synthwave y más' : 'Exclusive themes: Voxel, Synthwave & more') + '</span></div>'
+      + '<div class="prs-feat-row"><span>🧠</span><span>' + (es ? 'Coach AIRA ilimitado con planes personalizados' : 'Unlimited AIRA coach with personalized plans') + '</span></div>'
+      + '<div class="prs-feat-row"><span>📊</span><span>' + (es ? 'Reporte semanal IA y alertas inteligentes' : 'Weekly AI report and smart alerts') + '</span></div>'
     + '</div>'
-    + '<button class="prs-cta" onclick="document.getElementById(\'pro-ring-sheet\').remove();proAction();">'
-      + (es ? 'ACTIVAR AIRA PRO' : 'ACTIVATE AIRA PRO')
-    + '</button>'
-    + '<div class="prs-skip" onclick="document.getElementById(\'pro-ring-sheet\').remove();">'
-      + (es ? 'AHORA NO' : 'NOT NOW')
-    + '</div>'
+    + '<button class="prs-cta" onclick="document.getElementById(\'pro-ring-sheet\').remove();proAction();">' + ctaText + '</button>'
+    + '<div class="prs-trial-note">' + trialNote + '</div>'
+    + '<div class="prs-skip" onclick="document.getElementById(\'pro-ring-sheet\').remove();">' + (es ? 'AHORA NO' : 'NOT NOW') + '</div>'
   + '</div>';
   sh.addEventListener('click', function(e) { if (e.target === sh) sh.remove(); });
   document.body.appendChild(sh);
@@ -7409,18 +7567,50 @@ function _showProThemeUpsell(themeId) {
 
 function renderProUI() {
   const t = T[lang], pro = isPro();
-  setText('pro-title', t.pro_title); setText('pro-sub', t.pro_sub);
-  const plan = document.getElementById('pro-plan');
-  if (plan) { plan.textContent = pro ? 'PRO' : t.pro_free_lbl; plan.classList.toggle('on', pro); }
-  const tbl = document.getElementById('pro-tbl');
-  if (tbl) {
-    let h = `<div class="pro-row head"><div></div><div class="pro-free">${t.pro_free_lbl}</div><div class="pro-pro">PRO</div></div>`;
-    (t.pro_features || []).forEach(r => { h += `<div class="pro-row"><div class="pro-f">${r.f}</div><div class="pro-free">${r.free}</div><div class="pro-pro">${r.pro}</div></div>`; });
-    tbl.innerHTML = h;
+
+  // Trial badge & tagline
+  const badge = document.getElementById('pro-trial-badge');
+  if (badge) badge.textContent = (pro ? '' : '★ ') + (t.pro_trial_badge || '7 DÍAS GRATIS');
+  const tagline = document.getElementById('pro-hero-tagline');
+  if (tagline) tagline.textContent = t.pro_hero_tagline || '';
+
+  // Price row — hide when PRO active
+  const priceRow = document.getElementById('pro-price-row');
+  const priceThen = document.getElementById('pro-price-then');
+  const heroBadge = document.getElementById('pro-trial-badge');
+  if (priceRow) priceRow.style.display = pro ? 'none' : '';
+  if (priceThen) priceThen.style.display = pro ? 'none' : '';
+  if (heroBadge) heroBadge.style.display = pro ? 'none' : '';
+  if (document.getElementById('pro-price-period')) document.getElementById('pro-price-period').textContent = ' ' + (t.pro_price_period || '/ mes');
+  if (priceThen) priceThen.textContent = t.pro_price_then || '';
+
+  // Features list
+  const feats = document.getElementById('pro-feats');
+  if (feats) {
+    feats.innerHTML = (t.pro_features || []).map(r =>
+      `<div class="pro-feat-row"><span class="pro-feat-icon">${r.icon}</span><span class="pro-feat-text">${r.text}</span></div>`
+    ).join('');
   }
+
+  // CTA button
   const btn = document.getElementById('pro-btn');
-  if (btn) { btn.textContent = pro ? t.pro_manage : t.pro_cta; btn.classList.toggle('owned', pro); }
-  setText('pro-note', pro ? t.pro_note_on : t.pro_note_off);
+  if (btn) {
+    btn.textContent = pro ? (t.pro_cta_manage || 'GESTIONAR') : (t.pro_cta_free || 'COMENZAR PRUEBA GRATIS');
+    btn.classList.toggle('owned', pro);
+    btn.disabled = false;
+  }
+
+  // Trial note
+  const trialNote = document.getElementById('pro-trial-note');
+  if (trialNote) trialNote.style.display = pro ? 'none' : '';
+  if (trialNote && !pro) trialNote.textContent = t.pro_trial_note || '';
+
+  // Active bar
+  const activeBar = document.getElementById('pro-active-bar');
+  if (activeBar) activeBar.style.display = pro ? 'flex' : 'none';
+  const activeTxt = document.getElementById('pro-active-txt');
+  if (activeTxt) activeTxt.textContent = t.pro_active_txt || 'PLAN PRO ACTIVO';
+
   refreshProThemeCards();
 }
 
@@ -7737,6 +7927,21 @@ function initDash() {
     }, 4500);
   }
   const p = new URLSearchParams(location.search);
+  // Handle Stripe redirect after checkout
+  if (p.get('payment') === 'success') {
+    history.replaceState(null, '', location.pathname);
+    checkProStatus().then(() => {
+      renderProfile(); renderDailyRings(); renderCoachAccess(); refreshProThemeCards(); renderProBtnLabel();
+      window._drAnimDone = true; setTimeout(animateDailyRings, 60);
+      showToast(lang === 'es' ? '🎉 ¡Bienvenido a AIRA PRO!' : '🎉 Welcome to AIRA PRO!', 'success');
+    });
+  } else if (p.get('payment') === 'canceled') {
+    history.replaceState(null, '', location.pathname);
+    showToast(lang === 'es' ? 'Pago cancelado' : 'Payment canceled', 'info');
+  } else {
+    // Validate PRO status on load (server-side check)
+    checkProStatus().then(() => { renderCoachAccess(); refreshProThemeCards(); renderProBtnLabel(); });
+  }
   const _isG = localStorage.getItem('fb_provider') === 'google';
   if (p.get('code')) { _isG ? handleGoogleOAuth(p.get('code')) : handleOAuth(p.get('code')); }
   else if (token) { _isG ? loadRealGoogle() : loadReal(); }
