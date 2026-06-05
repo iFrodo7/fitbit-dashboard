@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIRA — Biometric Dashboard | Tu salud, analizada por IA</title>
+  <meta name="description" content="AIRA transforma tus datos de Fitbit en insights accionables: recovery, sueño, frecuencia cardíaca y actividad. Privado, gratuito y con 5 temas visuales únicos.">
+  <meta property="og:title" content="AIRA — Biometric Dashboard">
+  <meta property="og:description" content="Tu panel biométrico personal con análisis de inteligencia artificial. Recovery, sueño, HR y actividad en un solo lugar.">
+  <meta property="og:image" content="/brand/social/png/og-image.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="/brand/social/png/twitter-card.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/brand/logos/png/aira-icon-32.png">
+  <link rel="apple-touch-icon" href="/brand/logos/png/aira-icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+/* ── Reset & Variables ───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:     #020810;
+  --bg2:    #0a1828;
+  --bg3:    #040e1c;
+  --c1:     #00f5ff;
+  --c2:     #7b2fff;
+  --c1-dim: rgba(0,245,255,0.08);
+  --c1-glow: rgba(0,245,255,0.35);
+  --txt:    rgba(255,255,255,0.92);
+  --txt-dim: rgba(255,255,255,0.48);
+  --txt-sub: rgba(255,255,255,0.28);
+  --card:   rgba(255,255,255,0.03);
+  --card-b: rgba(255,255,255,0.07);
+  --card-h: rgba(0,245,255,0.05);
+  --font:   'Inter', system-ui, sans-serif;
+  --mono:   'IBM Plex Mono', 'Courier New', monospace;
+  --r: 14px;
+  --glow: 0 0 24px rgba(0,245,255,0.25), 0 0 48px rgba(0,245,255,0.08);
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--txt);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Animated background ─────────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 40% at 50% -5%, rgba(0,245,255,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 100% 100%, rgba(123,47,255,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 0% 80%, rgba(0,245,255,0.03) 0%, transparent 50%);
+}
+
+/* ── Typography ──────────────────────────────────────────────────── */
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--c1);
+  opacity: 0.8;
+}
+.section-title {
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--txt);
+}
+.section-title span { background: linear-gradient(135deg, var(--c1), var(--c2)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.section-sub {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--txt-dim);
+  max-width: 540px;
+}
+
+/* ── Layout ──────────────────────────────────────────────────────── */
+.container { max-width: 1160px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+section { padding: clamp(80px, 10vw, 120px) 0; }
+
+/* ── Scroll reveal ───────────────────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.65s cubic-bezier(0.16,1,0.3,1), transform 0.65s cubic-bezier(0.16,1,0.3,1); }
+.reveal.visible { opacity: 1; transform: none; }
+.reveal-d1 { transition-delay: 0.08s; }
+.reveal-d2 { transition-delay: 0.16s; }
+.reveal-d3 { transition-delay: 0.24s; }
+.reveal-d4 { transition-delay: 0.32s; }
+.reveal-d5 { transition-delay: 0.40s; }
+.reveal-d6 { transition-delay: 0.48s; }
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px;
+  border-radius: 9999px;
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  border: none;
+}
+.btn-primary {
+  background: var(--c1);
+  color: #000;
+  box-shadow: 0 0 20px rgba(0,245,255,0.3);
+}
+.btn-primary:hover { background: #33f8ff; box-shadow: 0 0 32px rgba(0,245,255,0.5); transform: translateY(-1px); }
+.btn-ghost {
+  background: transparent;
+  color: var(--txt);
+  border: 1px solid var(--card-b);
+}
+.btn-ghost:hover { background: var(--card); border-color: rgba(0,245,255,0.3); }
+
+/* ── Navigation ──────────────────────────────────────────────────── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  padding: 0 24px;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(2,8,16,0.75);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: all 0.3s ease;
+}
+.nav-inner {
+  max-width: 1160px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--txt);
+}
+.nav-logo svg { width: 32px; height: 32px; }
+.nav-logo-text { font-family: var(--mono); font-weight: 700; font-size: 18px; letter-spacing: 4px; color: var(--c1); }
+.nav-links {
+  display: flex; align-items: center; gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--txt-dim);
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--txt); }
+.nav-cta { display: flex; align-items: center; gap: 12px; }
+.nav-burger { display: none; cursor: pointer; background: none; border: none; color: var(--txt); padding: 4px; }
+.mobile-menu {
+  display: none;
+  position: fixed; top: 64px; left: 0; right: 0; bottom: 0;
+  background: rgba(2,8,16,0.98);
+  z-index: 99;
+  padding: 32px 24px;
+  flex-direction: column; gap: 24px;
+  backdrop-filter: blur(20px);
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a { font-size: 20px; font-weight: 600; color: var(--txt); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.mobile-menu .btn { margin-top: 8px; text-align: center; justify-content: center; }
+
+/* ── Hero ────────────────────────────────────────────────────────── */
+#hero {
+  min-height: 100vh;
+  display: flex; align-items: center;
+  padding: 120px 0 80px;
+  position: relative; overflow: hidden;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px 6px 8px;
+  background: rgba(0,245,255,0.06);
+  border: 1px solid rgba(0,245,255,0.2);
+  border-radius: 9999px;
+  font-size: 12px; font-weight: 600;
+  color: var(--c1); letter-spacing: 0.5px;
+  margin-bottom: 24px;
+}
+.hero-badge span { background: var(--c1); color: #000; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; }
+.hero-h1 {
+  font-size: clamp(38px, 6vw, 68px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 20px;
+}
+.hero-h1 .grad { background: linear-gradient(135deg, var(--c1) 0%, #00ffaa 60%, var(--c2) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-p { font-size: 18px; line-height: 1.7; color: var(--txt-dim); margin-bottom: 36px; max-width: 480px; }
+.hero-btns { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.hero-social {
+  margin-top: 48px;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 13px; color: var(--txt-sub);
+}
+.hero-social-avatars { display: flex; }
+.hero-social-avatars span {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--c1), var(--c2));
+  border: 2px solid var(--bg);
+  margin-left: -8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: #000;
+}
+.hero-social-avatars span:first-child { margin-left: 0; }
+
+/* Hero visual */
+.hero-visual { position: relative; display: flex; justify-content: center; align-items: center; }
+.hero-icon-wrap {
+  position: relative; width: 280px; height: 280px;
+  display: flex; justify-content: center; align-items: center;
+}
+.hero-icon-wrap svg { width: 100%; height: 100%; }
+.hero-ring-anim { transform-origin: 256px 256px; animation: ring-rotate 12s linear infinite; }
+.hero-a-anim { animation: a-glow 3s ease-in-out infinite; }
+@keyframes ring-rotate {
+  from { transform: rotate(-90deg); }
+  to   { transform: rotate(270deg); }
+}
+@keyframes a-glow {
+  0%, 100% { opacity: 0.85; filter: drop-shadow(0 0 6px rgba(0,245,255,0.4)); }
+  50%       { opacity: 1;    filter: drop-shadow(0 0 18px rgba(0,245,255,0.7)); }
+}
+.hero-glow {
+  position: absolute; inset: -40px;
+  background: radial-gradient(ellipse at center, rgba(0,245,255,0.12) 0%, transparent 70%);
+  animation: glow-pulse 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.05); }
+}
+
+/* Floating metric cards */
+.metric-float {
+  position: absolute;
+  background: rgba(10,24,40,0.85);
+  border: 1px solid rgba(0,245,255,0.15);
+  border-radius: 12px;
+  padding: 12px 16px;
+  backdrop-filter: blur(16px);
+  min-width: 110px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+.metric-float .mf-label { font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: 2px; color: var(--c1); opacity: 0.7; text-transform: uppercase; margin-bottom: 4px; }
+.metric-float .mf-val { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--txt); line-height: 1; }
+.metric-float .mf-val sup { font-size: 11px; color: var(--txt-dim); }
+.mf-bar { height: 3px; background: rgba(0,245,255,0.1); border-radius: 9999px; margin-top: 8px; overflow: hidden; }
+.mf-bar-fill { height: 100%; background: linear-gradient(90deg, var(--c1), var(--c2)); border-radius: 9999px; }
+.mf-delta { font-size: 10px; color: #00ff88; margin-top: 4px; }
+
+.mf-1 { top: -20px; right: -30px; animation: float1 5s ease-in-out infinite; }
+.mf-2 { bottom: 20px; right: -50px; animation: float2 6s ease-in-out infinite 0.8s; }
+.mf-3 { bottom: -10px; left: -40px; animation: float1 5.5s ease-in-out infinite 1.5s; }
+.mf-4 { top: 10px; left: -50px; animation: float2 4.8s ease-in-out infinite 0.4s; }
+
+@keyframes float1 {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50%       { transform: translateY(-10px) rotate(1deg); }
+}
+@keyframes float2 {
+  0%, 100% { transform: translateY(0px) rotate(1deg); }
+  50%       { transform: translateY(-8px) rotate(-1deg); }
+}
+
+/* ECG line decoration */
+.hero-ecg {
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 900px; height: 60px; opacity: 0.12; pointer-events: none;
+}
+.ecg-path { stroke-dasharray: 800; stroke-dashoffset: 800; animation: ecg-draw 3s ease-in-out infinite; }
+@keyframes ecg-draw {
+  0%   { stroke-dashoffset: 800; opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { stroke-dashoffset: -800; opacity: 0; }
+}
+
+/* ── Stats bar ───────────────────────────────────────────────────── */
+#stats {
+  padding: 0;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.015);
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  divide-x: 1px solid rgba(255,255,255,0.06);
+}
+.stat-item {
+  padding: 28px 0;
+  text-align: center;
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+.stat-item:last-child { border-right: none; }
+.stat-num {
+  font-family: var(--mono);
+  font-size: 32px; font-weight: 700;
+  background: linear-gradient(135deg, var(--c1), var(--c2));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+.stat-label { font-size: 13px; color: var(--txt-dim); margin-top: 6px; letter-spacing: 0.5px; }
+
+/* ── Features ────────────────────────────────────────────────────── */
+#features .section-header { text-align: center; margin-bottom: 64px; }
+#features .section-header .section-sub { margin: 16px auto 0; text-align: center; }
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.feat-card {
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: var(--r);
+  padding: 28px;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  position: relative; overflow: hidden;
+}
+.feat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,245,255,0.3), transparent);
+  opacity: 0; transition: opacity 0.3s;
+}
+.feat-card:hover { background: var(--card-h); border-color: rgba(0,245,255,0.2); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+.feat-card:hover::before { opacity: 1; }
+.feat-icon {
+  width: 48px; height: 48px;
+  background: rgba(0,245,255,0.08);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px;
+  color: var(--c1);
+  transition: background 0.3s;
+}
+.feat-card:hover .feat-icon { background: rgba(0,245,255,0.14); }
+.feat-title { font-size: 16px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.01em; }
+.feat-desc { font-size: 14px; line-height: 1.65; color: var(--txt-dim); }
+.feat-tag {
+  display: inline-block;
+  margin-top: 16px;
+  font-family: var(--mono);
+  font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
+  color: var(--c1); opacity: 0.6;
+  text-transform: uppercase;
+}
+
+/* ── Innovation ──────────────────────────────────────────────────── */
+#innovation {
+  background: linear-gradient(180deg, transparent, rgba(0,245,255,0.02) 50%, transparent);
+}
+.inno-header { text-align: center; margin-bottom: 72px; }
+.inno-header .section-sub { margin: 16px auto 0; text-align: center; }
+
+.inno-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+.inno-card {
+  background: var(--card);
+  border: 1px solid var(--card-b);
+  border-radius: var(--r);
+  padding: 36px;
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 24px;
+  align-items: start;
+  transition: border-color 0.3s, background 0.3s;
+}
+.inno-card:hover { border-color: rgba(0,245,255,0.18); background: var(--card-h); }
+.inno-num {
+  font-family: var(--mono);
+  font-size: 48px; font-weight: 700; line-height: 1;
+  background: linear-gradient(135deg, var(--c1), var(--c2));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0.6;
+}
+.inno-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.01em; }
+.inno-desc { font-size: 14px; line-height: 1.65; color: var(--txt-dim); }
+.inno-pill {
+  display: inline-block;
+  margin-top: 14px; padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 11px; font-weight: 600;
+  background: rgba(0,245,255,0.07);
+  color: var(--c1);
+  border: 1px solid rgba(0,245,255,0.15);
+}
+
+/* ── Themes ──────────────────────────────────────────────────────── */
+#themes .section-header { text-align: center; margin-bottom: 56px; }
+.themes-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+.theme-card {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  position: relative;
+}
+.theme-card:hover { transform: translateY(-6px) scale(1.02); }
+.theme-card-top {
+  padding: 28px 20px 20px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+.theme-icon { width: 56px; height: 56px; }
+.theme-name { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; text-align: center; }
+.theme-colors { display: flex; gap: 4px; }
+.theme-swatch { width: 16px; height: 16px; border-radius: 50%; }
+.theme-card-bot {
+  padding: 12px 16px;
+  background: rgba(0,0,0,0.25);
+  font-size: 11px; line-height: 1.5; text-align: center;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Individual theme colors */
+.t-fut  { background: linear-gradient(160deg, #020810, #0a1828); }
+.t-neon { background: linear-gradient(160deg, #0a0010, #120020); }
+.t-shin { background: linear-gradient(160deg, #0c1520, #1a2030); }
+.t-mc   { background: linear-gradient(160deg, #0a1220, #182030); }
+.t-bloom{ background: linear-gradient(160deg, #1a0a10, #280f1a); }
+
+/* ── How it works ────────────────────────────────────────────────── */
+#how { background: linear-gradient(180deg, transparent, rgba(123,47,255,0.03) 50%, transparent); }
+#how .section-header { text-align: center; margin-bottom: 72px; }
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  position: relative;
+}
+.steps-grid::before {
+  content: '';
+  position: absolute; top: 40px; left: 16.5%; right: 16.5%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--c1), var(--c1), transparent);
+  opacity: 0.15;
+  z-index: 0;
+}
+.step {
+  text-align: center; padding: 0 32px;
+  position: relative; z-index: 1;
+}
+.step-num {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 1px solid rgba(0,245,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 28px; font-weight: 700;
+  color: var(--c1);
+  margin: 0 auto 24px;
+  position: relative;
+  box-shadow: 0 0 24px rgba(0,245,255,0.1);
+}
+.step-num::after {
+  content: '';
+  position: absolute; inset: -4px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,245,255,0.1);
+}
+.step-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+.step-desc { font-size: 14px; line-height: 1.65; color: var(--txt-dim); }
+
+/* ── Platform ────────────────────────────────────────────────────── */
+#platform {
+  padding-top: 0;
+}
+.platform-inner {
+  background: linear-gradient(135deg, rgba(0,245,255,0.04), rgba(123,47,255,0.04));
+  border: 1px solid rgba(0,245,255,0.1);
+  border-radius: 24px;
+  padding: clamp(40px, 6vw, 72px) clamp(32px, 6vw, 80px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.platform-text .section-title { margin-bottom: 16px; }
+.platform-text .section-sub { margin-bottom: 32px; }
+.platform-icons {
+  display: flex; flex-direction: column; gap: 16px;
+}
+.platform-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.platform-row:hover { border-color: rgba(0,245,255,0.2); background: rgba(0,245,255,0.03); }
+.platform-row svg { color: var(--c1); flex-shrink: 0; }
+.platform-row-text strong { display: block; font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.platform-row-text span { font-size: 12px; color: var(--txt-dim); }
+.pwa-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 9999px;
+  background: rgba(0,245,255,0.08);
+  border: 1px solid rgba(0,245,255,0.2);
+  font-size: 11px; font-weight: 600; color: var(--c1);
+  margin-left: auto;
+}
+
+/* ── CTA final ───────────────────────────────────────────────────── */
+#cta {
+  padding: clamp(80px, 12vw, 140px) 0;
+  text-align: center;
+  position: relative;
+}
+#cta::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 100%, rgba(0,245,255,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cta-inner { max-width: 640px; margin: 0 auto; position: relative; z-index: 1; }
+.cta-inner .section-title { margin-bottom: 20px; }
+.cta-inner .section-sub { margin: 0 auto 40px; text-align: center; }
+.cta-btns { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+.cta-disclaimer { margin-top: 20px; font-size: 12px; color: var(--txt-sub); }
+.cta-ring {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 600px; height: 600px; border-radius: 50%;
+  border: 1px solid rgba(0,245,255,0.04);
+  pointer-events: none;
+}
+.cta-ring:nth-child(2) { width: 400px; height: 400px; border-color: rgba(0,245,255,0.06); }
+.cta-ring:nth-child(3) { width: 200px; height: 200px; border-color: rgba(0,245,255,0.1); }
+
+/* ── Footer ──────────────────────────────────────────────────────── */
+footer {
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding: 40px 0;
+}
+.footer-inner {
+  max-width: 1160px; margin: 0 auto; padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 20px;
+}
+.footer-logo { display: flex; align-items: center; gap: 8px; }
+.footer-logo-text { font-family: var(--mono); font-size: 14px; font-weight: 700; letter-spacing: 3px; color: var(--c1); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 13px; color: var(--txt-dim); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: var(--txt); }
+.footer-copy { font-size: 12px; color: var(--txt-sub); }
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 960px) {
+  .hero-grid { grid-template-columns: 1fr; text-align: center; }
+  .hero-btns { justify-content: center; }
+  .hero-social { justify-content: center; }
+  .hero-p { margin-left: auto; margin-right: auto; }
+  .hero-visual { display: none; }
+  .features-grid { grid-template-columns: 1fr 1fr; }
+  .inno-grid { grid-template-columns: 1fr; }
+  .themes-row { grid-template-columns: repeat(3, 1fr); }
+  .platform-inner { grid-template-columns: 1fr; gap: 40px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .nav-links, .nav-cta .btn-ghost { display: none; }
+  .nav-burger { display: flex; }
+  .features-grid { grid-template-columns: 1fr; }
+  .themes-row { grid-template-columns: 1fr 1fr; }
+  .steps-grid { grid-template-columns: 1fr; gap: 48px; }
+  .steps-grid::before { display: none; }
+  .footer-inner { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, .hero-ring-anim, .hero-a-anim, .hero-glow, .mf-1, .mf-2, .mf-3, .mf-4, .ecg-path { animation: none !important; }
+  .reveal { transition: none !important; opacity: 1; transform: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Navigation ──────────────────────────────────────────────────── -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">
+      <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="nl" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#00f5ff"/><stop offset="1" stop-color="#7b2fff"/>
+          </linearGradient>
+          <filter id="ng"><feGaussianBlur stdDeviation="10" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <circle cx="256" cy="256" r="180" stroke="rgba(0,245,255,0.1)" stroke-width="20" fill="none"/>
+        <circle cx="256" cy="256" r="180" stroke="url(#nl)" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="850 1131" transform="rotate(-90 256 256)" filter="url(#ng)" opacity=".9"/>
+        <g filter="url(#ng)" fill="none" stroke="url(#nl)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M188 346L256 176l68 170"/><path d="M214 282h84"/>
+        </g>
+      </svg>
+      <span class="nav-logo-text">AIRA</span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="#features">Características</a></li>
+      <li><a href="#innovation">Innovación</a></li>
+      <li><a href="#themes">Temas</a></li>
+      <li><a href="#how">Cómo funciona</a></li>
+    </ul>
+
+    <div class="nav-cta">
+      <a href="/privacy.html" class="btn btn-ghost" style="padding:10px 20px;font-size:13px;">Privacidad</a>
+      <a href="/app.html" class="btn btn-primary" style="padding:10px 22px;font-size:13px;">Abrir App →</a>
+    </div>
+
+    <button class="nav-burger" id="burgerBtn" aria-label="Menú">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="2" y1="6" x2="20" y2="6"/><line x1="2" y1="11" x2="20" y2="11"/><line x1="2" y1="16" x2="20" y2="16"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#features"   onclick="closeMobile()">Características</a>
+  <a href="#innovation" onclick="closeMobile()">Innovación</a>
+  <a href="#themes"     onclick="closeMobile()">Temas visuales</a>
+  <a href="#how"        onclick="closeMobile()">Cómo funciona</a>
+  <a href="/privacy.html" onclick="closeMobile()">Privacidad</a>
+  <a href="/app.html" class="btn btn-primary">Abrir App →</a>
+</div>
+
+<!-- ── Hero ────────────────────────────────────────────────────────── -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-grid">
+
+      <!-- Left: text -->
+      <div>
+        <div class="hero-badge reveal">
+          <span>NUEVO</span> Análisis biométrico con IA
+        </div>
+        <h1 class="hero-h1 reveal reveal-d1">
+          Tu cuerpo<br>habla.<br><span class="grad">AIRA lo<br>traduce.</span>
+        </h1>
+        <p class="hero-p reveal reveal-d2">
+          AIRA conecta con tu Fitbit y convierte tus datos de recovery, sueño, frecuencia cardíaca y actividad en insights accionables. Privado, gratuito y personalizable.
+        </p>
+        <div class="hero-btns reveal reveal-d3">
+          <a href="/app.html" class="btn btn-primary" style="font-size:16px;padding:16px 32px;">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 1.75a5.25 5.25 0 110 10.5A5.25 5.25 0 018 2.75zm-.875 2.625v4.375l3.5 2.1.525-.875-3-1.8V5.375h-1.025z"/></svg>
+            Empezar gratis
+          </a>
+          <a href="#features" class="btn btn-ghost" style="font-size:16px;padding:16px 28px;">
+            Ver características
+          </a>
+        </div>
+        <div class="hero-social reveal reveal-d4">
+          <div class="hero-social-avatars">
+            <span>A</span><span>B</span><span>C</span><span>+</span>
+          </div>
+          <span>100% gratuito · Sin registro · Datos locales</span>
+        </div>
+      </div>
+
+      <!-- Right: animated visual -->
+      <div class="hero-visual reveal reveal-d2">
+        <div class="hero-icon-wrap">
+          <div class="hero-glow"></div>
+
+          <!-- AIRA Icon SVG -->
+          <svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="hr" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#00f5ff"/><stop offset="1" stop-color="#7b2fff"/>
+              </linearGradient>
+              <filter id="hg" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="12" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <circle cx="256" cy="256" r="210" stroke="rgba(0,245,255,0.04)" stroke-width="1" fill="none"/>
+            <circle cx="256" cy="256" r="180" stroke="rgba(0,245,255,0.06)" stroke-width="20" fill="none"/>
+            <g class="hero-ring-anim">
+              <circle cx="256" cy="256" r="180" stroke="url(#hr)" stroke-width="20" fill="none"
+                      stroke-linecap="round" stroke-dasharray="850 1131"
+                      transform="rotate(0 256 256)" filter="url(#hg)" opacity=".95"/>
+            </g>
+            <g class="hero-a-anim" filter="url(#hg)" fill="none" stroke="url(#hr)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M188 346L256 176l68 170"/>
+              <path d="M214 282h84"/>
+            </g>
+          </svg>
+
+          <!-- Floating metric cards -->
+          <div class="metric-float mf-1">
+            <div class="mf-label">Recovery</div>
+            <div class="mf-val">87<sup>%</sup></div>
+            <div class="mf-bar"><div class="mf-bar-fill" style="width:87%"></div></div>
+            <div class="mf-delta">↑ +5 vs ayer</div>
+          </div>
+
+          <div class="metric-float mf-2">
+            <div class="mf-label">Sueño</div>
+            <div class="mf-val">7<sup>h 22m</sup></div>
+            <div class="mf-bar"><div class="mf-bar-fill" style="width:74%"></div></div>
+          </div>
+
+          <div class="metric-float mf-3">
+            <div class="mf-label">RHR</div>
+            <div class="mf-val">54<sup> bpm</sup></div>
+            <div class="mf-delta">↓ Óptimo</div>
+          </div>
+
+          <div class="metric-float mf-4">
+            <div class="mf-label">Pasos</div>
+            <div class="mf-val" style="font-size:18px;">8,420</div>
+            <div class="mf-bar"><div class="mf-bar-fill" style="width:84%"></div></div>
+          </div>
+        </div>
+
+        <!-- ECG decoration -->
+        <svg class="hero-ecg" viewBox="0 0 900 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path class="ecg-path"
+            d="M0,30 L120,30 L140,30 L155,8 L165,52 L175,20 L185,30 L220,30 L340,30 L360,30 L375,8 L385,52 L395,20 L405,30 L450,30 L570,30 L590,30 L605,8 L615,52 L625,20 L635,30 L680,30 L800,30 L820,30 L835,8 L845,52 L855,20 L865,30 L900,30"
+            stroke="#00f5ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+            fill="none"/>
+        </svg>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Stats bar ────────────────────────────────────────────────────── -->
+<div id="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item reveal">
+        <div class="stat-num">6</div>
+        <div class="stat-label">Métricas biométricas</div>
+      </div>
+      <div class="stat-item reveal reveal-d1">
+        <div class="stat-num">5</div>
+        <div class="stat-label">Temas visuales únicos</div>
+      </div>
+      <div class="stat-item reveal reveal-d2">
+        <div class="stat-num">0€</div>
+        <div class="stat-label">Sin suscripción, siempre</div>
+      </div>
+      <div class="stat-item reveal reveal-d3">
+        <div class="stat-num">100%</div>
+        <div class="stat-label">Datos en tu dispositivo</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Features ─────────────────────────────────────────────────────── -->
+<section id="features">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="eyebrow">Lo que monitoreamos</p>
+      <h2 class="section-title" style="margin-top:12px;">Tu salud, en <span>datos reales</span></h2>
+      <p class="section-sub">AIRA lee directamente de la API de Fitbit. Sin intermediarios, sin delays. Datos biométricos precisos actualizados cada 15 segundos.</p>
+    </div>
+
+    <div class="features-grid">
+
+      <div class="feat-card reveal reveal-d1">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        </div>
+        <div class="feat-title">Recovery Score</div>
+        <div class="feat-desc">Algoritmo propio que combina RHR, sueño profundo, eficiencia y variabilidad para calcular tu nivel de recuperación de 0 a 100. Sabe si tu cuerpo está listo para el esfuerzo.</div>
+        <div class="feat-tag">IA · Algoritmo propio</div>
+      </div>
+
+      <div class="feat-card reveal reveal-d2">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="feat-title">Análisis del sueño</div>
+        <div class="feat-desc">Desglose completo por etapas: profundo, REM, ligero y despertar. Eficiencia, tiempo total y tendencias de los últimos 30 días en gráficas interactivas.</div>
+        <div class="feat-tag">Stages · Eficiencia · Tendencias</div>
+      </div>
+
+      <div class="feat-card reveal reveal-d3">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </div>
+        <div class="feat-title">Frecuencia cardíaca</div>
+        <div class="feat-desc">Monitoreo intraday en tiempo real con polling cada 15s. RHR histórico con detección de tendencias. Zonas cardíacas y alertas automáticas de anomalías.</div>
+        <div class="feat-tag">Intraday · RHR · Tiempo real</div>
+      </div>
+
+      <div class="feat-card reveal reveal-d4">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="feat-title">Actividad & Strain</div>
+        <div class="feat-desc">Pasos, calorías quemadas y tiempo activo por zonas de intensidad. Strain Score diario calculado a partir de tu perfil cardíaco personal para saber cuánto te exigiste realmente.</div>
+        <div class="feat-tag">Pasos · Zonas · Strain</div>
+      </div>
+
+      <div class="feat-card reveal reveal-d5">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+            <path d="M19 3l1.5 1.5L22 3l-1.5-1.5L19 3z" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="feat-title">Coach IA</div>
+        <div class="feat-desc">Tu entrenador personal siempre disponible. Analiza tus patrones y genera recomendaciones accionables: "Tu RHR subió 8 bpm esta semana — considera reducir el entrenamiento mañana."</div>
+        <div class="feat-tag">GPT-4 · Personalizado · Contextual</div>
+      </div>
+
+      <div class="feat-card reveal reveal-d6">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+        </div>
+        <div class="feat-title">Historial gráfico</div>
+        <div class="feat-desc">Gráficas SVG construidas desde cero: líneas de tendencia, barras apiladas de sueño, HR histórico. Hasta 30 días cacheados en IndexedDB sin gastar el rate limit de Fitbit.</div>
+        <div class="feat-tag">SVG · IndexedDB · 30 días</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Innovation ────────────────────────────────────────────────────── -->
+<section id="innovation">
+  <div class="container">
+    <div class="inno-header reveal">
+      <p class="eyebrow">Por qué innovamos</p>
+      <h2 class="section-title" style="margin-top:12px;">Diferente desde<br><span>los cimientos</span></h2>
+      <p class="section-sub">No somos otra app de fitness. AIRA es una apuesta radical por la privacidad, la personalización extrema y la honestidad técnica.</p>
+    </div>
+
+    <div class="inno-grid">
+
+      <div class="inno-card reveal reveal-d1">
+        <div class="inno-num">01</div>
+        <div>
+          <div class="inno-title">Tus datos nunca salen de tu dispositivo</div>
+          <div class="inno-desc">AIRA usa IndexedDB local para cachear todo el historial. No hay servidor nuestro recibiendo tus biometría. No hay perfil tuyo en ninguna nube. Sólo tú y Fitbit, con AIRA como intermediario visible y auditable.</div>
+          <div class="inno-pill">Privacy-first · IndexedDB · Sin telemetría</div>
+        </div>
+      </div>
+
+      <div class="inno-card reveal reveal-d2">
+        <div class="inno-num">02</div>
+        <div>
+          <div class="inno-title">5 mundos visuales que ninguna app tiene</div>
+          <div class="inno-desc">Minecraft, Neon Noir, Shinobi, Futuristic o Bloom. Cada tema redefine completamente la UI: tipografías, colores, sombras, animaciones. Tu dashboard de salud, con tu identidad. Porque los datos también pueden ser bonitos.</div>
+          <div class="inno-pill">CSS Variables · 5 temas · Sin recargas</div>
+        </div>
+      </div>
+
+      <div class="inno-card reveal reveal-d3">
+        <div class="inno-num">03</div>
+        <div>
+          <div class="inno-title">PWA instalable: nativa en iOS, Android y desktop</div>
+          <div class="inno-desc">AIRA es una Progressive Web App con service worker, manifest y soporte de notificaciones push. Se instala como app nativa desde el navegador, sin App Store. Funciona offline con los datos cacheados, incluso sin conexión.</div>
+          <div class="inno-pill">PWA · Service Worker · Push notifications</div>
+        </div>
+      </div>
+
+      <div class="inno-card reveal reveal-d4">
+        <div class="inno-num">04</div>
+        <div>
+          <div class="inno-title">Preparados para cuando Fitbit Web API se apague</div>
+          <div class="inno-desc">Fitbit cierra su Web API en Septiembre 2026. Mientras otras apps entrarán en pánico, AIRA ya tiene la arquitectura lista: la capa de datos está blindada con un adaptador único. Migrar a Google Health API es reemplazar 30 líneas de código.</div>
+          <div class="inno-pill">Google Health API · Sep 2026 · Adapter pattern</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Themes ─────────────────────────────────────────────────────────── -->
+<section id="themes">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="eyebrow">Identidad visual</p>
+      <h2 class="section-title" style="margin-top:12px;">Elige tu <span>mundo</span></h2>
+      <p class="section-sub" style="margin:16px auto 0;text-align:center;">Cada tema es una experiencia visual completa. Cambia en tiempo real, sin recargar la página.</p>
+    </div>
+
+    <div class="themes-row">
+
+      <!-- Futuristic -->
+      <div class="theme-card t-fut reveal reveal-d1">
+        <div class="theme-card-top">
+          <svg class="theme-icon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="tfg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse"><stop stop-color="#00f5ff"/><stop offset="1" stop-color="#7b2fff"/></linearGradient><filter id="tfglow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+            <circle cx="256" cy="256" r="180" stroke="#00f5ff22" stroke-width="20" fill="none"/>
+            <circle cx="256" cy="256" r="180" stroke="url(#tfg)" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="850 1131" transform="rotate(-90 256 256)" filter="url(#tfglow)" opacity=".9"/>
+            <g filter="url(#tfglow)" fill="none" stroke="url(#tfg)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M188 346L256 176l68 170"/><path d="M214 282h84"/>
+            </g>
+          </svg>
+          <div class="theme-name" style="color:#00f5ff;">Futuristic</div>
+          <div class="theme-colors">
+            <div class="theme-swatch" style="background:#00f5ff;"></div>
+            <div class="theme-swatch" style="background:#7b2fff;"></div>
+            <div class="theme-swatch" style="background:#020810;border:1px solid rgba(0,245,255,0.3)"></div>
+          </div>
+        </div>
+        <div class="theme-card-bot" style="color:rgba(0,245,255,0.6);">Cyan · Violeta · Oscuro total</div>
+      </div>
+
+      <!-- Neon Noir -->
+      <div class="theme-card t-neon reveal reveal-d2">
+        <div class="theme-card-top">
+          <svg class="theme-icon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="tng" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse"><stop stop-color="#ff2d78"/><stop offset="1" stop-color="#bd00ff"/></linearGradient><filter id="tnglow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+            <circle cx="256" cy="256" r="180" stroke="#ff2d7822" stroke-width="20" fill="none"/>
+            <circle cx="256" cy="256" r="180" stroke="url(#tng)" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="850 1131" transform="rotate(-90 256 256)" filter="url(#tnglow)" opacity=".9"/>
+            <g filter="url(#tnglow)" fill="none" stroke="url(#tng)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M188 346L256 176l68 170"/><path d="M214 282h84"/>
+            </g>
+          </svg>
+          <div class="theme-name" style="color:#ff2d78;">Neon Noir</div>
+          <div class="theme-colors">
+            <div class="theme-swatch" style="background:#ff2d78;"></div>
+            <div class="theme-swatch" style="background:#bd00ff;"></div>
+            <div class="theme-swatch" style="background:#0a0010;border:1px solid rgba(255,45,120,0.3)"></div>
+          </div>
+        </div>
+        <div class="theme-card-bot" style="color:rgba(255,45,120,0.6);">Rosa neón · Violeta · Negro</div>
+      </div>
+
+      <!-- Shinobi -->
+      <div class="theme-card t-shin reveal reveal-d3">
+        <div class="theme-card-top">
+          <svg class="theme-icon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="tsg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse"><stop stop-color="#7ab0d0"/><stop offset="1" stop-color="#c0d0e0"/></linearGradient><filter id="tsglow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+            <circle cx="256" cy="256" r="180" stroke="#7ab0d022" stroke-width="20" fill="none"/>
+            <circle cx="256" cy="256" r="180" stroke="url(#tsg)" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="850 1131" transform="rotate(-90 256 256)" filter="url(#tsglow)" opacity=".9"/>
+            <g filter="url(#tsglow)" fill="none" stroke="url(#tsg)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M188 346L256 176l68 170"/><path d="M214 282h84"/>
+            </g>
+          </svg>
+          <div class="theme-name" style="color:#7ab0d0;">Shinobi</div>
+          <div class="theme-colors">
+            <div class="theme-swatch" style="background:#7ab0d0;"></div>
+            <div class="theme-swatch" style="background:#c0d0e0;"></div>
+            <div class="theme-swatch" style="background:#0c1520;border:1px solid rgba(122,176,208,0.3)"></div>
+          </div>
+        </div>
+        <div class="theme-card-bot" style="color:rgba(122,176,208,0.7);">Acero · Plata · Índigo</div>
+      </div>
+
+      <!-- Minecraft -->
+      <div class="theme-card t-mc reveal reveal-d4">
+        <div class="theme-card-top">
+          <svg class="theme-icon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="tmg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse"><stop stop-color="#6aff3a"/><stop offset="1" stop-color="#ffaa00"/></linearGradient><filter id="tmglow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+            <circle cx="256" cy="256" r="180" stroke="#6aff3a22" stroke-width="20" fill="none"/>
+            <circle cx="256" cy="256" r="180" stroke="url(#tmg)" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="850 1131" transform="rotate(-90 256 256)" filter="url(#tmglow)" opacity=".9"/>
+            <g filter="url(#tmglow)" fill="none" stroke="url(#tmg)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M188 346L256 176l68 170"/><path d="M214 282h84"/>
+            </g>
+          </svg>
+          <div class="theme-name" style="color:#6aff3a;">Minecraft</div>
+          <div class="theme-colors">
+            <div class="theme-swatch" style="background:#6aff3a;"></div>
+            <div class="theme-swatch" style="background:#ffaa00;"></div>
+            <div class="theme-swatch" style="background:#0a1220;border:1px solid rgba(106,255,58,0.3)"></div>
+          </div>
+        </div>
+        <div class="theme-card-bot" style="color:rgba(106,255,58,0.6);">Verde píxel · Ámbar · Bosque</div>
+      </div>
+
+      <!-- Bloom -->
+      <div class="theme-card t-bloom reveal reveal-d5">
+        <div class="theme-card-top">
+          <svg class="theme-icon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="tbg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse"><stop stop-color="#e85c8a"/><stop offset="1" stop-color="#c47fb5"/></linearGradient><filter id="tbglow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+            <circle cx="256" cy="256" r="180" stroke="#e85c8a22" stroke-width="20" fill="none"/>
+            <circle cx="256" cy="256" r="180" stroke="url(#tbg)" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="850 1131" transform="rotate(-90 256 256)" filter="url(#tbglow)" opacity=".9"/>
+            <g filter="url(#tbglow)" fill="none" stroke="url(#tbg)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M188 346L256 176l68 170"/><path d="M214 282h84"/>
+            </g>
+          </svg>
+          <div class="theme-name" style="color:#e85c8a;">Bloom</div>
+          <div class="theme-colors">
+            <div class="theme-swatch" style="background:#e85c8a;"></div>
+            <div class="theme-swatch" style="background:#c47fb5;"></div>
+            <div class="theme-swatch" style="background:#1a0a10;border:1px solid rgba(232,92,138,0.3)"></div>
+          </div>
+        </div>
+        <div class="theme-card-bot" style="color:rgba(232,92,138,0.6);">Rosa · Malva · Borgoña</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── How it works ──────────────────────────────────────────────────── -->
+<section id="how">
+  <div class="container">
+    <div class="section-header reveal">
+      <p class="eyebrow">Proceso</p>
+      <h2 class="section-title" style="margin-top:12px;text-align:center;">En marcha en <span>3 pasos</span></h2>
+    </div>
+
+    <div class="steps-grid">
+
+      <div class="step reveal reveal-d1">
+        <div class="step-num">1</div>
+        <div class="step-title">Conecta tu Fitbit</div>
+        <div class="step-desc">Ingresa tu Client ID de Fitbit (gratis en dev.fitbit.com). AIRA inicia el flujo OAuth directamente en tu navegador. Sin backend, sin que nadie vea tus credenciales.</div>
+      </div>
+
+      <div class="step reveal reveal-d2">
+        <div class="step-num">2</div>
+        <div class="step-title">AIRA sincroniza</div>
+        <div class="step-desc">En menos de 3 segundos ves tus datos reales. AIRA hace polling automático cada 15s para cardio, cada 5 min para sueño. El historial se cachea en IndexedDB para carga instantánea.</div>
+      </div>
+
+      <div class="step reveal reveal-d3">
+        <div class="step-num">3</div>
+        <div class="step-title">Recibe insights</div>
+        <div class="step-desc">El Coach IA analiza tus patrones y te da recomendaciones personalizadas. Elige tu tema visual favorito, instala la PWA en tu móvil y lleva AIRA a donde vayas.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Platform ──────────────────────────────────────────────────────── -->
+<section id="platform">
+  <div class="container">
+    <div class="platform-inner reveal">
+      <div class="platform-text">
+        <p class="eyebrow">Multi-plataforma</p>
+        <h2 class="section-title" style="margin-top:12px;">Una app.<br><span>Todos tus dispositivos.</span></h2>
+        <p class="section-sub">AIRA es una PWA que se adapta perfectamente a cualquier pantalla. Instálala como app nativa sin pasar por el App Store.</p>
+        <a href="/app.html" class="btn btn-primary" style="margin-top:28px;">Abrir AIRA ahora →</a>
+      </div>
+
+      <div class="platform-icons">
+        <div class="platform-row">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
+          </svg>
+          <div class="platform-row-text">
+            <strong>iOS (iPhone &amp; iPad)</strong>
+            <span>Safari → "Agregar a pantalla de inicio" → App nativa</span>
+          </div>
+          <div class="pwa-badge">PWA</div>
+        </div>
+
+        <div class="platform-row">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
+          </svg>
+          <div class="platform-row-text">
+            <strong>Android</strong>
+            <span>Chrome → "Instalar app" → Icono en homescreen</span>
+          </div>
+          <div class="pwa-badge">PWA</div>
+        </div>
+
+        <div class="platform-row">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+          <div class="platform-row-text">
+            <strong>macOS &amp; Windows</strong>
+            <span>Chrome/Edge → Instalar → App de escritorio</span>
+          </div>
+          <div class="pwa-badge">PWA</div>
+        </div>
+
+        <div class="platform-row">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          <div class="platform-row-text">
+            <strong>Cualquier navegador</strong>
+            <span>Funciona en Chrome, Safari, Firefox y Edge</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ────────────────────────────────────────────────────────────── -->
+<section id="cta">
+  <div class="cta-ring"></div>
+  <div class="cta-ring"></div>
+  <div class="cta-ring"></div>
+  <div class="container">
+    <div class="cta-inner reveal">
+      <p class="eyebrow" style="margin-bottom:20px;">Empieza hoy</p>
+      <h2 class="section-title">Conoce tu cuerpo.<br><span>De verdad.</span></h2>
+      <p class="section-sub" style="margin-top:16px;">Recovery, sueño, frecuencia cardíaca y actividad. Todo en un panel que te habla en tu idioma, con tu estética y sin cobrarte un euro.</p>
+      <div class="cta-btns">
+        <a href="/app.html" class="btn btn-primary" style="font-size:17px;padding:18px 40px;">
+          Abrir AIRA gratis →
+        </a>
+        <a href="#features" class="btn btn-ghost" style="font-size:17px;padding:18px 32px;">
+          Ver características
+        </a>
+      </div>
+      <p class="cta-disclaimer">Sin registro · Sin suscripción · Datos 100% locales</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ─────────────────────────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">
+      <svg width="24" height="24" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="fl" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse"><stop stop-color="#00f5ff"/><stop offset="1" stop-color="#7b2fff"/></linearGradient></defs>
+        <circle cx="256" cy="256" r="180" stroke="url(#fl)" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="850 1131" transform="rotate(-90 256 256)" opacity=".7"/>
+        <g fill="none" stroke="url(#fl)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" opacity=".9">
+          <path d="M188 346L256 176l68 170"/><path d="M214 282h84"/>
+        </g>
+      </svg>
+      <span class="footer-logo-text">AIRA</span>
+    </div>
+
+    <div class="footer-links">
+      <a href="/app.html">Dashboard</a>
+      <a href="/privacy.html">Privacidad</a>
+      <a href="#features">Características</a>
+      <a href="https://github.com/iFrodo7/fitbit-dashboard" target="_blank" rel="noopener">GitHub</a>
+    </div>
+
+    <div class="footer-copy">© 2025 AIRA Biometric Dashboard · Todos los derechos reservados</div>
+  </div>
+</footer>
+
+<script>
+// ── Scroll reveal ─────────────────────────────────────────────────────
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// ── Mobile menu ───────────────────────────────────────────────────────
+const burger = document.getElementById('burgerBtn');
+const menu   = document.getElementById('mobileMenu');
+burger.addEventListener('click', () => menu.classList.toggle('open'));
+function closeMobile() { menu.classList.remove('open'); }
+
+// ── Active nav link scrollspy ─────────────────────────────────────────
+const sections = document.querySelectorAll('section[id], div[id="stats"]');
+const navLinks  = document.querySelectorAll('.nav-links a');
+
+const navIO = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(a => a.style.color = '');
+      const link = document.querySelector(`.nav-links a[href="#${e.target.id}"]`);
+      if (link) link.style.color = 'rgba(255,255,255,0.92)';
+    }
+  });
+}, { threshold: 0.4 });
+
+sections.forEach(s => navIO.observe(s));
+
+// ── Nav scroll shadow ─────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('navbar');
+  nav.style.borderBottomColor = window.scrollY > 20 ? 'rgba(0,245,255,0.08)' : 'rgba(255,255,255,0.04)';
+}, { passive: true });
+
+// ── Animated counter on stats ─────────────────────────────────────────
+function animateCount(el, target, suffix, duration = 1200) {
+  const start = performance.now();
+  const isFloat = String(target).includes('.');
+  const update = (now) => {
+    const p = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    const val = isFloat ? (target * ease).toFixed(1) : Math.round(target * ease);
+    el.textContent = val + suffix;
+    if (p < 1) requestAnimationFrame(update);
+  };
+  requestAnimationFrame(update);
+}
+
+const counters = document.querySelectorAll('.stat-num');
+const cIO = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const text = e.target.textContent.trim();
+      if (text === '6')    animateCount(e.target, 6,   '');
+      if (text === '5')    animateCount(e.target, 5,   '');
+      if (text === '0€')   { setTimeout(() => { e.target.textContent = '0€'; }, 400); }
+      if (text === '100%') animateCount(e.target, 100, '%');
+      cIO.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.5 });
+counters.forEach(c => cIO.observe(c));
+</script>
+</body>
+</html>
