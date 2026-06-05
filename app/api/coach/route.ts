@@ -6,8 +6,26 @@ import { NextRequest, NextResponse } from "next/server";
 // (aistudio.google.com, no credit card) in Vercel env to enable real answers.
 
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.0-flash";
-const MAX_Q = 600;       // cap question length (abuse / cost guard)
-const MAX_HISTORY = 12;  // max history entries (6 turns) sent to Gemini
+const MAX_Q        = 400;   // cap question length — reduce input tokens
+const MAX_HISTORY  = 8;     // max history entries (4 turns) sent to Gemini
+const MAX_TOKENS   = 800;   // max output tokens — coach answers don't need to be long
+const DAILY_FREE   = 3;     // Gemini calls/day for free users
+const DAILY_PRO    = 50;    // Gemini calls/day for PRO users (~$0.24/mes worst case)
+
+// Simple in-memory rate limiter per IP.
+// Resets on cold start — Fase 2 moverá esto a Supabase (issue #47).
+const _rl = new Map<string, { date: string; n: number }>();
+
+function allowRequest(ip: string, pro: boolean): boolean {
+  const today = new Date().toISOString().slice(0, 10);
+  const cur   = _rl.get(ip) ?? { date: today, n: 0 };
+  if (cur.date !== today) { cur.date = today; cur.n = 0; }
+  const limit = pro ? DAILY_PRO : DAILY_FREE;
+  if (cur.n >= limit) return false;
+  cur.n++;
+  _rl.set(ip, cur);
+  return true;
+}
 
 type Trend = {
   days?: number;
@@ -555,7 +573,7 @@ async function callGemini(
   const isThinkingModel = model.startsWith("gemini-2.5");
   const generationConfig: Record<string, unknown> = {
     temperature: 0.65,
-    maxOutputTokens: 8192,
+    maxOutputTokens: MAX_TOKENS,
   };
   if (isThinkingModel) {
     generationConfig.thinkingConfig = { thinkingBudget: 0, includeThoughts: false };
@@ -606,20 +624,32 @@ async function callGemini(
 }
 
 export async function POST(request: NextRequest) {
-  let body: { q?: string; lang?: string; metrics?: Metrics; history?: HistoryEntry[] };
+  let body: { q?: string; lang?: string; metrics?: Metrics; history?: HistoryEntry[]; pro?: boolean };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Bad request" }, { status: 400 });
   }
 
-  const q = (body.q || "").toString().slice(0, MAX_Q).trim();
-  const lang = body.lang === "en" ? "en" : "es";
+  const q       = (body.q || "").toString().slice(0, MAX_Q).trim();
+  const lang    = body.lang === "en" ? "en" : "es";
   const metrics = (body.metrics || {}) as Metrics;
   const history = Array.isArray(body.history)
     ? (body.history as HistoryEntry[]).slice(-MAX_HISTORY)
     : [];
+  const isPro   = body.pro === true;
+
   if (!q) return NextResponse.json({ error: "Empty question" }, { status: 400 });
+
+  // Rate limit — protege el gasto de Gemini API
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (!allowRequest(ip, isPro)) {
+    const limit = isPro ? DAILY_PRO : DAILY_FREE;
+    const msg   = lang === "en"
+      ? `Daily limit of ${limit} messages reached. Come back tomorrow!`
+      : `Límite diario de ${limit} mensajes alcanzado. ¡Vuelve mañana!`;
+    return NextResponse.json({ answer: msg, source: "quota" }, { status: 429 });
+  }
 
   const key = process.env.GEMINI_API_KEY;
   if (key) {
