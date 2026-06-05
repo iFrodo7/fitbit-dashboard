@@ -22,7 +22,6 @@
     <g filter="url(#glow)" fill="none" stroke="url(#ring)" stroke-width="34"
        stroke-linecap="round" stroke-linejoin="round">
       <path d="M188 346 L256 176 L324 346"/>
-      <path d="M214 282 H298"/>
     </g>
   </g>
   <line x1="150" y1="65" x2="150" y2="175" stroke="#e85c8a33" stroke-width="1"/>

@@ -60,7 +60,6 @@ const iconBody = (c1, glowId = 'glow', gradId = 'ring') => `
     <g filter="url(#${glowId})" fill="none" stroke="url(#${gradId})" stroke-width="34"
        stroke-linecap="round" stroke-linejoin="round">
       <path d="M188 346 L256 176 L324 346"/>
-      <path d="M214 282 H298"/>
     </g>`;
 
 const iconGroup = (cx, cy, scale, c1, glowId = 'glow', gradId = 'ring') =>
@@ -134,7 +133,6 @@ const whiteLogoSVG = () =>
     <g filter="url(#glow)" fill="none" stroke="white" stroke-width="34"
        stroke-linecap="round" stroke-linejoin="round">
       <path d="M188 346 L256 176 L324 346"/>
-      <path d="M214 282 H298"/>
     </g>
   </g>
   <text x="300" y="270" text-anchor="middle"
@@ -154,7 +152,6 @@ const blackLogoSVG = () =>
     <g fill="none" stroke="#111111" stroke-width="34"
        stroke-linecap="round" stroke-linejoin="round">
       <path d="M188 346 L256 176 L324 346"/>
-      <path d="M214 282 H298"/>
     </g>
   </g>
   <text x="300" y="270" text-anchor="middle"
