@@ -2648,6 +2648,10 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         <div class="t-lock-nm">VOXEL</div>
         <div class="t-lock-tag">PRO</div>
       </div>
+      <div class="t-ov mc-ov" id="tc-voxel-name-ov" style="display:none">
+        <div class="tn mc">VOXEL</div>
+        <div class="ts mc">BLOCK WORLD · PRO</div>
+      </div>
       <div class="tc-ach" id="tc-ach-mc">
         <span class="tc-ach-count">0/18</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#6aff3a;width:0%"></div></div>
@@ -2704,6 +2708,10 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         <div class="t-lock-ico">▶</div>
         <div class="t-lock-nm">SYNTHWAVE</div>
         <div class="t-lock-tag">PRO</div>
+      </div>
+      <div class="t-ov synth-ov" id="tc-synthwave-name-ov" style="display:none">
+        <div class="tn synth">SYNTHWAVE</div>
+        <div class="ts synth">RETROWAVE 80S · PRO</div>
       </div>
     </div>
 
@@ -7286,15 +7294,18 @@ function refreshProThemeCards() {
   const pro = isPro();
   // Selector cards
   ['voxel','synthwave'].forEach(id => {
-    const card = document.getElementById('tc-' + id);
-    const ov   = document.getElementById('tc-' + id + '-ov');
+    const card   = document.getElementById('tc-' + id);
+    const ov     = document.getElementById('tc-' + id + '-ov');
+    const nameOv = document.getElementById('tc-' + id + '-name-ov');
     if (!card) return;
     if (pro) {
       card.classList.remove('t-locked');
-      if (ov) ov.style.display = 'none';
+      if (ov)     ov.style.display     = 'none';
+      if (nameOv) nameOv.style.display = '';
     } else {
       card.classList.add('t-locked');
-      if (ov) ov.style.display = '';
+      if (ov)     ov.style.display     = '';
+      if (nameOv) nameOv.style.display = 'none';
     }
   });
   // Profile switcher buttons
@@ -7313,8 +7324,37 @@ function onProThemeClick(themeId) {
   if (isPro()) {
     openThemePreview ? openThemePreview(themeId) : selectTheme(themeId);
   } else {
-    proAction();
+    _showProThemeUpsell(themeId);
   }
+}
+
+function _showProThemeUpsell(themeId) {
+  var es = lang === 'es';
+  var themes = {
+    mc:    { icon: '⛏', name: 'VOXEL',     desc: es ? 'Mundo pixelado de bloques. Donde cada dato es un bloque de construcción.' : 'Pixel block world. Where every metric is a building block.' },
+    synth: { icon: '▶', name: 'SYNTHWAVE', desc: es ? 'Retrowave 80s. Neones, grillas y datos que brillan en la oscuridad.'       : '80s retrowave. Neons, grids, and data that glows in the dark.' }
+  };
+  var th = themes[themeId] || { icon: '✦', name: 'PRO', desc: es ? 'Desbloquea todos los temas premium.' : 'Unlock all premium themes.' };
+  var old = document.getElementById('pro-ring-sheet'); if (old) old.remove();
+  var sh = document.createElement('div'); sh.id = 'pro-ring-sheet';
+  sh.innerHTML = '<div class="prs-card">'
+    + '<div class="prs-icon">' + th.icon + '</div>'
+    + '<div class="prs-title">' + th.name + ' · PRO</div>'
+    + '<div class="prs-desc">' + th.desc + '</div>'
+    + '<div class="prs-feat">'
+      + '<div class="prs-feat-row"><span>🎨</span><span>' + (es ? 'Temas visuales exclusivos PRO' : 'Exclusive PRO visual themes') + '</span></div>'
+      + '<div class="prs-feat-row"><span>🤖</span><span>' + (es ? 'Coach AIRA ilimitado' : 'Unlimited AIRA coach') + '</span></div>'
+      + '<div class="prs-feat-row"><span>⚡</span><span>' + (es ? 'Metas adaptativas y más' : 'Adaptive goals and more') + '</span></div>'
+    + '</div>'
+    + '<button class="prs-cta" onclick="document.getElementById(\'pro-ring-sheet\').remove();proAction();">'
+      + (es ? 'ACTIVAR AIRA PRO' : 'ACTIVATE AIRA PRO')
+    + '</button>'
+    + '<div class="prs-skip" onclick="document.getElementById(\'pro-ring-sheet\').remove();">'
+      + (es ? 'AHORA NO' : 'NOT NOW')
+    + '</div>'
+  + '</div>';
+  sh.addEventListener('click', function(e) { if (e.target === sh) sh.remove(); });
+  document.body.appendChild(sh);
 }
 
 function renderProUI() {
