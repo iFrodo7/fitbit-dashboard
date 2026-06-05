@@ -7927,6 +7927,8 @@ function initDash() {
     }, 4500);
   }
   const p = new URLSearchParams(location.search);
+  // Persist subscribe intent across the OAuth redirect
+  if (p.get('subscribe') === '1') localStorage.setItem('_pendingSubscribe', '1');
   // Handle Stripe redirect after checkout
   if (p.get('payment') === 'success') {
     history.replaceState(null, '', location.pathname);
@@ -7944,7 +7946,13 @@ function initDash() {
   }
   const _isG = localStorage.getItem('fb_provider') === 'google';
   if (p.get('code')) { _isG ? handleGoogleOAuth(p.get('code')) : handleOAuth(p.get('code')); }
-  else if (token) { _isG ? loadRealGoogle() : loadReal(); }
+  else if (token) {
+    // Already logged in — if coming from landing "subscribe" CTA, go straight to checkout
+    if (localStorage.getItem('_pendingSubscribe')) {
+      localStorage.removeItem('_pendingSubscribe');
+      (_isG ? loadRealGoogle() : loadReal()).then(() => setTimeout(() => proAction(), 600)).catch(() => {});
+    } else { _isG ? loadRealGoogle() : loadReal(); }
+  }
   if (!token) {
     setTimeout(() => renderHypnogram({
       startTime: '2026-01-01T23:18:00.000',
@@ -10133,6 +10141,11 @@ async function handleGoogleOAuth(code) {
       }
       if (!isNativeApp()) history.replaceState({}, '', location.pathname);
       await loadRealGoogle(_gName);
+      // Auto-trigger checkout if user came from landing "Comenzar prueba gratis"
+      if (localStorage.getItem('_pendingSubscribe')) {
+        localStorage.removeItem('_pendingSubscribe');
+        setTimeout(() => proAction(), 800);
+      }
     } else {
       hideLoad();
       console.error('[google login] token exchange error:', d);

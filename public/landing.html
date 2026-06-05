@@ -415,34 +415,62 @@ nav {
 
 /* ── Themes ──────────────────────────────────────────────────────── */
 #themes .section-header { text-align: center; margin-bottom: 56px; }
-.themes-row {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
+.themes-grid-free {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px;
+}
+.themes-pro-sep {
+  display: flex; align-items: center; gap: 14px;
+  font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 3px;
+  color: var(--c1); text-transform: uppercase; margin-bottom: 14px; opacity: 0.7;
+}
+.themes-pro-sep::before, .themes-pro-sep::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,245,255,0.25));
+}
+.themes-pro-sep::after { background: linear-gradient(90deg, rgba(0,245,255,0.25), transparent); }
+.themes-grid-pro {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;
+  max-width: 500px; margin: 0 auto;
 }
 .theme-card {
-  border-radius: 16px;
-  overflow: hidden;
+  border-radius: 16px; overflow: hidden;
   border: 1px solid rgba(255,255,255,0.06);
-  cursor: pointer;
+  cursor: pointer; position: relative;
   transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-  position: relative;
 }
 .theme-card:hover { transform: translateY(-6px) scale(1.02); }
-.theme-card-top {
-  padding: 28px 20px 20px;
-  display: flex; flex-direction: column; align-items: center; gap: 16px;
+.theme-card-pro { border-color: rgba(0,245,255,0.18); }
+.theme-card-pro:hover { border-color: rgba(0,245,255,0.35); }
+.theme-pro-badge {
+  position: absolute; top: 10px; right: 10px; z-index: 2;
+  background: linear-gradient(90deg, var(--c1), var(--c2));
+  color: #000; font-family: var(--mono); font-size: 9px; font-weight: 800;
+  letter-spacing: 2px; padding: 3px 10px; border-radius: 9999px;
 }
-.theme-icon { width: 56px; height: 56px; }
+.theme-card-top {
+  padding: 24px 16px 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.theme-icon { width: 52px; height: 52px; }
 .theme-name { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; text-align: center; }
+.theme-sub { font-size: 9px; opacity: 0.4; letter-spacing: 1.5px; text-transform: uppercase; text-align: center; margin-top: -6px; }
 .theme-colors { display: flex; gap: 4px; }
-.theme-swatch { width: 16px; height: 16px; border-radius: 50%; }
+.theme-swatch { width: 14px; height: 14px; border-radius: 50%; }
 .theme-card-bot {
-  padding: 12px 16px;
-  background: rgba(0,0,0,0.25);
-  font-size: 11px; line-height: 1.5; text-align: center;
+  padding: 10px 14px; background: rgba(0,0,0,0.25);
+  font-size: 10px; line-height: 1.5; text-align: center;
   border-top: 1px solid rgba(255,255,255,0.06);
 }
+.theme-card-pro .theme-card-bot { background: rgba(0,245,255,0.04); }
+.theme-cta-pro {
+  display: block; margin: 0 12px 12px; padding: 10px;
+  background: linear-gradient(90deg, rgba(0,245,255,0.1), rgba(123,47,255,0.1));
+  border: 1px solid rgba(0,245,255,0.2); border-radius: 8px;
+  font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 2px;
+  color: var(--c1); text-align: center; text-decoration: none; text-transform: uppercase;
+  transition: background 0.2s, border-color 0.2s;
+}
+.theme-cta-pro:hover { background: rgba(0,245,255,0.14); border-color: rgba(0,245,255,0.4); }
 
 /* Individual theme colors */
 .t-fut  { background: linear-gradient(160deg, #020810, #0a1828); }
@@ -585,7 +613,8 @@ footer {
   .hero-visual { display: none; }
   .features-grid { grid-template-columns: 1fr 1fr; }
   .inno-grid { grid-template-columns: 1fr; }
-  .themes-row { grid-template-columns: repeat(3, 1fr); }
+  .themes-grid-free { grid-template-columns: repeat(2, 1fr); }
+  .themes-grid-pro  { grid-template-columns: repeat(2, 1fr); max-width: 100%; }
   .platform-inner { grid-template-columns: 1fr; gap: 40px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -936,7 +965,7 @@ footer {
         <div class="inno-num">02</div>
         <div>
           <div class="inno-title">5 mundos visuales que ninguna app tiene</div>
-          <div class="inno-desc">Minecraft, Neon Noir, Shinobi, Futuristic o Bloom. Cada tema redefine completamente la UI: tipografías, colores, sombras, animaciones. Tu dashboard de salud, con tu identidad. Porque los datos también pueden ser bonitos.</div>
+          <div class="inno-desc">Aether, Neon Noir, Shinobi o Bloom (gratis) — Voxel y Synthwave (PRO). Cada tema redefine completamente la UI: tipografías, colores, sombras, animaciones. Tu dashboard de salud, con tu identidad. Porque los datos también pueden ser bonitos.</div>
           <div class="inno-pill">CSS Variables · 5 temas · Sin recargas</div>
         </div>
       </div>
@@ -972,39 +1001,40 @@ footer {
       <p class="section-sub" style="margin:16px auto 0;text-align:center;">Cada tema es una experiencia visual completa. Cambia en tiempo real, sin recargar la página.</p>
     </div>
 
-    <div class="themes-row">
+    <!-- ── Free themes (4) ── -->
+    <div class="themes-grid-free">
 
-      <!-- Futuristic -->
+      <!-- AETHER -->
       <div class="theme-card t-fut reveal reveal-d1">
         <div class="theme-card-top">
           <svg class="theme-icon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs><linearGradient id="tfg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse"><stop stop-color="#00f5ff"/><stop offset="1" stop-color="#7b2fff"/></linearGradient><filter id="tfglow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
             <circle cx="256" cy="256" r="180" stroke="#00f5ff22" stroke-width="20" fill="none"/>
             <circle cx="256" cy="256" r="180" stroke="url(#tfg)" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="850 1131" transform="rotate(-90 256 256)" filter="url(#tfglow)" opacity=".9"/>
-            <g filter="url(#tfglow)" fill="none" stroke="url(#tfg)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M188 346L256 176l68 170"/>            </g>
+            <g filter="url(#tfglow)" fill="none" stroke="url(#tfg)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"><path d="M188 346L256 176l68 170"/></g>
           </svg>
-          <div class="theme-name" style="color:#00f5ff;">Futuristic</div>
+          <div class="theme-name" style="color:#00f5ff;">Aether</div>
+          <div class="theme-sub" style="color:#00f5ff;">Biometric Core</div>
           <div class="theme-colors">
             <div class="theme-swatch" style="background:#00f5ff;"></div>
             <div class="theme-swatch" style="background:#7b2fff;"></div>
             <div class="theme-swatch" style="background:#020810;border:1px solid rgba(0,245,255,0.3)"></div>
           </div>
         </div>
-        <div class="theme-card-bot" style="color:rgba(0,245,255,0.6);">Cyan · Violeta · Oscuro total</div>
+        <div class="theme-card-bot" style="color:rgba(0,245,255,0.6);">Cyan · Violeta · Oscuro</div>
       </div>
 
-      <!-- Neon Noir -->
+      <!-- NEON NOIR -->
       <div class="theme-card t-neon reveal reveal-d2">
         <div class="theme-card-top">
           <svg class="theme-icon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs><linearGradient id="tng" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse"><stop stop-color="#ff2d78"/><stop offset="1" stop-color="#bd00ff"/></linearGradient><filter id="tnglow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
             <circle cx="256" cy="256" r="180" stroke="#ff2d7822" stroke-width="20" fill="none"/>
             <circle cx="256" cy="256" r="180" stroke="url(#tng)" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="850 1131" transform="rotate(-90 256 256)" filter="url(#tnglow)" opacity=".9"/>
-            <g filter="url(#tnglow)" fill="none" stroke="url(#tng)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M188 346L256 176l68 170"/>            </g>
+            <g filter="url(#tnglow)" fill="none" stroke="url(#tng)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"><path d="M188 346L256 176l68 170"/></g>
           </svg>
           <div class="theme-name" style="color:#ff2d78;">Neon Noir</div>
+          <div class="theme-sub" style="color:#ff2d78;">Night City Uplink</div>
           <div class="theme-colors">
             <div class="theme-swatch" style="background:#ff2d78;"></div>
             <div class="theme-swatch" style="background:#bd00ff;"></div>
@@ -1014,17 +1044,17 @@ footer {
         <div class="theme-card-bot" style="color:rgba(255,45,120,0.6);">Rosa neón · Violeta · Negro</div>
       </div>
 
-      <!-- Shinobi -->
+      <!-- SHINOBI -->
       <div class="theme-card t-shin reveal reveal-d3">
         <div class="theme-card-top">
           <svg class="theme-icon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs><linearGradient id="tsg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse"><stop stop-color="#7ab0d0"/><stop offset="1" stop-color="#c0d0e0"/></linearGradient><filter id="tsglow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
             <circle cx="256" cy="256" r="180" stroke="#7ab0d022" stroke-width="20" fill="none"/>
             <circle cx="256" cy="256" r="180" stroke="url(#tsg)" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="850 1131" transform="rotate(-90 256 256)" filter="url(#tsglow)" opacity=".9"/>
-            <g filter="url(#tsglow)" fill="none" stroke="url(#tsg)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M188 346L256 176l68 170"/>            </g>
+            <g filter="url(#tsglow)" fill="none" stroke="url(#tsg)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"><path d="M188 346L256 176l68 170"/></g>
           </svg>
           <div class="theme-name" style="color:#7ab0d0;">Shinobi</div>
+          <div class="theme-sub" style="color:#7ab0d0;">気 Monitor de Energía</div>
           <div class="theme-colors">
             <div class="theme-swatch" style="background:#7ab0d0;"></div>
             <div class="theme-swatch" style="background:#c0d0e0;"></div>
@@ -1034,37 +1064,17 @@ footer {
         <div class="theme-card-bot" style="color:rgba(122,176,208,0.7);">Acero · Plata · Índigo</div>
       </div>
 
-      <!-- Minecraft -->
-      <div class="theme-card t-mc reveal reveal-d4">
-        <div class="theme-card-top">
-          <svg class="theme-icon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs><linearGradient id="tmg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse"><stop stop-color="#6aff3a"/><stop offset="1" stop-color="#ffaa00"/></linearGradient><filter id="tmglow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-            <circle cx="256" cy="256" r="180" stroke="#6aff3a22" stroke-width="20" fill="none"/>
-            <circle cx="256" cy="256" r="180" stroke="url(#tmg)" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="850 1131" transform="rotate(-90 256 256)" filter="url(#tmglow)" opacity=".9"/>
-            <g filter="url(#tmglow)" fill="none" stroke="url(#tmg)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M188 346L256 176l68 170"/>            </g>
-          </svg>
-          <div class="theme-name" style="color:#6aff3a;">Minecraft</div>
-          <div class="theme-colors">
-            <div class="theme-swatch" style="background:#6aff3a;"></div>
-            <div class="theme-swatch" style="background:#ffaa00;"></div>
-            <div class="theme-swatch" style="background:#0a1220;border:1px solid rgba(106,255,58,0.3)"></div>
-          </div>
-        </div>
-        <div class="theme-card-bot" style="color:rgba(106,255,58,0.6);">Verde píxel · Ámbar · Bosque</div>
-      </div>
-
-      <!-- Bloom -->
-      <div class="theme-card t-bloom reveal reveal-d5">
+      <!-- BLOOM -->
+      <div class="theme-card t-bloom reveal reveal-d4">
         <div class="theme-card-top">
           <svg class="theme-icon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs><linearGradient id="tbg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse"><stop stop-color="#e85c8a"/><stop offset="1" stop-color="#c47fb5"/></linearGradient><filter id="tbglow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
             <circle cx="256" cy="256" r="180" stroke="#e85c8a22" stroke-width="20" fill="none"/>
             <circle cx="256" cy="256" r="180" stroke="url(#tbg)" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="850 1131" transform="rotate(-90 256 256)" filter="url(#tbglow)" opacity=".9"/>
-            <g filter="url(#tbglow)" fill="none" stroke="url(#tbg)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M188 346L256 176l68 170"/>            </g>
+            <g filter="url(#tbglow)" fill="none" stroke="url(#tbg)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"><path d="M188 346L256 176l68 170"/></g>
           </svg>
           <div class="theme-name" style="color:#e85c8a;">Bloom</div>
+          <div class="theme-sub" style="color:#e85c8a;">Wellness · Rendimiento</div>
           <div class="theme-colors">
             <div class="theme-swatch" style="background:#e85c8a;"></div>
             <div class="theme-swatch" style="background:#c47fb5;"></div>
@@ -1072,6 +1082,56 @@ footer {
           </div>
         </div>
         <div class="theme-card-bot" style="color:rgba(232,92,138,0.6);">Rosa · Malva · Borgoña</div>
+      </div>
+
+    </div>
+
+    <!-- ── PRO exclusive themes (2) ── -->
+    <div class="themes-pro-sep reveal">★ Exclusivos AIRA PRO</div>
+    <div class="themes-grid-pro">
+
+      <!-- VOXEL PRO -->
+      <div class="theme-card theme-card-pro t-mc reveal reveal-d1" style="background:linear-gradient(160deg,#0a1220,#182030);">
+        <div class="theme-pro-badge">PRO</div>
+        <div class="theme-card-top">
+          <svg class="theme-icon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="tvg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse"><stop stop-color="#6aff3a"/><stop offset="1" stop-color="#ffaa00"/></linearGradient><filter id="tvglow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+            <circle cx="256" cy="256" r="180" stroke="#6aff3a22" stroke-width="20" fill="none"/>
+            <circle cx="256" cy="256" r="180" stroke="url(#tvg)" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="850 1131" transform="rotate(-90 256 256)" filter="url(#tvglow)" opacity=".9"/>
+            <g filter="url(#tvglow)" fill="none" stroke="url(#tvg)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"><path d="M188 346L256 176l68 170"/></g>
+          </svg>
+          <div class="theme-name" style="color:#6aff3a;">Voxel</div>
+          <div class="theme-sub" style="color:#6aff3a;">Block World</div>
+          <div class="theme-colors">
+            <div class="theme-swatch" style="background:#6aff3a;"></div>
+            <div class="theme-swatch" style="background:#ffaa00;"></div>
+            <div class="theme-swatch" style="background:#0a1220;border:1px solid rgba(106,255,58,0.3)"></div>
+          </div>
+        </div>
+        <div class="theme-card-bot" style="color:rgba(106,255,58,0.6);">Verde píxel · Ámbar · Bosque</div>
+        <a href="/app.html?subscribe=1" class="theme-cta-pro">🔓 Desbloquear con PRO</a>
+      </div>
+
+      <!-- SYNTHWAVE PRO -->
+      <div class="theme-card theme-card-pro t-synth reveal reveal-d2" style="background:linear-gradient(160deg,#0a0015,#150025);">
+        <div class="theme-pro-badge">PRO</div>
+        <div class="theme-card-top">
+          <svg class="theme-icon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="tswg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse"><stop stop-color="#ff00ff"/><stop offset="1" stop-color="#00ffff"/></linearGradient><filter id="tswglow"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+            <circle cx="256" cy="256" r="180" stroke="#ff00ff22" stroke-width="20" fill="none"/>
+            <circle cx="256" cy="256" r="180" stroke="url(#tswg)" stroke-width="20" fill="none" stroke-linecap="round" stroke-dasharray="850 1131" transform="rotate(-90 256 256)" filter="url(#tswglow)" opacity=".9"/>
+            <g filter="url(#tswglow)" fill="none" stroke="url(#tswg)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"><path d="M188 346L256 176l68 170"/></g>
+          </svg>
+          <div class="theme-name" style="color:#ff00ff;">Synthwave</div>
+          <div class="theme-sub" style="color:#ff00ff;">Retrowave 80s</div>
+          <div class="theme-colors">
+            <div class="theme-swatch" style="background:#ff00ff;"></div>
+            <div class="theme-swatch" style="background:#00ffff;"></div>
+            <div class="theme-swatch" style="background:#0a0015;border:1px solid rgba(255,0,255,0.3)"></div>
+          </div>
+        </div>
+        <div class="theme-card-bot" style="color:rgba(255,0,255,0.6);">Magenta · Cyan · Noche</div>
+        <a href="/app.html?subscribe=1" class="theme-cta-pro">🔓 Desbloquear con PRO</a>
       </div>
 
     </div>
@@ -1099,7 +1159,7 @@ footer {
         <div class="pc-note-sub">Para siempre</div>
         <div class="pc-divider"></div>
         <ul class="pc-feats">
-          <li><span class="ci">✓</span><span class="ct">4 temas visuales — Futuristic, Bloom, Neon Noir, Shinobi</span></li>
+          <li><span class="ci">✓</span><span class="ct">4 temas visuales — Aether, Bloom, Neon Noir, Shinobi</span></li>
           <li><span class="ci">✓</span><span class="ct">Recovery Score diario</span></li>
           <li><span class="ci">✓</span><span class="ct">Análisis de sueño por etapas</span></li>
           <li><span class="ci">✓</span><span class="ct">Frecuencia cardíaca en tiempo real</span></li>
@@ -1130,7 +1190,7 @@ footer {
           </li>
           <li>
             <span class="ci">🎨</span>
-            <span class="ct"><strong>Temas PRO exclusivos</strong> — Voxel (block-world) + Synthwave (Retrowave 80s) + futuros drops</span>
+            <span class="ct"><strong>Temas PRO exclusivos</strong> — <strong>Voxel</strong> (Block World) + <strong>Synthwave</strong> (Retrowave 80s) + futuros drops</span>
           </li>
           <li>
             <span class="ci">📊</span>
@@ -1150,7 +1210,7 @@ footer {
           </li>
         </ul>
         <div class="pc-cta">
-          <a href="/app.html" class="btn btn-primary" style="font-size:15px;padding:16px;">Comenzar prueba gratis →</a>
+          <a href="/app.html?subscribe=1" class="btn btn-primary" style="font-size:15px;padding:16px;">Comenzar prueba gratis →</a>
           <p class="pc-legal">Sin tarjeta cobrada hoy · Cancela antes de 7 días y no pagas nada · $9.99/mes después</p>
         </div>
       </div>
@@ -1262,8 +1322,8 @@ footer {
       <h2 class="section-title">Conoce tu cuerpo.<br><span>De verdad.</span></h2>
       <p class="section-sub" style="margin-top:16px;">Recovery, sueño, frecuencia cardíaca y actividad. Todo en un panel que te habla en tu idioma, con tu estética y sin cobrarte un euro.</p>
       <div class="cta-btns">
-        <a href="/app.html" class="btn btn-primary" style="font-size:17px;padding:18px 40px;">
-          Abrir AIRA gratis →
+        <a href="/app.html?subscribe=1" class="btn btn-primary" style="font-size:17px;padding:18px 40px;">
+          Comenzar 7 días PRO gratis →
         </a>
         <a href="#features" class="btn btn-ghost" style="font-size:17px;padding:18px 32px;">
           Ver características
