@@ -8690,9 +8690,9 @@ function toggleHR() {
   document.getElementById('hr-card').classList.toggle('open');
 }
 function setHRZones({ zones=[], restHR=61, maxHR=172 }) {
-  // Cajas siempre visibles
-  const rEl = document.getElementById('hr-rest'); if (rEl) rEl.textContent = restHR;
-  const mEl = document.getElementById('hr-max');  if (mEl) mEl.textContent = maxHR;
+  // Only update if real values passed (null = no data yet, keep showing current/demo)
+  const rEl = document.getElementById('hr-rest'); if (rEl && restHR != null) rEl.textContent = restHR;
+  const mEl = document.getElementById('hr-max');  if (mEl && maxHR  != null) mEl.textContent = maxHR;
   // Zonas (escala relativa al máximo de minutos entre todas)
   const base  = zones.find(z => z.name === 'Out of Range')?.minutes || 0;
   const fat   = zones.find(z => z.name === 'Fat Burn')?.minutes     || 0;
@@ -10261,9 +10261,16 @@ async function loadRealGoogleData() {
     const st=Math.max(1,Math.floor(ds.length/48));
     hrHist=ds.filter((_,i)=>i%st===0).slice(0,48).map(p=>parseInt(p.heartRate?.beatsPerMinute)||0).reverse();
     buildHRC(hrHist);
+  } else {
+    // No live HR data — clear HTML demo values
+    ['hrv','hrlive'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});
   }
+  // Google Health doesn't expose skin temp — clear HTML demo value
+  { const e=document.getElementById('tempv'); if(e) e.textContent='—'; }
   const rhrRaw=rhrD?.dataPoints?.[0]?.dailyRestingHeartRate?.beatsPerMinute;
-  if (rhrRaw) rhr_v=parseInt(rhrRaw);
+  if (rhrRaw) { rhr_v=parseInt(rhrRaw); }
+  else { const e=document.getElementById('hr-rest'); if(e) e.textContent='—'; }
+  if (!maxHR_v) { const e=document.getElementById('hr-max'); if(e) e.textContent='—'; }
   if (stD?.dataPoints?.length) {
     const tot=stD.dataPoints.reduce((s,p)=>s+(parseInt(p.steps?.countSum)||0),0);
     document.getElementById('stepsv').textContent=tot.toLocaleString('en-US');
@@ -10338,10 +10345,11 @@ async function loadRealGoogleData() {
     if (!window._drAnimDone) { window._drAnimDone = true; setTimeout(animateDailyRings, 200); }
   }
   notifCheckRHR(rhr_v); notifMarkSync();
-  setStressBars({hrv:68,rhr:rhr_v,br:14});
-  setHRZones({zones:azZones,restHR:rhr_v,maxHR:maxHR_v||140});
+  // Pass null for rhr/maxHR when using defaults so setHRZones doesn't show fake values
+  setHRZones({zones:azZones, restHR:_rhrReal?rhr_v:null, maxHR:maxHR_v>0?maxHR_v:null});
   syncTicker();
-  loadHealthMetricsGoogle(td, rhr_v);
+  // Pass null rhr when not real so loadHealthMetricsGoogle skips hardcoded fallbacks
+  loadHealthMetricsGoogle(td, _rhrReal?rhr_v:null);
   // Render recent workouts from exercise session data
   if (exD?.dataPoints?.length) {
     const ghSessions = exD.dataPoints.map(p => {
@@ -10367,20 +10375,34 @@ async function loadRealGoogleData() {
 async function loadHealthMetricsGoogle(td, rhr_v) {
   const B=GoogleHealthSource.base, enc=encodeURIComponent;
   const set=(id,v)=>{const el=document.getElementById(id); if(el&&v!=null&&!isNaN(+v))el.textContent=Math.round(+v);};
+  // Clear HTML demo values upfront — if API returns no data these will stay "—"
+  ['spo2v','hrvv','resp-val'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});
   try {
     const [spo2,hrv,br] = await Promise.all([
       _ghGet(`${B}/users/me/dataTypes/daily-oxygen-saturation/dataPoints?filter=${enc('daily_oxygen_saturation.date = "'+td+'"')}`),
       _ghGet(`${B}/users/me/dataTypes/daily-heart-rate-variability/dataPoints?filter=${enc('daily_heart_rate_variability.date = "'+td+'"')}`),
       _ghGet(`${B}/users/me/dataTypes/daily-respiratory-rate/dataPoints?filter=${enc('daily_respiratory_rate.date = "'+td+'"')}`),
     ]);
-    const sp=spo2?.dataPoints?.[0]?.dailyOxygenSaturation; set('spo2v', sp?.avg??sp?.avgPercent??sp?.value);
-    const hv=hrv?.dataPoints?.[0]?.dailyHeartRateVariability;  set('hrvv',  hv?.rmssd??hv?.dailyRmssd??hv?.value);
-    const bv=br?.dataPoints?.[0]?.dailyRespiratoryRate;         set('resp-val', bv?.rate??bv?.breathingRate??bv?.value);
-    const hrvReal = Math.round(+(hv?.rmssd??hv?.dailyRmssd??hv?.value??68));
-    const brReal  = Math.round(+(bv?.rate??bv?.breathingRate??bv?.value??14));
-    const spo2Real = parseFloat(sp?.avg??sp?.avgPercent??sp?.value??98);
-    setStressBars({ hrv: hrvReal, rhr: rhr_v || 65, br: brReal });
-    updateZoneDots({ hrv: hrvReal, spo2: spo2Real });
+    const sp=spo2?.dataPoints?.[0]?.dailyOxygenSaturation;
+    const hv=hrv?.dataPoints?.[0]?.dailyHeartRateVariability;
+    const bv=br?.dataPoints?.[0]?.dailyRespiratoryRate;
+    // Update displays only when real values exist — no hardcoded fallbacks
+    set('spo2v',    sp?.avg??sp?.avgPercent??sp?.value);
+    set('hrvv',     hv?.rmssd??hv?.dailyRmssd??hv?.value);
+    set('resp-val', bv?.rate??bv?.breathingRate??bv?.value);
+    const spv  = sp?.avg??sp?.avgPercent??sp?.value;
+    const hvv  = hv?.rmssd??hv?.dailyRmssd??hv?.value;
+    const bvv  = bv?.rate??bv?.breathingRate??bv?.value;
+    const hrvNum  = hvv  != null ? Math.round(+hvv)  : null;
+    const brNum   = bvv  != null ? Math.round(+bvv)  : null;
+    const spo2Num = spv  != null ? parseFloat(spv)   : null;
+    // Stress bars and zone dots — only when we have at least HRV + BR + rhr
+    if (hrvNum != null && brNum != null && rhr_v != null) {
+      setStressBars({ hrv: hrvNum, rhr: rhr_v, br: brNum });
+    }
+    if (hrvNum != null && spo2Num != null) {
+      updateZoneDots({ hrv: hrvNum, spo2: spo2Num });
+    }
     if (typeof syncTicker==='function') syncTicker();
   } catch(e) {}
 }
