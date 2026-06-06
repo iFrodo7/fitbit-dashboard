@@ -10245,6 +10245,14 @@ function _ghSleepToFitbit(dp) {
 }
 // ── Initial full load ─────────────────────────────────────────────────────
 async function loadRealGoogleData() {
+  // Wipe every HTML demo value up front so nothing leaks if the API returns
+  // no data. animVals() is skipped for authenticated users, but these elements
+  // still carry their initial HTML defaults (set at markup time).
+  const _clr = (id, v='—') => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  _clr('stressv', '0'); _clr('steps-active-val', '0');
+  // Recovery ring — reset arc + all score labels to —
+  ['rscore','hud-rscore','mc-rscore','nrt-rscore','nn-rscore','blm-nv-avg'].forEach(id=>_clr(id,'—'));
+  const _rfil = document.getElementById('rfil'); if(_rfil) _rfil.style.strokeDashoffset='339';
   const td=new Date().toISOString().split('T')[0];
   const B=GoogleHealthSource.base, enc=encodeURIComponent;
   const nd=_ghNextDay(td); // tomorrow
