@@ -10407,10 +10407,10 @@ async function loadRealGoogleData() {
     // Try all known field names; fall back to the first numeric value found
     // in totalCalories so we survive API field name changes.
     const _tc=_cdp?.totalCalories||_cdp?.calories||_cdp?.energy||{};
-    const _tcNum=_tc.kilocaloriesSum??_tc.kilocalories??_tc.totalKilocalories??_tc.kcal??_tc.value??_tc.count??
+    // kcalSum confirmed as real field name from production API response.
+    const _tcNum=_tc.kcalSum??_tc.kilocaloriesSum??_tc.kilocalories??_tc.totalKilocalories??_tc.kcal??_tc.value??_tc.count??
       (Object.values(_tc).find(v=>typeof v==='number')??null);
     const totCal=Math.round(parseFloat(_tcNum)||0);
-    console.log('[gh cal]', JSON.stringify(_cdp), 'parsed=', totCal);
     document.getElementById('calv').textContent=totCal||'0';
     document.getElementById('cal-act').textContent=totCal?totCal.toLocaleString():'0';
   } else {
@@ -10447,9 +10447,11 @@ async function loadRealGoogleData() {
   if (azD?.rollupDataPoints?.length) {
     const _adp=azD.rollupDataPoints[0];
     const az=_adp?.activeZoneMinutes||_adp?.activeZones||{};
-    const fatMin  =parseInt(az.fatBurnActiveZoneMinutesSum??az.fatBurnActiveZoneMinutes??az.fatBurn??0)||0;
-    const cardioMin=parseInt(az.cardioActiveZoneMinutesSum??az.cardioActiveZoneMinutes??az.cardio??0)||0;
-    const peakMin  =parseInt(az.peakActiveZoneMinutesSum??az.peakActiveZoneMinutes??az.peak??0)||0;
+    console.log('[gh azm]', JSON.stringify(_adp)); // debug: reveal real field names
+    const _n=(obj,keys)=>parseInt(keys.reduce((v,k)=>v??obj[k],null)??(Object.values(obj).find(v=>typeof v==='number')??0))||0;
+    const fatMin  =_n(az,['fatBurnActiveZoneMinutesSum','fatBurnActiveZoneMinutes','fatBurnMinutesSum','fatBurn','fat']);
+    const cardioMin=_n(az,['cardioActiveZoneMinutesSum','cardioActiveZoneMinutes','cardioMinutesSum','cardio']);
+    const peakMin  =_n(az,['peakActiveZoneMinutesSum','peakActiveZoneMinutes','peakMinutesSum','peak']);
     _azCardio=cardioMin; _azPeak=peakMin;
     azZones=[{name:'Fat Burn',minutes:fatMin},{name:'Cardio',minutes:cardioMin},{name:'Peak',minutes:peakMin}];
     const el_a=document.getElementById('steps-active-val'); if(el_a) el_a.textContent=fatMin+cardioMin+peakMin;
@@ -10578,7 +10580,7 @@ async function pollFastGoogle() {
     if (calD?.rollupDataPoints?.length) {
       const _cdp=calD.rollupDataPoints[0];
       const _tc=_cdp?.totalCalories||_cdp?.calories||_cdp?.energy||{};
-      const _tcNum=_tc.kilocaloriesSum??_tc.kilocalories??_tc.totalKilocalories??_tc.kcal??_tc.value??_tc.count??(Object.values(_tc).find(v=>typeof v==='number')??null);
+      const _tcNum=_tc.kcalSum??_tc.kilocaloriesSum??_tc.kilocalories??_tc.totalKilocalories??_tc.kcal??_tc.value??_tc.count??(Object.values(_tc).find(v=>typeof v==='number')??null);
       const totCal=Math.round(parseFloat(_tcNum)||0);
       const _prevCal=parseInt(document.getElementById('calv').textContent.replace(/\D/g,''))||0;
       if (totCal!==_prevCal) {
