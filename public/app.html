@@ -10277,8 +10277,10 @@ async function loadRealGoogleData() {
   _clr('hr-day-min','—'); _clr('hr-day-avg','—'); _clr('hr-day-max','—');
   // Stress sub-value bars (HRV/RHR/BR) — demo "68ms / 61bpm / 14rpm"
   _clr('sval-hrv','—'); _clr('sval-rhr','—'); _clr('sval-br','—');
-  // HRV zone label and streak badge
-  _clr('u-hrv','—'); _clr('dr-stk','0');
+  // HRV zone label
+  _clr('u-hrv','—');
+  // Steps section sub-metrics — never updated by Google flow
+  _clr('steps-streak-val','0');
   const td=new Date().toISOString().split('T')[0];
   const B=GoogleHealthSource.base, enc=encodeURIComponent;
   const nd=_ghNextDay(td); // tomorrow
