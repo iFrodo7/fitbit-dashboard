@@ -10335,6 +10335,8 @@ async function loadRealGoogleData() {
   _clr('stressv','0'); _clr('steps-active-val','0');
   _clr('strain-val','0'); _clr('sleep-pct-val','0');
   { const d=document.getElementById('stress-zone-dot'); if(d) d.style.left='0%'; }
+  // Reset HRV / SpO2 / Temp zone dots a valores neutros saludables antes de fetch
+  updateZoneDots();
   // Recovery ring — reset arc + all score labels to —
   ['rscore','hud-rscore','mc-rscore','nrt-rscore','nn-rscore','blm-nv-avg'].forEach(id=>_clr(id,'—'));
   const _rfil = document.getElementById('rfil'); if(_rfil) _rfil.style.strokeDashoffset='339';
@@ -10575,9 +10577,8 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
         br:  brNum  ?? 14,
       });
     }
-    if (hrvNum != null && spo2Num != null) {
-      updateZoneDots({ hrv: hrvNum, spo2: spo2Num });
-    }
+    // Actualiza dots con datos reales; si la API no los devuelve, usa defaults neutros
+    updateZoneDots({ hrv: hrvNum ?? 48, spo2: spo2Num ?? 98 });
     if (typeof syncTicker==='function') syncTicker();
   } catch(e) {}
 }
