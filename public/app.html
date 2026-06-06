@@ -10285,6 +10285,7 @@ async function loadRealGoogleData() {
   // Numeric displays with HTML demo defaults
   _clr('stressv','0'); _clr('steps-active-val','0');
   _clr('strain-val','0'); _clr('sleep-pct-val','0');
+  { const d=document.getElementById('stress-zone-dot'); if(d) d.style.left='0%'; }
   // Recovery ring — reset arc + all score labels to —
   ['rscore','hud-rscore','mc-rscore','nrt-rscore','nn-rscore','blm-nv-avg'].forEach(id=>_clr(id,'—'));
   const _rfil = document.getElementById('rfil'); if(_rfil) _rfil.style.strokeDashoffset='339';
@@ -10472,9 +10473,14 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
     const hrvNum  = hvv  != null ? Math.round(+hvv)  : null;
     const brNum   = bvv  != null ? Math.round(+bvv)  : null;
     const spo2Num = spv  != null ? parseFloat(spv)   : null;
-    // Stress bars and zone dots — only when we have at least HRV + BR + rhr
-    if (hrvNum != null && brNum != null && rhr_v != null) {
-      setStressBars({ hrv: hrvNum, rhr: rhr_v, br: brNum });
+    // Stress bars — usa los datos reales disponibles; para métricas ausentes
+    // (HRV / BR que muchos dispositivos no rastrean) aplica defaults neutrales
+    if (rhr_v != null || hrvNum != null || brNum != null) {
+      setStressBars({
+        hrv: hrvNum ?? 68,
+        rhr: rhr_v  ?? 65,
+        br:  brNum  ?? 14,
+      });
     }
     if (hrvNum != null && spo2Num != null) {
       updateZoneDots({ hrv: hrvNum, spo2: spo2Num });
@@ -10744,7 +10750,17 @@ async function loadHealthMetrics(h, td) {
     // Repinta dots + sub-métricas con los valores reales (cae a defaults si faltan)
     const hrvR  = hrv?.hrv?.[0]?.value?.dailyRmssd;
     const spo2R = spo2?.value?.avg;
+    const brR   = br?.br?.[0]?.value?.breathingRate;
     updateZoneDots({ hrv: hrvR != null ? Math.round(hrvR) : 48, spo2: spo2R != null ? Math.round(spo2R) : 98 });
+    // Recalcula barras de estrés con HRV y BR reales (no hardcodeados)
+    if (hrvR != null || brR != null) {
+      const curRhr = parseFloat(document.getElementById('str-rhr')?.textContent) || 61;
+      setStressBars({
+        hrv: hrvR != null ? Math.round(hrvR) : (parseFloat(document.getElementById('str-hrv')?.textContent) || 68),
+        rhr: curRhr,
+        br:  brR  != null ? Math.round(brR)  : (parseFloat(document.getElementById('resp-val')?.textContent) || 14),
+      });
+    }
     if (typeof syncTicker === 'function') syncTicker();
   } catch (e) {}
 }
