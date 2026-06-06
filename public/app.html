@@ -3973,7 +3973,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           </div>
           <div class="cal-split" style="margin-top:6px;">
             <div class="cal-box"><div class="cal-box-lbl" id="lbl-hrpeak">PICO</div><div class="cal-box-val" id="hr-day-max">172</div><div class="cal-box-unit">BPM HOY</div></div>
-            <div class="cal-box"><div class="cal-box-lbl" id="lbl-hrvar">VARIACIÓN</div><div class="cal-box-val" id="hr-day-range">120</div><div class="cal-box-unit">BPM RANGO</div></div>
+            <div class="cal-box"><div class="cal-box-lbl" id="lbl-hrvar">VARIACIÓN</div><div class="cal-box-val" id="hr-day-range">—</div><div class="cal-box-unit">BPM RANGO</div></div>
           </div>
         </div>
       </div><!-- /rcs -->
@@ -3999,7 +3999,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           </div>
           <div class="cal-split" style="margin-top:6px;">
             <div class="cal-box"><div class="cal-box-lbl" id="lbl-steps-active">MIN. ACTIVOS</div><div class="cal-box-val" id="steps-active-val">47</div><div class="cal-box-unit">MIN HOY</div></div>
-            <div class="cal-box"><div class="cal-box-lbl" id="lbl-steps-streak">RACHA</div><div class="cal-box-val" id="steps-streak-val">4</div><div class="cal-box-unit">DÍAS META</div></div>
+            <div class="cal-box"><div class="cal-box-lbl" id="lbl-steps-streak">RACHA</div><div class="cal-box-val" id="steps-streak-val">—</div><div class="cal-box-unit">DÍAS META</div></div>
           </div>
         </div>
         <div>
@@ -5979,7 +5979,7 @@ function _finishSelectTheme(t) {
   refreshBell();
   initSwipeNav();
   _recordThemeDay(t);
-  checkAchievements(t);
+  checkAchievements(t, true);
   _updateAchBadges(t);
 }
 
@@ -9118,18 +9118,25 @@ var _DR_DEFS=[
 ];
 
 // Consecutive days the step goal was met, reading from fb_activity_history.
+// Starts counting from yesterday so "today not yet done" doesn't break the streak.
 function _getStepGoalStreak() {
   try {
     var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
     if(!hist.length) return 0;
     var goal=(_loadDRGoals().stp)||10000;
+    // Check if today's goal is already met (to add it on top of the base streak)
+    var todayUTC=new Date().toISOString().slice(0,10);
+    var todayDay=hist.find(function(e){return e.date===todayUTC;});
+    var todayMet=!!(todayDay&&todayDay.steps>=goal);
+    // Count consecutive completed days starting from yesterday
     var streak=0;
-    for(var i=0;i<7;i++){
+    for(var i=1;i<=7;i++){
       var d=new Date(Date.now()-i*86400000).toISOString().slice(0,10);
       var day=hist.find(function(e){return e.date===d;});
       if(day&&day.steps>=goal) streak++;
       else break;
     }
+    if(todayMet) streak++;
     return streak;
   } catch(e){return 0;}
 }
@@ -9467,7 +9474,11 @@ function updateDailyRings() {
   var mult=pro?dt.mult:1.0;
   var ag=pro?{stp:Math.round(goals.stp*mult),cal:Math.round(goals.cal*mult),act:Math.round(goals.act*mult)}:goals;
   // Registra actividad (ambos planes — útil si el usuario hace upgrade)
-  if(isReal&&(steps||cal||actMin)) _recordActivityDay(steps,cal,actMin);
+  if(isReal&&(steps||cal||actMin)){
+    _recordActivityDay(steps,cal,actMin);
+    var _ss=_getStepGoalStreak(),_sse=document.getElementById('steps-streak-val');
+    if(_sse) _sse.textContent=_ss>0?_ss:'—';
+  }
   // Chip de tipo de día — Pro: tipo de día adaptativo | Standard: 🔒 upsell
   var dtEl=document.getElementById('dr-daytype');
   if(dtEl){
@@ -9581,7 +9592,7 @@ function updateDailyRings() {
   // check goal achievements
   var allHit = data.every(function(d){ return d.pct >= 100; });
   var anyHit = data.some(function(d){ return d.pct >= 100; });
-  if (anyHit) recordGoalHit(allHit);
+  if (anyHit && isReal) recordGoalHit(allHit);
   // raw (uncapped) percentages for 150% check
   var rawPcts = {
     stp: steps/goals.stp*100,
@@ -10330,7 +10341,7 @@ async function loadRealGoogleData() {
   // Recovery / status text labels
   _clr('wrec','—'); _clr('rstatus','—');
   // HR intraday sub-metrics — not available from Google Health API
-  _clr('hr-day-min','—'); _clr('hr-day-avg','—'); _clr('hr-day-max','—');
+  _clr('hr-day-min','—'); _clr('hr-day-avg','—'); _clr('hr-day-max','—'); _clr('hr-day-range','—');
   // Stress sub-value bars (HRV/RHR/BR) — demo "68ms / 61bpm / 14rpm"
   _clr('sval-hrv','—'); _clr('sval-rhr','—'); _clr('sval-br','—');
   // Stress card boxes (str-hrv=68, str-rhr=61 hardcoded in HTML — not covered by sval-* above)
@@ -10773,7 +10784,7 @@ async function loadReal() {
       const el_mn=document.getElementById('hr-day-min'); if(el_mn) el_mn.textContent=minHR_real<999?minHR_real:52;
       const el_av=document.getElementById('hr-day-avg'); if(el_av) el_av.textContent=avgHR;
       const el_mx=document.getElementById('hr-day-max'); if(el_mx) el_mx.textContent=maxHR_real||172;
-      const el_rn=document.getElementById('hr-day-range'); if(el_rn) el_rn.textContent=(maxHR_real-(minHR_real<999?minHR_real:52))||120;
+      const el_rn=document.getElementById('hr-day-range'); if(el_rn) el_rn.textContent=(maxHR_real-(minHR_real<999?minHR_real:52))||'—';
       const st=Math.max(1,Math.floor(ds.length/48)); hrHist=ds.filter((_,i)=>i%st===0).slice(-48).map(d=>d.value); buildHRC(hrHist);
     }
     if (sl?.summary?.stages) updSl(sl.summary.stages);
@@ -12177,8 +12188,19 @@ function _achCountForTheme(t) {
   var u = _loadAchUnlocked(); return (u[t]||[]).filter(Boolean).length;
 }
 
-function checkAchievements(t) {
+function checkAchievements(t, silent) {
   if (!t) t = (typeof theme !== 'undefined') ? theme : 'naruto';
+  // v3: clear stats inflated by unguarded recordGoalHit calls in demo mode
+  if (!localStorage.getItem('fb_ach_clean_v3')) {
+    try {
+      var _as3 = JSON.parse(localStorage.getItem('fb_ach_stats')||'{}');
+      ['goalsHit','tripleHit','allGoalsDays','actMinHits','superadoHit',
+       'tripleStreakCur','tripleStreakMax','anyRingStreakCur','anyRingStreakMax',
+       'calStreakCur','calStreakMax'].forEach(function(k){ delete _as3[k]; });
+      localStorage.setItem('fb_ach_stats', JSON.stringify(_as3));
+    } catch(e) {}
+    localStorage.setItem('fb_ach_clean_v3', '1');
+  }
   var s = _loadAchStats();
   var u = _loadAchUnlocked();
   // Detect first-time theme use before initializing the array
@@ -12194,9 +12216,10 @@ function checkAchievements(t) {
     if (u[t][i]) return;
     if (def.check(s, t, u)) {
       u[t][i] = true;
-      // First theme use: silently seed already-earned achievements; only animate
-      // explorer (idx 0) since it's genuinely "discovered this theme right now".
-      if (!isNewTheme || i === 0) newUnlocks.push(i);
+      // silent=true (selectTheme): seed without animating so data-update path
+      // only fires achievements that cross their threshold for the first time.
+      // First theme use: silently seed already-earned; only animate explorer (idx 0).
+      if (!silent && (!isNewTheme || i === 0)) newUnlocks.push(i);
     }
   });
   _saveAchStats(s); _saveAchUnlocked(u);
