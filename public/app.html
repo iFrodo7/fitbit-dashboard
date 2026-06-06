@@ -10298,6 +10298,14 @@ async function loadRealGoogleData() {
   _clr('u-hrv','—');
   // Steps section sub-metrics — never updated by Google flow
   _clr('steps-streak-val','—');
+  // Sleep section — ALL values are hardcoded HTML demos (7h 22m / 84/100 / 91% / etc.)
+  // Both authenticated users see the same fake data because these were never cleared.
+  _clr('sl-total-v','—'); _clr('sl-start-v','—'); _clr('sl-end-v','—');
+  _clr('sl-score-v','—'); _clr('sl-eff-v','—'); _clr('sl-wake-v','—');
+  document.querySelectorAll('.slfi').forEach(function(e){e.style.width='0%';});
+  document.querySelectorAll('.sltm').forEach(function(e){e.textContent='—';});
+  { const e=document.getElementById('sleep-score-dot'); if(e) e.style.left='0%'; }
+  { const e=document.getElementById('sleep-pct-bar');   if(e) e.style.width='0%'; }
   const td=new Date().toISOString().split('T')[0];
   const B=GoogleHealthSource.base, enc=encodeURIComponent;
   const nd=_ghNextDay(td); // tomorrow
