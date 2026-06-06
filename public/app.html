@@ -6103,9 +6103,16 @@ function renderAiraInsights() {
     }
   }
 
-  if (i1x) setText('i1x', i1x);
-  if (i2x) setText('i2x', i2x);
-  if (i3x) setText('i3x', i3x);
+  // Always overwrite — clears stale demo text set by applyThemeText() on load
+  setText('i1x', i1x);
+  setText('i2x', i2x);
+  setText('i3x', i3x);
+  // Logged in but nothing to show yet — give a "waiting for device data" hint
+  if (typeof isReal !== 'undefined' && isReal && !i1x && !i2x && !i3x) {
+    setText('i1x', es
+      ? 'Esperando datos del dispositivo. Sincroniza tu wearable para ver tu análisis.'
+      : 'Waiting for device data. Sync your wearable to see your analysis.');
+  }
 }
 
 // Readiness status label — themed flavor that reflects the real recovery score.
@@ -10350,26 +10357,27 @@ async function loadRealGoogleData() {
   syncTicker();
   // Pass null rhr when not real so loadHealthMetricsGoogle skips hardcoded fallbacks
   loadHealthMetricsGoogle(td, _rhrReal?rhr_v:null);
-  // Render recent workouts from exercise session data
-  if (exD?.dataPoints?.length) {
-    const ghSessions = exD.dataPoints.map(p => {
-      const ex = p.exerciseSession || p;
-      const start = ex.startTime || (p.interval?.civilStartTime) || '';
-      const end = ex.endTime || (p.interval?.civilEndTime) || '';
-      return {
-        activityTypeId: null,
-        activityName: ex.exerciseType || ex.activityType || '',
-        startTime: start,
-        duration: start && end ? new Date(end)-new Date(start) : (ex.durationMs||0),
-        calories: Math.round(ex.calories?.kilocalories||ex.calories?.value||0),
-        distance: ex.distance?.meters ? ex.distance.meters/1000 : (ex.distance?.kilometers||null),
-        averageHeartRate: ex.averageHeartRate?.beatsPerMinute||null,
-        steps: ex.steps?.countSum||null,
-        heartRateZones: ex.heartRateZones||null,
-      };
-    });
-    renderRecentActivities(ghSessions);
-  }
+  // Always call renderRecentActivities — even empty array shows "Sin entrenamientos"
+  // instead of leaving the HTML demo activities (Carrera/Meditación/Ciclismo) on screen
+  const ghSessions = (exD?.dataPoints||[]).map(p => {
+    const ex = p.exerciseSession || p;
+    const start = ex.startTime || (p.interval?.civilStartTime) || '';
+    const end = ex.endTime || (p.interval?.civilEndTime) || '';
+    return {
+      activityTypeId: null,
+      activityName: ex.exerciseType || ex.activityType || '',
+      startTime: start,
+      duration: start && end ? new Date(end)-new Date(start) : (ex.durationMs||0),
+      calories: Math.round(ex.calories?.kilocalories||ex.calories?.value||0),
+      distance: ex.distance?.meters ? ex.distance.meters/1000 : (ex.distance?.kilometers||null),
+      averageHeartRate: ex.averageHeartRate?.beatsPerMinute||null,
+      steps: ex.steps?.countSum||null,
+      heartRateZones: ex.heartRateZones||null,
+    };
+  });
+  renderRecentActivities(ghSessions);
+  // Refresh AIRA insights with real (or empty) data — clears demo text from initial load
+  if (typeof renderAiraInsights === 'function') renderAiraInsights();
 }
 // ── SpO2 / HRV / Breathing rate ───────────────────────────────────────────
 async function loadHealthMetricsGoogle(td, rhr_v) {
