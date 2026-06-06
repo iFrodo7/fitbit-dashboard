@@ -10244,6 +10244,9 @@ async function loadRealGoogle(displayName) {
 // ══════ GOOGLE HEALTH API — DATA LAYER ══════════════════════════════════════
 // Helpers
 function _ghNextDay(d) { const x=new Date(d+'T12:00:00Z'); x.setDate(x.getDate()+1); return x.toISOString().split('T')[0]; }
+// Local-timezone date string (YYYY-MM-DD). msOffset shifts by milliseconds.
+// Avoids UTC off-by-one after ~18:00 in UTC-6 and similar timezones.
+function _localDay(msOffset) { const t=new Date(Date.now()+(msOffset||0)); return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0'); }
 async function _ghGet(url) {
   if (!token) return null;
   try {
@@ -10307,12 +10310,12 @@ async function loadRealGoogleData() {
   document.querySelectorAll('.sltm').forEach(function(e){e.textContent='—';});
   { const e=document.getElementById('sleep-score-dot'); if(e) e.style.left='0%'; }
   { const e=document.getElementById('sleep-pct-bar');   if(e) e.style.width='0%'; }
-  const td=new Date().toISOString().split('T')[0];
+  const td=_localDay();
   const B=GoogleHealthSource.base, enc=encodeURIComponent;
   const nd=_ghNextDay(td); // tomorrow
   const _ydx=new Date(td+'T12:00:00Z'); _ydx.setDate(_ydx.getDate()-1);
   const yd=_ydx.toISOString().split('T')[0]; // yesterday — sleep look-back
-  const after7=new Date(Date.now()-7*864e5).toISOString().split('T')[0];
+  const after7=_localDay(-7*864e5);
   const [hrD,rhrD,stD,slD,calD,azD,exD] = await Promise.all([
     _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=1440`),
     _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?filter=${enc('daily_resting_heart_rate.date = "'+td+'"')}`),
@@ -10493,7 +10496,7 @@ async function pollFastGoogle() {
   if (!token) return;
   const ring=document.getElementById('sring'); ring.classList.add('on'); document.body.classList.add('is-syncing'); startCd();
   try {
-    const td=new Date().toISOString().split('T')[0];
+    const td=_localDay();
     const B=GoogleHealthSource.base, enc=encodeURIComponent, nd=_ghNextDay(td);
     const [hrD,stD] = await Promise.all([
       _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=1440`),
@@ -10521,7 +10524,7 @@ async function pollFastGoogle() {
 async function pollSlowGoogle() {
   if (!token) return;
   try {
-    const td=new Date().toISOString().split('T')[0], nd=_ghNextDay(td);
+    const td=_localDay(), nd=_ghNextDay(td);
     const _psx=new Date(td+'T12:00:00Z'); _psx.setDate(_psx.getDate()-1);
     const yd=_psx.toISOString().split('T')[0]; // look back to yesterday
     const B=GoogleHealthSource.base, enc=encodeURIComponent;
@@ -10616,7 +10619,7 @@ async function pollFast() {
   if (!token) return;
   const ring=document.getElementById('sring'); ring.classList.add('on'); document.body.classList.add('is-syncing'); startCd();
   try {
-    const h={'Authorization':'Bearer '+token}, td=new Date().toISOString().split('T')[0];
+    const h={'Authorization':'Bearer '+token}, td=_localDay();
     const [hr,act] = await Promise.all([fetch(HS.ep.heartIntraday(td),{headers:h}),fetch(HS.ep.activities(td),{headers:h})]);
     if (hr.status===401) { if(await refreshTok())await pollFast(); else stopPoll(); return; }
     const hd=await hr.json(), ad=await act.json();
@@ -10651,8 +10654,8 @@ function stopPoll() { clearInterval(ptmr);clearInterval(cdtmr);clearInterval(slo
 async function loadReal() {
   showLoad();
   try {
-    const h={'Authorization':'Bearer '+token}, td=new Date().toISOString().split('T')[0];
-    const after7=new Date(Date.now()-7*864e5).toISOString().split('T')[0];
+    const h={'Authorization':'Bearer '+token}, td=_localDay();
+    const after7=_localDay(-7*864e5);
     const [pr,ac,hr,sl,wl] = await Promise.all([fetch(HS.ep.profile(),{headers:h}).then(r=>r.json()),fetch(HS.ep.activities(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.heartIntraday(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.sleepToday(),{headers:h}).then(r=>r.json()),Promise.race([fetch(HS.ep.workoutList(after7,3),{headers:h}).then(r=>r.ok?r.json():null),new Promise(r=>setTimeout(()=>r(null),4000))]).catch(()=>null)]);
     if (pr?.user) {
       const _dn = (pr.user.displayName||pr.user.firstName||'').toUpperCase() || (lang==='es'?'USUARIO':'USER');
