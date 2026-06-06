@@ -10404,8 +10404,15 @@ async function loadRealGoogleData() {
   }
   if (calD?.rollupDataPoints?.length) {
     const _cdp=calD.rollupDataPoints[0];
-    const totCal=Math.round(parseFloat(_cdp?.totalCalories?.kilocaloriesSum??_cdp?.totalCalories?.kilocalories??_cdp?.totalCalories?.value??_cdp?.totalCalories?.count??0));
-    if (totCal){document.getElementById('calv').textContent=totCal; document.getElementById('cal-act').textContent=totCal.toLocaleString();}
+    // Try all known field names; fall back to the first numeric value found
+    // in totalCalories so we survive API field name changes.
+    const _tc=_cdp?.totalCalories||_cdp?.calories||_cdp?.energy||{};
+    const _tcNum=_tc.kilocaloriesSum??_tc.kilocalories??_tc.totalKilocalories??_tc.kcal??_tc.value??_tc.count??
+      (Object.values(_tc).find(v=>typeof v==='number')??null);
+    const totCal=Math.round(parseFloat(_tcNum)||0);
+    console.log('[gh cal]', JSON.stringify(_cdp), 'parsed=', totCal);
+    document.getElementById('calv').textContent=totCal||'0';
+    document.getElementById('cal-act').textContent=totCal?totCal.toLocaleString():'0';
   } else {
     // No calorie data yet — clear HTML demo value
     document.getElementById('calv').textContent='0';
@@ -10570,7 +10577,9 @@ async function pollFastGoogle() {
     }
     if (calD?.rollupDataPoints?.length) {
       const _cdp=calD.rollupDataPoints[0];
-      const totCal=Math.round(parseFloat(_cdp?.totalCalories?.kilocaloriesSum??_cdp?.totalCalories?.kilocalories??_cdp?.totalCalories?.value??0));
+      const _tc=_cdp?.totalCalories||_cdp?.calories||_cdp?.energy||{};
+      const _tcNum=_tc.kilocaloriesSum??_tc.kilocalories??_tc.totalKilocalories??_tc.kcal??_tc.value??_tc.count??(Object.values(_tc).find(v=>typeof v==='number')??null);
+      const totCal=Math.round(parseFloat(_tcNum)||0);
       const _prevCal=parseInt(document.getElementById('calv').textContent.replace(/\D/g,''))||0;
       if (totCal!==_prevCal) {
         document.getElementById('calv').textContent=totCal||'0';
