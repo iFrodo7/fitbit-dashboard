@@ -10335,6 +10335,8 @@ async function loadRealGoogleData() {
   _clr('sval-hrv','—'); _clr('sval-rhr','—'); _clr('sval-br','—');
   // HRV zone label
   _clr('u-hrv','—');
+  // Main display cards — HTML defaults are 68 / 61 (same as demo), must clear upfront
+  _clr('hrv','—'); _clr('hr-rest','—');
   // Steps section sub-metrics — never updated by Google flow
   _clr('steps-streak-val','—');
   // Sleep section — ALL values are hardcoded HTML demos (7h 22m / 84/100 / 91% / etc.)
@@ -10382,8 +10384,10 @@ async function loadRealGoogleData() {
   // Google Health doesn't expose skin temp — clear HTML demo value
   { const e=document.getElementById('tempv'); if(e) e.textContent='—'; }
   const rhrRaw=rhrD?.dataPoints?.[0]?.dailyRestingHeartRate?.beatsPerMinute;
-  if (rhrRaw) { rhr_v=parseInt(rhrRaw); }
-  else { const e=document.getElementById('hr-rest'); if(e) e.textContent='—'; }
+  if (rhrRaw) {
+    rhr_v=parseInt(rhrRaw);
+    const e=document.getElementById('hr-rest'); if(e) e.textContent=rhr_v; // was never written — only rhr_v was set
+  } else { const e=document.getElementById('hr-rest'); if(e) e.textContent='—'; }
   if (!maxHR_v) { const e=document.getElementById('hr-max'); if(e) e.textContent='—'; }
   // dailyRollUp returns rollupDataPoints[0] with the day's aggregate.
   // Field name variants: API may use camelCase (countSum) or snake_case (count_sum).
