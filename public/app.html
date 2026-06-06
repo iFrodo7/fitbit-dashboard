@@ -4734,7 +4734,7 @@ const T = {
     sl_deep: 'PROF.', sl_light: 'LIGER.', sl_awake: 'DESP.',
     hv_title:'HISTORIAL', hv_sub:'// TENDENCIAS BIOMÉTRICAS',
     hv_rec_lbl:'// RECOVERY SCORE', hv_rhr_lbl:'// FRECUENCIA EN REPOSO', hv_sleep_lbl:'// SUEÑO POR NOCHE',
-    hv_empty:'CONECTA GOOGLE PARA VER TUS TENDENCIAS', hv_no_data:'SIN DATOS EN ESTE RANGO',
+    hv_empty:'CONECTA GOOGLE PARA VER TUS TENDENCIAS', hv_no_data:'SIN DATOS EN ESTE RANGO', hv_collecting:'ACUMULANDO DATOS',
     hv_avg:'PROMEDIO', hv_min:'MÍN', hv_max:'MÁX', hv_hrs:'h', hv_bpm:'bpm',
     hv_trend_better:'Mejorando', hv_trend_worse:'Empeorando', hv_trend_flat:'Estable',
     hv_steps_lbl:'// PASOS DIARIOS', hv_steps_goal:'META 10K',
@@ -4979,7 +4979,7 @@ const T = {
     sl_deep: 'DEEP', sl_light: 'LIGHT', sl_awake: 'AWAKE',
     hv_title:'HISTORY', hv_sub:'// BIOMETRIC TRENDS',
     hv_rec_lbl:'// RECOVERY SCORE', hv_rhr_lbl:'// RESTING HEART RATE', hv_sleep_lbl:'// SLEEP PER NIGHT',
-    hv_empty:'CONNECT GOOGLE TO SEE TRENDS', hv_no_data:'NO DATA IN THIS RANGE',
+    hv_empty:'CONNECT GOOGLE TO SEE TRENDS', hv_no_data:'NO DATA IN THIS RANGE', hv_collecting:'COLLECTING DATA',
     hv_avg:'AVG', hv_min:'MIN', hv_max:'MAX', hv_hrs:'h', hv_bpm:'bpm',
     hv_trend_better:'Improving', hv_trend_worse:'Declining', hv_trend_flat:'Stable',
     hv_steps_lbl:'// DAILY STEPS', hv_steps_goal:'10K GOAL',
@@ -11839,6 +11839,19 @@ async function fetchAndRenderWorkoutHistory(range) {
   } catch (e) { renderWorkoutHistory([]); }
 }
 
+function _hShowEmpty(svgEl, msg) {
+  if (!svgEl) return;
+  svgEl.style.display = 'none';
+  const wrap = svgEl.parentElement;
+  if (!wrap) return;
+  const old = wrap.querySelector('.hv-empty');
+  if (old) old.remove();
+  const div = document.createElement('div');
+  div.className = 'hv-empty';
+  div.innerHTML = '<span>◌</span><span>' + msg + '</span>';
+  wrap.insertBefore(div, svgEl);
+}
+
 async function renderHistory() {
   if (window._histRange == null) window._histRange = 7;
   const t = T[lang];
@@ -11862,6 +11875,7 @@ async function renderHistory() {
   let cache = await _hGetAll();
   const wanted = _hDays(window._histRange);
   let rows = wanted.map(d => cache.find(c => c.date === d) || { date: d });
+  const willBeDemo = !token || !rows.some(r => r.rhr != null);
   if (!token || !rows.some(r => r.rhr != null)) {
     const _dh = s => { let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))&0xffffff; return h; };
     rows = wanted.map(d => {
@@ -11883,18 +11897,29 @@ async function renderHistory() {
   document.getElementById('hv-sleep-stat').innerHTML = slpStat ? slpStat+_hTrend(rows,'minutesAsleep',false) : '';
   const stpStatEl = document.getElementById('hv-steps-stat');
   if (stpStatEl) stpStatEl.innerHTML = stpStat ? stpStat+_hTrend(rows,'steps',false) : '';
-  // Draw charts
-  _hRenderLineSVG(recSvg, _hLine(rows, 'recovery', {
+  // Clean up stale empty-state divs from a previous render
+  [recSvg, rhrSvg, slpSvg, stpSvg].forEach(svg => {
+    if (svg && svg.parentElement) svg.parentElement.querySelectorAll('.hv-empty').forEach(e => e.remove());
+  });
+  // Draw charts — show "collecting data" placeholder if fewer than 2 real data points
+  const _cMsg = t.hv_collecting || 'ACUMULANDO DATOS';
+  const _recPts = rows.filter(r => r.recovery != null).length;
+  const _rhrPts = rows.filter(r => r.rhr != null).length;
+  const _slpPts = rows.filter(r => r.minutesAsleep != null).length;
+  const _stpPts = rows.filter(r => r.steps != null).length;
+  if (!willBeDemo && _recPts < 2) { _hShowEmpty(recSvg, _cMsg); }
+  else { _hRenderLineSVG(recSvg, _hLine(rows, 'recovery', {
     fixedMin:0, fixedMax:100,
     zones: [{lo:67,hi:100,cls:'zone-good'},{lo:40,hi:67,cls:'zone-warn'},{lo:0,hi:40,cls:'zone-bad'}],
     refLines: [{val:67}]
-  }), 'rec');
-  _hRenderLineSVG(rhrSvg, _hLine(rows, 'rhr', {
+  }), 'rec'); }
+  if (!willBeDemo && _rhrPts < 2) { _hShowEmpty(rhrSvg, _cMsg); }
+  else { _hRenderLineSVG(rhrSvg, _hLine(rows, 'rhr', {
     zones: [{lo:0,hi:55,cls:'zone-good'},{lo:55,hi:65,cls:'zone-warn'},{lo:65,hi:999,cls:'zone-bad'}],
     refLines: [{val:60}]
-  }), 'rhr');
-  _hRenderStackedBars(slpSvg, rows);
-  _hRenderStepsBar(stpSvg, rows);
+  }), 'rhr'); }
+  if (!willBeDemo && _slpPts < 2) { _hShowEmpty(slpSvg, _cMsg); } else { _hRenderStackedBars(slpSvg, rows); }
+  if (!willBeDemo && _stpPts < 2) { _hShowEmpty(stpSvg, _cMsg); } else { _hRenderStepsBar(stpSvg, rows); }
   skels.forEach(e => e.style.display='none');
   // Tooltips
   _hBindTooltip(recSvg, 'hv-rec-tt', (v,d) => `<strong>${Math.round(v)}</strong>/100 RECOVERY <span style="opacity:0.45;margin-left:6px">${_hFmtDate(d)}</span>`);
