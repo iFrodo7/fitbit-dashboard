@@ -10390,6 +10390,19 @@ async function loadRealGoogleData() {
     const st=Math.max(1,Math.floor(ds.length/48));
     hrHist=ds.filter((_,i)=>i%st===0).slice(0,48).map(p=>parseInt(p.heartRate?.beatsPerMinute)||0).reverse();
     buildHRC(hrHist);
+    // Compute intraday stats (min / avg / max / range) from the same dataPoints array
+    const _bpm=ds.map(p=>parseInt(p.heartRate?.beatsPerMinute)||0).filter(v=>v>0);
+    if (_bpm.length) {
+      const _min=Math.min(..._bpm);
+      const _avg=Math.round(_bpm.reduce((a,b)=>a+b,0)/_bpm.length);
+      // Main HR card: MÁXIMO pill
+      { const e=document.getElementById('hr-max'); if(e) e.textContent=maxHR_v; }
+      // 24H stats row: MÍNIMO · PROMEDIO · PICO · VARIACIÓN
+      { const e=document.getElementById('hr-day-min');   if(e) e.textContent=_min; }
+      { const e=document.getElementById('hr-day-avg');   if(e) e.textContent=_avg; }
+      { const e=document.getElementById('hr-day-max');   if(e) e.textContent=maxHR_v; }
+      { const e=document.getElementById('hr-day-range'); if(e) e.textContent=maxHR_v-_min; }
+    }
   } else {
     // No live HR data — clear HTML demo values
     ['hrv','hrlive'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});
@@ -10399,7 +10412,7 @@ async function loadRealGoogleData() {
   const rhrRaw=rhrD?.dataPoints?.[0]?.dailyRestingHeartRate?.beatsPerMinute;
   if (rhrRaw) {
     rhr_v=parseInt(rhrRaw);
-    const e=document.getElementById('hr-rest'); if(e) e.textContent=rhr_v; // was never written — only rhr_v was set
+    const e=document.getElementById('hr-rest'); if(e) e.textContent=rhr_v;
   } else { const e=document.getElementById('hr-rest'); if(e) e.textContent='—'; }
   if (!maxHR_v) { const e=document.getElementById('hr-max'); if(e) e.textContent='—'; }
   // dailyRollUp returns rollupDataPoints[0] with the day's aggregate.
