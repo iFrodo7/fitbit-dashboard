@@ -10036,7 +10036,7 @@ const GoogleHealthSource = {
     heartRange:    ()   => `${GoogleHealthSource.base}/users/me/dataTypes/daily-resting-heart-rate/dataPoints`,
     sleepRange:    ()   => `${GoogleHealthSource.base}/users/me/dataTypes/sleep/dataPoints`,
     stepsRange:    ()   => `${GoogleHealthSource.base}/users/me/dataTypes/steps/dataPoints`,
-    exerciseSessions: (start, end) => `${GoogleHealthSource.base}/users/me/dataTypes/exercise-session/dataPoints?filter=${encodeURIComponent('exercise_session.interval.civil_start_time >= "'+start+'" AND exercise_session.interval.civil_start_time < "'+end+'"')}&pageSize=20`,
+    exerciseSessions: (start, end) => `${GoogleHealthSource.base}/users/me/dataTypes/exercise/dataPoints?filter=${encodeURIComponent('exercise.interval.civil_start_time >= "'+start+'" AND exercise.interval.civil_start_time < "'+end+'"')}&pageSize=20`,
     identity:      ()   => `${GoogleHealthSource.base}/users/me:getIdentity`,
   },
 };
@@ -10351,7 +10351,7 @@ async function loadRealGoogleData() {
   const _rollupBody = (start,end) => ({range:{start:_parseCivilDate(start),end:_parseCivilDate(end)},windowSizeDays:1});
   const [hrD,rhrD,stD,slD,calD,azD,exD] = await Promise.all([
     _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=1440`),
-    _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?filter=${enc('daily_resting_heart_rate.date = "'+td+'"')}`),
+    _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?pageSize=1`),
     _ghPost(`${B}/users/me/dataTypes/steps/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
     _ghGet(`${B}/users/me/dataTypes/sleep/dataPoints?filter=${enc('sleep.interval.civil_end_time >= "'+yd+'" AND sleep.interval.civil_end_time < "'+nd+'"')}&pageSize=5`),
     _ghPost(`${B}/users/me/dataTypes/total-calories/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
@@ -10496,10 +10496,12 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
   // Clear HTML demo values upfront — if API returns no data these will stay "—"
   ['spo2v','hrvv','resp-val'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});
   try {
+    // daily-* types don't support comparator operators (=, >=, <) in filters.
+    // Fetch the latest record with pageSize=1 instead.
     const [spo2,hrv,br] = await Promise.all([
-      _ghGet(`${B}/users/me/dataTypes/daily-oxygen-saturation/dataPoints?filter=${enc('daily_oxygen_saturation.date = "'+td+'"')}`),
-      _ghGet(`${B}/users/me/dataTypes/daily-heart-rate-variability/dataPoints?filter=${enc('daily_heart_rate_variability.date = "'+td+'"')}`),
-      _ghGet(`${B}/users/me/dataTypes/daily-respiratory-rate/dataPoints?filter=${enc('daily_respiratory_rate.date = "'+td+'"')}`),
+      _ghGet(`${B}/users/me/dataTypes/daily-oxygen-saturation/dataPoints?pageSize=1`),
+      _ghGet(`${B}/users/me/dataTypes/daily-heart-rate-variability/dataPoints?pageSize=1`),
+      _ghGet(`${B}/users/me/dataTypes/daily-respiratory-rate/dataPoints?pageSize=1`),
     ]);
     const sp=spo2?.dataPoints?.[0]?.dailyOxygenSaturation;
     const hv=hrv?.dataPoints?.[0]?.dailyHeartRateVariability;
@@ -10602,7 +10604,7 @@ async function pollSlowGoogle() {
 async function _hFetchGoogle(start, end) {
   const B=GoogleHealthSource.base, enc=encodeURIComponent, nd=_ghNextDay(end);
   const [rhrTs,sleepTs,stepsTs] = await Promise.all([
-    _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?filter=${enc('daily_resting_heart_rate.date >= "'+start+'" AND daily_resting_heart_rate.date <= "'+end+'"')}&pageSize=100`),
+    _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?pageSize=100`),
     _ghGet(`${B}/users/me/dataTypes/sleep/dataPoints?filter=${enc('sleep.interval.civil_end_time >= "'+start+'" AND sleep.interval.civil_end_time < "'+nd+'"')}&pageSize=100`),
     _ghGet(`${B}/users/me/dataTypes/steps/dataPoints?filter=${enc('steps.interval.civil_start_time >= "'+start+'" AND steps.interval.civil_start_time < "'+nd+'"')}&pageSize=10000`),
   ]);
