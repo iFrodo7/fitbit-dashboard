@@ -10371,7 +10371,7 @@ async function loadRealGoogleData() {
   //   • steps & AZM list returns per-minute samples that many devices never write;
   //     dailyRollUp always returns the pre-aggregated daily total.
   const _rollupBody = (start,end) => ({range:{start:_parseCivilDate(start),end:_parseCivilDate(end)},windowSizeDays:1});
-  const [hrD,rhrD,stD,slD,calD,azD,exD,flD] = await Promise.all([
+  const [hrD,rhrD,stD,slD,calD,azD,exD] = await Promise.all([
     _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=1440`),
     _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?pageSize=1`),
     _ghPost(`${B}/users/me/dataTypes/steps/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
@@ -10379,9 +10379,8 @@ async function loadRealGoogleData() {
     _ghPost(`${B}/users/me/dataTypes/total-calories/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
     _ghPost(`${B}/users/me/dataTypes/active-zone-minutes/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
     _ghGet(GoogleHealthSource.ep.exerciseSessions(after7, nd)),
-    _ghPost(`${B}/users/me/dataTypes/floors-climbed/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
   ]);
-  console.log('[gh raw]', {hrD,rhrD,stD,slD,calD,azD,flD});
+  console.log('[gh raw]', {hrD,rhrD,stD,slD,calD,azD});
   let rhr_v=65, maxHR_v=0;
   if (hrD?.dataPoints?.length) {
     const ds=hrD.dataPoints;
@@ -10441,14 +10440,8 @@ async function loadRealGoogleData() {
   { const el=document.getElementById('cal-bmr'); if(el) el.textContent='—'; }
   // Distance: estimate from step count (~0.74 m average stride length).
   { const el=document.getElementById('steps-dist-val'); if(el) el.textContent=stepsToday>0?(stepsToday*0.00074).toFixed(1):'—'; }
-  // Floors: try floors-climbed dailyRollUp (null/empty for devices without barometer).
-  if (flD?.rollupDataPoints?.length) {
-    const _fdp=flD.rollupDataPoints[0];
-    console.log('[gh floors]', JSON.stringify(_fdp)); // debug: reveal real field names
-    const _fc=_fdp?.floorsClimbed||_fdp;
-    const fl=parseInt(_fc?.count??_fc?.countSum??(Object.values(_fc||{}).find(v=>typeof v==='number')??0))||0;
-    const el=document.getElementById('steps-floors-val'); if(el) el.textContent=fl||'—';
-  }
+  // Floors: not exposed by Google Health REST API — keep "—".
+  { const el=document.getElementById('steps-floors-val'); if(el) el.textContent='—'; }
   // Step-goal streak: consecutive days meeting step goal from activity history
   { const ss=_getStepGoalStreak(); const el=document.getElementById('steps-streak-val'); if(el) el.textContent=ss>0?ss:'—'; }
 
