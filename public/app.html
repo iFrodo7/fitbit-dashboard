@@ -10371,7 +10371,7 @@ async function loadRealGoogleData() {
   //   • steps & AZM list returns per-minute samples that many devices never write;
   //     dailyRollUp always returns the pre-aggregated daily total.
   const _rollupBody = (start,end) => ({range:{start:_parseCivilDate(start),end:_parseCivilDate(end)},windowSizeDays:1});
-  const [hrD,rhrD,stD,slD,calD,azD,exD] = await Promise.all([
+  const [hrD,rhrD,stD,slD,calD,azD,exD,flD] = await Promise.all([
     _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=1440`),
     _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?pageSize=1`),
     _ghPost(`${B}/users/me/dataTypes/steps/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
@@ -10379,8 +10379,9 @@ async function loadRealGoogleData() {
     _ghPost(`${B}/users/me/dataTypes/total-calories/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
     _ghPost(`${B}/users/me/dataTypes/active-zone-minutes/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
     _ghGet(GoogleHealthSource.ep.exerciseSessions(after7, nd)),
+    _ghPost(`${B}/users/me/dataTypes/floors-climbed/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
   ]);
-  console.log('[gh raw]', {hrD,rhrD,stD,slD,calD,azD});
+  console.log('[gh raw]', {hrD,rhrD,stD,slD,calD,azD,flD});
   let rhr_v=65, maxHR_v=0;
   if (hrD?.dataPoints?.length) {
     const ds=hrD.dataPoints;
@@ -10404,11 +10405,12 @@ async function loadRealGoogleData() {
   if (!maxHR_v) { const e=document.getElementById('hr-max'); if(e) e.textContent='—'; }
   // dailyRollUp returns rollupDataPoints[0] with the day's aggregate.
   // Field name variants: API may use camelCase (countSum) or snake_case (count_sum).
+  let stepsToday = 0;
   if (stD?.rollupDataPoints?.length) {
     const _sdp=stD.rollupDataPoints[0];
-    const tot=parseInt(_sdp?.steps?.countSum??_sdp?.steps?.count_sum??_sdp?.steps?.count??0)||0;
-    document.getElementById('stepsv').textContent=tot.toLocaleString('en-US');
-    const pct=Math.min((tot/10000)*100,100);
+    stepsToday=parseInt(_sdp?.steps?.countSum??_sdp?.steps?.count_sum??_sdp?.steps?.count??0)||0;
+    document.getElementById('stepsv').textContent=stepsToday.toLocaleString('en-US');
+    const pct=Math.min((stepsToday/10000)*100,100);
     document.getElementById('stepsprog').style.width=pct+'%';
     document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY');
     // Don't call renderAiraInsights here — window._lastRec not set yet at this
@@ -10435,10 +10437,18 @@ async function loadRealGoogleData() {
     document.getElementById('calv').textContent='0';
     document.getElementById('cal-act').textContent='0';
   }
-  // Google Health API doesn't expose distance, floors or BMR separately — clear demo values.
+  // BMR not exposed by Google Health API — clear demo value.
   { const el=document.getElementById('cal-bmr'); if(el) el.textContent='—'; }
-  { const el=document.getElementById('steps-dist-val'); if(el) el.textContent='—'; }
-  { const el=document.getElementById('steps-floors-val'); if(el) el.textContent='—'; }
+  // Distance: estimate from step count (~0.74 m average stride length).
+  { const el=document.getElementById('steps-dist-val'); if(el) el.textContent=stepsToday>0?(stepsToday*0.00074).toFixed(1):'—'; }
+  // Floors: try floors-climbed dailyRollUp (null/empty for devices without barometer).
+  if (flD?.rollupDataPoints?.length) {
+    const _fdp=flD.rollupDataPoints[0];
+    console.log('[gh floors]', JSON.stringify(_fdp)); // debug: reveal real field names
+    const _fc=_fdp?.floorsClimbed||_fdp;
+    const fl=parseInt(_fc?.count??_fc?.countSum??(Object.values(_fc||{}).find(v=>typeof v==='number')??0))||0;
+    const el=document.getElementById('steps-floors-val'); if(el) el.textContent=fl||'—';
+  }
   // Step-goal streak: consecutive days meeting step goal from activity history
   { const ss=_getStepGoalStreak(); const el=document.getElementById('steps-streak-val'); if(el) el.textContent=ss>0?ss:'—'; }
 
@@ -10594,6 +10604,8 @@ async function pollFastGoogle() {
         document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY');
         if (tot>0) flash('stepsv');
       }
+      // Distance: update on every poll so it stays in sync with latest step count.
+      if (tot>0) { const el_d=document.getElementById('steps-dist-val'); if(el_d) el_d.textContent=(tot*0.00074).toFixed(1); }
     }
     if (calD?.rollupDataPoints?.length) {
       const _cdp=calD.rollupDataPoints[0];
