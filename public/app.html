@@ -10252,6 +10252,19 @@ async function loadRealGoogleData() {
   // no data. animVals() is skipped for authenticated users, but these elements
   // still carry their initial HTML defaults (set at markup time).
   const _clr = (id, v='—') => { const e=document.getElementById(id); if(e) e.textContent=v; };
+  // One-time cleanup: remove stale achievement stats / streak written by demo
+  // mode or a previous Fitbit session. Flag ensures we only do this once so
+  // real Google data accumulated over time is never wiped on reload.
+  if (!localStorage.getItem('fb_google_clean_v1')) {
+    try {
+      const _as = JSON.parse(localStorage.getItem('fb_ach_stats')||'{}');
+      delete _as.stepsMax; delete _as.peakComposite; delete _as.maxStreak;
+      delete _as.calStreakMax; delete _as.anyRingStreakMax; delete _as.tripleStreakMax;
+      localStorage.setItem('fb_ach_stats', JSON.stringify(_as));
+    } catch(e) {}
+    localStorage.removeItem('fb_streak');
+    localStorage.setItem('fb_google_clean_v1', '1');
+  }
   _clr('stressv', '0'); _clr('steps-active-val', '0');
   // Recovery ring — reset arc + all score labels to —
   ['rscore','hud-rscore','mc-rscore','nrt-rscore','nn-rscore','blm-nv-avg'].forEach(id=>_clr(id,'—'));
