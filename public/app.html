@@ -9114,6 +9114,9 @@ function getDailyStreak() {
     var today=new Date().toISOString().slice(0,10);
     var s=JSON.parse(localStorage.getItem('fb_streak')||'{}');
     if (s.date===today) return s.count||1;
+    // Only advance the streak when the user has real connected data.
+    // Demo mode and no-device sessions should not count as active days.
+    if (!isReal) return s.count||0;
     var yest=new Date(Date.now()-86400000).toISOString().slice(0,10);
     var cnt=s.date===yest?(s.count||1)+1:1;
     // Detect loss: had a streak >1 that just got reset
@@ -9560,8 +9563,8 @@ function updateDailyRings() {
     cal: cal/goals.cal*100,
     act: actMin/goals.act*100
   };
-  _updateDailyActivityStats(steps, rawPcts, anyHit);
-  checkAchievements();
+  if (isReal) _updateDailyActivityStats(steps, rawPcts, anyHit);
+  if (isReal) checkAchievements();
 }
 
 function animateDailyRings() {
