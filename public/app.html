@@ -11875,8 +11875,8 @@ async function renderHistory() {
   let cache = await _hGetAll();
   const wanted = _hDays(window._histRange);
   let rows = wanted.map(d => cache.find(c => c.date === d) || { date: d });
-  const willBeDemo = !token || !rows.some(r => r.rhr != null);
-  if (!token || !rows.some(r => r.rhr != null)) {
+  const willBeDemo = !token;
+  if (!token) {
     const _dh = s => { let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))&0xffffff; return h; };
     rows = wanted.map(d => {
       const h=_dh(d), h2=_dh(d+'b'), h3=_dh(d+'c'), h4=_dh(d+'d'), h5=_dh(d+'e');
