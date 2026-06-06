@@ -9114,9 +9114,9 @@ function getDailyStreak() {
     var today=new Date().toISOString().slice(0,10);
     var s=JSON.parse(localStorage.getItem('fb_streak')||'{}');
     if (s.date===today) return s.count||1;
-    // Only advance the streak when the user has real connected data.
-    // Demo mode and no-device sessions should not count as active days.
-    if (!isReal) return s.count||0;
+    // Only advance the streak when the user is authenticated.
+    // Unauthenticated demo visits don't count as active days.
+    if (!token) return s.count||0;
     var yest=new Date(Date.now()-86400000).toISOString().slice(0,10);
     var cnt=s.date===yest?(s.count||1)+1:1;
     // Detect loss: had a streak >1 that just got reset
