@@ -7912,7 +7912,11 @@ function initDash() {
   if (typeof renderCoachAccess === 'function') renderCoachAccess();
   buildWeeks(); buildHRC(hrHist); drawMiniSparkline(hrHist);
   renderCycleHomeChip();
-  if (!token) setTimeout(animVals, 300); // demo-only — skip when user is already authenticated
+  // True when the page loaded as an OAuth callback (?code=…). Real data is
+  // about to arrive — suppress all demo animations so animN / animateDailyRings
+  // don't race against loadRealGoogleData and overwrite real values.
+  const _hasOAuthCode = !!new URLSearchParams(location.search).get('code');
+  if (!token && !_hasOAuthCode) setTimeout(animVals, 300); // demo-only — skip when authenticated or mid-OAuth
   // Restore persisted name + hide Connect button if already authenticated
   const _savedName = localStorage.getItem('fb_display_name');
   if (_savedName) {
@@ -7960,7 +7964,7 @@ function initDash() {
       (_isG ? loadRealGoogle() : loadReal()).then(() => setTimeout(() => proAction(), 600)).catch(() => {});
     } else { _isG ? loadRealGoogle() : loadReal(); }
   }
-  if (!token) {
+  if (!token && !_hasOAuthCode) {
     setTimeout(() => renderHypnogram({
       startTime: '2026-01-01T23:18:00.000',
       endTime:   '2026-01-02T06:40:00.000',
