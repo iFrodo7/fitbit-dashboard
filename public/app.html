@@ -8797,9 +8797,9 @@ function setStressBars({ hrv=68, rhr=61, br=14 }) {
   if (sDot) sDot.style.left = Math.max(0, Math.min(score, 100)) + '%';
   const zl = lang === 'en' ? ['CALM','MODERATE','HIGH'] : ['CALMA','MODERADO','ALTO'];
   setText('lbl-str-low', zl[0]); setText('lbl-str-mid', zl[1]); setText('lbl-str-hi', zl[2]);
-  // Cajas siempre visibles
-  const hEl = document.getElementById('str-hrv'); if (hEl) hEl.textContent = hrv;
-  const rEl = document.getElementById('str-rhr'); if (rEl) rEl.textContent = rhr;
+  // Cajas — only update when a real value was passed (null = no data, keep '—')
+  const hEl = document.getElementById('str-hrv'); if (hEl && hrv != null) hEl.textContent = hrv;
+  const rEl = document.getElementById('str-rhr'); if (rEl && rhr != null) rEl.textContent = rhr;
   // Barras de contribución (mayor barra = más estrés en ese factor)
   const hrvPct = Math.max(0, Math.min((1 - (hrv - 20) / 80) * 100, 100));
   const rhrPct = Math.max(0, Math.min((rhr - 40) / 50 * 100, 100));
@@ -10333,6 +10333,8 @@ async function loadRealGoogleData() {
   _clr('hr-day-min','—'); _clr('hr-day-avg','—'); _clr('hr-day-max','—');
   // Stress sub-value bars (HRV/RHR/BR) — demo "68ms / 61bpm / 14rpm"
   _clr('sval-hrv','—'); _clr('sval-rhr','—'); _clr('sval-br','—');
+  // Stress card boxes (str-hrv=68, str-rhr=61 hardcoded in HTML — not covered by sval-* above)
+  _clr('str-hrv','—'); _clr('str-rhr','—');
   // HRV zone label
   _clr('u-hrv','—');
   // Main display cards — HTML defaults are 68 / 61 (same as demo), must clear upfront
@@ -10536,12 +10538,13 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
     const hrvNum  = hvv  != null ? Math.round(+hvv)  : null;
     const brNum   = bvv  != null ? Math.round(+bvv)  : null;
     const spo2Num = spv  != null ? parseFloat(spv)   : null;
-    // Stress bars — usa los datos reales disponibles; para métricas ausentes
-    // (HRV / BR que muchos dispositivos no rastrean) aplica defaults neutrales
+    // Stress bars — only pass real values (null = no data).
+    // Do NOT fall back to hardcoded defaults here; setStressBars will skip
+    // the display for null values via its internal null-guard.
     if (rhr_v != null || hrvNum != null || brNum != null) {
       setStressBars({
-        hrv: hrvNum ?? 68,
-        rhr: rhr_v  ?? 65,
+        hrv: hrvNum ?? null,
+        rhr: rhr_v  ?? null,
         br:  brNum  ?? 14,
       });
     }
