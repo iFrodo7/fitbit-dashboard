@@ -10551,17 +10551,23 @@ async function pollFastGoogle() {
     if (stD?.rollupDataPoints?.length) {
       const _sdp=stD.rollupDataPoints[0];
       const tot=parseInt(_sdp?.steps?.countSum??_sdp?.steps?.count_sum??_sdp?.steps?.count??0)||0;
-      if (tot && String(tot)!==document.getElementById('stepsv').textContent.replace(/\D/g,'')){
+      const _prev=parseInt(document.getElementById('stepsv').textContent.replace(/\D/g,''))||0;
+      if (tot!==_prev) { // update whenever value changes, including reset to 0 (new day)
         document.getElementById('stepsv').textContent=tot.toLocaleString('en-US');
         const pct=Math.min((tot/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%';
-        document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); flash('stepsv');
+        document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY');
+        if (tot>0) flash('stepsv');
       }
     }
     if (calD?.rollupDataPoints?.length) {
       const _cdp=calD.rollupDataPoints[0];
       const totCal=Math.round(parseFloat(_cdp?.totalCalories?.kilocaloriesSum??_cdp?.totalCalories?.kilocalories??_cdp?.totalCalories?.value??0));
-      document.getElementById('calv').textContent=totCal||'0';
-      document.getElementById('cal-act').textContent=totCal?(totCal.toLocaleString()):'0';
+      const _prevCal=parseInt(document.getElementById('calv').textContent.replace(/\D/g,''))||0;
+      if (totCal!==_prevCal) {
+        document.getElementById('calv').textContent=totCal||'0';
+        document.getElementById('cal-act').textContent=totCal?totCal.toLocaleString():'0';
+        if (totCal>0) flash('calv');
+      }
     }
     syncTicker(); updateDailyRings(); animSBar();
     showToast(T[lang].sync_toast(new Date().toLocaleTimeString(lang==='es'?'es':'en',{hour:'2-digit',minute:'2-digit',second:'2-digit'})));
