@@ -10251,14 +10251,23 @@ function _ghNextDay(d) { const x=new Date(d+'T12:00:00Z'); x.setDate(x.getDate()
 // Local-timezone date string (YYYY-MM-DD). msOffset shifts by milliseconds.
 // Avoids UTC off-by-one after ~18:00 in UTC-6 and similar timezones.
 function _localDay(msOffset) { const t=new Date(Date.now()+(msOffset||0)); return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0'); }
-// Convert "YYYY-MM-DD" → { year, month, day } object required by dailyRollUp body.
-function _parseCivilDate(d) { const [y,m,day]=d.split('-').map(Number); return {year:y,month:m,day:day}; }
+// Convert "YYYY-MM-DD" → CivilDateTime object required by dailyRollUp body.
+// The API type is google.devicesandservices.health.v4.CivilDateTime which wraps
+// a google.type.Date under the "date" key — sending year/month/day at the top
+// level returns 400 "Unknown name 'year'".
+function _parseCivilDate(d) {
+  const [y,m,day]=d.split('-').map(Number);
+  return {date:{year:y,month:m,day:day},time:{hours:0,minutes:0,seconds:0}};
+}
 async function _ghGet(url) {
   if (!token) return null;
   try {
     let r = await fetch(url, { headers:{'Authorization':'Bearer '+token} });
     if (r.status===401) { const ok=await refreshGoogleTok(); if(!ok)return null; r=await fetch(url,{headers:{'Authorization':'Bearer '+token}}); }
-    if (!r.ok) { console.warn('[gh]',r.status,url.split('?')[0]); return null; }
+    if (!r.ok) {
+      try { const _e=await r.json(); console.warn('[gh]',r.status,url.split('?')[0],JSON.stringify(_e).slice(0,300)); } catch(e2) { console.warn('[gh]',r.status,url.split('?')[0]); }
+      return null;
+    }
     return r.json();
   } catch(e) { return null; }
 }
@@ -10271,7 +10280,7 @@ async function _ghPost(url, body) {
     const h={'Authorization':'Bearer '+token,'Content-Type':'application/json'};
     let r=await fetch(url,{method:'POST',headers:h,body:JSON.stringify(body)});
     if (r.status===401){const ok=await refreshGoogleTok();if(!ok)return null;r=await fetch(url,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body)});}
-    if(!r.ok){console.warn('[gh post]',r.status,url.split('?')[0]);return null;}
+    if(!r.ok){try{const _e=await r.json();console.warn('[gh post]',r.status,url.split('?')[0],JSON.stringify(_e).slice(0,300));}catch(e2){console.warn('[gh post]',r.status,url.split('?')[0]);}return null;}
     return r.json();
   } catch(e){return null;}
 }
