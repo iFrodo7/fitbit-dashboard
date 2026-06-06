@@ -10265,10 +10265,20 @@ async function loadRealGoogleData() {
     localStorage.removeItem('fb_streak');
     localStorage.setItem('fb_google_clean_v1', '1');
   }
-  _clr('stressv', '0'); _clr('steps-active-val', '0');
+  // Numeric displays with HTML demo defaults
+  _clr('stressv','0'); _clr('steps-active-val','0');
+  _clr('strain-val','0'); _clr('sleep-pct-val','0');
   // Recovery ring — reset arc + all score labels to —
   ['rscore','hud-rscore','mc-rscore','nrt-rscore','nn-rscore','blm-nv-avg'].forEach(id=>_clr(id,'—'));
   const _rfil = document.getElementById('rfil'); if(_rfil) _rfil.style.strokeDashoffset='339';
+  // Recovery / status text labels
+  _clr('wrec','—'); _clr('rstatus','—');
+  // HR intraday sub-metrics — not available from Google Health API
+  _clr('hr-day-min','—'); _clr('hr-day-avg','—'); _clr('hr-day-max','—');
+  // Stress sub-value bars (HRV/RHR/BR) — demo "68ms / 61bpm / 14rpm"
+  _clr('sval-hrv','—'); _clr('sval-rhr','—'); _clr('sval-br','—');
+  // HRV zone label and streak badge
+  _clr('u-hrv','—'); _clr('dr-stk','0');
   const td=new Date().toISOString().split('T')[0];
   const B=GoogleHealthSource.base, enc=encodeURIComponent;
   const nd=_ghNextDay(td); // tomorrow
