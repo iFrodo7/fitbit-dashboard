@@ -7912,7 +7912,7 @@ function initDash() {
   if (typeof renderCoachAccess === 'function') renderCoachAccess();
   buildWeeks(); buildHRC(hrHist); drawMiniSparkline(hrHist);
   renderCycleHomeChip();
-  setTimeout(animVals, 300);
+  if (!token) setTimeout(animVals, 300); // demo-only — skip when user is already authenticated
   // Restore persisted name + hide Connect button if already authenticated
   const _savedName = localStorage.getItem('fb_display_name');
   if (_savedName) {
@@ -8772,9 +8772,10 @@ function updateZoneDots({ hrv=48, spo2=98, temp=36.4 } = {}) {
   // SpO2: mínimo y promedio nocturno requieren historial intraday — no disponible aquí.
   setV('spo2-low-val', '—');
   setV('spo2-avg-val', '—');
-  // Temp: variación vs baseline clínico 36.6°C es un cálculo real; promedio 7d no disponible.
-  const tDelta = tempVal - 36.6;
-  setV('temp-delta-val', (tDelta >= 0 ? '+' : '') + tDelta.toFixed(1));
+  // Temp delta — only when #tempv has a real number, not "—"
+  const tText = document.getElementById('tempv')?.textContent?.trim();
+  const tNum  = parseFloat(tText);
+  setV('temp-delta-val', !isNaN(tNum) ? ((tNum-36.6>=0?'+':'')+(tNum-36.6).toFixed(1)) : '—');
   setV('temp-avg-val', '—');
 }
 
