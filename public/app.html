@@ -9109,6 +9109,23 @@ var _DR_DEFS=[
   {id:'dr-act',label:'MIN ACT.',color:'#f59e0b'}
 ];
 
+// Consecutive days the step goal was met, reading from fb_activity_history.
+function _getStepGoalStreak() {
+  try {
+    var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
+    if(!hist.length) return 0;
+    var goal=(_loadDRGoals().stp)||10000;
+    var streak=0;
+    for(var i=0;i<7;i++){
+      var d=new Date(Date.now()-i*86400000).toISOString().slice(0,10);
+      var day=hist.find(function(e){return e.date===d;});
+      if(day&&day.steps>=goal) streak++;
+      else break;
+    }
+    return streak;
+  } catch(e){return 0;}
+}
+
 function getDailyStreak() {
   try {
     var today=new Date().toISOString().slice(0,10);
@@ -10280,7 +10297,7 @@ async function loadRealGoogleData() {
   // HRV zone label
   _clr('u-hrv','—');
   // Steps section sub-metrics — never updated by Google flow
-  _clr('steps-streak-val','0');
+  _clr('steps-streak-val','—');
   const td=new Date().toISOString().split('T')[0];
   const B=GoogleHealthSource.base, enc=encodeURIComponent;
   const nd=_ghNextDay(td); // tomorrow
@@ -10341,6 +10358,8 @@ async function loadRealGoogleData() {
   { const el=document.getElementById('cal-bmr'); if(el) el.textContent='—'; }
   { const el=document.getElementById('steps-dist-val'); if(el) el.textContent='—'; }
   { const el=document.getElementById('steps-floors-val'); if(el) el.textContent='—'; }
+  // Step-goal streak: consecutive days meeting step goal from activity history
+  { const ss=_getStepGoalStreak(); const el=document.getElementById('steps-streak-val'); if(el) el.textContent=ss>0?ss:'—'; }
 
   const slDP=slD?.dataPoints?.[0]; let sleepMin=0,sleepEff=0,deepMin=0,remMin=0;
   if (slDP?.sleep) {
@@ -10416,6 +10435,9 @@ async function loadRealGoogleData() {
   renderRecentActivities(ghSessions);
   // Refresh AIRA insights with real (or empty) data — clears demo text from initial load
   if (typeof renderAiraInsights === 'function') renderAiraInsights();
+  // Sync streak badge — renderDailyRings() ran before data arrived so badge
+  // may show a stale value; update it now that we know the real streak.
+  { const el=document.getElementById('dr-stk'); if(el) el.textContent=getDailyStreak(); }
 }
 // ── SpO2 / HRV / Breathing rate ───────────────────────────────────────────
 async function loadHealthMetricsGoogle(td, rhr_v) {
