@@ -8973,9 +8973,13 @@ function _getDayType(rec) {
 
 function _getNextAchievement(t) {
   var s=_loadAchStats(), u=_loadAchUnlocked(), un=u[t]||[], es=lang==='es';
+  // For step achievements use today's real steps (DOM) when authenticated,
+  // so the badge reflects actual current progress rather than a stale historical max.
+  var _liveStp=isReal?(parseInt((document.getElementById('stepsv')||{}).textContent.replace(/\D/g,''))||0):0;
+  var _progStp=Math.max(s.stepsMax||0,_liveStp);
   var prog=[
-    {idx:2,  cur:s.stepsMax||0,             total:10000,label:es?'pasos':'steps'},
-    {idx:4,  cur:s.stepsMax||0,             total:20000,label:es?'pasos':'steps'},
+    {idx:2,  cur:_progStp,                  total:10000,label:es?'pasos':'steps'},
+    {idx:4,  cur:_progStp,                  total:20000,label:es?'pasos':'steps'},
     {idx:5,  cur:s.actMinHits||0,           total:5,    label:es?'sesiones':'sessions'},
     {idx:6,  cur:(s.themeDays&&s.themeDays[t])||0,total:5,label:es?'días':'days'},
     {idx:10, cur:s.calStreakMax||0,          total:5,    label:es?'días':'days'},
@@ -10303,7 +10307,9 @@ async function loadRealGoogleData() {
   // One-time cleanup: remove stale achievement stats / streak written by demo
   // mode or a previous Fitbit session. Flag ensures we only do this once so
   // real Google data accumulated over time is never wiped on reload.
-  if (!localStorage.getItem('fb_google_clean_v1')) {
+  // v2: re-run cleanup because stepsMax=7842 (demo value) could survive v1
+  // if animVals() raced loadRealGoogleData before the isReal guard was in place.
+  if (!localStorage.getItem('fb_google_clean_v2')) {
     try {
       const _as = JSON.parse(localStorage.getItem('fb_ach_stats')||'{}');
       delete _as.stepsMax; delete _as.peakComposite; delete _as.maxStreak;
@@ -10311,7 +10317,8 @@ async function loadRealGoogleData() {
       localStorage.setItem('fb_ach_stats', JSON.stringify(_as));
     } catch(e) {}
     localStorage.removeItem('fb_streak');
-    localStorage.setItem('fb_google_clean_v1', '1');
+    localStorage.removeItem('fb_google_clean_v1');
+    localStorage.setItem('fb_google_clean_v2', '1');
   }
   // Numeric displays with HTML demo defaults
   _clr('stressv','0'); _clr('steps-active-val','0');
