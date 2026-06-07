@@ -10026,6 +10026,8 @@ const GoogleHealthSource = {
       'https://www.googleapis.com/auth/googlehealth.sleep.readonly',
       'https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly',
       'https://www.googleapis.com/auth/googlehealth.profile.readonly',
+      // AFib / irregular-rhythm-notification (Fitbit Air feature)
+      'https://www.googleapis.com/auth/googlehealth.heart_rate_notifications.readonly',
     ].join(' '),
   },
   base: 'https://health.googleapis.com/v4',
@@ -10052,6 +10054,11 @@ const GoogleHealthSource = {
     sleepRange:    ()   => `${GoogleHealthSource.base}/users/me/dataTypes/sleep/dataPoints`,
     stepsRange:    ()   => `${GoogleHealthSource.base}/users/me/dataTypes/steps/dataPoints`,
     exerciseSessions: (start, end) => `${GoogleHealthSource.base}/users/me/dataTypes/exercise/dataPoints?filter=${encodeURIComponent('exercise.interval.civil_start_time >= "'+start+'" AND exercise.interval.civil_start_time < "'+end+'"')}&pageSize=20`,
+    temperature:   ()   => `${GoogleHealthSource.base}/users/me/dataTypes/daily-sleep-temperature-derivations/dataPoints`,
+    distance:      ()   => `${GoogleHealthSource.base}/users/me/dataTypes/distance/dataPoints`,
+    floors:        ()   => `${GoogleHealthSource.base}/users/me/dataTypes/floors/dataPoints`,
+    afib:          ()   => `${GoogleHealthSource.base}/users/me/dataTypes/irregular-rhythm-notification/dataPoints`,
+    voMax:         ()   => `${GoogleHealthSource.base}/users/me/dataTypes/daily-vo2-max/dataPoints`,
     identity:      ()   => `${GoogleHealthSource.base}/users/me:getIdentity`,
   },
 };
@@ -10373,7 +10380,7 @@ async function loadRealGoogleData() {
   //   • steps & AZM list returns per-minute samples that many devices never write;
   //     dailyRollUp always returns the pre-aggregated daily total.
   const _rollupBody = (start,end) => ({range:{start:_parseCivilDate(start),end:_parseCivilDate(end)},windowSizeDays:1});
-  const [hrD,rhrD,stD,slD,calD,azD,exD] = await Promise.all([
+  const [hrD,rhrD,stD,slD,calD,azD,exD,distD,flrD] = await Promise.all([
     _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=1440`),
     _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?pageSize=1`),
     _ghPost(`${B}/users/me/dataTypes/steps/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
@@ -10381,6 +10388,8 @@ async function loadRealGoogleData() {
     _ghPost(`${B}/users/me/dataTypes/total-calories/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
     _ghPost(`${B}/users/me/dataTypes/active-zone-minutes/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
     _ghGet(GoogleHealthSource.ep.exerciseSessions(after7, nd)),
+    _ghPost(`${B}/users/me/dataTypes/distance/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
+    _ghPost(`${B}/users/me/dataTypes/floors/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
   ]);
   console.log('[gh raw]', {hrD,rhrD,stD,slD,calD,azD});
   let rhr_v=65, maxHR_v=0;
@@ -10471,10 +10480,16 @@ async function loadRealGoogleData() {
   }
   // BMR not exposed by Google Health API — clear demo value.
   { const el=document.getElementById('cal-bmr'); if(el) el.textContent='—'; }
-  // Distance: estimate from step count (~0.74 m average stride length).
-  { const el=document.getElementById('steps-dist-val'); if(el) el.textContent=stepsToday>0?(stepsToday*0.00074).toFixed(1):'—'; }
-  // Floors: not exposed by Google Health REST API — keep "—".
-  { const el=document.getElementById('steps-floors-val'); if(el) el.textContent='—'; }
+  // Distance: usar dato real del wearable; si no hay, estimar desde pasos (~0.74 m/paso).
+  { const _dp=distD?.rollupDataPoints?.[0];
+    const _n=(o,ks)=>ks.reduce((v,k)=>v??o?.[k],null);
+    const meters=parseFloat(_n(_dp?.distance||{},['metersSum','meters','value','sum']))||0;
+    const el=document.getElementById('steps-dist-val');
+    if(el) el.textContent=meters>0?(meters/1000).toFixed(1):stepsToday>0?(stepsToday*0.00074).toFixed(1):'—'; }
+  // Floors: expuesto por Google Health API cuando hay wearable.
+  { const _fp=flrD?.rollupDataPoints?.[0];
+    const fl=parseInt(_fp?.floors?.countSum??_fp?.floors?.count??_fp?.floors?.value??0)||0;
+    const el=document.getElementById('steps-floors-val'); if(el) el.textContent=fl>0?fl:'—'; }
   // Step-goal streak: consecutive days meeting step goal from activity history
   { const ss=_getStepGoalStreak(); const el=document.getElementById('steps-streak-val'); if(el) el.textContent=ss>0?ss:'—'; }
 
@@ -10558,47 +10573,80 @@ async function loadRealGoogleData() {
   // may show a stale value; update it now that we know the real streak.
   { const el=document.getElementById('dr-stk'); if(el) el.textContent=getDailyStreak(); }
 }
-// ── SpO2 / HRV / Breathing rate ───────────────────────────────────────────
+// ── SpO2 / HRV / Breathing rate / Temperatura / VO2 máx ──────────────────
 async function loadHealthMetricsGoogle(td, rhr_v) {
   const B=GoogleHealthSource.base, enc=encodeURIComponent;
   const set=(id,v)=>{const el=document.getElementById(id); if(el&&v!=null&&!isNaN(+v))el.textContent=Math.round(+v);};
-  // Clear HTML demo values upfront — if API returns no data these will stay "—"
-  ['spo2v','hrvv','resp-val'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});
+  const setF=(id,v,d=1)=>{const el=document.getElementById(id); if(el&&v!=null&&!isNaN(+v))el.textContent=(+v).toFixed(d);};
+  // Clear HTML demo values — quedan "—" si la API no devuelve datos
+  ['spo2v','hrvv','resp-val','tempv','temp-delta-val','temp-avg-val']
+    .forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});
   try {
-    // daily-* types don't support comparator operators (=, >=, <) in filters.
-    // Fetch the latest record with pageSize=1 instead.
-    const [spo2,hrv,br] = await Promise.all([
+    // daily-* no soportan filtros comparativos; pageSize=1 trae el registro más reciente.
+    const [spo2,hrv,br,tempD,vo2D] = await Promise.all([
       _ghGet(`${B}/users/me/dataTypes/daily-oxygen-saturation/dataPoints?pageSize=1`),
       _ghGet(`${B}/users/me/dataTypes/daily-heart-rate-variability/dataPoints?pageSize=1`),
       _ghGet(`${B}/users/me/dataTypes/daily-respiratory-rate/dataPoints?pageSize=1`),
+      _ghGet(`${B}/users/me/dataTypes/daily-sleep-temperature-derivations/dataPoints?pageSize=1`),
+      _ghGet(`${B}/users/me/dataTypes/daily-vo2-max/dataPoints?pageSize=1`),
     ]);
+
+    // ── SpO2 / HRV / Tasa respiratoria ────────────────────────────────────
     const sp=spo2?.dataPoints?.[0]?.dailyOxygenSaturation;
     const hv=hrv?.dataPoints?.[0]?.dailyHeartRateVariability;
     const bv=br?.dataPoints?.[0]?.dailyRespiratoryRate;
-    // Update displays only when real values exist — no hardcoded fallbacks
     set('spo2v',    sp?.avg??sp?.avgPercent??sp?.value);
     set('hrvv',     hv?.rmssd??hv?.dailyRmssd??hv?.value);
     set('resp-val', bv?.rate??bv?.breathingRate??bv?.value);
-    const spv  = sp?.avg??sp?.avgPercent??sp?.value;
-    const hvv  = hv?.rmssd??hv?.dailyRmssd??hv?.value;
-    const bvv  = bv?.rate??bv?.breathingRate??bv?.value;
-    const hrvNum  = hvv  != null ? Math.round(+hvv)  : null;
-    const brNum   = bvv  != null ? Math.round(+bvv)  : null;
-    const spo2Num = spv  != null ? parseFloat(spv)   : null;
-    // Stress bars — only pass real values (null = no data).
-    // Do NOT fall back to hardcoded defaults here; setStressBars will skip
-    // the display for null values via its internal null-guard.
-    if (rhr_v != null || hrvNum != null || brNum != null) {
-      setStressBars({
-        hrv: hrvNum ?? null,
-        rhr: rhr_v  ?? null,
-        br:  brNum  ?? 14,
-      });
+    const spv=sp?.avg??sp?.avgPercent??sp?.value;
+    const hvv=hv?.rmssd??hv?.dailyRmssd??hv?.value;
+    const bvv=bv?.rate??bv?.breathingRate??bv?.value;
+    const hrvNum  = hvv!=null ? Math.round(+hvv)  : null;
+    const brNum   = bvv!=null ? Math.round(+bvv)  : null;
+    const spo2Num = spv!=null ? parseFloat(spv)   : null;
+
+    // ── Temperatura corporal (Fitbit Air — sensor de piel nocturno) ────────
+    const tv=tempD?.dataPoints?.[0]?.dailySleepTemperatureDerivations
+           ?? tempD?.dataPoints?.[0]?.sleepTemperatureDerivations
+           ?? tempD?.dataPoints?.[0];
+    let tempNum=null;
+    if (tv) {
+      const base  = parseFloat(tv.baselineSkinTemperatureCelsius??tv.baseline??tv.baselineCelsius??tv.value) || null;
+      const delta = parseFloat(tv.sleepTemperatureDerivationCelsius??tv.derivationCelsius??tv.delta??tv.deviation) || null;
+      if (base!=null) {
+        tempNum=base;
+        setF('tempv', base, 1);
+      }
+      if (delta!=null) {
+        const sign=delta>=0?'+':'';
+        const el=document.getElementById('temp-delta-val'); if(el) el.textContent=sign+delta.toFixed(1);
+      }
+      // Flecha de tendencia y etiqueta de estado
+      const d=delta??0;
+      const trd=document.getElementById('temp-trd');
+      if (trd) { trd.textContent=d>0.3?'↑':d<-0.3?'↓':'→'; trd.style.color=d>0.5?'var(--tneg)':d<-0.5?'#4ab8ff':'var(--tpos)'; }
+      const el_u=document.getElementById('u-temp');
+      if (el_u) el_u.textContent=d>0.5?'PIEL — ELEVADA':d<-0.5?'PIEL — BAJA':'PIEL — NORMAL';
+      console.log('[gh temp]', {base, delta});
     }
-    // Actualiza dots con datos reales; si la API no los devuelve, usa defaults neutros
-    updateZoneDots({ hrv: hrvNum ?? 48, spo2: spo2Num ?? 98 });
+
+    // ── VO2 máx ────────────────────────────────────────────────────────────
+    const vv=vo2D?.dataPoints?.[0]?.dailyVo2Max??vo2D?.dataPoints?.[0]?.vo2Max??vo2D?.dataPoints?.[0];
+    const vo2Val=parseFloat(vv?.vo2MaxMillilitersPerMinutePerKilogram??vv?.value??vv?.ml) || null;
+    if (vo2Val!=null) {
+      // Guardar en window para que otros componentes lo puedan usar
+      window._vo2Max=Math.round(vo2Val);
+      console.log('[gh vo2max]', window._vo2Max);
+    }
+
+    // ── Stress bars ────────────────────────────────────────────────────────
+    if (rhr_v!=null || hrvNum!=null || brNum!=null) {
+      setStressBars({ hrv:hrvNum??null, rhr:rhr_v??null, br:brNum??14 });
+    }
+    // Actualiza dots con datos reales; si no hay, usa defaults neutros saludables
+    updateZoneDots({ hrv:hrvNum??48, spo2:spo2Num??98, temp:tempNum??36.4 });
     if (typeof syncTicker==='function') syncTicker();
-  } catch(e) {}
+  } catch(e) { console.warn('[gh loadHealthMetricsGoogle]',e); }
 }
 // ── Fast poll (HR + Steps) ────────────────────────────────────────────────
 async function pollFastGoogle() {
@@ -10608,10 +10656,11 @@ async function pollFastGoogle() {
     const td=_localDay();
     const B=GoogleHealthSource.base, enc=encodeURIComponent, nd=_ghNextDay(td);
     const _rb = {range:{start:_parseCivilDate(td),end:_parseCivilDate(nd)},windowSizeDays:1};
-    const [hrD,stD,calD] = await Promise.all([
+    const [hrD,stD,calD,distD] = await Promise.all([
       _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=1440`),
       _ghPost(`${B}/users/me/dataTypes/steps/dataPoints:dailyRollUp`, _rb),
       _ghPost(`${B}/users/me/dataTypes/total-calories/dataPoints:dailyRollUp`, _rb),
+      _ghPost(`${B}/users/me/dataTypes/distance/dataPoints:dailyRollUp`, _rb),
     ]);
     if (hrD?.dataPoints?.length) {
       const ds=hrD.dataPoints, lat=parseInt(ds[0]?.heartRate?.beatsPerMinute)||0;
@@ -10629,8 +10678,14 @@ async function pollFastGoogle() {
         document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY');
         if (tot>0) flash('stepsv');
       }
-      // Distance: update on every poll so it stays in sync with latest step count.
-      if (tot>0) { const el_d=document.getElementById('steps-dist-val'); if(el_d) el_d.textContent=(tot*0.00074).toFixed(1); }
+      // Distance: actualizar en cada poll (real si hay wearable, estimado si no).
+      if (tot>0) {
+        const _dpr=distD?.rollupDataPoints?.[0];
+        const _nm=(o,ks)=>ks.reduce((v,k)=>v??o?.[k],null);
+        const mts=parseFloat(_nm(_dpr?.distance||{},['metersSum','meters','value','sum']))||0;
+        const el_d=document.getElementById('steps-dist-val');
+        if(el_d) el_d.textContent=mts>0?(mts/1000).toFixed(1):(tot*0.00074).toFixed(1);
+      }
     }
     if (calD?.rollupDataPoints?.length) {
       const _cdp=calD.rollupDataPoints[0];
