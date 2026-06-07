@@ -745,6 +745,12 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .pv-lang-btn{flex:1;padding:10px;background:var(--sub);border:1px solid var(--bdr);color:var(--txt);font-family:inherit;font-size:10px;letter-spacing:2px;cursor:pointer;text-transform:uppercase;border-radius:var(--r-sm);transition:border-color var(--dur-fast) var(--ease-std),color var(--dur-fast) var(--ease-std),opacity var(--dur-fast) var(--ease-std);-webkit-tap-highlight-color:transparent;opacity:0.6;min-height:40px;}
 .pv-lang-btn.active{border-color:var(--ta);color:var(--ta);opacity:1;}
 .pv-select{background:var(--sub);border:1px solid var(--bdr);color:var(--txt);font-family:inherit;font-size:10px;letter-spacing:1px;padding:7px 9px;cursor:pointer;border-radius:3px;appearance:none;-webkit-appearance:none;}
+.pv-num-input{width:72px;background:var(--sub);border:1px solid var(--bdr);color:var(--txt);font-family:inherit;font-size:12px;font-weight:700;letter-spacing:1px;padding:7px 9px;border-radius:3px;text-align:right;-moz-appearance:textfield;}
+.pv-num-input::-webkit-outer-spin-button,.pv-num-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.pv-num-input:focus{outline:1px solid var(--ta);outline-offset:1px;}
+.pv-unit{font-size:9px;letter-spacing:1.5px;opacity:0.45;margin-left:5px;text-transform:uppercase;}
+.pv-bio-calc{margin-top:6px;padding-top:6px;border-top:1px solid var(--sub);}
+.pv-calc-val{font-size:16px;font-weight:700;color:var(--ta);letter-spacing:0.5px;}
 .pv-export-btn{background:var(--sub);border:1px solid var(--bdr);color:var(--ta);font-family:inherit;font-size:10px;font-weight:700;letter-spacing:2px;padding:7px 12px;cursor:pointer;border-radius:3px;transition:opacity 0.2s;-webkit-tap-highlight-color:transparent;}
 .pv-export-btn:hover{opacity:0.8;}
 .pv-toggle{width:48px;height:27px;background:rgba(255,255,255,0.13);border:1px solid var(--bdr);border-radius:14px;cursor:pointer;position:relative;transition:background var(--dur-base) var(--ease-std),border-color var(--dur-base) var(--ease-std);flex-shrink:0;-webkit-tap-highlight-color:transparent;}
@@ -3734,7 +3740,10 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           <div class="vc-pills">
             <div class="vc-pill">
               <div class="vc-pill-lbl" id="hr-rest-lbl">REPOSO</div>
-              <div class="vc-pill-val" id="hr-rest">61</div>
+              <div style="display:flex;align-items:baseline;gap:4px;">
+                <div class="vc-pill-val" id="hr-rest">61</div>
+                <span id="hr-rest-trd" style="font-size:11px;font-weight:700;transition:color 0.3s var(--ease-std);"></span>
+              </div>
               <div class="vc-pill-unit">BPM</div>
             </div>
             <div class="vc-pill">
@@ -4491,6 +4500,64 @@ body.t-synth::after{content:'';position:fixed;inset:0;
       <div class="pv-row">
         <div class="pv-rlbl" id="pv-lastsync-lbl">ÚLTIMA SYNC</div>
         <div id="pv-lastsync-val" style="font-size:10px;opacity:0.5;letter-spacing:1px;">—</div>
+      </div>
+    </div>
+
+    <!-- Biometric data -->
+    <div class="card hv-card">
+      <div class="pv-section-lbl" id="pv-sec-bio">DATOS BIOMÉTRICOS</div>
+      <div class="pv-row">
+        <div class="pv-rlbl" id="pv-lbl-age">EDAD</div>
+        <div style="display:flex;align-items:center;">
+          <input class="pv-num-input" type="number" id="pv-age" min="10" max="100" placeholder="—" oninput="saveBioProfile()">
+          <span class="pv-unit">AÑOS</span>
+        </div>
+      </div>
+      <div class="pv-row">
+        <div class="pv-rlbl" id="pv-lbl-weight">PESO</div>
+        <div style="display:flex;align-items:center;">
+          <input class="pv-num-input" type="number" id="pv-weight" min="30" max="300" step="0.5" placeholder="—" oninput="saveBioProfile()">
+          <span class="pv-unit">KG</span>
+        </div>
+      </div>
+      <div class="pv-row">
+        <div class="pv-rlbl" id="pv-lbl-height">ALTURA</div>
+        <div style="display:flex;align-items:center;">
+          <input class="pv-num-input" type="number" id="pv-height" min="100" max="230" placeholder="—" oninput="saveBioProfile()">
+          <span class="pv-unit">CM</span>
+        </div>
+      </div>
+      <div class="pv-row">
+        <div class="pv-rlbl" id="pv-lbl-sex">SEXO BIOLÓGICO</div>
+        <select class="pv-select" id="pv-sex" onchange="saveBioProfile()">
+          <option value="">—</option>
+          <option value="m">MASCULINO</option>
+          <option value="f">FEMENINO</option>
+        </select>
+      </div>
+      <!-- Resultados calculados — visible cuando todos los campos tienen valor -->
+      <div class="pv-bio-calc" id="pv-bio-calc" style="display:none">
+        <div class="pv-row">
+          <div class="pv-rlbl" id="pv-lbl-bmr">METABOLISMO BASAL</div>
+          <div style="display:flex;align-items:baseline;gap:4px;">
+            <div class="pv-calc-val" id="pv-bmr-val">—</div>
+            <span class="pv-unit">KCAL/DÍA</span>
+          </div>
+        </div>
+        <div class="pv-row">
+          <div class="pv-rlbl" id="pv-lbl-hrmax">FC MÁX ESTIMADA</div>
+          <div style="display:flex;align-items:baseline;gap:4px;">
+            <div class="pv-calc-val" id="pv-hrmax-val">—</div>
+            <span class="pv-unit">BPM</span>
+          </div>
+        </div>
+        <div class="pv-row">
+          <div class="pv-rlbl" id="pv-lbl-fitage">FITNESS AGE</div>
+          <div style="display:flex;align-items:baseline;gap:4px;">
+            <div class="pv-calc-val" id="pv-fitage-val">—</div>
+            <span class="pv-unit">AÑOS</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -5978,6 +6045,8 @@ function _finishSelectTheme(t) {
   maybeAutoTour();
   refreshBell();
   initSwipeNav();
+  // Aplicar perfil biométrico guardado (BMR, maxHR, zonas) desde el inicio
+  try { _applyBioProfile(); } catch(e) {}
   _recordThemeDay(t);
   checkAchievements(t, true);
   _updateAchBadges(t);
@@ -7681,6 +7750,8 @@ function renderProfile() {
     const ts = window._notifState && window._notifState.lastSync;
     ls.textContent = (isReal && ts) ? new Date(ts).toLocaleTimeString(lang === 'es' ? 'es-ES' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : '—';
   }
+  // Cargar datos biométricos guardados
+  _loadBioProfileInputs();
 }
 
 // Export all cached history (IndexedDB) as a downloadable JSON file.
@@ -10548,6 +10619,9 @@ async function loadRealGoogleData() {
   syncTicker();
   // Pass null rhr when not real so loadHealthMetricsGoogle skips hardcoded fallbacks
   loadHealthMetricsGoogle(td, _rhrReal?rhr_v:null);
+  // HRV baseline personal + tendencia RHR (async, no bloquea el render principal)
+  _calcHRVBaseline();
+  _calcRHRTrend();
   // Always call renderRecentActivities — even empty array shows "Sin entrenamientos"
   // instead of leaving the HTML demo activities (Carrera/Meditación/Ciclismo) on screen
   const ghSessions = (exD?.dataPoints||[]).map(p => {
@@ -10573,6 +10647,117 @@ async function loadRealGoogleData() {
   // may show a stale value; update it now that we know the real streak.
   { const el=document.getElementById('dr-stk'); if(el) el.textContent=getDailyStreak(); }
 }
+// ══════════════════════════════════════════════════════════════════════════
+// ── PERFIL BIOMÉTRICO DEL USUARIO ─────────────────────────────────────────
+// Persiste en localStorage 'fb_bio'. Sin servidor, sin envío de datos.
+// ══════════════════════════════════════════════════════════════════════════
+function getUserBioProfile() {
+  try { return JSON.parse(localStorage.getItem('fb_bio') || '{}'); } catch { return {}; }
+}
+function saveBioProfile() {
+  const age    = parseInt(document.getElementById('pv-age')?.value)      || null;
+  const weight = parseFloat(document.getElementById('pv-weight')?.value) || null;
+  const height = parseInt(document.getElementById('pv-height')?.value)   || null;
+  const sex    = document.getElementById('pv-sex')?.value                || '';
+  try { localStorage.setItem('fb_bio', JSON.stringify({age,weight,height,sex})); } catch {}
+  _applyBioProfile({age,weight,height,sex});
+}
+function _applyBioProfile(p) {
+  p = p || getUserBioProfile();
+  const {age,weight,height,sex} = p;
+  const calcDiv = document.getElementById('pv-bio-calc');
+  if (!age || !weight || !height || !sex) { if(calcDiv) calcDiv.style.display='none'; return; }
+  // Mifflin-St Jeor BMR
+  const bmr = Math.round(10*weight + 6.25*height - 5*age + (sex==='m' ? 5 : -161));
+  // Tanaka max HR (más precisa que 220-age, error ±7 bpm)
+  const hrMax = Math.round(208 - 0.7*age);
+  // Fitness Age desde VO2max (si disponible) — tabla percentiles ACSM
+  let fitAge = null;
+  const vo2 = window._vo2Max;
+  if (vo2 && age) {
+    // Interpolación simple: VO2max promedio para 20-70 años decrece ~1 ml/kg/min cada 10 años
+    // Referencia: Cooper Institute / ACSM fitness norms
+    const refVO2 = sex==='m' ? (58 - 0.33*(age-20)) : (46 - 0.27*(age-20));
+    const delta  = vo2 - refVO2; // positivo = mejor que la media
+    fitAge = Math.max(15, Math.min(80, Math.round(age - delta * 1.5)));
+  }
+  const setEl=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null)e.textContent=v;};
+  setEl('pv-bmr-val',   bmr.toLocaleString());
+  setEl('pv-hrmax-val', hrMax);
+  setEl('pv-fitage-val', fitAge ?? '—');
+  if(calcDiv) calcDiv.style.display='block';
+  // Actualiza el card de Calorías con el BMR real
+  setEl('cal-bmr', bmr.toLocaleString());
+  // Actualiza zonas cardíacas con maxHR personal (solo si el wearable no tiene dato más preciso)
+  if (typeof setHRZones === 'function') {
+    const rhr = parseInt(document.getElementById('hr-rest')?.textContent) || null;
+    const devMax = parseInt(document.getElementById('hr-max')?.textContent) || 0;
+    setHRZones({ restHR: rhr, maxHR: devMax > 100 ? devMax : hrMax });
+  }
+  window._bioProfile = {age,weight,height,sex,bmr,hrMax,fitAge};
+}
+function _loadBioProfileInputs() {
+  const p = getUserBioProfile();
+  const setI=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null)e.value=v;};
+  setI('pv-age',    p.age);
+  setI('pv-weight', p.weight);
+  setI('pv-height', p.height);
+  const sx=document.getElementById('pv-sex'); if(sx&&p.sex) sx.value=p.sex;
+  _applyBioProfile(p);
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// ── HRV BASELINE PERSONAL (últimos 30 días) ────────────────────────────────
+// Llena hrv-base-val (media RMSSD) y hrv-sdnn-val (desviación entre días).
+// ══════════════════════════════════════════════════════════════════════════
+async function _calcHRVBaseline() {
+  if (HS.id !== 'google' || !token) return;
+  try {
+    const data = await _ghGet(`${GoogleHealthSource.base}/users/me/dataTypes/daily-heart-rate-variability/dataPoints?pageSize=30`);
+    const vals = (data?.dataPoints||[])
+      .map(dp=>{ const hv=dp.dailyHeartRateVariability; return parseFloat(hv?.rmssd??hv?.dailyRmssd??hv?.value)||null; })
+      .filter(v=>v!=null&&v>0);
+    if (vals.length < 3) return;
+    const mean = vals.reduce((a,b)=>a+b,0)/vals.length;
+    const sdnn = Math.sqrt(vals.reduce((a,b)=>a+(b-mean)**2,0)/vals.length);
+    const setEl=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    setEl('hrv-base-val', Math.round(mean));
+    setEl('hrv-sdnn-val', Math.round(sdnn));
+    window._hrvBaseline = {mean:Math.round(mean), sdnn:Math.round(sdnn), n:vals.length};
+    // Si tenemos VO2max y perfil, recalcular fitness age
+    if (window._vo2Max) _applyBioProfile();
+    console.log('[gh hrv-baseline]', window._hrvBaseline);
+  } catch(e) { console.warn('[gh hrv-baseline]',e); }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// ── RHR TREND (últimos 7 días) ─────────────────────────────────────────────
+// Muestra ↑↓→ en hr-rest-trd: mejora (↓ = baja FC = mejor fitness),
+// empeora (↑), o estable (→).
+// ══════════════════════════════════════════════════════════════════════════
+async function _calcRHRTrend() {
+  if (HS.id !== 'google' || !token) return;
+  try {
+    const data = await _ghGet(`${GoogleHealthSource.base}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?pageSize=8`);
+    const vals = (data?.dataPoints||[])
+      .map(dp=>parseInt(dp.dailyRestingHeartRate?.beatsPerMinute)||null)
+      .filter(v=>v!=null&&v>0);
+    if (vals.length < 2) return;
+    const today = vals[0];
+    const rest  = vals.slice(1);
+    const mean7 = rest.reduce((a,b)=>a+b,0)/rest.length;
+    const diff  = today - mean7;
+    const trd   = document.getElementById('hr-rest-trd');
+    if (trd) {
+      if      (diff >= 2)  { trd.textContent='↑'; trd.style.color='var(--tneg)'; trd.title=`+${Math.round(diff)} bpm vs. media ${rest.length}d`; }
+      else if (diff <= -2) { trd.textContent='↓'; trd.style.color='var(--tpos)'; trd.title=`${Math.round(diff)} bpm vs. media ${rest.length}d`; }
+      else                 { trd.textContent='→'; trd.style.color='rgba(255,255,255,0.3)'; trd.title='Estable vs. media 7d'; }
+    }
+    window._rhrTrend = {today, mean7:Math.round(mean7), diff:Math.round(diff), n:rest.length};
+    console.log('[gh rhr-trend]', window._rhrTrend);
+  } catch(e) { console.warn('[gh rhr-trend]',e); }
+}
+
 // ── SpO2 / HRV / Breathing rate / Temperatura / VO2 máx ──────────────────
 async function loadHealthMetricsGoogle(td, rhr_v) {
   const B=GoogleHealthSource.base, enc=encodeURIComponent;
