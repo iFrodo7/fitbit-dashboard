@@ -14,6 +14,24 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png?v=10">
 <link rel="icon" type="image/svg+xml" href="/icons/icon.svg?v=10">
 <title>AIRA — BIOMETRIC DASHBOARD</title>
+<!-- Early-boot: apply theme class and flag loader BEFORE body renders.
+     Eliminates the flash of content for returning users.
+     Runs synchronously so the first browser paint already has the correct state. -->
+<script>
+(function(){
+  var _t=localStorage.getItem('fb_t');
+  if(!_t)return;
+  // Set data-booting on <html> — CSS rule html[data-booting] #lov shows the loader
+  // immediately on first paint, before body or JS have run.
+  document.documentElement.setAttribute('data-booting','1');
+  // Apply the per-theme background color to <html> so the loader overlay uses the
+  // correct color even before body.t-* classes are applied by JS.
+  var _bg={bloom:'#0f0709',halo:'#060010',naruto:'#0c0400',fut:'#020810',mc:'#1a1200'};
+  var _ta={bloom:'#e85c8a',halo:'#ff2d78',naruto:'#4a6a84',fut:'#00f5ff',mc:'#6aff3a'};
+  document.documentElement.style.setProperty('--bg', _bg[_t]||'#020810');
+  document.documentElement.style.setProperty('--ta', _ta[_t]||'#00f5ff');
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=IBM+Plex+Mono:wght@400;700&family=VT323&family=Silkscreen:wght@400;700&family=Noto+Serif+JP:wght@400;700;900&family=Permanent+Marker&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -1068,8 +1086,10 @@ html.owait-lock body{overflow:hidden!important;overscroll-behavior:none!importan
 .owait-msg{font-size:10px;letter-spacing:3px;color:var(--ta);opacity:0.65;text-transform:uppercase;text-align:center;}
 .owait-sig{display:flex;align-items:center;gap:7px;font-size:9px;letter-spacing:2px;color:var(--tneg);opacity:0.75;text-transform:uppercase;margin-top:4px;}
 .owait-sig-dot{width:6px;height:6px;border-radius:50%;background:var(--tneg);flex-shrink:0;animation:blink 1.1s infinite;}
-.lov{display:none;position:fixed;inset:0;background:var(--bg);z-index:900;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:30px 20px;}
+.lov{display:none;position:fixed;inset:0;background:var(--bg,#020810);z-index:900;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:30px 20px;}
 .lov.on{display:flex;}
+/* Early-boot: loader visible before JS runs, on top of everything */
+html[data-booting] #lov{display:flex;z-index:10000;}
 .ltxt{font-size:13px;letter-spacing:4px;color:var(--ta);animation:blink 1s infinite;text-align:center;}
 .lbar{width:180px;height:2px;background:rgba(255,255,255,0.07);}
 .lfi{height:100%;background:var(--ta);animation:ld 2s ease-in-out infinite;}
@@ -8068,7 +8088,11 @@ function initDash() {
   // about to arrive — suppress all demo animations so animN / animateDailyRings
   // don't race against loadRealGoogleData and overwrite real values.
   const _hasOAuthCode = !!new URLSearchParams(location.search).get('code');
-  if (!token && !_hasOAuthCode) setTimeout(animVals, 300); // demo-only — skip when authenticated or mid-OAuth
+  if (!token && !_hasOAuthCode) {
+    // Demo mode: no data to fetch, dismiss the boot loader immediately
+    document.documentElement.removeAttribute('data-booting');
+    setTimeout(animVals, 300); // demo-only — skip when authenticated or mid-OAuth
+  }
   // Restore persisted name + hide Connect button if already authenticated
   const _savedName = localStorage.getItem('fb_display_name');
   if (_savedName) {
@@ -11478,6 +11502,8 @@ function _hideOwait() {
 }
 
 function showLoad() {
+  // Early-boot flag no longer needed — the .on class takes over from here
+  document.documentElement.removeAttribute('data-booting');
   if (!navigator.onLine) {
     // Show the waiting overlay only on the very first load attempt (app just opened,
     // account exists, no connection yet). After that, the badge is enough — we don't
@@ -11492,6 +11518,7 @@ function showLoad() {
 }
 function hideLoad() {
   document.getElementById('lov').classList.remove('on');
+  document.documentElement.removeAttribute('data-booting');
   _hideOwait();
 }
 
