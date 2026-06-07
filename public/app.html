@@ -3939,12 +3939,12 @@ body.t-synth::after{content:'';position:fixed;inset:0;
               <div id="bio-age-dot" style="position:absolute;top:50%;width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 6px rgba(0,0,0,0.5);transform:translate(-50%,-50%);transition:left 1s var(--ease-std);left:50%;"></div>
             </div>
           </div>
-          <!-- Sub-métricas: BMR y FC Máx -->
+          <!-- Sub-métricas: VO2 Máx y FC Máx -->
           <div class="cal-split cs-fill">
             <div class="cal-box">
-              <div class="cal-box-lbl" id="lbl-bio-bmr">METABOLISMO BASAL</div>
-              <div class="cal-box-val" id="bio-bmr-val">—</div>
-              <div class="cal-box-unit">KCAL/DÍA</div>
+              <div class="cal-box-lbl" id="lbl-bio-vo2">VO2 MÁX</div>
+              <div class="cal-box-val" id="bio-vo2-val">—</div>
+              <div class="cal-box-unit">ML/KG/MIN</div>
             </div>
             <div class="cal-box">
               <div class="cal-box-lbl" id="lbl-bio-hrmax">FC MÁX ESTIMADA</div>
@@ -10735,7 +10735,7 @@ function _applyBioProfile(p) {
   setEl('pv-fitage-val', fitAge ?? '—');
   if(calcDiv) calcDiv.style.display='block';
   // ── Bio widget (home dashboard) ───────────────────────────────────────
-  setEl('bio-bmr-val',   bmr.toLocaleString());
+  setEl('bio-vo2-val',   window._vo2Max != null ? window._vo2Max : '—');
   setEl('bio-hrmax-val', hrMax);
   if (fitAge != null) {
     setEl('bio-fitage-val', fitAge);
@@ -10888,8 +10888,11 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
     const vv=vo2D?.dataPoints?.[0]?.dailyVo2Max??vo2D?.dataPoints?.[0]?.vo2Max??vo2D?.dataPoints?.[0];
     const vo2Val=parseFloat(vv?.vo2MaxMillilitersPerMinutePerKilogram??vv?.value??vv?.ml) || null;
     if (vo2Val!=null) {
-      // Guardar en window para que otros componentes lo puedan usar
       window._vo2Max=Math.round(vo2Val);
+      // Actualizar bio-card y recalcular Fitness Age con el nuevo VO2 máx
+      const setEl=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null)e.textContent=v;};
+      setEl('bio-vo2-val', window._vo2Max);
+      if (typeof _applyBioProfile==='function') _applyBioProfile();
       console.log('[gh vo2max]', window._vo2Max);
     }
 
