@@ -751,6 +751,14 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .pv-unit{font-size:9px;letter-spacing:1.5px;opacity:0.45;margin-left:5px;text-transform:uppercase;}
 .pv-bio-calc{margin-top:6px;padding-top:6px;border-top:1px solid var(--sub);}
 .pv-calc-val{font-size:16px;font-weight:700;color:var(--ta);letter-spacing:0.5px;}
+/* ── AFib card ── */
+.afib-status-row{display:flex;align-items:center;gap:10px;margin-top:6px;}
+.afib-dot{width:10px;height:10px;border-radius:50%;background:var(--bdr);flex-shrink:0;transition:background var(--dur-slow) var(--ease-std),box-shadow var(--dur-slow) var(--ease-std);}
+.afib-dot.normal{background:var(--tpos);box-shadow:0 0 8px var(--tpos);}
+.afib-dot.alert{background:var(--tneg);box-shadow:0 0 8px var(--tneg);animation:afib-pulse 1.5s ease-in-out infinite;}
+@keyframes afib-pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.afib-status-lbl{font-size:22px;font-weight:700;letter-spacing:2px;transition:color var(--dur-slow) var(--ease-std);}
+.afib-disclaimer{margin-top:10px;padding:6px 8px;background:rgba(128,128,128,0.07);border-radius:var(--r-xs);border-left:2px solid var(--bdr);font-size:8px;letter-spacing:1px;line-height:1.7;opacity:0.55;}
 .pv-export-btn{background:var(--sub);border:1px solid var(--bdr);color:var(--ta);font-family:inherit;font-size:10px;font-weight:700;letter-spacing:2px;padding:7px 12px;cursor:pointer;border-radius:3px;transition:opacity 0.2s;-webkit-tap-highlight-color:transparent;}
 .pv-export-btn:hover{opacity:0.8;}
 .pv-toggle{width:48px;height:27px;background:rgba(255,255,255,0.13);border:1px solid var(--bdr);border-radius:14px;cursor:pointer;position:relative;transition:background var(--dur-base) var(--ease-std),border-color var(--dur-base) var(--ease-std);flex-shrink:0;-webkit-tap-highlight-color:transparent;}
@@ -3958,6 +3966,35 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           </div>
         </div>
 
+        <!-- AFib / Ritmo Cardíaco (detección de ritmo irregular) -->
+        <div class="vc" id="afib-card" data-onb="afib">
+          <div class="vc-head">
+            <span class="vlbl" id="lbl-afib">// RITMO CARDÍACO</span>
+            <button class="onb-q" onclick="showOnb('afib')" aria-label="info">?</button>
+          </div>
+          <!-- Estado principal: SINUSAL / IRREGULAR -->
+          <div class="afib-status-row">
+            <div class="afib-dot" id="afib-dot"></div>
+            <div class="afib-status-lbl" id="afib-status-lbl">—</div>
+          </div>
+          <span class="vunit" id="u-afib">REQUIERE FITBIT AIR</span>
+          <!-- Sub-métricas -->
+          <div class="cal-split cs-fill">
+            <div class="cal-box">
+              <div class="cal-box-lbl" id="lbl-afib-last">ÚLTIMA LECTURA</div>
+              <div class="cal-box-val" id="afib-last-val">—</div>
+              <div class="cal-box-unit" id="afib-last-unit">—</div>
+            </div>
+            <div class="cal-box">
+              <div class="cal-box-lbl" id="lbl-afib-count">IRREGULARES</div>
+              <div class="cal-box-val" id="afib-count-val">—</div>
+              <div class="cal-box-unit" id="lbl-afib-period">/ 30 DÍAS</div>
+            </div>
+          </div>
+          <!-- Disclaimer médico -->
+          <div class="afib-disclaimer" id="afib-disclaimer">⚠ No es un dispositivo médico certificado. No reemplaza la evaluación de un profesional de salud.</div>
+        </div>
+
         <!-- + Add widget card -->
         <div id="wm-add-card" onclick="openWM()" role="button" aria-label="Agregar widget">
           <div class="wm-add-plus">+</div>
@@ -4885,6 +4922,7 @@ const T = {
       spo2:     { ttl:'Saturación de Oxígeno (SpO2)', bd:'<p>Mide el porcentaje de hemoglobina en sangre que lleva oxígeno.</p><p><strong>95-100%</strong> — normal · <strong>90-94%</strong> — atención · <strong>&lt;90%</strong> — busca atención médica.</p><p>Valores bajos durante el sueño pueden indicar apnea. El Fitbit la mide durante el sueño con un sensor óptico infrarrojo.</p>' },
       temp:     { ttl:'Temperatura Corporal', bd:'<p>Fitbit mide la temperatura de la <strong>piel</strong> de la muñeca, que refleja la temperatura core con un pequeño desfase.</p><p>El valor mostrado es tu temperatura estimada en °C. Una variación <strong>+0.3°C sostenida</strong> puede indicar enfermedad incipiente o, en mujeres, la ovulación.</p><p>Lo más útil es la tendencia: ¿sube o baja respecto a tu base personal?</p>' },
       bio:      { ttl:'Fitness Personal', bd:'<p><strong>Fitness Age</strong> estima tu edad biológica cardiovascular comparando tu VO2 máx con los percentiles de tu grupo de edad y sexo (normas Cooper Institute / ACSM).</p><p><strong>Metabolismo basal (BMR)</strong> — calorías mínimas que tu cuerpo necesita en reposo. Calculado con la fórmula <em>Mifflin-St Jeor</em> a partir de peso, altura, edad y sexo.</p><p><strong>FC Máx estimada</strong> — umbral superior para tus zonas de entrenamiento. Fórmula Tanaka: <code>208 − 0.7 × edad</code>. Configura tus datos en <em>Perfil → Datos Biométricos</em>.</p>' },
+      afib:     { ttl:'Ritmo Cardíaco (AFib)', bd:'<p>El Fitbit Air monitorea tu ritmo cardíaco durante el día y detecta posibles <strong>ritmos irregulares</strong> (fibrilación auricular, AFib) usando el sensor óptico de la muñeca.</p><p><strong>SINUSAL</strong> — ritmo normal. <strong>IRREGULAR</strong> — se detectó una posible anomalía; se recomienda consultar a un médico.</p><p>El contador muestra cuántas veces se registró un ritmo irregular en los últimos 30 días.</p><p style="opacity:0.6;font-size:0.9em;">⚠ <strong>Aviso médico:</strong> Esta función es informativa y no constituye un diagnóstico médico. No reemplaza la evaluación de un cardiólogo ni ningún dispositivo médico certificado. Si tienes síntomas cardíacos, consulta a un profesional de salud.</p>' },
       steps:    { ttl:'Pasos', bd:'<p>Meta diaria estándar: <strong>10,000 pasos</strong> (~7-8km).</p><p>El indicador muestra el porcentaje cumplido. Constancia &gt; volumen — mejor 7,000 todos los días que 15,000 un día y 2,000 los demás.</p>' },
       cycle:        { ttl:'Fases del ciclo', bd:'<p>Tu ciclo tiene cuatro fases. AIRA las estima desde tu última regla y tus biométricos.</p><p><strong>🩸 Menstruación</strong> — días de sangrado; el ciclo se reinicia. Probabilidad de embarazo muy baja.</p><p><strong>🌱 Folicular</strong> — tras la regla sube el estrógeno; tu energía y fertilidad empiezan a subir.</p><p><strong>🌸 Ventana fértil + Ovulación</strong> — los ~6 días de mayor probabilidad de embarazo. En la ovulación se libera el óvulo (tu <strong>pico</strong>); justo después tu temperatura de piel sube ~0.3°C.</p><p><strong>🌙 Lútea</strong> — tras ovular sube la progesterona; tu FC en reposo y temperatura quedan más altas. Si no hay embarazo, llega la regla.</p><p style="opacity:0.6">Estimación informativa basada en tu ciclo y biométricos. No es método anticonceptivo ni consejo médico.</p>' },
       cyc_fertile:  { ttl:'Ventana Fértil', bd:'<p>Son los días del ciclo en los que es <strong>biológicamente posible concebir</strong>.</p><p>Los espermatozoides sobreviven hasta <strong>5 días</strong> en el tracto reproductor; el óvulo es viable aproximadamente <strong>24 horas</strong> tras la ovulación. Eso da una ventana de hasta 7 días.</p><p>La ventana cubre desde <strong>5 días antes de ovular</strong> hasta <strong>1 día después</strong>. Los dos días previos a la ovulación son los de mayor probabilidad (pico).</p>' },
@@ -5131,6 +5169,7 @@ const T = {
       spo2:     { ttl:'Blood Oxygen (SpO2)', bd:'<p>The percentage of hemoglobin in your blood carrying oxygen.</p><p><strong>95-100%</strong> — normal · <strong>90-94%</strong> — monitor closely · <strong>&lt;90%</strong> — seek medical attention.</p><p>Low values during sleep may indicate sleep apnea. Fitbit measures it overnight with an infrared optical sensor.</p>' },
       temp:     { ttl:'Body Temperature', bd:'<p>Fitbit measures <strong>wrist skin temperature</strong>, which reflects core temperature with a slight offset.</p><p>A sustained rise of <strong>+0.3°C</strong> above your baseline may signal illness or, in women, ovulation.</p><p>The trend matters more than the absolute value — watch how it changes from your personal baseline.</p>' },
       bio:      { ttl:'Personal Fitness', bd:'<p><strong>Fitness Age</strong> estimates your cardiovascular biological age by comparing your VO2 max to age/sex percentiles (Cooper Institute / ACSM norms).</p><p><strong>Basal Metabolic Rate (BMR)</strong> — minimum calories your body needs at rest. Calculated using the <em>Mifflin-St Jeor</em> formula from your weight, height, age, and sex.</p><p><strong>Estimated Max HR</strong> — upper threshold for your training zones. Tanaka formula: <code>208 − 0.7 × age</code>. Set your data in <em>Profile → Biometric Data</em>.</p>' },
+      afib:     { ttl:'Heart Rhythm (AFib)', bd:'<p>The Fitbit Air monitors your heart rhythm throughout the day and detects potential <strong>irregular rhythms</strong> (atrial fibrillation, AFib) using the wrist optical sensor.</p><p><strong>SINUS</strong> — normal rhythm. <strong>IRREGULAR</strong> — a possible anomaly was detected; consult a doctor.</p><p>The counter shows how many times an irregular rhythm was recorded in the past 30 days.</p><p style="opacity:0.6;font-size:0.9em;">⚠ <strong>Medical notice:</strong> This feature is informational and does not constitute a medical diagnosis. It does not replace evaluation by a cardiologist or any certified medical device. If you have cardiac symptoms, consult a healthcare professional.</p>' },
       steps:    { ttl:'Steps', bd:'<p>Standard daily target: <strong>10,000 steps</strong> (~7-8km).</p><p>The bar shows percent achieved. Consistency &gt; volume — 7,000 every day beats 15,000 once + 2,000 the rest.</p>' },
       cycle:        { ttl:'Cycle phases', bd:'<p>Your cycle has four phases. AIRA estimates them from your last period and your biometrics.</p><p><strong>🩸 Menstruation</strong> — bleeding days; the cycle resets. Very low chance of pregnancy.</p><p><strong>🌱 Follicular</strong> — after your period estrogen rises; energy and fertility start climbing.</p><p><strong>🌸 Fertile window + Ovulation</strong> — the ~6 days with the highest chance of pregnancy. At ovulation the egg is released (your <strong>peak</strong>); right after, skin temp rises ~0.3°C.</p><p><strong>🌙 Luteal</strong> — after ovulation progesterone rises; resting HR and temperature run higher. If there is no pregnancy, your period arrives.</p><p style="opacity:0.6">Informational estimate based on your cycle and biometrics. Not a contraceptive method or medical advice.</p>' },
       cyc_fertile:  { ttl:'Fertile Window', bd:'<p>The days in your cycle when it is <strong>biologically possible to conceive</strong>.</p><p>Sperm can survive up to <strong>5 days</strong> in the reproductive tract; the egg is viable for approximately <strong>24 hours</strong> after ovulation. That creates a window of up to 7 days.</p><p>The window spans from <strong>5 days before ovulation</strong> through <strong>1 day after</strong>. The two days before ovulation have the highest probability (peak).</p>' },
@@ -8190,6 +8229,7 @@ var WM_WIDGETS = [
   { id:'bot',           on:true,  label:'Actividades & Coach', labelEn:'Activities & Coach', desc:'Entrenamientos · AIRA',        descEn:'Workouts · AIRA',                icon:'✦' },
   { id:'cyc-home-chip', on:false, special:'cycle', label:'Seguimiento de Ciclo', labelEn:'Cycle Tracking', desc:'Fases · Ventana fértil · Regla', descEn:'Phases · Fertile window · Period', icon:'☽' },
   { id:'bio-card',      on:false, label:'Fitness Personal',  labelEn:'Personal Fitness',  desc:'BMR · FC Máx · Fitness Age',     descEn:'BMR · Max HR · Fitness Age',    icon:'◎' },
+  { id:'afib-card',    on:true,  label:'Ritmo Cardíaco (AFib)', labelEn:'Heart Rhythm (AFib)', desc:'Detección de ritmo irregular', descEn:'Irregular rhythm detection', icon:'♡' },
 ];
 
 function wmIsOn(w) {
@@ -8762,7 +8802,7 @@ function exitJiggle() {
 // Default order = importance ranking (set during biometric reorder sprint)
 // Bug #7 fix: include all 10 draggable widgets so resetWidgetOrder() fully
 // restores the default layout (cyc-home-chip is special/cycle-controlled, excluded).
-var WM_DEFAULT_ORDER = ['hr-card','hrv-card','stress-card','cal-card','spo2-card','temp-card','sleep-card','scard','hr-chart-card','bot'];
+var WM_DEFAULT_ORDER = ['hr-card','hrv-card','stress-card','cal-card','spo2-card','temp-card','afib-card','sleep-card','scard','hr-chart-card','bot'];
 
 function resetWidgetOrder() {
   localStorage.removeItem('fb_wm_order');
@@ -10662,9 +10702,10 @@ async function loadRealGoogleData() {
   syncTicker();
   // Pass null rhr when not real so loadHealthMetricsGoogle skips hardcoded fallbacks
   loadHealthMetricsGoogle(td, _rhrReal?rhr_v:null);
-  // HRV baseline personal + tendencia RHR (async, no bloquea el render principal)
+  // HRV baseline personal + tendencia RHR + AFib (async, no bloquean el render principal)
   _calcHRVBaseline();
   _calcRHRTrend();
+  _loadAFibData();
   // Always call renderRecentActivities — even empty array shows "Sin entrenamientos"
   // instead of leaving the HTML demo activities (Carrera/Meditación/Ciclismo) on screen
   const ghSessions = (exD?.dataPoints||[]).map(p => {
@@ -10825,6 +10866,112 @@ async function _calcRHRTrend() {
     window._rhrTrend = {today, mean7:Math.round(mean7), diff:Math.round(diff), n:rest.length};
     console.log('[gh rhr-trend]', window._rhrTrend);
   } catch(e) { console.warn('[gh rhr-trend]',e); }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// ── AFib / RITMO IRREGULAR (últimos 50 registros) ─────────────────────────
+// Llena afib-card: estado del ritmo (SINUSAL/IRREGULAR), última lectura,
+// conteo de irregulares en 30 días.
+// Requiere scope: heart_rate_notifications.readonly + Fitbit Air.
+// ══════════════════════════════════════════════════════════════════════════
+async function _loadAFibData() {
+  if (HS.id !== 'google' || !token) return;
+  _setAFibUI({ status:'pending' });
+  try {
+    const data = await _ghGet(
+      `${GoogleHealthSource.base}/users/me/dataTypes/irregular-rhythm-notification/dataPoints?pageSize=50`
+    );
+    const points = data?.dataPoints || [];
+    if (!points.length) { _setAFibUI({ status:'no-data' }); return; }
+
+    // Registro más reciente
+    const latest = points[0];
+    const irn    = latest.irregularRhythmNotification ?? latest;
+    const cls    = String(irn.classification ?? irn.type ?? irn.status ?? '').toUpperCase();
+    const isIrregular = cls.includes('IRREGULAR');
+
+    // Conteo de irregulares en los últimos 30 días
+    const cutoff = Date.now() - 30 * 864e5;
+    const irregCount = points.filter(p => {
+      const d  = p.irregularRhythmNotification ?? p;
+      const ts = new Date(d.startTime ?? d.time ?? d.timestamp ?? 0).getTime();
+      const c  = String(d.classification ?? d.type ?? d.status ?? '').toUpperCase();
+      return ts >= cutoff && c.includes('IRREGULAR');
+    }).length;
+
+    // Timestamp de la última lectura
+    const lastTs   = irn.startTime ?? irn.endTime ?? irn.time ?? irn.timestamp ?? null;
+    const lastTime = lastTs ? new Date(lastTs) : null;
+
+    window._afibData = { isIrregular, irregCount, lastTime, n: points.length };
+    _setAFibUI({ status: isIrregular ? 'alert' : 'normal', irregCount, lastTime });
+    console.log('[gh afib]', window._afibData);
+  } catch(e) {
+    _setAFibUI({ status:'no-data' });
+    console.warn('[gh afib]', e);
+  }
+}
+
+function _setAFibUI({ status, irregCount, lastTime }) {
+  const dot      = document.getElementById('afib-dot');
+  const lbl      = document.getElementById('afib-status-lbl');
+  const unit     = document.getElementById('u-afib');
+  const lastVal  = document.getElementById('afib-last-val');
+  const lastUnit = document.getElementById('afib-last-unit');
+  const cntVal   = document.getElementById('afib-count-val');
+  const disc     = document.getElementById('afib-disclaimer');
+  const isEs     = (typeof lang !== 'undefined' ? lang : 'es') === 'es';
+
+  // Disclaimer dinámico según idioma
+  if (disc) disc.textContent = isEs
+    ? '⚠ No es un dispositivo médico certificado. No reemplaza la evaluación de un profesional de salud.'
+    : '⚠ Not a certified medical device. Does not replace evaluation by a healthcare professional.';
+
+  if (status === 'pending') {
+    if (dot)  dot.className = 'afib-dot';
+    if (lbl)  { lbl.textContent = '—'; lbl.style.color = ''; }
+    if (unit) unit.textContent = isEs ? 'VERIFICANDO...' : 'CHECKING...';
+    return;
+  }
+  if (status === 'no-data') {
+    if (dot)  dot.className = 'afib-dot';
+    if (lbl)  { lbl.textContent = '—'; lbl.style.color = ''; }
+    if (unit) unit.textContent = isEs ? 'REQUIERE FITBIT AIR' : 'REQUIRES FITBIT AIR';
+    if (lastVal)  lastVal.textContent  = '—';
+    if (lastUnit) lastUnit.textContent = '—';
+    if (cntVal)   cntVal.textContent   = '—';
+    return;
+  }
+
+  const isAlert = status === 'alert';
+  if (dot)  dot.className = 'afib-dot ' + (isAlert ? 'alert' : 'normal');
+  if (lbl)  {
+    lbl.textContent = isAlert
+      ? 'IRREGULAR'
+      : (isEs ? 'SINUSAL' : 'SINUS');
+    lbl.style.color = isAlert ? 'var(--tneg)' : 'var(--tpos)';
+  }
+  if (unit) unit.textContent = isAlert
+    ? (isEs ? 'RITMO IRREGULAR DETECTADO' : 'IRREGULAR RHYTHM DETECTED')
+    : (isEs ? 'RITMO SINUSAL NORMAL'       : 'NORMAL SINUS RHYTHM');
+
+  // Última lectura — tiempo relativo
+  if (lastVal && lastTime instanceof Date && !isNaN(lastTime)) {
+    const diffH = Math.floor((Date.now() - lastTime.getTime()) / 3600000);
+    const diffD = Math.floor(diffH / 24);
+    if (diffH < 1) {
+      lastVal.textContent  = isEs ? 'RECIENTE' : 'RECENT';
+      if (lastUnit) lastUnit.textContent = '';
+    } else if (diffH < 24) {
+      lastVal.textContent  = diffH;
+      if (lastUnit) lastUnit.textContent = isEs ? 'HORAS' : 'HRS';
+    } else {
+      lastVal.textContent  = diffD;
+      if (lastUnit) lastUnit.textContent = isEs ? 'DÍAS' : 'DAYS';
+    }
+  }
+
+  if (cntVal && irregCount != null) cntVal.textContent = irregCount;
 }
 
 // ── SpO2 / HRV / Breathing rate / Temperatura / VO2 máx ──────────────────
@@ -10993,6 +11140,8 @@ async function pollSlowGoogle() {
       updateDailyRings();
     }
   } catch(e){}
+  // AFib check en cada ciclo lento (gestiona sus propios errores)
+  _loadAFibData();
 }
 // ── History range (Google) ────────────────────────────────────────────────
 async function _hFetchGoogle(start, end) {
