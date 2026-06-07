@@ -775,7 +775,7 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .afib-dot.normal{background:var(--tpos);box-shadow:0 0 8px var(--tpos);}
 .afib-dot.alert{background:var(--tneg);box-shadow:0 0 8px var(--tneg);animation:afib-pulse 1.5s ease-in-out infinite;}
 @keyframes afib-pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
-.afib-status-lbl{font-size:22px;font-weight:700;letter-spacing:2px;transition:color var(--dur-slow) var(--ease-std);}
+.afib-status-lbl{font-size:22px;font-weight:700;letter-spacing:2px;transition:color var(--dur-slow) var(--ease-std);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .afib-disclaimer{margin-top:10px;padding:6px 8px;background:rgba(128,128,128,0.07);border-radius:var(--r-xs);border-left:2px solid var(--bdr);font-size:8px;letter-spacing:1px;line-height:1.7;opacity:0.55;}
 .pv-export-btn{background:var(--sub);border:1px solid var(--bdr);color:var(--ta);font-family:inherit;font-size:10px;font-weight:700;letter-spacing:2px;padding:7px 12px;cursor:pointer;border-radius:3px;transition:opacity 0.2s;-webkit-tap-highlight-color:transparent;}
 .pv-export-btn:hover{opacity:0.8;}
@@ -3875,7 +3875,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           </div>
         </div>
         <div class="vc exp" id="cal-card" onclick="toggleCal()">
-          <div class="vc-head"><span class="vlbl" id="lbl-cal">// CALORÍAS</span><span class="xarrow-inline">▼</span></div>
+          <div class="vc-head"><span class="vlbl" id="lbl-cal">// CALORÍAS</span><div style="display:flex;align-items:center;gap:6px;"><button class="onb-q" onclick="event.stopPropagation();showOnb('cal')" aria-label="info">?</button><span class="xarrow-inline">▼</span></div></div>
           <div class="vval" id="calv">312</div>
           <span class="vunit" id="u-cal">KCAL ACTIVAS</span>
           <!-- Siempre visible: split BMR / Activas -->
@@ -3889,6 +3889,19 @@ body.t-synth::after{content:'';position:fixed;inset:0;
               <div class="cal-box-lbl" id="cal-active-lbl">ACTIVAS</div>
               <div class="cal-box-val" id="cal-act">564</div>
               <div class="cal-box-unit">KCAL</div>
+            </div>
+          </div>
+          <div id="cal-balance-row" style="display:none;margin-top:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <span id="cal-bal-lbl" style="font-size:8px;letter-spacing:2px;opacity:0.45;text-transform:uppercase;">META DIARIA</span>
+              <span id="cal-bal-tdee" style="font-size:8px;letter-spacing:1px;opacity:0.45;"></span>
+            </div>
+            <div style="height:3px;background:var(--rbg);overflow:hidden;border-radius:2px;">
+              <div id="cal-bal-bar" style="height:100%;width:0%;background:var(--ta);transition:width 1.2s var(--ease-std);border-radius:2px;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:3px;">
+              <span id="cal-bal-status" style="font-size:8px;letter-spacing:1.5px;opacity:0.6;"></span>
+              <span id="cal-bal-pct" style="font-size:9px;font-weight:700;letter-spacing:0.5px;opacity:0.7;"></span>
             </div>
           </div>
           <div class="xarrow">▼</div>
@@ -4078,6 +4091,19 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           <div class="cal-split" style="margin-top:10px;">
             <div class="cal-box"><div class="cal-box-lbl" id="lbl-sl-eff">EFICIENCIA</div><div class="cal-box-val" id="sl-eff-v">91</div><div class="cal-box-unit">%</div></div>
             <div class="cal-box"><div class="cal-box-lbl" id="lbl-sl-wake">DESPERTARES</div><div class="cal-box-val" id="sl-wake-v">3</div><div class="cal-box-unit">VECES</div></div>
+          </div>
+          <div id="slp-debt-row" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--sub);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <span id="slp-debt-lbl" style="font-size:8px;letter-spacing:2px;opacity:0.45;text-transform:uppercase;">DEUDA DE SUEÑO</span>
+              <span id="slp-debt-days" style="font-size:8px;letter-spacing:1px;opacity:0.35;"></span>
+            </div>
+            <div style="height:3px;background:var(--rbg);overflow:hidden;border-radius:2px;">
+              <div id="slp-debt-bar" style="height:100%;width:0%;background:var(--tneg);transition:width 1.2s var(--ease-std);border-radius:2px;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:3px;">
+              <span id="slp-debt-status" style="font-size:8px;letter-spacing:1.5px;opacity:0.6;"></span>
+              <span id="slp-debt-val" style="font-size:13px;font-weight:700;letter-spacing:0.5px;"></span>
+            </div>
           </div>
         </div>
         <!-- HR 24h chart second -->
@@ -4649,12 +4675,30 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           <option value="f">FEMENINO</option>
         </select>
       </div>
+      <div class="pv-row">
+        <div class="pv-rlbl" id="pv-lbl-activity">NIVEL DE ACTIVIDAD</div>
+        <select class="pv-select" id="pv-activity" onchange="saveBioProfile()" style="font-size:9px;">
+          <option value="">—</option>
+          <option value="1.2">SEDENTARIO</option>
+          <option value="1.375">LIGERO (1-3 días/sem)</option>
+          <option value="1.55">MODERADO (3-5 días/sem)</option>
+          <option value="1.725">ACTIVO (6-7 días/sem)</option>
+          <option value="1.9">MUY ACTIVO (2×/día)</option>
+        </select>
+      </div>
       <!-- Resultados calculados — visible cuando todos los campos tienen valor -->
       <div class="pv-bio-calc" id="pv-bio-calc" style="display:none">
         <div class="pv-row">
           <div class="pv-rlbl" id="pv-lbl-bmr">METABOLISMO BASAL</div>
           <div style="display:flex;align-items:baseline;gap:4px;">
             <div class="pv-calc-val" id="pv-bmr-val">—</div>
+            <span class="pv-unit">KCAL/DÍA</span>
+          </div>
+        </div>
+        <div class="pv-row" id="pv-tdee-row" style="display:none">
+          <div class="pv-rlbl" id="pv-lbl-tdee">GASTO TOTAL (TDEE)</div>
+          <div style="display:flex;align-items:baseline;gap:4px;">
+            <div class="pv-calc-val" id="pv-tdee-val">—</div>
             <span class="pv-unit">KCAL/DÍA</span>
           </div>
         </div>
@@ -4942,7 +4986,8 @@ const T = {
     onb: {
       recovery: { ttl:'Recovery Score', bd:'<p>Indica qué tan <strong>recuperado</strong> está tu cuerpo hoy, en una escala de <strong>0 a 100</strong>.</p><p>Combina cuatro factores: duración del sueño, eficiencia, % de sueño profundo+REM, y tu frecuencia cardíaca en reposo.</p><p><strong>67+</strong> en forma · <strong>50-66</strong> buena · <strong>34-49</strong> moderada · <strong>0-33</strong> descansa.</p>' },
       strain:   { ttl:'Esfuerzo (Strain)', bd:'<p>Mide la carga cardiovascular acumulada en el día, escala <strong>0 a 21</strong>.</p><p>Pondera los minutos en zonas de frecuencia cardíaca: <code>Fat Burn ×0.6</code>, <code>Cardio ×2.0</code>, <code>Peak ×4.5</code>.</p><p>Un día de descanso debería estar en 0-3, un entrenamiento intenso 14+.</p>' },
-      sleep:    { ttl:'Sueño', bd:'<p>Sleep performance = <strong>minutos dormidos / 480</strong> (8h ideales).</p><p>El hipnograma muestra las etapas reales: profundo (recuperación física), REM (memoria/sueños), ligero, despierto.</p><p>Ideal: ~45% del sueño en <strong>deep + REM</strong>.</p>' },
+      cal:      { ttl:'Calorías & Balance', bd:'<p><strong>KCAL ACTIVAS</strong> — calorías quemadas por movimiento y ejercicio, por encima del gasto basal.</p><p><strong>BASAL (BMR)</strong> — lo que tu cuerpo quema en reposo para mantener órganos y funciones vitales. Junto con las activas, forman tu gasto total del día.</p><p><strong>META DIARIA (TDEE)</strong> — tu gasto calórico total estimado según tu nivel de actividad (BMR × multiplicador). La barra muestra qué porcentaje de esa meta has completado hoy. Configura tu nivel en <em>Perfil → Datos Biométricos</em>.</p><p>✓ <em>Meta alcanzada</em> = quemaste tanto como esperabas. Para perder peso busca un déficit; para ganar masa, un superávit.</p>' },
+      sleep:    { ttl:'Sueño & Deuda', bd:'<p>Sleep performance = <strong>minutos dormidos / 480</strong> (8h ideales).</p><p>El hipnograma muestra las etapas reales: profundo (recuperación física), REM (memoria/sueños), ligero, despierto.</p><p>Ideal: ~45% del sueño en <strong>deep + REM</strong>.</p><p><strong>Deuda de sueño</strong> — diferencia acumulada entre las 8h recomendadas y lo que realmente dormiste los últimos 7 días. Una deuda alta deteriora la recuperación, la cognición y el metabolismo. Se "paga" durmiendo más en los días siguientes; el cuerpo prioriza el sueño profundo para recuperarse.</p>' },
       hrv:      { ttl:'HRV — Variabilidad Cardíaca', bd:'<p>La <strong>HRV</strong> mide la variación de tiempo entre latidos. Más alta = mejor recuperación del sistema nervioso.</p><p>Se mide mejor durante el sueño profundo. Tu base personal es lo que importa, no comparar con otros.</p><p>Caídas marcadas pueden indicar fatiga, estrés o enfermedad incipiente.</p>' },
       rhr:      { ttl:'FC en Reposo', bd:'<p>Tu frecuencia cardíaca en reposo (<strong>RHR</strong>) es el menor número de latidos por minuto medido en el día.</p><p>Más baja = mejor estado cardiovascular. Atletas <strong>40-60 bpm</strong>, persona promedio <strong>60-80 bpm</strong>.</p><p>Una subida sostenida de 5+ bpm sobre tu base puede indicar sobreentrenamiento o estrés.</p>' },
       spo2:     { ttl:'Saturación de Oxígeno (SpO2)', bd:'<p>Mide el porcentaje de hemoglobina en sangre que lleva oxígeno.</p><p><strong>95-100%</strong> — normal · <strong>90-94%</strong> — atención · <strong>&lt;90%</strong> — busca atención médica.</p><p>Valores bajos durante el sueño pueden indicar apnea. El Fitbit la mide durante el sueño con un sensor óptico infrarrojo.</p>' },
@@ -4979,7 +5024,7 @@ const T = {
     // Detalle estrés
     str_rhr_lbl: 'FC REPOSO', sbar_fc_lbl: 'FC', sbar_br_lbl: 'RESP.',
     // Detalle calorías
-    cal_basal_lbl: 'BASAL', cal_active_lbl: 'ACTIVAS',
+    cal_basal_lbl: 'BASAL', cal_active_lbl: 'ACTIVAS', cal_bal_lbl: 'META DIARIA', slp_debt_lbl: 'DEUDA DE SUEÑO',
     cbar_sed_lbl: 'SEDET.', cbar_lig_lbl: 'LIGERO', cbar_mod_lbl: 'MODER.', cbar_int_lbl: 'INTENSO',
     lbl_coach: 'AIRA',
     cchat_ph: 'Pregúntale a AIRA sobre tus datos…',
@@ -5189,7 +5234,8 @@ const T = {
     onb: {
       recovery: { ttl:'Recovery Score', bd:'<p>Shows how <strong>recovered</strong> your body is today, on a <strong>0 to 100</strong> scale.</p><p>It blends four factors: sleep duration, efficiency, % of deep+REM, and resting heart rate.</p><p><strong>67+</strong> peak · <strong>50-66</strong> good · <strong>34-49</strong> moderate · <strong>0-33</strong> rest.</p>' },
       strain:   { ttl:'Strain', bd:'<p>Measures cardio load accumulated today, scale <strong>0 to 21</strong>.</p><p>Weights minutes in heart-rate zones: <code>Fat Burn ×0.6</code>, <code>Cardio ×2.0</code>, <code>Peak ×4.5</code>.</p><p>A rest day should sit at 0-3, an intense workout 14+.</p>' },
-      sleep:    { ttl:'Sleep', bd:'<p>Sleep performance = <strong>minutes asleep / 480</strong> (ideal 8h).</p><p>The hypnogram shows real stages: deep (physical recovery), REM (memory/dreams), light, awake.</p><p>Ideal: ~45% of sleep in <strong>deep + REM</strong>.</p>' },
+      cal:      { ttl:'Calories & Balance', bd:'<p><strong>ACTIVE KCAL</strong> — calories burned through movement and exercise, on top of your basal burn.</p><p><strong>BASAL (BMR)</strong> — what your body burns at rest to keep organs and vital functions running. Together with active calories, they make up your total daily burn.</p><p><strong>DAILY GOAL (TDEE)</strong> — your estimated total caloric expenditure based on your activity level (BMR × multiplier). The bar shows what percentage of that goal you\'ve completed today. Set your level in <em>Profile → Biometric Data</em>.</p><p>✓ <em>Goal reached</em> = you burned as much as expected. For weight loss aim for a deficit; for muscle gain, a surplus.</p>' },
+      sleep:    { ttl:'Sleep & Debt', bd:'<p>Sleep performance = <strong>minutes asleep / 480</strong> (ideal 8h).</p><p>The hypnogram shows real stages: deep (physical recovery), REM (memory/dreams), light, awake.</p><p>Ideal: ~45% of sleep in <strong>deep + REM</strong>.</p><p><strong>Sleep debt</strong> — the accumulated gap between the recommended 8h and your actual sleep over the last 7 days. High debt degrades recovery, cognition, and metabolism. It\'s repaid by sleeping longer on subsequent nights; the body prioritizes deep sleep to catch up.</p>' },
       hrv:      { ttl:'HRV — Heart Rate Variability', bd:'<p><strong>HRV</strong> measures the variation in time between heartbeats. Higher = better nervous system recovery.</p><p>Best measured during deep sleep. Your personal baseline is what matters — don\\u2019t compare across people.</p><p>Sharp drops can signal fatigue, stress, or incipient illness.</p>' },
       rhr:      { ttl:'Resting Heart Rate', bd:'<p>Your <strong>RHR</strong> is the lowest BPM measured during the day.</p><p>Lower = better cardiovascular shape. Athletes <strong>40-60 bpm</strong>, average person <strong>60-80 bpm</strong>.</p><p>A sustained rise of 5+ bpm above your baseline may indicate overtraining or stress.</p>' },
       spo2:     { ttl:'Blood Oxygen (SpO2)', bd:'<p>The percentage of hemoglobin in your blood carrying oxygen.</p><p><strong>95-100%</strong> — normal · <strong>90-94%</strong> — monitor closely · <strong>&lt;90%</strong> — seek medical attention.</p><p>Low values during sleep may indicate sleep apnea. Fitbit measures it overnight with an infrared optical sensor.</p>' },
@@ -5226,7 +5272,7 @@ const T = {
     // Stress detail
     str_rhr_lbl: 'RESTING HR', sbar_fc_lbl: 'HR', sbar_br_lbl: 'RESP.',
     // Calories detail
-    cal_basal_lbl: 'BASAL', cal_active_lbl: 'ACTIVE',
+    cal_basal_lbl: 'BASAL', cal_active_lbl: 'ACTIVE', cal_bal_lbl: 'DAILY GOAL', slp_debt_lbl: 'SLEEP DEBT',
     cbar_sed_lbl: 'SEDENT.', cbar_lig_lbl: 'LIGHT', cbar_mod_lbl: 'MODERATE', cbar_int_lbl: 'INTENSE',
     lbl_coach: 'AIRA',
     cchat_ph: 'Ask AIRA about your data…',
@@ -5415,7 +5461,7 @@ function setLang(l) {
   setText('hr-rest-lbl', t.hr_rest_lbl); setText('hr-max-lbl', t.hr_max_lbl); setText('hr-max-unit', t.hr_max_unit);
   setText('hrz-base', t.hrz_base); setText('hrz-fat', t.hrz_fat); setText('hrz-cardio', t.hrz_cardio); setText('hrz-peak', t.hrz_peak);
   setText('str-rhr-lbl', t.str_rhr_lbl); setText('sbar-fc-lbl', t.sbar_fc_lbl); setText('sbar-br-lbl', t.sbar_br_lbl);
-  setText('cal-basal-lbl', t.cal_basal_lbl); setText('cal-active-lbl', t.cal_active_lbl);
+  setText('cal-basal-lbl', t.cal_basal_lbl); setText('cal-active-lbl', t.cal_active_lbl); setText('cal-bal-lbl', t.cal_bal_lbl); setText('slp-debt-lbl', t.slp_debt_lbl);
   setText('cbar-sed-lbl', t.cbar_sed_lbl); setText('cbar-lig-lbl', t.cbar_lig_lbl); setText('cbar-mod-lbl', t.cbar_mod_lbl); setText('cbar-int-lbl', t.cbar_int_lbl);
   // Valores dinámicos: solo en modo demo (no pisar datos reales conectados)
   if (!isReal) { setText('stepspct', t.pct_lbl); setText('uname', t.user_demo); renderDemoActivities(); }
@@ -6154,6 +6200,7 @@ function _finishSelectTheme(t) {
   initSwipeNav();
   // Aplicar perfil biométrico guardado (BMR, maxHR, zonas) desde el inicio
   try { _applyBioProfile(); } catch(e) {}
+  try { _updateSleepDebt(); } catch(e) {}
   _recordThemeDay(t);
   checkAchievements(t, true);
   _updateAchBadges(t);
@@ -10660,6 +10707,7 @@ async function loadRealGoogleData() {
     document.getElementById('calv').textContent='0';
     document.getElementById('cal-act').textContent='0';
   }
+  _updateCalBalance();
   // BMR not exposed by Google Health API — clear demo value.
   { const el=document.getElementById('cal-bmr'); if(el) el.textContent='—'; }
   // Distance: usar dato real del wearable; si no hay, estimar desde pasos (~0.74 m/paso).
@@ -10767,16 +10815,17 @@ function getUserBioProfile() {
   try { return JSON.parse(localStorage.getItem('fb_bio') || '{}'); } catch { return {}; }
 }
 function saveBioProfile() {
-  const age    = parseInt(document.getElementById('pv-age')?.value)      || null;
-  const weight = parseFloat(document.getElementById('pv-weight')?.value) || null;
-  const height = parseInt(document.getElementById('pv-height')?.value)   || null;
-  const sex    = document.getElementById('pv-sex')?.value                || '';
-  try { localStorage.setItem('fb_bio', JSON.stringify({age,weight,height,sex})); } catch {}
-  _applyBioProfile({age,weight,height,sex});
+  const age      = parseInt(document.getElementById('pv-age')?.value)        || null;
+  const weight   = parseFloat(document.getElementById('pv-weight')?.value)   || null;
+  const height   = parseInt(document.getElementById('pv-height')?.value)     || null;
+  const sex      = document.getElementById('pv-sex')?.value                  || '';
+  const activity = parseFloat(document.getElementById('pv-activity')?.value) || null;
+  try { localStorage.setItem('fb_bio', JSON.stringify({age,weight,height,sex,activity})); } catch {}
+  _applyBioProfile({age,weight,height,sex,activity});
 }
 function _applyBioProfile(p) {
   p = p || getUserBioProfile();
-  const {age,weight,height,sex} = p;
+  const {age,weight,height,sex,activity} = p;
   const calcDiv   = document.getElementById('pv-bio-calc');
   const emptyProm = document.getElementById('bio-empty-prompt');
   if (!age || !weight || !height || !sex) {
@@ -10787,6 +10836,8 @@ function _applyBioProfile(p) {
   if(emptyProm) emptyProm.style.display='none';
   // Mifflin-St Jeor BMR
   const bmr   = Math.round(10*weight + 6.25*height - 5*age + (sex==='m' ? 5 : -161));
+  // TDEE = BMR × factor de actividad (Harris-Benedict activity multipliers)
+  const tdee  = activity ? Math.round(bmr * activity) : null;
   // Tanaka max HR (más precisa que 220-age, error ±7 bpm)
   const hrMax = Math.round(208 - 0.7*age);
   // Fitness Age desde VO2max (si disponible) — percentiles Cooper Institute / ACSM
@@ -10802,6 +10853,9 @@ function _applyBioProfile(p) {
   setEl('pv-bmr-val',    bmr.toLocaleString());
   setEl('pv-hrmax-val',  hrMax);
   setEl('pv-fitage-val', fitAge ?? '—');
+  const tdeeRow = document.getElementById('pv-tdee-row');
+  if (tdee && tdeeRow) { setEl('pv-tdee-val', tdee.toLocaleString()); tdeeRow.style.display='flex'; }
+  else if (tdeeRow)    { tdeeRow.style.display='none'; }
   if(calcDiv) calcDiv.style.display='block';
   // ── Bio widget (home dashboard) ───────────────────────────────────────
   setEl('bio-vo2-val',   window._vo2Max != null ? window._vo2Max : '—');
@@ -10832,7 +10886,74 @@ function _applyBioProfile(p) {
     const devMax = parseInt(document.getElementById('hr-max')?.textContent)  || 0;
     setHRZones({ restHR: rhr, maxHR: devMax > 100 ? devMax : hrMax });
   }
-  window._bioProfile = {age,weight,height,sex,bmr,hrMax,fitAge};
+  window._bioProfile = {age,weight,height,sex,activity,bmr,tdee,hrMax,fitAge};
+  _updateCalBalance();
+}
+function _updateCalBalance() {
+  const profile = window._bioProfile;
+  const tdee = profile?.tdee;
+  const row = document.getElementById('cal-balance-row');
+  if (!row) return;
+  if (!tdee) { row.style.display = 'none'; return; }
+  const bmr = profile.bmr || 0;
+  const act = parseInt((document.getElementById('cal-act')?.textContent || '').replace(/\D/g,'')) || 0;
+  const total = bmr + act;
+  if (!total) { row.style.display = 'none'; return; }
+  row.style.display = 'block';
+  const pct = Math.min(100, Math.round((total / tdee) * 100));
+  const diff = total - tdee;
+  const bar = document.getElementById('cal-bal-bar');
+  const statusEl = document.getElementById('cal-bal-status');
+  const pctEl = document.getElementById('cal-bal-pct');
+  const tdeeEl = document.getElementById('cal-bal-tdee');
+  if (tdeeEl) tdeeEl.textContent = tdee.toLocaleString() + ' KCAL';
+  if (bar) { bar.style.width = pct + '%'; bar.style.background = diff >= 0 ? 'var(--tpos)' : 'var(--ta)'; }
+  if (pctEl) { pctEl.textContent = pct + '%'; pctEl.style.color = diff >= 0 ? 'var(--tpos)' : ''; }
+  if (statusEl) {
+    if (diff >= 0) {
+      statusEl.textContent = typeof lang !== 'undefined' && lang === 'en' ? '✓ GOAL REACHED' : '✓ META ALCANZADA';
+      statusEl.style.color = 'var(--tpos)';
+    } else {
+      statusEl.textContent = Math.abs(diff).toLocaleString() + (typeof lang !== 'undefined' && lang === 'en' ? ' KCAL REMAINING' : ' KCAL RESTANTES');
+      statusEl.style.color = '';
+    }
+  }
+}
+async function _updateSleepDebt() {
+  const row = document.getElementById('slp-debt-row');
+  if (!row) return;
+  try {
+    const all = await _hGetAll();
+    const last7 = _hDays(7);
+    let debt = 0, count = 0;
+    for (const date of last7) {
+      const rec = all.find(r => r.date === date);
+      if (rec && rec.minutesAsleep > 0) { debt += 480 - rec.minutesAsleep; count++; }
+    }
+    if (!count) { row.style.display = 'none'; return; }
+    row.style.display = 'block';
+    const absMin = Math.abs(debt);
+    const h = Math.floor(absMin / 60), m = absMin % 60;
+    const pct = Math.min(100, Math.round((absMin / (14 * 60)) * 100));
+    const isDebt = debt > 0;
+    const valEl = document.getElementById('slp-debt-val');
+    const barEl = document.getElementById('slp-debt-bar');
+    const statusEl = document.getElementById('slp-debt-status');
+    const daysEl = document.getElementById('slp-debt-days');
+    const isEN = typeof lang !== 'undefined' && lang === 'en';
+    if (daysEl) daysEl.textContent = count + (isEN ? ' DAYS' : ' DÍAS');
+    if (valEl) {
+      valEl.textContent = (isDebt ? '+' : '−') + h + 'h ' + (m ? m + 'm' : '');
+      valEl.style.color = isDebt ? 'var(--tneg)' : 'var(--tpos)';
+    }
+    if (barEl) { barEl.style.width = pct + '%'; barEl.style.background = isDebt ? 'var(--tneg)' : 'var(--tpos)'; }
+    if (statusEl) {
+      statusEl.textContent = isDebt
+        ? (isEN ? 'ACCUMULATED DEBT' : 'DEUDA ACUMULADA')
+        : (isEN ? '✓ SLEEP SURPLUS' : '✓ SUPERÁVIT DE SUEÑO');
+      statusEl.style.color = isDebt ? '' : 'var(--tpos)';
+    }
+  } catch(e) { console.warn('[slp-debt]', e); }
 }
 function _loadBioProfileInputs() {
   const p = getUserBioProfile();
@@ -10841,6 +10962,7 @@ function _loadBioProfileInputs() {
   setI('pv-weight', p.weight);
   setI('pv-height', p.height);
   const sx=document.getElementById('pv-sex'); if(sx&&p.sex) sx.value=p.sex;
+  const ax=document.getElementById('pv-activity'); if(ax&&p.activity) ax.value=p.activity;
   _applyBioProfile(p);
 }
 
@@ -11129,6 +11251,7 @@ async function pollFastGoogle() {
         document.getElementById('calv').textContent=totCal||'0';
         document.getElementById('cal-act').textContent=totCal?totCal.toLocaleString():'0';
         if (totCal>0) flash('calv');
+        _updateCalBalance();
       }
     } else if (stD?.rollupDataPoints?.length) {
       // total-calories dio 400 → estima desde pasos si el valor actual sigue en '0'
@@ -11138,6 +11261,7 @@ async function pollFastGoogle() {
         const _estC=Math.round(_stTot*0.04);
         document.getElementById('calv').textContent=_estC;
         document.getElementById('cal-act').textContent=_estC.toLocaleString();
+        _updateCalBalance();
       }
     }
     syncTicker(); updateDailyRings(); animSBar();
@@ -11166,6 +11290,7 @@ async function pollSlowGoogle() {
       const wakeSegs=(dp.sleep.stages||[]).filter(s=>s.type==='AWAKE').length;
       const el_wk=document.getElementById('sl-wake-v'); if(el_wk&&wakeSegs) el_wk.textContent=wakeSegs;
       updateDailyRings();
+      _updateSleepDebt();
     }
   } catch(e){}
   // AFib check en cada ciclo lento (gestiona sus propios errores)
@@ -11298,6 +11423,7 @@ async function loadReal() {
       document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY');
       document.getElementById('cal-bmr').textContent=(s.caloriesBMR||0).toLocaleString();
       document.getElementById('cal-act').textContent=(s.activityCalories||0).toLocaleString();
+      _updateCalBalance();
       setCalbars({sed:s.sedentaryMinutes||0,lig:s.lightlyActiveMinutes||0,mod:s.fairlyActiveMinutes||0,int:s.veryActiveMinutes||0});
       // sub-métricas steps
       const distKm = s.distances?.find(d=>d.activity==='total')?.distance || (s.steps*0.00074);
@@ -11854,6 +11980,7 @@ async function _hFetchRange(range) {
       const _complete = date !== today && rhr != null && minutesAsleep != null;
       await _hPut({ date, rhr, deep, rem, light, wake, minutesAsleep, timeInBed, eff, recovery, steps, _complete });
     }
+    _updateSleepDebt();
   } finally {
     window._histFetching = false;
   }
