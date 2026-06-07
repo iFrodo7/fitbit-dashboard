@@ -10411,8 +10411,11 @@ async function loadRealGoogleData() {
       console.log('[gh rhr-fallback]',window._rhrFallback,'bpm (',_bpm.length,'muestras)');
     }
   } else {
-    // No live HR data — clear HTML demo values
-    ['hrv','hrlive'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});
+    // No live HR data — clear HTML demo values y el gráfico viejo
+    ['hrv','hrlive','hr-max','hr-day-min','hr-day-avg','hr-day-max','hr-day-range']
+      .forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});
+    hrHist=[]; buildHRC([]);
+    window._rhrFallback=null;
   }
   // Google Health doesn't expose skin temp — clear HTML demo value
   { const e=document.getElementById('tempv'); if(e) e.textContent='—'; }
