@@ -8191,7 +8191,10 @@ function initDash() {
     if (localStorage.getItem('_pendingSubscribe')) {
       localStorage.removeItem('_pendingSubscribe');
       (_isG ? loadRealGoogle() : loadReal()).then(() => setTimeout(() => proAction(), 600)).catch(() => {});
-    } else { _isG ? loadRealGoogle() : loadReal(); }
+    } else {
+      var _hasSnap = _restoreSnap();
+      _isG ? loadRealGoogle(null, _hasSnap) : loadReal(_hasSnap);
+    }
   }
   if (!token && !_hasOAuthCode) {
     setTimeout(() => renderHypnogram({
@@ -10452,8 +10455,9 @@ async function refreshGoogleTok() {
 // Phase 1: confirm sign-in works and show the connected state. Data fetching /
 // mapping from the Google Health API is finalized in June with the real device
 // (see GoogleHealthSource notes). Defensive: never crashes the UI.
-async function loadRealGoogle(displayName) {
-  showLoad();
+async function loadRealGoogle(displayName, silentRefresh) {
+  if (silentRefresh) { document.documentElement.removeAttribute('data-booting'); document.body.classList.add('is-syncing'); }
+  else showLoad();
   try {
     isReal = true;
     setText('stxt', T[lang].live);
@@ -10493,7 +10497,7 @@ async function loadRealGoogle(displayName) {
     showToast(lang === 'es' ? '◆ GOOGLE CONECTADO' : '◆ GOOGLE CONNECTED');
     // Fetch real health data now that we're connected
     await loadRealGoogleData().catch(e => console.warn('[gh init]', e));
-  } catch (e) { /* keep UI stable */ } finally { hideLoad(); }
+  } catch (e) { /* keep UI stable */ } finally { _saveSnap(); hideLoad(); document.body.classList.remove('is-syncing'); }
 }
 
 // ══════ GOOGLE HEALTH API — DATA LAYER ══════════════════════════════════════
@@ -11402,8 +11406,9 @@ async function pollSlow() {
   } catch(e) {}
 }
 function stopPoll() { clearInterval(ptmr);clearInterval(cdtmr);clearInterval(slowTmr);isReal=false;token='';localStorage.removeItem('fb_tok'); }
-async function loadReal() {
-  showLoad();
+async function loadReal(silentRefresh) {
+  if (silentRefresh) { document.documentElement.removeAttribute('data-booting'); document.body.classList.add('is-syncing'); }
+  else showLoad();
   try {
     const h={'Authorization':'Bearer '+token}, td=_localDay();
     const after7=_localDay(-7*864e5);
@@ -11485,7 +11490,7 @@ async function loadReal() {
     isReal=true; setText('stxt',T[lang].live); const dot=document.getElementById('sdot'); dot.style.background='#00ff88'; dot.style.boxShadow='0 0 8px #00ff88'; document.getElementById('dstrip').style.display='none';
     const _bcBtn = document.getElementById('btn-connect'); if (_bcBtn) _bcBtn.style.display = 'none'; // hide Connect button
     closeModal(); startPoll(); showToast(T[lang].connected);
-  } catch(e) { if(String(e).includes('401')){if(await refreshTok())await loadReal();else{localStorage.removeItem('fb_tok');token='';}} } finally { hideLoad(); }
+  } catch(e) { if(String(e).includes('401')){if(await refreshTok())await loadReal();else{localStorage.removeItem('fb_tok');token='';}} } finally { _saveSnap(); hideLoad(); document.body.classList.remove('is-syncing'); }
 }
 // Daily health summaries from Fitbit/Google (needs oxygen_saturation, heartrate,
 // respiratory_rate scopes). Best-effort: any failure leaves the prior value intact.
@@ -11634,6 +11639,37 @@ function _hideOwait() {
   } else {
     el.classList.remove('on');
   }
+}
+
+// ── Snapshot: persist last-known real biometric values across sessions ───────
+// Saved to localStorage['fb_snap'] after every successful loadReal/loadRealGoogle.
+// Restored instantly at boot (before the API call) so the user always sees
+// their last data instead of blank/demo values during the loading phase.
+var _SNAP_IDS = ['stepsv','calv','stepspct','cal-bmr','cal-act',
+  'steps-dist-val','steps-floors-val','steps-active-val',
+  'hrv','hrlive','hr-day-min','hr-day-avg','hr-day-max','hr-day-range',
+  'sl-eff-v','sl-wake-v','sl-start-v','sl-end-v',
+  'spo2v','hrvv','resp-val','rscore','strain-val','sleep-pct-val'];
+function _saveSnap() {
+  try {
+    var sv=document.getElementById('strain-val');
+    var snap={_d:_localDay(),_rec:window._lastRec||0,_slp:window._lastSleepPct||0,_str:sv?parseFloat(sv.textContent)||0:0};
+    _SNAP_IDS.forEach(function(id){var el=document.getElementById(id);if(el)snap[id]=el.textContent.trim();});
+    var sp=document.getElementById('stepsprog'); if(sp) snap._spw=sp.style.width;
+    localStorage.setItem('fb_snap',JSON.stringify(snap));
+  } catch(e){}
+}
+function _restoreSnap() {
+  try {
+    var snap=JSON.parse(localStorage.getItem('fb_snap')||'null');
+    if(!snap) return false;
+    _SNAP_IDS.forEach(function(id){var el=document.getElementById(id);if(el&&snap[id]!=null)el.textContent=snap[id];});
+    var sp=document.getElementById('stepsprog'); if(sp&&snap._spw) sp.style.width=snap._spw;
+    if(snap._rec){var rf=document.getElementById('rfil');if(rf)rf.style.strokeDashoffset=(339*(1-snap._rec/100)).toFixed(1);}
+    if(snap._str){var sb=document.getElementById('strain-bar');if(sb)sb.style.width=(snap._str/21*100).toFixed(1)+'%';}
+    if(snap._slp){var slb=document.getElementById('sleep-pct-bar');if(slb)slb.style.width=snap._slp+'%';}
+    return true;
+  } catch(e){return false;}
 }
 
 function showLoad() {
