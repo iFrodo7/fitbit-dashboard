@@ -2244,7 +2244,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 @keyframes cpls{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.5;}50%{transform:translate(-50%,-50%) scale(1.07);opacity:1;}}
 
 /* ══ SPLASH SCREEN ────────────────────────────────────────────────── */
-#sp{position:fixed;inset:0;z-index:9999;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:36px;pointer-events:none;}
+#sp{position:fixed;inset:0;z-index:10000;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:36px;pointer-events:none;}
 #sp.sp-on{display:flex;}
 #sp-svg{width:min(188px,42vw);height:min(188px,42vw);overflow:visible;}
 
@@ -11497,10 +11497,13 @@ function _hideOwait() {
   document.removeEventListener('touchmove',  _owTouchBlock);
   var isFirstRestore = el.classList.contains('on');
   if (isFirstRestore) {
+    // Show splash FIRST (z-index:10000) so it covers #dash during the owait fade.
+    // Without this, the dashboard is briefly visible while owait opacity transitions.
+    showSplash();
     el.classList.add('owait-exit');
     setTimeout(function() {
       el.classList.remove('on', 'owait-exit');
-      showSplash();
+      // splash is already running — no need to call showSplash() again
     }, 400);
   } else {
     el.classList.remove('on');
