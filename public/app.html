@@ -10404,6 +10404,11 @@ async function loadRealGoogleData() {
       { const e=document.getElementById('hr-day-avg');   if(e) e.textContent=_avg; }
       { const e=document.getElementById('hr-day-max');   if(e) e.textContent=maxHR_v; }
       { const e=document.getElementById('hr-day-range'); if(e) e.textContent=maxHR_v-_min; }
+      // Fallback RHR: percentil 5 del día — proxy de la FC más baja sostenida (sueño/reposo).
+      // Se usa solo cuando daily-resting-heart-rate devuelve 400 (sin wearable Fitbit conectado).
+      const _srt=[..._bpm].sort((a,b)=>a-b);
+      window._rhrFallback=_srt[Math.max(0,Math.floor(_srt.length*0.05))]||null;
+      console.log('[gh rhr-fallback]',window._rhrFallback,'bpm (',_bpm.length,'muestras)');
     }
   } else {
     // No live HR data — clear HTML demo values
@@ -10414,6 +10419,10 @@ async function loadRealGoogleData() {
   const rhrRaw=rhrD?.dataPoints?.[0]?.dailyRestingHeartRate?.beatsPerMinute;
   if (rhrRaw) {
     rhr_v=parseInt(rhrRaw);
+    const e=document.getElementById('hr-rest'); if(e) e.textContent=rhr_v;
+  } else if (window._rhrFallback) {
+    // daily-resting-heart-rate dio 400 (sin wearable) → usamos percentil 5 del intraday HR
+    rhr_v=window._rhrFallback;
     const e=document.getElementById('hr-rest'); if(e) e.textContent=rhr_v;
   } else { const e=document.getElementById('hr-rest'); if(e) e.textContent='—'; }
   if (!maxHR_v) { const e=document.getElementById('hr-max'); if(e) e.textContent='—'; }
@@ -10446,6 +10455,12 @@ async function loadRealGoogleData() {
     const totCal=Math.round(parseFloat(_tcNum)||0);
     document.getElementById('calv').textContent=totCal||'0';
     document.getElementById('cal-act').textContent=totCal?totCal.toLocaleString():'0';
+  } else if (stepsToday > 0) {
+    // total-calories dio 400 (sin wearable) → estimamos desde pasos (~0.04 kcal/paso para ~70 kg)
+    const _estCal=Math.round(stepsToday*0.04);
+    document.getElementById('calv').textContent=_estCal;
+    document.getElementById('cal-act').textContent=_estCal.toLocaleString();
+    console.log('[gh cal-fallback]',_estCal,'kcal estimadas desde',stepsToday,'pasos');
   } else {
     // No calorie data yet — clear HTML demo value
     document.getElementById('calv').textContent='0';
@@ -10500,8 +10515,8 @@ async function loadRealGoogleData() {
   // Only compute scores when at least one real biometric arrived.
   // Without this guard, rhr_v=65 (hardcoded default) leaks into calcScores
   // and gives ~9% recovery even when Google returned zero data.
-  const _rhrReal = !!(rhrD?.dataPoints?.[0]?.dailyRestingHeartRate?.beatsPerMinute);
-  const _hasRealData = _rhrReal || sleepMin > 0 || azZones.length > 0;
+  const _rhrReal = !!(rhrD?.dataPoints?.[0]?.dailyRestingHeartRate?.beatsPerMinute) || !!(window._rhrFallback);
+  const _hasRealData = _rhrReal || sleepMin > 0 || azZones.length > 0 || !!(hrD?.dataPoints?.length);
   if (_hasRealData) {
     updateScores(calcScores({sleepMin,sleepEff,deep:deepMin,rem:remMin,rhr:rhr_v,zones:azZones}));
   } else {
@@ -10624,6 +10639,15 @@ async function pollFastGoogle() {
         document.getElementById('calv').textContent=totCal||'0';
         document.getElementById('cal-act').textContent=totCal?totCal.toLocaleString():'0';
         if (totCal>0) flash('calv');
+      }
+    } else if (stD?.rollupDataPoints?.length) {
+      // total-calories dio 400 → estima desde pasos si el valor actual sigue en '0'
+      const _sdp2=stD.rollupDataPoints[0];
+      const _stTot=parseInt(_sdp2?.steps?.countSum??_sdp2?.steps?.count_sum??_sdp2?.steps?.count??0)||0;
+      if (_stTot>0 && (parseInt(document.getElementById('calv').textContent)||0)===0) {
+        const _estC=Math.round(_stTot*0.04);
+        document.getElementById('calv').textContent=_estC;
+        document.getElementById('cal-act').textContent=_estC.toLocaleString();
       }
     }
     syncTicker(); updateDailyRings(); animSBar();
