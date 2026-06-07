@@ -1088,7 +1088,10 @@ html.owait-lock body{overflow:hidden!important;overscroll-behavior:none!importan
 .owait-sig-dot{width:6px;height:6px;border-radius:50%;background:var(--tneg);flex-shrink:0;animation:blink 1.1s infinite;}
 .lov{display:none;position:fixed;inset:0;background:var(--bg,#020810);z-index:900;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:30px 20px;}
 .lov.on{display:flex;}
-/* Early-boot: loader visible before JS runs, on top of everything */
+/* Early-boot: loader visible before JS runs, on top of everything.
+   #lov is placed OUTSIDE #dash so this rule works without a display:none parent.
+   #sel hides immediately for returning users (theme already chosen). */
+html[data-booting] #sel{display:none!important;}
 html[data-booting] #lov{display:flex;z-index:10000;}
 .ltxt{font-size:13px;letter-spacing:4px;color:var(--ta);animation:blink 1s infinite;text-align:center;}
 .lbar{width:180px;height:2px;background:rgba(255,255,255,0.07);}
@@ -2843,6 +2846,20 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 
 <!-- ══ THEME BOOT / INTRO SEQUENCE (all themes) ══ -->
 <div id="theme-boot"></div>
+
+<!-- Skeleton loader — outside #dash so html[data-booting] CSS can show it
+     immediately on first paint (display:none parent blocks fixed children) -->
+<div class="lov" id="lov">
+    <div class="ltxt" id="load-txt">SINCRONIZANDO...</div>
+    <div class="lbar"><div class="lfi"></div></div>
+    <div class="lskel" aria-hidden="true">
+      <div class="lskel-card"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
+      <div class="lskel-card"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
+      <div class="lskel-card"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
+      <div class="lskel-card"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
+      <div class="lskel-card tall"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
+    </div>
+  </div>
 
 <div id="dash">
   <!-- ══ AMBIENT LAYERS (theme-specific, fixed, pointer-events:none) ══ -->
@@ -4681,17 +4698,6 @@ body.t-synth::after{content:'';position:fixed;inset:0;
   </section>
 
   <div class="dstrip" id="dstrip"><div class="ddot"></div><span id="demo-txt">DEMO — CONECTA CON GOOGLE</span></div>
-  <div class="lov" id="lov">
-    <div class="ltxt" id="load-txt">SINCRONIZANDO...</div>
-    <div class="lbar"><div class="lfi"></div></div>
-    <div class="lskel" aria-hidden="true">
-      <div class="lskel-card"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
-      <div class="lskel-card"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
-      <div class="lskel-card"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
-      <div class="lskel-card"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
-      <div class="lskel-card tall"><div class="lskel-lbl"></div><div class="lskel-val"></div></div>
-    </div>
-  </div>
 
 
   <!-- Cycle day log / symptom modal -->
