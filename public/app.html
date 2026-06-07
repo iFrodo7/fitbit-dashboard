@@ -10180,8 +10180,6 @@ const GoogleHealthSource = {
       'https://www.googleapis.com/auth/googlehealth.sleep.readonly',
       'https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly',
       'https://www.googleapis.com/auth/googlehealth.profile.readonly',
-      // AFib / irregular-rhythm-notification (Fitbit Air feature)
-      'https://www.googleapis.com/auth/googlehealth.heart_rate_notifications.readonly',
     ].join(' '),
   },
   base: 'https://health.googleapis.com/v4',
@@ -10872,7 +10870,7 @@ async function _calcRHRTrend() {
 // ── AFib / RITMO IRREGULAR (últimos 50 registros) ─────────────────────────
 // Llena afib-card: estado del ritmo (SINUSAL/IRREGULAR), última lectura,
 // conteo de irregulares en 30 días.
-// Requiere scope: heart_rate_notifications.readonly + Fitbit Air.
+// Cubierto por el scope health_metrics_and_measurements (ya incluido). Requiere Fitbit Air.
 // ══════════════════════════════════════════════════════════════════════════
 async function _loadAFibData() {
   if (HS.id !== 'google' || !token) return;
