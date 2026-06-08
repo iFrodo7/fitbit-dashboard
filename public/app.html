@@ -8350,6 +8350,7 @@ function _wkSaveTodaySnap() {
   var gv = function(id) { var e=document.getElementById(id); return e ? e.textContent.trim() : null; };
   var pg = document.getElementById('stepsprog');
   window._wkTodaySnap = {
+    _date:      _localDateStr(),  // FIX #13: stamp with today so stale snaps are ignored
     steps:      gv('stepsv'),
     prog:       pg ? pg.style.width : null,
     pct:        gv('stepspct'),
@@ -8389,10 +8390,17 @@ function buildWeeks(days) {
   var c = document.getElementById('wbrs'); if (!c) return;
   // FIX #4: preserve the user's selected bar across async rebuilds.
   // _wkSelIdx starts as null (global init), default to 6 only on first build.
-  var _bldSel = (window._wkSelIdx != null) ? window._wkSelIdx : 6;
+  // FIX #13: find today's real index in data so isTd and _bldSel are correct even
+  // when the date window was built on a previous day (e.g. app left open overnight).
+  var _wkTodayStr = _localDateStr();
+  var _wkTodayIdx = 6; // fallback: assume last bar is today
+  for (var _wkTi = 0; _wkTi < data.length; _wkTi++) {
+    if (data[_wkTi].date === _wkTodayStr) { _wkTodayIdx = _wkTi; break; }
+  }
+  var _bldSel = (window._wkSelIdx != null) ? window._wkSelIdx : _wkTodayIdx;
   c.innerHTML = data.map(function(d,i) {
     var h = Math.max(6, Math.round((d.steps/mx)*100));
-    var isTd = i===6;
+    var isTd = d.date === _wkTodayStr; // FIX #13: compare by date, not by index
     // FIX #6: only flag as missed if the API *actually returned* a data point for
     // that day (hasData===true). hasData===false means no device/source recorded
     // anything — the user simply had no tracker active, not that they failed.
@@ -8414,11 +8422,18 @@ function buildWeeks(days) {
 // Double-tap on a non-today bar → return to today.
 function wkBarSel(idx) {
   var data = window._wkData; if (!data || !data[idx]) return;
+  // FIX #13: find today's real index (date-based) so double-tap returns to the
+  // correct bar even when the week window was built on a previous day.
+  var _wkTdStr = _localDateStr();
+  var _wkTdIdx = 6; // fallback
+  for (var _wti = 0; _wti < data.length; _wti++) {
+    if (data[_wti].date === _wkTdStr) { _wkTdIdx = _wti; break; }
+  }
   // Tap on already-selected bar that isn't today → jump back to today
-  var sel = (idx === window._wkSelIdx && idx !== 6) ? 6 : idx;
+  var sel = (idx === window._wkSelIdx && idx !== _wkTdIdx) ? _wkTdIdx : idx;
   window._wkSelIdx = sel;
   var d    = data[sel];
-  var isToday = sel === 6;
+  var isToday = sel === _wkTdIdx;
   var es   = lang === 'es';
 
   // Haptic feedback
@@ -8450,7 +8465,7 @@ function wkBarSel(idx) {
       var _todayStreak = window._wkTodayStreakReal || 0;
       if (!_todayStreak) {
         var _todayGoal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
-        for (var _tsi = 6; _tsi >= 0; _tsi--) {
+        for (var _tsi = _wkTdIdx; _tsi >= 0; _tsi--) { // FIX #13: start from real today bar
           if ((data[_tsi].steps || 0) >= _todayGoal) _todayStreak++;
           else break;
         }
@@ -8658,6 +8673,8 @@ async function loadWeekDataGoogle() {
     // snap.steps comes from the primary activities endpoint (near real-time).
     // dailyRollUp can lag 15-30 min, so _wkData[6].steps may be stale.
     // Patching first ensures _wkStr7 and _tmMet use the accurate step count.
+    // FIX #13: pollFastGoogle nulls out snap.floors/active on midnight rollover
+    // so stale yesterday values are never copied into today's bar.
     if (window._wkTodaySnap && window._wkData) {
       var snap7 = window._wkTodaySnap;
       var td7   = window._wkData[6];
@@ -11964,6 +11981,21 @@ async function pollFastGoogle() {
     }
     syncTicker(); updateDailyRings(); animSBar();
     showToast(T[lang].sync_toast(new Date().toLocaleTimeString(lang==='es'?'es':'en',{hour:'2-digit',minute:'2-digit',second:'2-digit'})));
+    // FIX #13: keep today-snap fresh; if the calendar date rolled over since the
+    // last buildWeeks call (app left open overnight), rebuild the week bars.
+    try { _wkSaveTodaySnap(); } catch(_e2) {}
+    try {
+      if (window._wkData && window._wkData[6] && window._wkData[6].date !== _localDateStr()) {
+        // Midnight rollover: this poll only updated steps/HR/cal — floors and active
+        // in the DOM still show yesterday's values. Clear them from snap so
+        // loadWeekDataGoogle uses fresh API data for those fields instead.
+        if (window._wkTodaySnap) {
+          window._wkTodaySnap.floors = null;
+          window._wkTodaySnap.active = null;
+        }
+        loadWeekDataGoogle().catch(function(){});
+      }
+    } catch(_e3) {}
   } catch(e){console.warn('[gh pollFast]',e);} finally{ring.classList.remove('on');document.body.classList.remove('is-syncing');window._pollRunning=false;}
 }
 // ── Slow poll (Sleep every 5 min) ─────────────────────────────────────────
@@ -12093,6 +12125,13 @@ async function pollFast() {
     syncTicker();
     updateDailyRings();
     animSBar(); showToast(T[lang].sync_toast(new Date().toLocaleTimeString(lang==='es'?'es':'en',{hour:'2-digit',minute:'2-digit',second:'2-digit'})));
+    // FIX #13: keep today-snap fresh; detect midnight rollover and rebuild week bars
+    try { _wkSaveTodaySnap(); } catch(_pfe2) {}
+    try {
+      if (window._wkData && window._wkData[6] && window._wkData[6].date !== _localDateStr()) {
+        loadWeekData({'Authorization':'Bearer '+token}).catch(function(){});
+      }
+    } catch(_pfe3) {}
   } catch(e) { console.warn(e); } finally { ring.classList.remove('on'); document.body.classList.remove('is-syncing'); }
 }
 async function pollSlow() {
@@ -12629,10 +12668,10 @@ function _hPut(rec) {
 }
 function _hDays(n) {
   const out = [];
-  const today = new Date(); today.setHours(0,0,0,0);
+  const today = new Date();
   for (let i = n - 1; i >= 0; i--) {
     const d = new Date(today); d.setDate(d.getDate() - i);
-    out.push(d.toISOString().split('T')[0]);
+    out.push(_localDateStr(d)); // use local date (not UTC) to match IndexedDB keys
   }
   return out;
 }
@@ -12678,7 +12717,7 @@ async function _hFetchRange(range) {
     const start= days[0];
     const cache = await _hGetAll();
     const byDate = Object.fromEntries(cache.map(r => [r.date, r]));
-    const today = new Date().toISOString().split('T')[0];
+    const today = _localDateStr();
     const missing = days.filter(d => !byDate[d] || d === today || !byDate[d]._complete);
     if (!missing.length) return;
     const h = { 'Authorization':'Bearer '+token };
@@ -13141,8 +13180,9 @@ function _wktIsLowIntensity(typeId, name) {
 
 function _wktFmtDate(startTime) {
   const t = T[window.lang || 'es'];
-  const today = new Date().toISOString().split('T')[0];
-  const yesterday = new Date(Date.now() - 864e5).toISOString().split('T')[0];
+  const today = _localDateStr();
+  var _wktYd = new Date(); _wktYd.setDate(_wktYd.getDate()-1);
+  const yesterday = _localDateStr(_wktYd);
   let date = '', time = '';
   if (startTime && startTime.includes('T')) {
     date = startTime.split('T')[0];
@@ -13252,8 +13292,8 @@ async function fetchAndRenderWorkoutHistory(range) {
       renderWorkoutHistory(d.activities || []);
     } else {
       // Google Health: exercise-session data type
-      const today = new Date().toISOString().split('T')[0];
-      const nd = new Date(Date.now() + 864e5).toISOString().split('T')[0];
+      const today = _localDateStr();
+      const nd = _ghNextDay(today);
       const url = HS.ep.exerciseSessions(afterDate, nd);
       const d = await _ghGet(url);
       if (!d?.dataPoints?.length) { renderWorkoutHistory([]); return; }
@@ -13827,7 +13867,7 @@ function checkAchievements(t, silent) {
 
 function _recordThemeDay(t) {
   var s = _loadAchStats();
-  var today = new Date().toISOString().slice(0,10);
+  var today = _localDateStr();
   if (!s.themeDays) s.themeDays = {};
   if (!s._lastThemeDate) s._lastThemeDate = {};
   if (s._lastThemeDate[t] !== today) {
@@ -13839,8 +13879,9 @@ function _recordThemeDay(t) {
 
 function _updateDailyActivityStats(steps, rawPcts, anyAt100) {
   var s = _loadAchStats();
-  var today = new Date().toISOString().slice(0,10);
-  var yest  = new Date(Date.now()-86400000).toISOString().slice(0,10);
+  var today = _localDateStr();
+  var _adYd = new Date(); _adYd.setDate(_adYd.getDate()-1);
+  var yest  = _localDateStr(_adYd);
   // Steps max (update always — might improve during day)
   if (steps > (s.stepsMax||0)) s.stepsMax = steps;
   // Superado: any ring raw >= 150%
@@ -13869,9 +13910,10 @@ function _updateDailyActivityStats(steps, rawPcts, anyAt100) {
 
 function _updateTripleStreak() {
   var s = _loadAchStats();
-  var today = new Date().toISOString().slice(0,10);
+  var today = _localDateStr();
   if (s.lastTripleDate === today) return; // ya contó hoy
-  var yest = new Date(Date.now()-86400000).toISOString().slice(0,10);
+  var _tsYd = new Date(); _tsYd.setDate(_tsYd.getDate()-1);
+  var yest = _localDateStr(_tsYd);
   var cur = (s.lastTripleDate === yest) ? (s.tripleStreakCur||0)+1 : 1;
   s.tripleStreakCur = cur;
   s.tripleStreakMax = Math.max(s.tripleStreakMax||0, cur);
@@ -13881,7 +13923,7 @@ function _updateTripleStreak() {
 
 function recordGoalHit(allThree) {
   var s = _loadAchStats();
-  var today = new Date().toISOString().slice(0,10);
+  var today = _localDateStr();
   if (s._lastGoalDate !== today) {
     s.goalsHit = (s.goalsHit||0) + 1;
     s._lastGoalDate = today;
