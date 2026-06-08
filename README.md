@@ -1,6 +1,6 @@
 # AIRA — Biometric Dashboard
 
-Panel biométrico personal con **Coach de IA**, **pagos PRO con Stripe**, **5 temas visuales gratuitos + 2 PRO** (Voxel, Synthwave), datos reales vía **Google Health API** y PWA instalable sin tienda de apps. Pensado para competir visual y funcionalmente con Whoop / Oura / Apple Fitness.
+Panel biométrico personal con **Coach de IA**, **pagos PRO con Stripe**, **5 temas visuales gratuitos + 2 PRO** (Voxel, Synthwave), datos reales vía **Google Health API**, **perfil biométrico calculado** (FC Máx · Fitness Age · VO2 Max), **datos persistentes entre sesiones** y PWA instalable sin tienda de apps. Pensado para competir visual y funcionalmente con Whoop / Oura / Apple Fitness.
 
 ## 🔗 Links
 
@@ -57,6 +57,12 @@ Arranca en **modo demo** (sin login). Para datos reales → toca **Conectar con 
 - **Zonas HR** (fat-burn / cardio / pico) con barras de intensidad y minutos activos
 - **Etapas de sueño**: profundo, REM, ligero, despertares + eficiencia
 - **Historial** 7d / 30d / 90d con gráficas SVG + flechas de tendencia · caché IndexedDB
+- **Perfil biométrico personal** — FC Máx (fórmula Tanaka), Fitness Age (VO2 Max + percentiles ACSM), BMR y TDEE por sexo/actividad · visible en el home sin navegar a Perfil
+
+### Persistencia y sincronización silenciosa
+- **Snapshot local** (`localStorage['fb_snap']`) — al recargar, los datos del día anterior aparecen al instante antes de que la API responda
+- **Silent refresh** — sincronización en segundo plano con indicador `is-syncing` en lugar del overlay de carga completo; el usuario no pierde lo que ya estaba viendo
+- **Demo-safe boot** — los defaults HTML (strain, sleep, stress) se limpian en boot y se reemplazan con el snapshot real, nunca con valores demo
 
 ### Google Health API
 - Autenticación OAuth 2.0 con Google (token exchange server-side)
@@ -195,7 +201,7 @@ node brand/generate-brand-assets.js   # regenerar logos y assets de marca
 node scripts/generate-icons.js        # regenerar iconos PWA
 ```
 
-## 📍 Estado (2026-06-05)
+## 📍 Estado (2026-06-07)
 
 Todo el código en `main`, desplegado en Vercel:
 
@@ -206,6 +212,9 @@ Todo el código en `main`, desplegado en Vercel:
 - ✅ **Coach AIRA** — Gemini 2.5, multi-turno, rate limit Free/PRO, paywall con trial
 - ✅ **Temas PRO** — Voxel (pixel art) + Synthwave (retrowave 80s) bloqueados sin PRO
 - ✅ **Animaciones** — 11 bugs resueltos, tokenización completa, race conditions corregidas
+- ✅ **Snapshot persistence** — datos biométricos persisten entre sesiones vía `localStorage['fb_snap']`; restauración instantánea al recargar con silent refresh en segundo plano
+- ✅ **Perfil biométrico en home** — FC Máx, Fitness Age y VO2 siempre visibles en inicio sin requerir visita a la pestaña Perfil
+- ✅ **Boot limpio** — defaults HTML (strain, sleep, stress) se eliminan en boot; el snapshot sobreescribe con datos reales antes de que llegue la API
 
 **Próximos pasos:**
 - Conectar `STRIPE_PRO_PRICE_ID` si se quiere usar precio fijo (actualmente usa `price_data` inline)
