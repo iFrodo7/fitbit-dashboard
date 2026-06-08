@@ -498,6 +498,27 @@ body.view-history #dash > #install-banner{visibility:visible;}
 .hv-trend.trend-down{color:var(--tneg,#ef4444);}
 .hv-trend.trend-flat{color:var(--sub,#888);}
 .hv-stat strong{color:var(--ta);font-weight:700;}
+/* ── Historial: summary chips row (#55-A) ── */
+.hv-summary{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px;}
+.hv-chip{display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+  padding:8px 12px;border-radius:var(--r-md,10px);
+  background:var(--cbg,rgba(255,255,255,0.04));border:1px solid var(--bdr,rgba(255,255,255,0.09));
+  flex:1;min-width:0;}
+.hv-chip-lbl{font-size:8px;letter-spacing:2px;font-weight:700;color:var(--sub,#888);text-transform:uppercase;}
+.hv-chip-val{font-family:var(--mono,'IBM Plex Mono',monospace);font-size:16px;font-weight:700;color:var(--txt);line-height:1.1;}
+.hv-chip-delta{font-size:9px;font-weight:700;letter-spacing:0.5px;}
+.hv-chip-delta.pos{color:var(--tpos,#22c55e);}
+.hv-chip-delta.neg{color:var(--tneg,#ef4444);}
+.hv-chip-delta.flat{color:var(--sub,#888);}
+/* ── Historial: personal records card (#55-D) ── */
+.hv-pr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:2px;}
+.hv-pr-item{display:flex;flex-direction:column;gap:4px;padding:10px 12px;
+  border-radius:var(--r-sm,6px);background:var(--cbg,rgba(255,255,255,0.03));
+  border:1px solid var(--bdr,rgba(255,255,255,0.07));}
+.hv-pr-icon{font-size:16px;line-height:1;}
+.hv-pr-val{font-family:var(--mono,'IBM Plex Mono',monospace);font-size:17px;font-weight:700;color:var(--ta);line-height:1.1;}
+.hv-pr-lbl{font-size:9px;letter-spacing:1.5px;font-weight:700;color:var(--sub,#888);text-transform:uppercase;}
+.hv-pr-date{font-size:9px;color:var(--sub,#888);margin-top:1px;}
 .hv-chart{width:100%;display:block;margin-top:10px;overflow:visible;}
 .hv-chart .grid{stroke:var(--txt);stroke-width:0.6;opacity:0.09;}
 .hv-chart .axlbl{font-size:11px;fill:var(--txt);opacity:0.62;letter-spacing:0.3px;font-family:inherit;font-weight:600;}
@@ -4278,6 +4299,9 @@ body.t-synth::after{content:'';position:fixed;inset:0;
       </div>
     </div>
 
+    <!-- ── #55-A: period summary chips ── -->
+    <div class="hv-summary" id="hv-summary"></div>
+
     <div class="card hv-card">
       <div class="clbl"><span id="hv-rec-lbl">// RECOVERY SCORE</span><span class="hv-stat" id="hv-rec-stat"></span></div>
       <div class="hv-chart-wrap"><div id="hv-rec-skel" class="hv-skel"></div><svg class="hv-chart" id="hv-rec-svg" style="display:none"></svg><div class="hv-tt" id="hv-rec-tt"></div></div>
@@ -4335,6 +4359,19 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         <span class="cyc-loglist-lbl" id="hv-cyc-log-lbl">REGISTRO</span>
       </div>
       <div id="hv-cyc-log-list"><div class="cyc-log-empty" id="hv-cyc-log-empty"></div></div>
+    </div>
+
+    <!-- ── #55-D: personal records card ── -->
+    <div class="card hv-card" id="hv-pr-card">
+      <div class="clbl" style="margin-bottom:12px;">
+        <span id="hv-pr-lbl" style="font-size:10px;letter-spacing:3px;font-weight:700;color:var(--ta);text-transform:uppercase;">// RÉCORDS PERSONALES</span>
+      </div>
+      <div class="hv-pr-grid" id="hv-pr-body">
+        <div class="hv-pr-item"><div class="hv-pr-icon">🏆</div><div class="hv-pr-val" id="hv-pr-steps">—</div><div class="hv-pr-lbl" id="hv-pr-steps-lbl">MEJOR DÍA PASOS</div><div class="hv-pr-date" id="hv-pr-steps-date"></div></div>
+        <div class="hv-pr-item"><div class="hv-pr-icon">🔥</div><div class="hv-pr-val" id="hv-pr-streak">—</div><div class="hv-pr-lbl" id="hv-pr-streak-lbl">RACHA MÁXIMA</div><div class="hv-pr-date" id="hv-pr-streak-date"></div></div>
+        <div class="hv-pr-item"><div class="hv-pr-icon">😴</div><div class="hv-pr-val" id="hv-pr-sleep">—</div><div class="hv-pr-lbl" id="hv-pr-sleep-lbl">MEJOR SEMANA SUEÑO</div><div class="hv-pr-date" id="hv-pr-sleep-date"></div></div>
+        <div class="hv-pr-item"><div class="hv-pr-icon">💓</div><div class="hv-pr-val" id="hv-pr-rhr">—</div><div class="hv-pr-lbl" id="hv-pr-rhr-lbl">RHR MÍNIMO</div><div class="hv-pr-date" id="hv-pr-rhr-date"></div></div>
+      </div>
     </div>
 
     <div class="card hv-card">
@@ -12689,7 +12726,8 @@ function _hRenderStepsBar(svg, rows) {
   const { w, h, pad, innerW, innerH } = _hGeo();
   const stRows = rows.filter(r => r.steps != null);
   if (!stRows.length) { svg.style.display='none'; return; }
-  const GOAL = 10000;
+  const GOAL = parseInt(localStorage.getItem('fb_steps_goal')) || 10000;
+  const GOAL_LABEL = GOAL >= 1000 ? (GOAL/1000).toFixed(GOAL%1000===0?0:1)+'k' : String(GOAL);
   const maxSteps = Math.max(...stRows.map(r => r.steps), GOAL);
   const hi = Math.ceil(maxSteps / 2000) * 2000;
   const n  = rows.length;
@@ -12708,7 +12746,7 @@ function _hRenderStepsBar(svg, rows) {
   });
   const yGoal = pad.t + (1 - GOAL/hi) * innerH;
   gridSvg += `<line class="ref-line" x1="${pad.l}" x2="${w-pad.r}" y1="${yGoal.toFixed(1)}" y2="${yGoal.toFixed(1)}"/>`;
-  gridSvg += `<text class="ref-lbl" x="${(w-pad.r+3).toFixed(1)}" y="${(yGoal+3.5).toFixed(1)}" text-anchor="start">10k</text>`;
+  gridSvg += `<text class="ref-lbl" x="${(w-pad.r+3).toFixed(1)}" y="${(yGoal+3.5).toFixed(1)}" text-anchor="start">${GOAL_LABEL}</text>`;
   let bars = '';
   rows.forEach((r,i) => {
     if (r.steps == null) return;
@@ -12747,7 +12785,9 @@ function _hTrend(rows, key, lowerBetter) {
   const d = a2 - a1, t = T[lang];
   if (Math.abs(d) <= Math.abs(a1) * 0.02) return ` <span class="hv-trend trend-flat" title="${t.hv_trend_flat}">→</span>`;
   const up = d > 0, good = lowerBetter ? !up : up;
-  return ` <span class="hv-trend ${good ? 'trend-up' : 'trend-down'}" title="${good ? t.hv_trend_better : t.hv_trend_worse}">${up ? '↑' : '↓'}</span>`;
+  const pct = a1 !== 0 ? Math.abs(Math.round((d/a1)*100)) : '';
+  const pctStr = pct ? ` ${pct}%` : '';
+  return ` <span class="hv-trend ${good ? 'trend-up' : 'trend-down'}" title="${good ? t.hv_trend_better : t.hv_trend_worse}">${up ? '↑' : '↓'}${pctStr}</span>`;
 }
 
 function _hCoachAnalysis(rows) {
@@ -13073,6 +13113,136 @@ function _hShowEmpty(svgEl, msg) {
   wrap.insertBefore(div, svgEl);
 }
 
+// ── #55-A: Summary chips — period averages + delta vs previous period ──────
+function _hRenderSummary(rows, allCache) {
+  var el = document.getElementById('hv-summary');
+  if (!el) return;
+  var n = rows.length;
+  var avg = function(arr, key) {
+    var v = arr.map(function(r){return r[key];}).filter(function(x){return x!=null;});
+    return v.length ? v.reduce(function(a,b){return a+b;},0)/v.length : null;
+  };
+  // Previous period: same length, immediately before current period
+  var firstDate = rows[0] && rows[0].date;
+  var prevRows = [];
+  if (firstDate && allCache && allCache.length) {
+    var fd = new Date(firstDate+'T12:00:00Z');
+    var prevDates = [];
+    for (var i = n; i >= 1; i--) {
+      var d = new Date(fd); d.setDate(d.getDate() - i);
+      prevDates.push(d.toISOString().split('T')[0]);
+    }
+    prevRows = prevDates.map(function(dt){ return allCache.find(function(c){return c.date===dt;})||{date:dt}; });
+  }
+  var delta = function(cur, prev, lowerBetter) {
+    if (cur == null || prev == null || prev === 0) return {cls:'flat', txt:''};
+    var pct = Math.round(((cur - prev) / Math.abs(prev)) * 100);
+    if (Math.abs(pct) < 2) return {cls:'flat', txt:'→'};
+    var up = pct > 0, good = lowerBetter ? !up : up;
+    return {cls: good ? 'pos' : 'neg', txt: (up ? '↑' : '↓') + ' ' + Math.abs(pct) + '%'};
+  };
+  var t = T[lang];
+  var avgStp = avg(rows,'steps'), avgSlp = avg(rows,'minutesAsleep'), avgRec = avg(rows,'recovery');
+  var pStp = avg(prevRows,'steps'), pSlp = avg(prevRows,'minutesAsleep'), pRec = avg(prevRows,'recovery');
+  var GOAL = parseInt(localStorage.getItem('fb_steps_goal')) || 10000;
+  var daysActive = rows.filter(function(r){return (r.steps||0)>=GOAL;}).length;
+  var chips = [];
+  if (avgStp != null) {
+    var ds = delta(avgStp, pStp, false);
+    chips.push({icon:'👟', lbl: t.hv_chip_steps||'PASOS/DÍA', val: Math.round(avgStp/100)/10 + 'k', delta: ds});
+  }
+  if (avgSlp != null) {
+    var slpH = Math.floor(avgSlp/60), slpM = Math.round(avgSlp%60);
+    var ds2 = delta(avgSlp, pSlp, false);
+    chips.push({icon:'😴', lbl: t.hv_chip_sleep||'SUEÑO PROM.', val: slpH+'h '+(slpM<10?'0':'')+slpM+'m', delta: ds2});
+  }
+  if (avgRec != null) {
+    var ds3 = delta(avgRec, pRec, false);
+    chips.push({icon:'⚡', lbl: t.hv_chip_rec||'RECOVERY PROM.', val: Math.round(avgRec)+'/100', delta: ds3});
+  }
+  // Active days chip — always shown if steps data exists
+  if (avgStp != null) {
+    chips.push({icon:'🏃', lbl: t.hv_chip_active||(lang==='es'?'DÍAS META':'GOAL DAYS'), val: daysActive+'/'+n, delta:{cls:'flat',txt:''}});
+  }
+  el.innerHTML = chips.map(function(c){
+    return '<div class="hv-chip">'
+      +'<div class="hv-chip-lbl">'+c.lbl+'</div>'
+      +'<div class="hv-chip-val">'+c.val+'</div>'
+      +(c.delta.txt ? '<div class="hv-chip-delta '+c.delta.cls+'">'+c.delta.txt+' vs período ant.</div>' : '')
+      +'</div>';
+  }).join('');
+}
+
+// ── #55-D: Personal Records — reads ALL IndexedDB history ──────────────────
+async function _hRenderPRs() {
+  var t = T[lang];
+  // Update i18n labels
+  var set = function(id, v){ var e=document.getElementById(id); if(e) e.textContent=v; };
+  set('hv-pr-lbl', lang==='es' ? '// RÉCORDS PERSONALES' : '// PERSONAL RECORDS');
+  set('hv-pr-steps-lbl', lang==='es' ? 'MEJOR DÍA PASOS' : 'BEST STEPS DAY');
+  set('hv-pr-streak-lbl', lang==='es' ? 'RACHA MÁXIMA' : 'LONGEST STREAK');
+  set('hv-pr-sleep-lbl', lang==='es' ? 'MEJOR SEMANA SUEÑO' : 'BEST SLEEP WEEK');
+  set('hv-pr-rhr-lbl', lang==='es' ? 'RHR MÍNIMO' : 'LOWEST RHR');
+  // Load cached PRs immediately so the card isn't blank
+  try {
+    var cached = JSON.parse(localStorage.getItem('fb_personal_records')||'null');
+    if (cached) _hApplyPRs(cached);
+  } catch(e) {}
+  // Re-compute from IndexedDB asynchronously
+  try {
+    var all = await _hGetAll();
+    if (!all || !all.length) return;
+    // Best steps day
+    var bestSteps = all.reduce(function(b,r){ return (r.steps||0)>(b.steps||0)?r:b; }, {steps:0});
+    // Lowest RHR (min among days with data)
+    var rhrRows = all.filter(function(r){return r.rhr>0;});
+    var bestRhr = rhrRows.length ? rhrRows.reduce(function(b,r){return r.rhr<b.rhr?r:b;}) : null;
+    // Best 7-day sleep window (rolling average of minutesAsleep)
+    var slpRows = all.filter(function(r){return r.minutesAsleep>0;}).sort(function(a,b){return a.date>b.date?1:-1;});
+    var bestSlpAvg = 0, bestSlpEnd = null;
+    for (var i = 6; i < slpRows.length; i++) {
+      var window7 = slpRows.slice(i-6, i+1);
+      var avg7 = window7.reduce(function(s,r){return s+r.minutesAsleep;},0)/7;
+      if (avg7 > bestSlpAvg) { bestSlpAvg = avg7; bestSlpEnd = slpRows[i].date; }
+    }
+    // Longest streak from localStorage (already maintained by loadWeekDataGoogle)
+    var strData = null;
+    try { strData = JSON.parse(localStorage.getItem('fb_streak_steps')||'null'); } catch(e) {}
+    var longestStreak = (strData && strData.count) ? parseInt(strData.count)||0 : 0;
+    var rec = {
+      maxStepsDay: bestSteps.steps > 0 ? {value: bestSteps.steps, date: bestSteps.date} : null,
+      longestStreak: longestStreak > 0 ? {value: longestStreak} : null,
+      bestSleepWeekAvg: bestSlpAvg > 0 ? {value: bestSlpAvg, date: bestSlpEnd} : null,
+      minRhr: bestRhr ? {value: bestRhr.rhr, date: bestRhr.date} : null,
+    };
+    try { localStorage.setItem('fb_personal_records', JSON.stringify(rec)); } catch(e) {}
+    _hApplyPRs(rec);
+  } catch(e) { console.warn('[hv-prs]', e); }
+}
+
+function _hApplyPRs(rec) {
+  var fmtDate = function(dt){ if(!dt) return ''; return new Date(dt+'T12:00:00').toLocaleDateString(lang==='es'?'es':'en',{day:'numeric',month:'short'}).toUpperCase(); };
+  var set = function(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; };
+  if (rec.maxStepsDay) {
+    var sk = rec.maxStepsDay.value;
+    set('hv-pr-steps', sk>=1000 ? (Math.round(sk/100)/10).toFixed(1)+'k' : String(sk));
+    set('hv-pr-steps-date', fmtDate(rec.maxStepsDay.date));
+  }
+  if (rec.longestStreak) {
+    set('hv-pr-streak', rec.longestStreak.value + (lang==='es'?' días':' days'));
+    set('hv-pr-streak-date', '');
+  }
+  if (rec.bestSleepWeekAvg && rec.bestSleepWeekAvg.value > 0) {
+    var m = rec.bestSleepWeekAvg.value;
+    set('hv-pr-sleep', Math.floor(m/60)+'h '+(Math.round(m%60)<10?'0':'')+Math.round(m%60)+'m');
+    set('hv-pr-sleep-date', lang==='es' ? 'prom. sem.' : 'week avg');
+  }
+  if (rec.minRhr) {
+    set('hv-pr-rhr', rec.minRhr.value + ' bpm');
+    set('hv-pr-rhr-date', fmtDate(rec.minRhr.date));
+  }
+}
+
 async function renderHistory() {
   if (window._histRange == null) window._histRange = 7;
   const t = T[lang];
@@ -13147,6 +13317,10 @@ async function renderHistory() {
   _hBindTooltip(rhrSvg, 'hv-rhr-tt', (v,d) => `<strong>${Math.round(v)}</strong> ${t.hv_bpm} <span style="opacity:0.45;margin-left:6px">${_hFmtDate(d)}</span>`);
   _hBindStepsTooltip(stpSvg, 'hv-steps-tt');
   _hBindSleepTooltip(slpSvg, 'hv-sleep-tt');
+  // #55-A: Summary chips (uses allCache for previous period delta)
+  try { _hRenderSummary(rows, cache); } catch(e) { console.warn('[hv-summary]', e); }
+  // #55-D: Personal records (reads all IndexedDB asynchronously)
+  _hRenderPRs().catch(e => console.warn('[hv-prs]', e));
   // Coach analysis
   _hRenderCoachAnalysis(rows);
   // Workout history
