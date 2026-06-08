@@ -8380,7 +8380,18 @@ function wkBarSel(idx) {
     sv = document.getElementById('steps-floors-unit');if(sv && snap.floorsUnit) sv.textContent = snap.floorsUnit;
     sv = document.getElementById('steps-active-val'); if(sv && snap.active)     sv.textContent = snap.active;
     sv = document.getElementById('steps-active-unit');if(sv && snap.activeUnit) sv.textContent = snap.activeUnit;
-    sv = document.getElementById('steps-streak-val'); if(sv && snap.streak)     sv.textContent = snap.streak;
+    // Streak: calculate from _wkData (same method as past days) for consistency.
+    // Avoids mismatch between _getStepGoalStreak() (IndexedDB) and _wkData (API).
+    sv = document.getElementById('steps-streak-val');
+    if (sv) {
+      var _todayGoal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+      var _todayStreak = 0;
+      for (var _tsi = 6; _tsi >= 0; _tsi--) {
+        if ((data[_tsi].steps || 0) >= _todayGoal) _todayStreak++;
+        else break;
+      }
+      sv.textContent = _todayStreak > 0 ? _todayStreak : '×';
+    }
     sv = document.getElementById('steps-streak-unit');if(sv && snap.streakUnit) sv.textContent = snap.streakUnit;
     return;
   }
