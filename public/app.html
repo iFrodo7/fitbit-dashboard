@@ -8429,7 +8429,7 @@ function wkBarSel(idx) {
       if ((data[_si].steps || 0) >= _goal) _streak++;
       else break;
     }
-    e.textContent = _streak > 0 ? _streak : '—';
+    e.textContent = _streak > 0 ? _streak : '×';
   }
   e = document.getElementById('steps-streak-unit');
   if (e) e.textContent = es ? 'DÍAS META' : 'DAYS GOAL';
