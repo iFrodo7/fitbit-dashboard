@@ -8282,9 +8282,12 @@ function p2(n) { return String(n).padStart(2,'0'); }
 // _wkData: [{date,steps,dist,floors,active,label}, ...] oldest→newest (7 items)
 // _wkSelIdx: currently selected bar index (default 6 = today)
 // _wkTodaySnap: DOM snapshot of today's card values, saved after real data loads
-window._wkData      = null;
-window._wkSelIdx    = 6;
-window._wkTodaySnap = null;
+window._wkData           = null;
+window._wkSelIdx         = 6;
+window._wkTodaySnap      = null;
+// Real streak for today combining _wkData (7-day window) + _getStepGoalStreak() (IndexedDB).
+// Handles streaks longer than 7 days (e.g. 90-day streak user).
+window._wkTodayStreakReal = 0;
 
 // Saves the current steps-card DOM values as the ground truth for "today".
 // Called after loadReal / loadRealGoogleData finishes writing real values.
@@ -8380,15 +8383,17 @@ function wkBarSel(idx) {
     sv = document.getElementById('steps-floors-unit');if(sv && snap.floorsUnit) sv.textContent = snap.floorsUnit;
     sv = document.getElementById('steps-active-val'); if(sv && snap.active)     sv.textContent = snap.active;
     sv = document.getElementById('steps-active-unit');if(sv && snap.activeUnit) sv.textContent = snap.activeUnit;
-    // Streak: calculate from _wkData (same method as past days) for consistency.
-    // Avoids mismatch between _getStepGoalStreak() (IndexedDB) and _wkData (API).
+    // Streak: prefer _wkTodayStreakReal (combines window + longer history).
+    // Falls back to backward count from _wkData window (max 7).
     sv = document.getElementById('steps-streak-val');
     if (sv) {
-      var _todayGoal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
-      var _todayStreak = 0;
-      for (var _tsi = 6; _tsi >= 0; _tsi--) {
-        if ((data[_tsi].steps || 0) >= _todayGoal) _todayStreak++;
-        else break;
+      var _todayStreak = window._wkTodayStreakReal || 0;
+      if (!_todayStreak) {
+        var _todayGoal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+        for (var _tsi = 6; _tsi >= 0; _tsi--) {
+          if ((data[_tsi].steps || 0) >= _todayGoal) _todayStreak++;
+          else break;
+        }
       }
       sv.textContent = _todayStreak > 0 ? _todayStreak : '×';
     }
@@ -8439,6 +8444,17 @@ function wkBarSel(idx) {
     for (var _si = sel; _si >= 0; _si--) {
       if ((data[_si].steps || 0) >= _goal) _streak++;
       else break;
+    }
+    // Cross-window extension: if streak fills entire window from 0 to sel
+    // AND all days from sel+1 to today also met the goal, then the streak
+    // extends before the visible window → derive from _wkTodayStreakReal.
+    // Example: 10-day streak, viewing index 4 → should show 10-(6-4)=8, not 5.
+    if (_streak > 0 && _streak === sel + 1 && window._wkTodayStreakReal > 6) {
+      var _allAfterMet = true;
+      for (var _di = sel + 1; _di <= 6; _di++) {
+        if ((data[_di].steps || 0) < _goal) { _allAfterMet = false; break; }
+      }
+      if (_allAfterMet) _streak = window._wkTodayStreakReal - (6 - sel);
     }
     e.textContent = _streak > 0 ? _streak : '×';
   }
@@ -8571,6 +8587,22 @@ async function loadWeekDataGoogle() {
     });
 
     buildWeeks(days);
+
+    // ── _wkTodayStreakReal: 7-day window count + localStorage history ───────
+    // Handles cross-week streaks (e.g. 6 days spanning two calendar weeks).
+    // If window is fully green AND fb_activity_history has a longer run, we
+    // use the longer count so the RACHA card never under-reports.
+    var _strGoal7 = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+    var _wkStr7 = 0;
+    if (window._wkData) {
+      for (var _si7 = 6; _si7 >= 0; _si7--) {
+        if (((window._wkData[_si7] && window._wkData[_si7].steps) || 0) >= _strGoal7) _wkStr7++;
+        else break;
+      }
+    }
+    var _dbStr7 = 0;
+    try { _dbStr7 = (typeof _getStepGoalStreak === 'function' ? _getStepGoalStreak() : 0) || 0; } catch(e2) {}
+    window._wkTodayStreakReal = Math.max(_wkStr7, _dbStr7);
 
     // Patch today's bar (_wkData[6]) with real DOM values saved by _wkSaveTodaySnap
     // so the today bar shows the same precise numbers as the main card.
