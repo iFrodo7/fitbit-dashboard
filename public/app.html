@@ -8342,6 +8342,7 @@ window._wkTodaySnap      = null;
 // Real streak for today combining _wkData (7-day window) + _getStepGoalStreak() (IndexedDB).
 // Handles streaks longer than 7 days (e.g. 90-day streak user).
 window._wkTodayStreakReal = 0;
+window._driveStreakFileId = null; // cached Drive file-id for fb_streak sync
 
 // Saves the current steps-card DOM values as the ground truth for "today".
 // Called after loadReal / loadRealGoogleData finishes writing real values.
@@ -10022,9 +10023,123 @@ function getDailyStreak() {
     // Detect loss: had a streak >1 that just got reset
     if (cnt===1 && (s.count||0)>1) window._streakLost = s.count;
     localStorage.setItem('fb_streak',JSON.stringify({date:today,count:cnt}));
+    // Keep Drive in sync so the streak survives a browser switch (Google users).
+    try { _driveStreakWrite({date:today,count:cnt}); } catch(_dse) {}
     return cnt;
   } catch(e){return 1;}
 }
+
+// ── Drive App Data streak sync ─────────────────────────────────────────────
+// Persists fb_streak in the user's Google Drive App Data folder (hidden,
+// ~100 bytes).  Silently no-ops for Fitbit users or if drive.appdata scope
+// was not granted (tokens issued before the scope was added get a 403 →
+// caught silently; sync starts working after the user re-authenticates).
+//
+// _driveStreakWrite  — fire-and-forget, called by getDailyStreak() on write
+// _driveStreakRead   — awaited at the start of loadRealGoogleData(); merges
+//                     Drive data with localStorage and refreshes the badge
+// ──────────────────────────────────────────────────────────────────────────
+var _DRIVE_STK_FILE = 'aira_app_streak.json';
+var _DRIVE_STK_BASE = 'https://www.googleapis.com/drive/v3/files';
+var _DRIVE_STK_UPL  = 'https://www.googleapis.com/upload/drive/v3/files';
+
+async function _driveStreakWrite(data) {
+  try {
+    if (typeof HS === 'undefined' || HS.id !== 'google' || !token) return;
+    var body = JSON.stringify(data);
+    var fileId = window._driveStreakFileId;
+    if (fileId) {
+      // Patch existing file content (no metadata change needed)
+      await fetch(_DRIVE_STK_UPL + '/' + fileId + '?uploadType=media', {
+        method: 'PATCH',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: body
+      });
+    } else {
+      // Create file in App Data folder via multipart upload
+      var _bnd = '-------aira314159';
+      var _meta = JSON.stringify({ name: _DRIVE_STK_FILE, parents: ['appDataFolder'] });
+      var _mp = '--' + _bnd + '\r\nContent-Type: application/json\r\n\r\n' + _meta +
+                '\r\n--' + _bnd + '\r\nContent-Type: application/json\r\n\r\n' + body +
+                '\r\n--' + _bnd + '--';
+      var resp = await fetch(_DRIVE_STK_UPL + '?uploadType=multipart', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token,
+                   'Content-Type': 'multipart/related; boundary=' + _bnd },
+        body: _mp
+      });
+      if (resp.ok) {
+        var rd = await resp.json();
+        if (rd.id) window._driveStreakFileId = rd.id;
+      }
+    }
+  } catch (_dwe) {}
+}
+
+async function _driveStreakRead() {
+  try {
+    if (typeof HS === 'undefined' || HS.id !== 'google' || !token) return;
+    // Find the file in App Data folder
+    var listResp = await fetch(
+      _DRIVE_STK_BASE + '?spaces=appDataFolder&q=' + encodeURIComponent("name='" + _DRIVE_STK_FILE + "'") + '&fields=files(id)',
+      { headers: { 'Authorization': 'Bearer ' + token } }
+    );
+    // 403 = scope not granted (old token) — silent fallback to localStorage
+    if (!listResp.ok) return;
+    var list = await listResp.json();
+    var files = list.files || [];
+    if (!files.length) {
+      // No Drive file yet — seed it with current local streak (if any)
+      var _localSeed = JSON.parse(localStorage.getItem('fb_streak') || '{}');
+      if (_localSeed.date) await _driveStreakWrite(_localSeed);
+      return;
+    }
+    var fileId = files[0].id;
+    window._driveStreakFileId = fileId;
+    var fileResp = await fetch(_DRIVE_STK_BASE + '/' + fileId + '?alt=media',
+      { headers: { 'Authorization': 'Bearer ' + token } }
+    );
+    if (!fileResp.ok) return;
+    var driveData = await fileResp.json();
+
+    // Merge: Drive wins only when it has newer / higher data
+    var localData = JSON.parse(localStorage.getItem('fb_streak') || '{}');
+    var today = _localDateStr();
+    var _ydDr = new Date(); _ydDr.setDate(_ydDr.getDate() - 1);
+    var yest = _localDateStr(_ydDr);
+    var drDate  = driveData.date  || '';
+    var drCount = driveData.count || 0;
+    var lcDate  = localData.date  || '';
+    var lcCount = localData.count || 0;
+
+    // Determine if Drive has better data
+    var useDrive = (drDate === lcDate) ? (drCount > lcCount) : (drDate > lcDate);
+    if (!useDrive) return; // local is already up-to-date
+
+    // Advance the count to today if Drive's last record was yesterday
+    var finalCount;
+    if (drDate === today)      finalCount = drCount;       // Drive already has today
+    else if (drDate === yest)  finalCount = drCount + 1;   // consecutive open → extend
+    else if (drDate < yest)    finalCount = 1;             // gap → streak broken
+    else return;                                           // drDate in future (shouldn't happen)
+
+    var merged = { date: today, count: finalCount };
+    localStorage.setItem('fb_streak', JSON.stringify(merged));
+
+    // Refresh streak badge elements in-place (no full re-render needed)
+    var _stkEl = document.getElementById('dr-stk');
+    if (_stkEl) _stkEl.textContent = finalCount;
+    var _stkBadge = document.getElementById('drw-stk-badge');
+    if (_stkBadge) {
+      var _stkBn = _stkBadge.querySelector('.drw-stk-badge-num');
+      if (_stkBn) _stkBn.textContent = finalCount;
+    }
+
+    // Write merged value back so Drive reflects today's browser-switch open
+    await _driveStreakWrite(merged);
+  } catch (_dre) {}
+}
+// ── END Drive App Data streak sync ──────────────────────────────────────────
 
 function _stkMotivMsg(strk, stkMile) {
   var es = lang === 'es';
@@ -10898,6 +11013,9 @@ const GoogleHealthSource = {
       'https://www.googleapis.com/auth/googlehealth.sleep.readonly',
       'https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly',
       'https://www.googleapis.com/auth/googlehealth.profile.readonly',
+      // App Data folder: stores fb_streak so it survives browser switches.
+      // Silently skipped (403) for tokens issued before this scope was added.
+      'https://www.googleapis.com/auth/drive.appdata',
     ].join(' '),
   },
   base: 'https://health.googleapis.com/v4',
@@ -11332,6 +11450,10 @@ async function loadRealGoogleData(silentRefresh) {
     localStorage.removeItem('fb_google_clean_v1');
     localStorage.setItem('fb_google_clean_v2', '1');
   }
+  // Sync app-open streak from Drive App Data before getDailyStreak() is called
+  // below. Waits up to the Drive round-trip so the badge shows the correct count.
+  // Falls back silently when drive.appdata scope is missing (tokens pre-upgrade).
+  await _driveStreakRead().catch(function(){});
   // Always wipe HTML demo defaults so nothing leaks if the API returns no data.
   // Numeric displays with HTML demo defaults
   _clr('stressv','0'); _clr('steps-active-val','0');
