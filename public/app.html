@@ -8690,9 +8690,10 @@ async function loadWeekDataGoogle() {
           var _ok = true;
           for (var _g = 1; _g < _gap; _g++) {
             var _gi = 6 - (_gap - _g);
-            if (((window._wkData && window._wkData[_gi] && window._wkData[_gi].steps) || 0) < _strGoal7) {
-              _ok = false; break;
-            }
+            var _gd = window._wkData && window._wkData[_gi];
+            // hasData===false = no hay datos del dispositivo ese día — saltar, no penalizar racha
+            if (_gd && _gd.hasData === false) continue;
+            if ((_gd && _gd.steps || 0) < _strGoal7) { _ok = false; break; }
           }
           if (_ok) {
             // Streak is continuous through yesterday.
@@ -8724,37 +8725,45 @@ async function loadWeekDataGoogle() {
               B + '/users/me/dataTypes/steps/dataPoints:dailyRollUp',
               rb(_gapStart, _ghNextDay(_t7))
             );
-            // Build date → steps map
-            var _gapMap = {};
-            ((_gapResp && _gapResp.rollupDataPoints) || []).forEach(function(rp) {
-              var _gds2 = rangeToDateStr(rp);
-              if (_gds2) _gapMap[_gds2] = parseInt(
-                (rp.steps && (rp.steps.countSum || rp.steps.count_sum || rp.steps.count)) || 0
-              ) || 0;
-            });
-            // Walk each day from gapStart through yesterday (today handled by _tmMet below)
-            var _gWalk    = new Date(_gapStart + 'T00:00:00');
-            var _gWalkEnd = new Date(_y7 + 'T00:00:00');
-            var _runStr   = _pc;
-            var _lastGood = _pd;
-            while (_gWalk <= _gWalkEnd) {
-              var _gds = _localDateStr(_gWalk);
-              if ((_gapMap[_gds] || 0) >= _strGoal7) {
-                _runStr++;
-                _lastGood = _gds;
-              } else {
-                _runStr   = 0;   // real break — restart counter
-                _lastGood = '';
+            // Si la API devolvió null (red, token, 5xx) — preservar racha, no resetear
+            if (!_gapResp) {
+              _pNew  = Math.max(_pc, _wkStr7);
+              _pdNew = _tmMet ? _t7 : _y7;
+            } else {
+              // Build date → steps map. Solo días con entrada; undefined = brecha de API
+              var _gapMap = {};
+              (_gapResp.rollupDataPoints || []).forEach(function(rp) {
+                var _gds2 = rangeToDateStr(rp);
+                if (_gds2) _gapMap[_gds2] = parseInt(
+                  (rp.steps && (rp.steps.countSum || rp.steps.count_sum || rp.steps.count)) || 0
+                ) || 0;
+              });
+              // Walk each day from gapStart through yesterday (today handled by _tmMet below)
+              var _gWalk    = new Date(_gapStart + 'T00:00:00');
+              var _gWalkEnd = new Date(_y7 + 'T00:00:00');
+              var _runStr   = _pc;
+              var _lastGood = _pd;
+              while (_gWalk <= _gWalkEnd) {
+                var _gds = _localDateStr(_gWalk);
+                if (_gapMap[_gds] !== undefined) {
+                  // API confirmó datos para este día — evaluar meta
+                  if (_gapMap[_gds] >= _strGoal7) {
+                    _runStr++; _lastGood = _gds;
+                  } else {
+                    _runStr = 0; _lastGood = '';  // fallo confirmado por la API
+                  }
+                }
+                // else: sin entrada en el rollup — saltar (brecha de API, no penalizar)
+                _gWalk.setDate(_gWalk.getDate() + 1);
               }
-              _gWalk.setDate(_gWalk.getDate() + 1);
+              // Add today only if goal confirmed met (patched steps — FIX #2)
+              if (_tmMet) { _runStr++; _lastGood = _t7; }
+              _pNew  = _runStr;
+              _pdNew = _lastGood || (_tmMet ? _t7 : _y7);
             }
-            // Add today only if goal confirmed met (patched steps — FIX #2)
-            if (_tmMet) { _runStr++; _lastGood = _t7; }
-            _pNew  = _runStr;
-            _pdNew = _lastGood || (_tmMet ? _t7 : _y7);
           } catch(e4) {
-            // API failed — fallback: trust only what the 7-day window shows
-            _pNew  = _wkStr7;
+            // Excepción durante gap fill — preservar racha existente, no resetear
+            _pNew  = Math.max(_pc, _wkStr7);
             _pdNew = _tmMet ? _t7 : _y7;
           }
 
