@@ -8496,10 +8496,12 @@ async function loadWeekDataGoogle() {
       _ghPost(B + '/users/me/dataTypes/floors/dataPoints:dailyRollUp',   rb(d7, nd)),
     ]);
 
-    // Convert rollupDataPoints to date-keyed maps
+    // Convert rollupDataPoints to date-keyed maps.
+    // Google Health API returns civilStartTime (not range.start) for daily rollups.
     var rangeToDateStr = function(rp) {
-      // Each rollupDataPoint.range.start = {date:{year,month,day}, time:{...}}
-      var rs = rp && rp.range && rp.range.start;
+      // Real API field: civilStartTime.date.{year,month,day}
+      // Fallback to range.start in case field name changes again.
+      var rs = rp && (rp.civilStartTime || (rp.range && rp.range.start));
       if (!rs) return null;
       var D = rs.date || rs;  // some responses put date inline
       if (typeof D === 'string') return D;
