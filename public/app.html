@@ -10971,16 +10971,30 @@ async function handleGoogleOAuth(code) {
   } catch (e) { hideLoad(); showToast(lang === 'es' ? 'Error de conexión con Google' : 'Google connection error', 'error'); }
 }
 async function refreshGoogleTok() {
+  // Singleton: si ya hay un refresh en vuelo, todos esperan el mismo resultado.
+  // Evita que Promise.all con 10 requests paralelas roten el refresh_token
+  // simultáneamente (la segunda rotación usa un RT ya inválido → logout).
+  if (window._ghRefreshPromise) return window._ghRefreshPromise;
   const rt = localStorage.getItem('fb_rt'); if (!rt) return false;
-  try {
-    const r = await fetch(GoogleHealthSource.oauth.token, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh_token: rt }),
-    });
-    const d = await r.json();
-    if (d.access_token) { localStorage.setItem('fb_tok', d.access_token); if (d.refresh_token) localStorage.setItem('fb_rt', d.refresh_token); token = d.access_token; return true; }
-  } catch (e) {}
-  return false;
+  window._ghRefreshPromise = (async () => {
+    try {
+      const r = await fetch(GoogleHealthSource.oauth.token, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: rt }),
+      });
+      const d = await r.json();
+      if (d.access_token) {
+        localStorage.setItem('fb_tok', d.access_token);
+        if (d.refresh_token) localStorage.setItem('fb_rt', d.refresh_token);
+        token = d.access_token; return true;
+      }
+      // Refresh token expirado/revocado — cerrar sesión limpiamente
+      console.warn('[gh] refresh token revoked — forcing logout');
+      stopPoll(); return false;
+    } catch(e) { return false; }
+    finally { window._ghRefreshPromise = null; }
+  })();
+  return window._ghRefreshPromise;
 }
 // Phase 1: confirm sign-in works and show the connected state. Data fetching /
 // mapping from the Google Health API is finalized in June with the real device
@@ -11049,17 +11063,30 @@ function _parseCivilDate(d) {
   const [y,m,day]=d.split('-').map(Number);
   return {date:{year:y,month:m,day:day},time:{hours:0,minutes:0,seconds:0}};
 }
+// Fetch con timeout de 10s — evita que una red lenta bloquee el poll indefinidamente
+function _ghFetch(url, opts) {
+  const ac = new AbortController();
+  const tid = setTimeout(() => ac.abort(), 10000);
+  return fetch(url, { ...opts, signal: ac.signal }).finally(() => clearTimeout(tid));
+}
+// Manejo centralizado de 429 — detiene el poll y espera 60s antes de reanudar
+function _gh429() {
+  console.warn('[gh] rate limited (429) — pausando poll 60s');
+  clearInterval(ptmr);
+  setTimeout(() => { if (isReal && token) { ptmr = setInterval(pollFastGoogle, pSec * 1000); } }, 60000);
+}
 async function _ghGet(url) {
   if (!token) return null;
   try {
-    let r = await fetch(url, { headers:{'Authorization':'Bearer '+token} });
-    if (r.status===401) { const ok=await refreshGoogleTok(); if(!ok)return null; r=await fetch(url,{headers:{'Authorization':'Bearer '+token}}); }
+    let r = await _ghFetch(url, { headers:{'Authorization':'Bearer '+token} });
+    if (r.status===401) { const ok=await refreshGoogleTok(); if(!ok)return null; r=await _ghFetch(url,{headers:{'Authorization':'Bearer '+token}}); }
+    if (r.status===429) { _gh429(); return null; }
     if (!r.ok) {
       try { const _e=await r.json(); console.warn('[gh]',r.status,url.split('?')[0],JSON.stringify(_e).slice(0,300)); } catch(e2) { console.warn('[gh]',r.status,url.split('?')[0]); }
       return null;
     }
     return r.json();
-  } catch(e) { return null; }
+  } catch(e) { if(e.name!=='AbortError') console.warn('[gh get]',e.message); return null; }
 }
 // POST helper for dailyRollUp / rollUp endpoints.
 // total-calories does NOT support the list endpoint (only rollup/dailyRollUp),
@@ -11068,11 +11095,12 @@ async function _ghPost(url, body) {
   if (!token) return null;
   try {
     const h={'Authorization':'Bearer '+token,'Content-Type':'application/json'};
-    let r=await fetch(url,{method:'POST',headers:h,body:JSON.stringify(body)});
-    if (r.status===401){const ok=await refreshGoogleTok();if(!ok)return null;r=await fetch(url,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body)});}
+    let r=await _ghFetch(url,{method:'POST',headers:h,body:JSON.stringify(body)});
+    if (r.status===401){const ok=await refreshGoogleTok();if(!ok)return null;r=await _ghFetch(url,{method:'POST',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body)});}
+    if (r.status===429) { _gh429(); return null; }
     if(!r.ok){try{const _e=await r.json();console.warn('[gh post]',r.status,url.split('?')[0],JSON.stringify(_e).slice(0,300));}catch(e2){console.warn('[gh post]',r.status,url.split('?')[0]);}return null;}
     return r.json();
-  } catch(e){return null;}
+  } catch(e){if(e.name!=='AbortError') console.warn('[gh post]',e.message); return null;}
 }
 // Convert Google sleep DataPoint → Fitbit-like shape (for renderHypnogram + updSl)
 function _ghSleepToFitbit(dp) {
@@ -11761,7 +11789,8 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
 }
 // ── Fast poll (HR + Steps) ────────────────────────────────────────────────
 async function pollFastGoogle() {
-  if (!token) return;
+  if (!token || window._pollRunning) return;
+  window._pollRunning = true;
   const ring=document.getElementById('sring'); ring.classList.add('on'); document.body.classList.add('is-syncing'); startCd();
   try {
     const td=_localDay();
@@ -11823,7 +11852,7 @@ async function pollFastGoogle() {
     }
     syncTicker(); updateDailyRings(); animSBar();
     showToast(T[lang].sync_toast(new Date().toLocaleTimeString(lang==='es'?'es':'en',{hour:'2-digit',minute:'2-digit',second:'2-digit'})));
-  } catch(e){console.warn('[gh pollFast]',e);} finally{ring.classList.remove('on');document.body.classList.remove('is-syncing');}
+  } catch(e){console.warn('[gh pollFast]',e);} finally{ring.classList.remove('on');document.body.classList.remove('is-syncing');window._pollRunning=false;}
 }
 // ── Slow poll (Sleep every 5 min) ─────────────────────────────────────────
 async function pollSlowGoogle() {
@@ -11966,7 +11995,7 @@ async function pollSlow() {
     renderHypnogram(main);
   } catch(e) {}
 }
-function stopPoll() { clearInterval(ptmr);clearInterval(cdtmr);clearInterval(slowTmr);isReal=false;token='';localStorage.removeItem('fb_tok'); }
+function stopPoll() { clearInterval(ptmr);clearInterval(cdtmr);clearInterval(slowTmr);isReal=false;token='';window._pollRunning=false;localStorage.removeItem('fb_tok');localStorage.removeItem('fb_snap'); }
 async function loadReal(silentRefresh) {
   if (silentRefresh) {
     document.documentElement.removeAttribute('data-booting');
@@ -12235,9 +12264,9 @@ function _restoreSnap() {
     if(!snap) return false;
     _SNAP_IDS.forEach(function(id){var el=document.getElementById(id);if(el&&snap[id]!=null)el.textContent=snap[id];});
     var sp=document.getElementById('stepsprog'); if(sp&&snap._spw) sp.style.width=snap._spw;
-    if(snap._rec){var rf=document.getElementById('rfil');if(rf)rf.style.strokeDashoffset=(339*(1-snap._rec/100)).toFixed(1);}
-    if(snap._str){var sb=document.getElementById('strain-bar');if(sb)sb.style.width=(snap._str/21*100).toFixed(1)+'%';}
-    if(snap._slp){var slb=document.getElementById('sleep-pct-bar');if(slb)slb.style.width=snap._slp+'%';}
+    if(snap._rec!=null&&!isNaN(snap._rec)){var rf=document.getElementById('rfil');if(rf)rf.style.strokeDashoffset=(339*(1-snap._rec/100)).toFixed(1);}
+    if(snap._str!=null&&!isNaN(snap._str)){var sb=document.getElementById('strain-bar');if(sb)sb.style.width=(snap._str/21*100).toFixed(1)+'%';}
+    if(snap._slp!=null&&!isNaN(snap._slp)){var slb=document.getElementById('sleep-pct-bar');if(slb)slb.style.width=snap._slp+'%';}
     return true;
   } catch(e){return false;}
 }
