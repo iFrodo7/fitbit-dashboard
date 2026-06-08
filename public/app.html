@@ -8588,11 +8588,16 @@ async function loadWeekDataGoogle() {
 
     buildWeeks(days);
 
-    // ── _wkTodayStreakReal: 7-day window count + localStorage history ───────
-    // Handles cross-week streaks (e.g. 6 days spanning two calendar weeks).
-    // If window is fully green AND fb_activity_history has a longer run, we
-    // use the longer count so the RACHA card never under-reports.
+    // ── _wkTodayStreakReal: persistent streak across restarts ───────────────
+    // Three sources combined so the RACHA card survives app close/reopen and
+    // shows the real number even for streaks longer than 7 days:
+    //   1. _wkStr7  — backward count in the 7-day live window  (max 7)
+    //   2. _dbStr7  — _getStepGoalStreak() from fb_activity_history (max ~8)
+    //   3. fb_streak_steps in localStorage — persisted counter updated each
+    //      load; survives restarts and grows beyond the 7-day window limit.
     var _strGoal7 = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+
+    // 1. Window backward count
     var _wkStr7 = 0;
     if (window._wkData) {
       for (var _si7 = 6; _si7 >= 0; _si7--) {
@@ -8600,9 +8605,63 @@ async function loadWeekDataGoogle() {
         else break;
       }
     }
+
+    // 2. Read & update persistent counter: fb_streak_steps = {count, lastDate}
+    var _persistedStreak = 0;
+    try {
+      var _t7    = _localDateStr();
+      var _y7    = (function(){ var _d=new Date(); _d.setDate(_d.getDate()-1); return _localDateStr(_d); })();
+      var _ps    = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}');
+      var _pc    = _ps.count    || 0;
+      var _pd    = _ps.lastDate || '';
+      var _tmMet = ((window._wkData && window._wkData[6] && window._wkData[6].steps) || 0) >= _strGoal7;
+      var _pNew = _pc, _pdNew = _pd;
+
+      if (_pd !== _t7) {  // skip if already updated today (e.g. background reload)
+        var _gap = _pd ? Math.round((new Date(_t7) - new Date(_pd)) / 86400000) : 999;
+
+        if (_pc > 0 && _gap >= 1 && _gap <= 6) {
+          // stored date is inside our 7-day window — verify all intermediate days
+          var _ok = true;
+          for (var _g = 1; _g < _gap; _g++) {
+            var _gi = 6 - (_gap - _g);  // _wkData index for (stored + g) day
+            if (((window._wkData && window._wkData[_gi] && window._wkData[_gi].steps) || 0) < _strGoal7) {
+              _ok = false; break;
+            }
+          }
+          if (_ok) {
+            // Continuous streak — extend by gap days (and today if met)
+            _pNew  = _pc + (_gap - 1) + (_tmMet ? 1 : 0);
+            _pdNew = _tmMet ? _t7 : _y7;
+          } else {
+            // Break found inside window — reset to fresh window count
+            _pNew  = _wkStr7;
+            _pdNew = _tmMet ? _t7 : _y7;
+          }
+        } else if (_wkStr7 < 7) {
+          // Window shows a break — streak cannot exceed what we see
+          _pNew  = _wkStr7;
+          _pdNew = _tmMet ? _t7 : _y7;
+        } else {
+          // Window fully green AND stored date older than window.
+          // Can't verify the gap, so trust the larger value (no break is visible).
+          _pNew  = Math.max(_pc, _wkStr7);
+          _pdNew = _t7;
+        }
+
+        _pNew = Math.max(_pNew || 0, 0);
+        localStorage.setItem('fb_streak_steps', JSON.stringify({
+          count: _pNew, lastDate: _pNew > 0 ? _pdNew : ''
+        }));
+      }
+      _persistedStreak = _pNew;
+    } catch(e3) {}
+
+    // 3. Belt-and-suspenders: fb_activity_history based count
     var _dbStr7 = 0;
     try { _dbStr7 = (typeof _getStepGoalStreak === 'function' ? _getStepGoalStreak() : 0) || 0; } catch(e2) {}
-    window._wkTodayStreakReal = Math.max(_wkStr7, _dbStr7);
+
+    window._wkTodayStreakReal = Math.max(_wkStr7, _dbStr7, _persistedStreak);
 
     // Patch today's bar (_wkData[6]) with real DOM values saved by _wkSaveTodaySnap
     // so the today bar shows the same precise numbers as the main card.
