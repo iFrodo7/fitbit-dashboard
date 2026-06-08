@@ -10554,11 +10554,11 @@ function _ghSleepToFitbit(dp) {
 }
 // ── Initial full load ─────────────────────────────────────────────────────
 async function loadRealGoogleData(silentRefresh) {
-  // Wipe every HTML demo value up front so nothing leaks if the API returns
-  // no data. animVals() is skipped for authenticated users, but these elements
-  // still carry their initial HTML defaults (set at markup time).
-  // Skip when silentRefresh=true so the restored snapshot stays visible until
-  // fresh API data arrives — clearing would erase it immediately.
+  // Wipe every HTML demo value up front so hardcoded HTML defaults (8.4 strain,
+  // 90% sleep, 24 stress, etc.) never leak to authenticated users.
+  // Then, if silentRefresh=true, _restoreSnap() is called immediately after the
+  // clearing so the last session's real values remain visible until fresh API
+  // data arrives — giving instant content without demo artifacts.
   const _clr = (id, v='—') => { const e=document.getElementById(id); if(e) e.textContent=v; };
   // One-time cleanup: remove stale achievement stats / streak written by demo
   // mode or a previous Fitbit session. Flag ensures we only do this once so
@@ -10576,39 +10576,41 @@ async function loadRealGoogleData(silentRefresh) {
     localStorage.removeItem('fb_google_clean_v1');
     localStorage.setItem('fb_google_clean_v2', '1');
   }
-  if (!silentRefresh) {
-    // Numeric displays with HTML demo defaults
-    _clr('stressv','0'); _clr('steps-active-val','0');
-    _clr('strain-val','0'); _clr('sleep-pct-val','0');
-    { const d=document.getElementById('stress-zone-dot'); if(d) d.style.left='0%'; }
-    // Reset HRV / SpO2 / Temp zone dots a valores neutros saludables antes de fetch
-    updateZoneDots();
-    // Recovery ring — reset arc + all score labels to —
-    ['rscore','hud-rscore','mc-rscore','nrt-rscore','nn-rscore','blm-nv-avg'].forEach(id=>_clr(id,'—'));
-    const _rfil = document.getElementById('rfil'); if(_rfil) _rfil.style.strokeDashoffset='339';
-    // Recovery / status text labels
-    _clr('wrec','—'); _clr('rstatus','—');
-    // HR intraday sub-metrics — not available from Google Health API
-    _clr('hr-day-min','—'); _clr('hr-day-avg','—'); _clr('hr-day-max','—'); _clr('hr-day-range','—');
-    // Stress sub-value bars (HRV/RHR/BR) — demo "68ms / 61bpm / 14rpm"
-    _clr('sval-hrv','—'); _clr('sval-rhr','—'); _clr('sval-br','—');
-    // Stress card boxes (str-hrv=68, str-rhr=61 hardcoded in HTML — not covered by sval-* above)
-    _clr('str-hrv','—'); _clr('str-rhr','—');
-    // HRV zone label
-    _clr('u-hrv','—');
-    // Main display cards — HTML defaults are 68 / 61 (same as demo), must clear upfront
-    _clr('hrv','—'); _clr('hr-rest','—');
-    // Steps section sub-metrics — never updated by Google flow
-    _clr('steps-streak-val','—');
-    // Sleep section — ALL values are hardcoded HTML demos (7h 22m / 84/100 / 91% / etc.)
-    // Both authenticated users see the same fake data because these were never cleared.
-    _clr('sl-total-v','—'); _clr('sl-start-v','—'); _clr('sl-end-v','—');
-    _clr('sl-score-v','—'); _clr('sl-eff-v','—'); _clr('sl-wake-v','—');
-    document.querySelectorAll('.slfi').forEach(function(e){e.style.width='0%';});
-    document.querySelectorAll('.sltm').forEach(function(e){e.textContent='—';});
-    { const e=document.getElementById('sleep-score-dot'); if(e) e.style.left='0%'; }
-    { const e=document.getElementById('sleep-pct-bar');   if(e) e.style.width='0%'; }
-  }
+  // Always wipe HTML demo defaults so nothing leaks if the API returns no data.
+  // Numeric displays with HTML demo defaults
+  _clr('stressv','0'); _clr('steps-active-val','0');
+  _clr('strain-val','0'); _clr('sleep-pct-val','0');
+  { const d=document.getElementById('stress-zone-dot'); if(d) d.style.left='0%'; }
+  // Reset HRV / SpO2 / Temp zone dots a valores neutros saludables antes de fetch
+  updateZoneDots();
+  // Recovery ring — reset arc + all score labels to —
+  ['rscore','hud-rscore','mc-rscore','nrt-rscore','nn-rscore','blm-nv-avg'].forEach(id=>_clr(id,'—'));
+  const _rfil = document.getElementById('rfil'); if(_rfil) _rfil.style.strokeDashoffset='339';
+  // Recovery / status text labels
+  _clr('wrec','—'); _clr('rstatus','—');
+  // HR intraday sub-metrics — not available from Google Health API
+  _clr('hr-day-min','—'); _clr('hr-day-avg','—'); _clr('hr-day-max','—'); _clr('hr-day-range','—');
+  // Stress sub-value bars (HRV/RHR/BR) — demo "68ms / 61bpm / 14rpm"
+  _clr('sval-hrv','—'); _clr('sval-rhr','—'); _clr('sval-br','—');
+  // Stress card boxes (str-hrv=68, str-rhr=61 hardcoded in HTML — not covered by sval-* above)
+  _clr('str-hrv','—'); _clr('str-rhr','—');
+  // HRV zone label
+  _clr('u-hrv','—');
+  // Main display cards — HTML defaults are 68 / 61 (same as demo), must clear upfront
+  _clr('hrv','—'); _clr('hr-rest','—');
+  // Steps section sub-metrics — never updated by Google flow
+  _clr('steps-streak-val','—');
+  // Sleep section — ALL values are hardcoded HTML demos (7h 22m / 84/100 / 91% / etc.)
+  // Both authenticated users see the same fake data because these were never cleared.
+  _clr('sl-total-v','—'); _clr('sl-start-v','—'); _clr('sl-end-v','—');
+  _clr('sl-score-v','—'); _clr('sl-eff-v','—'); _clr('sl-wake-v','—');
+  document.querySelectorAll('.slfi').forEach(function(e){e.style.width='0%';});
+  document.querySelectorAll('.sltm').forEach(function(e){e.textContent='—';});
+  { const e=document.getElementById('sleep-score-dot'); if(e) e.style.left='0%'; }
+  { const e=document.getElementById('sleep-pct-bar');   if(e) e.style.width='0%'; }
+  // Re-apply snapshot AFTER clearing so cached real values replace the cleared blanks,
+  // giving instant visibility of last session's data while the API call is in-flight.
+  if (silentRefresh) _restoreSnap();
   const td=_localDay();
   const B=GoogleHealthSource.base, enc=encodeURIComponent;
   const nd=_ghNextDay(td); // tomorrow
@@ -10817,6 +10819,10 @@ async function loadRealGoogleData(silentRefresh) {
   // Sync streak badge — renderDailyRings() ran before data arrived so badge
   // may show a stale value; update it now that we know the real streak.
   { const el=document.getElementById('dr-stk'); if(el) el.textContent=getDailyStreak(); }
+  // Always apply bio profile at the end so home bio widget (FC Máx, Fitness Age, VO2)
+  // shows up without requiring a Profile tab visit — _applyBioProfile reads localStorage,
+  // so it works even when the Google Health API returned no VO2 data this call.
+  try { _applyBioProfile(); } catch(e) {}
 }
 // ══════════════════════════════════════════════════════════════════════════
 // ── PERFIL BIOMÉTRICO DEL USUARIO ─────────────────────────────────────────
@@ -11500,6 +11506,7 @@ async function loadReal(silentRefresh) {
     isReal=true; setText('stxt',T[lang].live); const dot=document.getElementById('sdot'); dot.style.background='#00ff88'; dot.style.boxShadow='0 0 8px #00ff88'; document.getElementById('dstrip').style.display='none';
     const _bcBtn = document.getElementById('btn-connect'); if (_bcBtn) _bcBtn.style.display = 'none'; // hide Connect button
     closeModal(); startPoll(); showToast(T[lang].connected);
+    try { _applyBioProfile(); } catch(e) {}
   } catch(e) { if(String(e).includes('401')){if(await refreshTok())await loadReal();else{localStorage.removeItem('fb_tok');token='';}} } finally { _saveSnap(); hideLoad(); document.body.classList.remove('is-syncing'); }
 }
 // Daily health summaries from Fitbit/Google (needs oxygen_saturation, heartrate,
