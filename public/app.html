@@ -10463,8 +10463,13 @@ async function refreshGoogleTok() {
 // mapping from the Google Health API is finalized in June with the real device
 // (see GoogleHealthSource notes). Defensive: never crashes the UI.
 async function loadRealGoogle(displayName, silentRefresh) {
-  if (silentRefresh) { document.documentElement.removeAttribute('data-booting'); document.body.classList.add('is-syncing'); }
-  else showLoad();
+  if (silentRefresh) {
+    document.documentElement.removeAttribute('data-booting');
+    document.body.classList.add('is-syncing');
+    // Even with a snapshot, show owait when booting offline so the user knows
+    // there's no connection. silentRefresh only skips the skeleton loader (#lov).
+    if (!navigator.onLine && !_connInited) _showOwait();
+  } else showLoad();
   try {
     isReal = true;
     setText('stxt', T[lang].live);
@@ -11427,8 +11432,13 @@ async function pollSlow() {
 }
 function stopPoll() { clearInterval(ptmr);clearInterval(cdtmr);clearInterval(slowTmr);isReal=false;token='';localStorage.removeItem('fb_tok'); }
 async function loadReal(silentRefresh) {
-  if (silentRefresh) { document.documentElement.removeAttribute('data-booting'); document.body.classList.add('is-syncing'); }
-  else showLoad();
+  if (silentRefresh) {
+    document.documentElement.removeAttribute('data-booting');
+    document.body.classList.add('is-syncing');
+    // Even with a snapshot, show owait when booting offline so the user knows
+    // there's no connection. silentRefresh only skips the skeleton loader (#lov).
+    if (!navigator.onLine && !_connInited) _showOwait();
+  } else showLoad();
   try {
     const h={'Authorization':'Bearer '+token}, td=_localDay();
     const after7=_localDay(-7*864e5);
