@@ -559,7 +559,7 @@ body.view-history #dash > #install-banner{visibility:visible;}
 .hv-sl-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
 /* Steps bar */
 .hv-chart .bar-steps{fill:var(--ta);}
-.hv-chart .bar-steps-miss{fill:var(--ta);opacity:0.4;}
+.hv-chart .bar-steps-miss{fill:var(--tneg,#ef4444);opacity:0.55;}
 /* Coach analysis in history */
 .hv-coach{background:linear-gradient(135deg,rgba(0,0,0,0.08) 0%,transparent 100%);border:1px solid var(--bdr);border-left:2px solid var(--ta2);padding:12px 14px;border-radius:4px;}
 .hv-coach-insights{display:flex;flex-direction:column;gap:10px;}
@@ -11848,10 +11848,12 @@ async function pollSlowGoogle() {
 // ── History range (Google) ────────────────────────────────────────────────
 async function _hFetchGoogle(start, end) {
   const B=GoogleHealthSource.base, enc=encodeURIComponent, nd=_ghNextDay(end);
-  const [rhrTs,sleepTs,stepsTs] = await Promise.all([
+  // steps requires dailyRollUp POST (GET returns per-minute intraday samples, not daily totals)
+  const _rb={range:{start:_parseCivilDate(start),end:_parseCivilDate(nd)},windowSizeDays:1};
+  const [rhrTs,sleepTs,stepsRollup] = await Promise.all([
     _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?pageSize=100`),
     _ghGet(`${B}/users/me/dataTypes/sleep/dataPoints?filter=${enc('sleep.interval.civil_end_time >= "'+start+'" AND sleep.interval.civil_end_time < "'+nd+'"')}&pageSize=100`),
-    _ghGet(`${B}/users/me/dataTypes/steps/dataPoints?filter=${enc('steps.interval.civil_start_time >= "'+start+'" AND steps.interval.civil_start_time < "'+nd+'"')}&pageSize=10000`),
+    _ghPost(`${B}/users/me/dataTypes/steps/dataPoints:dailyRollUp`, _rb),
   ]);
   const hrByDate={};
   (rhrTs?.dataPoints||[]).forEach(dp=>{
@@ -11868,11 +11870,17 @@ async function _hFetchGoogle(start, end) {
     if (!slByDate[dk]||minA>(slByDate[dk]?.minutesAsleep||0))
       slByDate[dk]={minutesAsleep:minA,timeInBed:minB,efficiency:minB>0?Math.round(minA/minB*100):0,levels:{summary:sm}};
   });
+  // Parse rollupDataPoints — same logic as loadWeekDataGoogle (civilStartTime date object)
   const stByDate={};
-  (stepsTs?.dataPoints||[]).forEach(dp=>{
-    if(!dp.steps)return;
-    const dk=(dp.steps.interval?.startTime||'').split('T')[0]; if(!dk)return;
-    stByDate[dk]=(stByDate[dk]||0)+(parseInt(dp.steps.countSum)||0);
+  (stepsRollup?.rollupDataPoints||[]).forEach(rp=>{
+    const rs=rp.civilStartTime||(rp.range&&rp.range.start);
+    if(!rs)return;
+    const D=rs.date||rs;
+    let dk='';
+    if(typeof D==='string'){dk=D;}
+    else if(D?.year&&D?.month&&D?.day){dk=`${D.year}-${String(D.month).padStart(2,'0')}-${String(D.day).padStart(2,'0')}`;}
+    if(!dk)return;
+    stByDate[dk]=parseInt(rp.steps?.countSum??rp.steps?.count_sum??rp.steps?.count??0)||0;
   });
   return {hrByDate,slByDate,stByDate};
 }
@@ -12735,9 +12743,14 @@ function _hRenderStepsBar(svg, rows) {
   const barW = Math.min(slot * 0.6, 26);
   const radius = Math.min(barW/2, 3.5);
   const col = 'var(--ta)';
-  const defs = `<defs><linearGradient id="hg-steps" x1="0" y1="0" x2="0" y2="1">`
+  const defs = `<defs>`
+    + `<linearGradient id="hg-steps" x1="0" y1="0" x2="0" y2="1">`
     + `<stop offset="0" style="stop-color:${col};stop-opacity:0.95"/>`
-    + `<stop offset="1" style="stop-color:${col};stop-opacity:0.45"/></linearGradient></defs>`;
+    + `<stop offset="1" style="stop-color:${col};stop-opacity:0.45"/></linearGradient>`
+    + `<pattern id="hg-miss" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">`
+    + `<rect width="5" height="5" style="fill:var(--tneg,#ef4444);fill-opacity:0.18"/>`
+    + `<line x1="0" y1="0" x2="0" y2="5" style="stroke:var(--tneg,#ef4444);stroke-width:2;stroke-opacity:0.55"/>`
+    + `</pattern></defs>`;
   let gridSvg = '';
   [0, 5000, 10000].filter(v => v <= hi).forEach(v => {
     const y = pad.t + (1 - v/hi) * innerH;
@@ -12745,8 +12758,9 @@ function _hRenderStepsBar(svg, rows) {
     gridSvg += `<text class="axlbl" x="${(pad.l-6).toFixed(1)}" y="${(y+3.5).toFixed(1)}" text-anchor="end">${v>=1000?v/1000+'k':v}</text>`;
   });
   const yGoal = pad.t + (1 - GOAL/hi) * innerH;
-  gridSvg += `<line class="ref-line" x1="${pad.l}" x2="${w-pad.r}" y1="${yGoal.toFixed(1)}" y2="${yGoal.toFixed(1)}"/>`;
-  gridSvg += `<text class="ref-lbl" x="${(w-pad.r+3).toFixed(1)}" y="${(yGoal+3.5).toFixed(1)}" text-anchor="start">${GOAL_LABEL}</text>`;
+  // Goal line: accent color + dashed, stands out from the generic grid lines
+  gridSvg += `<line x1="${pad.l}" x2="${w-pad.r}" y1="${yGoal.toFixed(1)}" y2="${yGoal.toFixed(1)}" style="stroke:${col};stroke-width:1.5;stroke-dasharray:4 4;opacity:0.65"/>`;
+  gridSvg += `<text class="ref-lbl" x="${(w-pad.r+3).toFixed(1)}" y="${(yGoal+3.5).toFixed(1)}" text-anchor="start" style="fill:${col};opacity:0.85">${GOAL_LABEL}</text>`;
   let bars = '';
   rows.forEach((r,i) => {
     if (r.steps == null) return;
@@ -12755,8 +12769,22 @@ function _hRenderStepsBar(svg, rows) {
     const barH = Math.max(pct * innerH, r.steps > 0 ? 2 : 0);
     const y    = pad.t + innerH - barH;
     const met  = r.steps >= GOAL;
-    const fill = met ? `fill:url(#hg-steps)` : '';
-    bars += `<path class="bar-anim ${met ? 'bar-steps' : 'bar-steps-miss'}" style="animation-delay:${(i*0.035).toFixed(2)}s;${fill}" d="${_hRoundTop(x, y, barW, barH, radius)}"/>`;
+    if (met) {
+      bars += `<path class="bar-anim bar-steps" style="animation-delay:${(i*0.035).toFixed(2)}s;fill:url(#hg-steps)" d="${_hRoundTop(x, y, barW, barH, radius)}"/>`;
+    } else {
+      // Diagonal stripe fill (--tneg) for missed days
+      bars += `<path class="bar-anim bar-steps-miss" style="animation-delay:${(i*0.035).toFixed(2)}s;fill:url(#hg-miss)" d="${_hRoundTop(x, y, barW, barH, radius)}"/>`;
+      // Deficit indicator above bar (wide bars: amount, narrow: ×)
+      if (r.steps > 0) {
+        const deficit = GOAL - r.steps;
+        if (barW >= 18) {
+          const defStr = deficit >= 1000 ? '−'+(deficit/1000).toFixed(1)+'k' : '−'+deficit;
+          bars += `<text text-anchor="middle" x="${(x+barW/2).toFixed(1)}" y="${(y-4).toFixed(1)}" style="font-size:7px;font-weight:700;fill:var(--tneg,#ef4444);opacity:0.85;font-family:var(--mono,'IBM Plex Mono',monospace)">${defStr}</text>`;
+        } else if (barW >= 8) {
+          bars += `<text text-anchor="middle" x="${(x+barW/2).toFixed(1)}" y="${(y-3).toFixed(1)}" style="font-size:8px;fill:var(--tneg,#ef4444);opacity:0.85">×</text>`;
+        }
+      }
+    }
     bars += `<rect class="bar-hit" x="${x.toFixed(1)}" y="${pad.t.toFixed(1)}" width="${barW.toFixed(1)}" height="${innerH.toFixed(1)}" fill="transparent" data-v="${r.steps}" data-d="${r.date}" style="cursor:pointer"/>`;
   });
   const idx = _hTickIdx(n, 4);
