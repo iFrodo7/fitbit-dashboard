@@ -458,11 +458,19 @@ body{
 .sprg{height:100%;background:var(--ta);transition:width 1.5s var(--ease-std);box-shadow:0 0 12px rgba(0,0,0,0.3);}
 .spct{font-size:11px;letter-spacing:2px;color:var(--ta);margin-top:5px;font-weight:600;}
 .wbrs{display:flex;gap:6px;align-items:flex-end;height:56px;margin-top:0;}
-.wb{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;transition:opacity var(--dur-base) var(--ease-std);}
+.wb{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;transition:opacity var(--dur-base) var(--ease-std);cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .wb:hover .wbar{filter:brightness(1.3);box-shadow:0 0 8px rgba(0,0,0,0.4);}
 .wbar{width:100%;background:color-mix(in srgb,var(--ta) 28%,transparent);min-height:4px;border-radius:2px;transition:background var(--dur-slow) var(--ease-std),filter var(--dur-slow) var(--ease-std),box-shadow var(--dur-slow) var(--ease-std);}
 .wbar.td{background:var(--ta);box-shadow:0 0 12px rgba(0,0,0,0.3);}
-.wdl{font-size:10px;letter-spacing:1px;opacity:0.5;font-weight:600;}
+/* Selected bar — works for any day, not just today */
+.wb.wk-active .wbar{background:var(--ta);box-shadow:0 0 12px rgba(0,0,0,0.3);}
+/* Dim non-selected bars when a selection is active */
+.wbrs.wk-has-sel .wb:not(.wk-active){opacity:0.38;}
+/* Selection dot above active bar */
+.wbdot{width:4px;height:4px;border-radius:50%;background:var(--ta);margin-bottom:2px;opacity:0;transform:scale(0.5);transition:opacity var(--dur-base) var(--ease-std),transform var(--dur-base) var(--ease-spring);}
+.wb.wk-active .wbdot{opacity:1;transform:scale(1);}
+.wdl{font-size:10px;letter-spacing:1px;opacity:0.5;font-weight:600;transition:opacity var(--dur-base) var(--ease-std);}
+.wb.wk-active .wdl{opacity:1;}
 /* Steps card layout */
 .scard-inner{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;}
 
@@ -4143,12 +4151,12 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           <div class="spct" id="stepspct">78.4% COMPLETADO HOY</div>
           <!-- sub-métricas -->
           <div class="cal-split" style="margin-top:10px;">
-            <div class="cal-box"><div class="cal-box-lbl" id="lbl-steps-dist">DISTANCIA</div><div class="cal-box-val" id="steps-dist-val">5.8</div><div class="cal-box-unit">KM HOY</div></div>
-            <div class="cal-box"><div class="cal-box-lbl" id="lbl-steps-floors">PISOS</div><div class="cal-box-val" id="steps-floors-val">12</div><div class="cal-box-unit">SUBIDOS</div></div>
+            <div class="cal-box"><div class="cal-box-lbl" id="lbl-steps-dist">DISTANCIA</div><div class="cal-box-val" id="steps-dist-val">5.8</div><div class="cal-box-unit" id="steps-dist-unit">KM HOY</div></div>
+            <div class="cal-box"><div class="cal-box-lbl" id="lbl-steps-floors">PISOS</div><div class="cal-box-val" id="steps-floors-val">12</div><div class="cal-box-unit" id="steps-floors-unit">SUBIDOS</div></div>
           </div>
           <div class="cal-split" style="margin-top:6px;">
-            <div class="cal-box"><div class="cal-box-lbl" id="lbl-steps-active">MIN. ACTIVOS</div><div class="cal-box-val" id="steps-active-val">47</div><div class="cal-box-unit">MIN HOY</div></div>
-            <div class="cal-box"><div class="cal-box-lbl" id="lbl-steps-streak">RACHA</div><div class="cal-box-val" id="steps-streak-val">—</div><div class="cal-box-unit">DÍAS META</div></div>
+            <div class="cal-box"><div class="cal-box-lbl" id="lbl-steps-active">MIN. ACTIVOS</div><div class="cal-box-val" id="steps-active-val">47</div><div class="cal-box-unit" id="steps-active-unit">MIN HOY</div></div>
+            <div class="cal-box"><div class="cal-box-lbl" id="lbl-steps-streak">RACHA</div><div class="cal-box-val" id="steps-streak-val">—</div><div class="cal-box-unit" id="steps-streak-unit">DÍAS META</div></div>
           </div>
         </div>
         <div>
@@ -8265,10 +8273,163 @@ function updateClock() {
 }
 function p2(n) { return String(n).padStart(2,'0'); }
 
-function buildWeeks(vals) {
-  const D = lang==='es' ? ['L','M','X','J','V','S','H'] : ['M','T','W','T','F','S','S'], V = vals || [8200,6100,9800,7500,10200,5300,7842];
-  const mx = Math.max(...V), c = document.getElementById('wbrs'); if (!c) return;
-  c.innerHTML = D.map((d,i) => `<div class="wb"><div class="wbar${i===6?' td':''}" style="height:${(V[i]/mx)*100}%"></div><div class="wdl">${d}</div></div>`).join('');
+// ── Week bar helpers ────────────────────────────────────────────────────────
+// _wkData: [{date,steps,dist,floors,active,label}, ...] oldest→newest (7 items)
+// _wkSelIdx: currently selected bar index (default 6 = today)
+window._wkData   = null;
+window._wkSelIdx = 6;
+
+// Day-of-week abbreviations indexed by getDay() (0=Sun … 6=Sat)
+var _WK_DOW_ES = ['D','L','M','X','J','V','S'];
+var _WK_DOW_EN = ['S','M','T','W','T','F','S'];
+
+function buildWeeks(days) {
+  // days: array of 7 {steps, dist, floors, active, date} objects (oldest first),
+  //       OR legacy plain number array (step counts only).
+  const isLegacy = !days || typeof days[0] === 'number';
+  const today    = new Date();
+  const data = Array.from({length:7}, function(_,i) {
+    var dt = new Date(today); dt.setDate(today.getDate() - (6 - i));
+    var dow = dt.getDay();
+    var lbl = i === 6
+      ? (lang==='es' ? 'H' : 'T')
+      : (lang==='es' ? _WK_DOW_ES[dow] : _WK_DOW_EN[dow]);
+    if (isLegacy) {
+      var V = days || [8200,6100,9800,7500,10200,5300,7842];
+      return { steps: V[i]||0, dist:null, floors:null, active:null, date:_localDateStr(dt), label:lbl };
+    }
+    return Object.assign({label:lbl}, days[i] || {steps:0,dist:null,floors:null,active:null,date:_localDateStr(dt)});
+  });
+  window._wkData = data;
+  var mx = Math.max.apply(null, data.map(function(d){return d.steps||0;})); if (mx < 1) mx = 1;
+  var c = document.getElementById('wbrs'); if (!c) return;
+  c.innerHTML = data.map(function(d,i) {
+    var h = Math.max(6, Math.round((d.steps/mx)*100));
+    var isTd = i===6;
+    return '<div class="wb' + (isTd?' wk-active':'') + '" data-wi="'+i+'" onclick="wkBarSel('+i+')">' +
+      '<div class="wbdot"></div>' +
+      '<div class="wbar" style="height:'+h+'%"></div>' +
+      '<div class="wdl">'+d.label+'</div>' +
+    '</div>';
+  }).join('');
+  c.classList.add('wk-has-sel');
+  window._wkSelIdx = 6;
+}
+
+// Called when a bar is tapped/clicked.
+// Double-tap on a non-today bar → return to today.
+function wkBarSel(idx) {
+  var data = window._wkData; if (!data || !data[idx]) return;
+  // Tap on already-selected bar that isn't today → jump back to today
+  var sel = (idx === window._wkSelIdx && idx !== 6) ? 6 : idx;
+  window._wkSelIdx = sel;
+  var d    = data[sel];
+  var isToday = sel === 6;
+  var es   = lang === 'es';
+
+  // Haptic feedback
+  if (navigator.vibrate) navigator.vibrate(8);
+
+  // Update bar highlights
+  var c = document.getElementById('wbrs'); if (!c) return;
+  c.querySelectorAll('.wb').forEach(function(el,i) {
+    el.classList.toggle('wk-active', i === sel);
+  });
+
+  // ── Steps + progress ──
+  var steps = d.steps || 0;
+  var goal  = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+  var pct   = Math.min((steps / goal) * 100, 100);
+
+  var stepsEl = document.getElementById('stepsv');
+  if (stepsEl) { stepsEl.textContent = steps ? steps.toLocaleString('en-US') : '—'; }
+
+  var progEl = document.getElementById('stepsprog');
+  if (progEl) progEl.style.width = pct + '%';
+
+  var pctEl = document.getElementById('stepspct');
+  if (pctEl) {
+    if (isToday) {
+      pctEl.textContent = pct.toFixed(1) + (es ? '% COMPLETADO HOY' : '% COMPLETED TODAY');
+    } else {
+      var dt  = new Date(d.date + 'T00:00:00');
+      var dlbl = dt.toLocaleDateString(es ? 'es-MX' : 'en-US',
+        {weekday:'short', day:'numeric', month:'short'}).toUpperCase();
+      pctEl.textContent = (steps ? pct.toFixed(1)+'%' : '—') + ' · ' + dlbl;
+    }
+  }
+
+  // ── Sub-metrics ──
+  var daySufx = isToday ? (es ? ' HOY' : ' TODAY') : '';
+  var distKm  = d.dist != null ? d.dist : (steps * 0.00074);
+
+  var e; // reuse variable
+  e = document.getElementById('steps-dist-val');   if(e) e.textContent = steps ? distKm.toFixed(1) : '—';
+  e = document.getElementById('steps-dist-unit');  if(e) e.textContent = 'KM' + daySufx;
+  e = document.getElementById('steps-floors-val'); if(e) e.textContent = d.floors != null ? d.floors : '—';
+  e = document.getElementById('steps-floors-unit');if(e) e.textContent = es ? ('SUBIDOS' + (isToday?'':' ·'+d.label)) : ('FLOORS' + (isToday?'':' ·'+d.label));
+  e = document.getElementById('steps-active-val'); if(e) e.textContent = d.active != null ? d.active : '—';
+  e = document.getElementById('steps-active-unit');if(e) e.textContent = 'MIN' + daySufx;
+  // Streak only meaningful for today
+  e = document.getElementById('steps-streak-val');
+  if (e && !isToday) { e.textContent = '—'; }
+  e = document.getElementById('steps-streak-unit');
+  if (e) e.textContent = es ? 'DÍAS META' : 'DAYS GOAL';
+}
+
+// Fetches 7-day activity time series from Fitbit and refreshes the week bars.
+// Best-effort: any failure leaves the chart with the demo/existing data.
+async function loadWeekData(headers) {
+  if (typeof HS === 'undefined' || !HS.ep.actTs) return;
+  // Google Health API has a different structure — skip for now
+  if (HS.id === 'google') return;
+  try {
+    var pd = '7d';
+    var [stR, flR, faR, vaR] = await Promise.all([
+      fetch(HS.ep.actTs('steps',           pd), {headers}).then(function(r){return r.ok?r.json():null;}),
+      fetch(HS.ep.actTs('floors',          pd), {headers}).then(function(r){return r.ok?r.json():null;}),
+      fetch(HS.ep.actTs('minutesFairlyActive', pd), {headers}).then(function(r){return r.ok?r.json():null;}),
+      fetch(HS.ep.actTs('minutesVeryActive',   pd), {headers}).then(function(r){return r.ok?r.json():null;}),
+    ]);
+    var stArr = (stR && stR['activities-steps'])          || [];
+    var flArr = (flR && flR['activities-floors'])         || [];
+    var faArr = (faR && faR['activities-minutesFairlyActive']) || [];
+    var vaArr = (vaR && vaR['activities-minutesVeryActive'])   || [];
+    // Build indexed maps {date → value}
+    var byDate = function(arr) {
+      var m = {};
+      arr.forEach(function(x){ m[x.dateTime] = parseFloat(x.value) || 0; });
+      return m;
+    };
+    var stMap=byDate(stArr), flMap=byDate(flArr), faMap=byDate(faArr), vaMap=byDate(vaArr);
+    // Build 7-day array (oldest→today)
+    var today = new Date();
+    var days  = Array.from({length:7}, function(_,i) {
+      var dt = new Date(today); dt.setDate(today.getDate() - (6 - i));
+      var ds = _localDateStr(dt);
+      var stp = stMap[ds] || 0;
+      return {
+        date:   ds,
+        steps:  stp,
+        dist:   stp * 0.00074,          // km (same formula as loadReal)
+        floors: flMap[ds] != null ? Math.round(flMap[ds]) : null,
+        active: (faMap[ds] != null && vaMap[ds] != null)
+                  ? Math.round((faMap[ds]||0) + (vaMap[ds]||0))
+                  : null,
+      };
+    });
+    buildWeeks(days);
+    // Re-apply today's precise values from DOM (loadReal already set them correctly)
+    var td   = days[6];
+    var sEl  = document.getElementById('stepsv');
+    var dEl  = document.getElementById('steps-dist-val');
+    var fEl  = document.getElementById('steps-floors-val');
+    var aEl  = document.getElementById('steps-active-val');
+    if (sEl && sEl.textContent && sEl.textContent !== '—') td.steps  = parseInt(sEl.textContent.replace(/\D/g,''))||td.steps;
+    if (dEl && dEl.textContent && dEl.textContent !== '—') td.dist   = parseFloat(dEl.textContent)||td.dist;
+    if (fEl && fEl.textContent && fEl.textContent !== '—') td.floors = parseInt(fEl.textContent)||td.floors;
+    if (aEl && aEl.textContent && aEl.textContent !== '—') td.active = parseInt(aEl.textContent)||td.active;
+  } catch(e) { /* best-effort — leave chart as-is */ }
 }
 
 function buildHRC(hrs) {
@@ -10243,6 +10404,8 @@ const FitbitSource = {
     sleepRange:    (s,e) => `${FitbitSource.base}/1.2/user/-/sleep/date/${s}/${e}.json`,
     stepsRange:    (s,e) => `${FitbitSource.base}/1/user/-/activities/steps/date/${s}/${e}.json`,
     workoutList:   (after, limit) => `${FitbitSource.base}/1/user/-/activities/list.json?afterDate=${after}&sort=desc&limit=${limit||10}&offset=0`,
+    // 7-day time series (used by loadWeekData for the interactive week bars)
+    actTs:         (res,pd) => `${FitbitSource.base}/1/user/-/activities/${res}/date/today/${pd}.json`,
   },
 };
 // Google Health API source (Fitbit Web API shuts down Sep 2026; new app
@@ -11517,6 +11680,7 @@ async function loadReal(silentRefresh) {
     setHRZones({ zones: zones_real, restHR: rhr_real, maxHR: maxHR_real || 140 });
     syncTicker();
     loadHealthMetrics(h, td); // best-effort; populates SpO2/HRV/breathing from daily summaries
+    loadWeekData(h).catch(function(){}); // best-effort — fetch 7-day time series for interactive bars
     isReal=true; setText('stxt',T[lang].live); const dot=document.getElementById('sdot'); dot.style.background='#00ff88'; dot.style.boxShadow='0 0 8px #00ff88'; document.getElementById('dstrip').style.display='none';
     const _bcBtn = document.getElementById('btn-connect'); if (_bcBtn) _bcBtn.style.display = 'none'; // hide Connect button
     closeModal(); startPoll(); showToast(T[lang].connected);
