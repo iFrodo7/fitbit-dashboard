@@ -8291,9 +8291,7 @@ function buildWeeks(days) {
   const data = Array.from({length:7}, function(_,i) {
     var dt = new Date(today); dt.setDate(today.getDate() - (6 - i));
     var dow = dt.getDay();
-    var lbl = i === 6
-      ? (lang==='es' ? 'H' : 'T')
-      : (lang==='es' ? _WK_DOW_ES[dow] : _WK_DOW_EN[dow]);
+    var lbl = lang==='es' ? _WK_DOW_ES[dow] : _WK_DOW_EN[dow];
     if (isLegacy) {
       var V = days || [8200,6100,9800,7500,10200,5300,7842];
       return { steps: V[i]||0, dist:null, floors:null, active:null, date:_localDateStr(dt), label:lbl };
