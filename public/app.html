@@ -10888,7 +10888,10 @@ function _applyBioProfile(p) {
   if (typeof setHRZones === 'function') {
     const rhr    = parseInt(document.getElementById('hr-rest')?.textContent) || null;
     const devMax = parseInt(document.getElementById('hr-max')?.textContent)  || 0;
-    setHRZones({ restHR: rhr, maxHR: devMax > 100 ? devMax : hrMax });
+    // Only pass a real device-measured maxHR to setHRZones — Tanaka (hrMax) is
+    // the theoretical maximum and belongs only in the profile/bio widgets, NOT
+    // in the "MÁXIMO BPM HOY" card which should reflect actual device data.
+    setHRZones({ restHR: rhr, maxHR: devMax > 100 ? devMax : null });
   }
   window._bioProfile = {age,weight,height,sex,activity,bmr,tdee,hrMax,fitAge};
   _updateCalBalance();
