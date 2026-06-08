@@ -8333,12 +8333,18 @@ function buildWeeks(days) {
   var mx = Math.max.apply(null, data.map(function(d){return d.steps||0;})); if (mx < 1) mx = 1;
   var goal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
   var c = document.getElementById('wbrs'); if (!c) return;
+  // FIX #4: preserve the user's selected bar across async rebuilds.
+  // _wkSelIdx starts as null (global init), default to 6 only on first build.
+  var _bldSel = (window._wkSelIdx != null) ? window._wkSelIdx : 6;
   c.innerHTML = data.map(function(d,i) {
     var h = Math.max(6, Math.round((d.steps/mx)*100));
     var isTd = i===6;
-    // Only mark past days that have data but missed the goal (today is still in progress)
-    var missedGoal = !isTd && (d.steps || 0) < goal;
-    var cls = (isTd ? ' wk-active' : '') + (missedGoal ? ' wk-miss' : '');
+    // FIX #6: only flag as missed if the API *actually returned* a data point for
+    // that day (hasData===true). hasData===false means no device/source recorded
+    // anything — the user simply had no tracker active, not that they failed.
+    // hasData===undefined (legacy Fitbit path) falls through to the steps check.
+    var missedGoal = !isTd && d.hasData !== false && (d.steps || 0) < goal;
+    var cls = (i === _bldSel ? ' wk-active' : '') + (missedGoal ? ' wk-miss' : '');
     return '<div class="wb'+cls+'" data-wi="'+i+'" onclick="wkBarSel('+i+')">' +
       '<div class="wbdot"></div>' +
       '<div class="wbar" style="height:'+h+'%"></div>' +
@@ -8347,7 +8353,7 @@ function buildWeeks(days) {
     '</div>';
   }).join('');
   c.classList.add('wk-has-sel');
-  window._wkSelIdx = 6;
+  window._wkSelIdx = _bldSel;  // FIX #4: restore, never blindly reset to 6
 }
 
 // Called when a bar is tapped/clicked.
@@ -8397,7 +8403,10 @@ function wkBarSel(idx) {
       }
       sv.textContent = _todayStreak > 0 ? _todayStreak : '×';
     }
-    sv = document.getElementById('steps-streak-unit');if(sv && snap.streakUnit) sv.textContent = snap.streakUnit;
+    // FIX #7: compute unit from current lang, not from snap (snap was saved at load
+    // time and would show wrong language if the user switched ES↔EN since then).
+    sv = document.getElementById('steps-streak-unit');
+    if (sv) sv.textContent = (lang === 'es') ? 'DÍAS META' : 'DAYS GOAL';
     return;
   }
 
@@ -8578,11 +8587,12 @@ async function loadWeekDataGoogle() {
       var ds = _localDateStr(dt);
       var stp = stMap[ds] || 0;
       return {
-        date:   ds,
-        steps:  stp,
-        dist:   distMap[ds] != null ? distMap[ds] : (stp * 0.00074),
-        floors: flrMap[ds] || null,
-        active: null, // AZM per-day needs an extra call; skip for now
+        date:    ds,
+        steps:   stp,
+        dist:    distMap[ds] != null ? distMap[ds] : (stp * 0.00074),
+        floors:  flrMap[ds] || null,
+        active:  null,                    // AZM per-day needs an extra call; skip for now
+        hasData: stMap[ds] !== undefined, // FIX #6: true = API returned an entry; false = no source recorded data
       };
     });
 
