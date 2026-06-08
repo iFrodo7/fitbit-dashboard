@@ -6585,6 +6585,10 @@ function _cycData() { try { return JSON.parse(localStorage.getItem('fb_cycle') |
 function _dParse(s) { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
 function _dFmt(dt) { return dt.toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { day:'2-digit', month:'short' }); }
 function _daysBetween(a, b) { return Math.round((b - a) / 86400000); }
+// Returns today's date as YYYY-MM-DD using LOCAL timezone (not UTC).
+// toISOString() returns UTC — in UTC-6 that means after 6 PM local the
+// date flips to "tomorrow". Always use this instead of toISOString().
+function _localDateStr(dt) { const d = dt || new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 // ── Shared cycle math — single source of truth for phase boundaries ──────────
 // Both computeCycle() and _cycPhaseForDate() use this to stay in sync.
 function _cycMath(len, period) {
@@ -6780,7 +6784,7 @@ function renderCycle() {
   }
 
   // Today log strip — shows icons of what was logged today, tappable to edit
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = _localDateStr();
   const todayLog = _cycLogDay(todayStr);
   const logEl = document.getElementById('cyc-log-today');
   if (logEl) {
@@ -6881,7 +6885,7 @@ function openCycModal(mode) {
   if (df) df.style.display = mode === 'settings' ? 'none' : '';
   // Pre-fill values
   const di = document.getElementById('cyc-modal-date');
-  if (di) di.value = cur.last || new Date().toISOString().slice(0, 10);
+  if (di) di.value = cur.last || _localDateStr();
   setText('cyc-modal-len',    String(cur.len    || 28));
   setText('cyc-modal-period', String(cur.period || 5));
   // Store mode and open
@@ -6901,7 +6905,7 @@ function _cycLogDay(date) { return (_cycLog())[date] || {}; }
 
 function openSymModal(date) {
   const t = T[lang];
-  const today = new Date().toISOString().slice(0, 10);
+  const today = _localDateStr();
   const d = date || today;
   window._symDate = d;
   const entry = _cycLogDay(d);
@@ -7016,7 +7020,7 @@ function renderCycLogList() {
 
   const showAll  = !!window._cycLogShowAll;
   const toShow   = showAll ? dates : dates.slice(0, CYC_LOG_PAGE);
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = _localDateStr();
 
   list.innerHTML = toShow.map(d => {
     const e    = log[d];
@@ -7094,7 +7098,7 @@ function _calMove(delta) {
 function _renderCycCal() {
   const grid = document.getElementById('hv-cyc-grid'); if (!grid) return;
   const monthLbl = document.getElementById('hv-cyc-cal-month');
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = _localDateStr();
   const log = _cycLog();
   const locale = lang === 'es' ? 'es-MX' : 'en-US';
 
@@ -7239,7 +7243,7 @@ function _renderHvCycLogList() {
   const t = T[lang];
   const log = _cycLog();
   const dates = Object.keys(log).sort().reverse();
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = _localDateStr();
   const locale   = lang === 'es' ? 'es-MX' : 'en-US';
 
   if (!dates.length) {
@@ -7611,13 +7615,13 @@ function isPro() {
 // Phase 1; real enforcement moves into /api/coach (per user) once accounts land.
 function coachQuotaLeft() {
   if (isPro()) return Infinity;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = _localDateStr();
   let q = {}; try { q = JSON.parse(localStorage.getItem('fb_coach_q') || '{}'); } catch (e) {}
   if (q.date !== today) return COACH_FREE_DAILY;
   return Math.max(0, COACH_FREE_DAILY - (q.n || 0));
 }
 function coachConsume() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = _localDateStr();
   let q = {}; try { q = JSON.parse(localStorage.getItem('fb_coach_q') || '{}'); } catch (e) {}
   if (q.date !== today) q = { date: today, n: 0 };
   q.n = (q.n || 0) + 1;
@@ -12322,7 +12326,7 @@ function _hCoachAnalysis(rows) {
         : 'Log your last period in the cycle calendar to unlock phase analysis.';
       insights.push({ icon: '◎', label: cycLabel, text });
     } else {
-      const todayStr = new Date().toISOString().slice(0, 10);
+      const todayStr = _localDateStr();
       const phase = typeof _cycPhaseForDate === 'function' ? _cycPhaseForDate(todayStr) : null;
       const cycLen = cyc.len || 28;
       const lastDate = new Date(cyc.last + 'T00:00:00');
