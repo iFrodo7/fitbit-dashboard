@@ -8022,6 +8022,19 @@ if ('serviceWorker' in navigator) {
       })
       .catch(err => console.warn('SW registration failed:', err));
   });
+  // Escuchar actualizaciones de racha calculadas por el SW en background
+  navigator.serviceWorker.addEventListener('message', function(ev) {
+    if (!ev.data || ev.data.type !== 'SW_STREAK_UPDATE') return;
+    try {
+      var _swC = ev.data.count, _swD = ev.data.lastDate;
+      var _stored = {}; try { _stored = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}'); } catch(e2) {}
+      if (_swC > (parseInt(_stored.count) || 0)) {
+        localStorage.setItem('fb_streak_steps', JSON.stringify({ count: _swC, lastDate: _swD }));
+        var _stkEl = document.getElementById('dr-stk');
+        if (_stkEl) _stkEl.textContent = _swC;
+      }
+    } catch(e) {}
+  });
 }
 
 // ══════ ONLINE / OFFLINE DETECTION ══════
@@ -8570,6 +8583,8 @@ async function loadWeekDataGoogle() {
     // HS is always GoogleHealthSource when this function is called
     if (typeof HS === 'undefined' || !HS.base) return;
     var B = HS.base;
+    // Fusionar racha calculada por el SW en background (si es mayor que la local, toma el máximo)
+    try { await _mergeSwStreak(); } catch(e) {}
     var td  = _localDateStr();                         // today  YYYY-MM-DD
     var nd  = _ghNextDay(td);                          // tomorrow (exclusive end for API)
     // 7-day window: 7 days ago through tomorrow (so today is included)
@@ -10970,6 +10985,89 @@ async function handleGoogleOAuth(code) {
     }
   } catch (e) { hideLoad(); showToast(lang === 'es' ? 'Error de conexión con Google' : 'Google connection error', 'error'); }
 }
+// ══════════════════════════════════════════════════════════════════════════
+// ── SW BACKGROUND STREAK — IndexedDB bridge (app side) ───────────────────
+// El SW no puede leer localStorage. La DB "fb_sw" actúa de canal:
+//   config store → credenciales Google Health para que el SW llame la API
+//   streak store → racha calculada por el SW mientras la app está cerrada
+// Regla: la app SIEMPRE toma el máximo entre localStorage y IDB (merge).
+// ══════════════════════════════════════════════════════════════════════════
+function _swOpenDb() {
+  return new Promise(function(res, rej) {
+    var req = indexedDB.open('fb_sw', 1);
+    req.onupgradeneeded = function(e) {
+      var db = e.target.result;
+      if (!db.objectStoreNames.contains('config')) db.createObjectStore('config', { keyPath: 'key' });
+      if (!db.objectStoreNames.contains('streak')) db.createObjectStore('streak', { keyPath: 'key' });
+    };
+    req.onsuccess = function(e) { res(e.target.result); };
+    req.onerror   = function(e) { rej(e.target.error); };
+  });
+}
+function _swDbGet(db, store, key) {
+  return new Promise(function(res) {
+    try {
+      var req = db.transaction(store, 'readonly').objectStore(store).get(key);
+      req.onsuccess = function(e) { res(e.target.result || null); };
+      req.onerror   = function() { res(null); };
+    } catch(e) { res(null); }
+  });
+}
+function _swDbPut(db, store, value) {
+  return new Promise(function(res) {
+    try {
+      var req = db.transaction(store, 'readwrite').objectStore(store).put(value);
+      req.onsuccess = function() { res(); };
+      req.onerror   = function() { res(); };
+    } catch(e) { res(); }
+  });
+}
+// Guarda credenciales y configuración en IDB para uso del SW en background
+async function _swStoreCreds() {
+  if (!token || typeof GoogleHealthSource === 'undefined') return;
+  try {
+    var db = await _swOpenDb();
+    await _swDbPut(db, 'config', {
+      key: 'gh_creds',
+      access_token:  token,
+      refresh_token: localStorage.getItem('fb_rt') || '',
+      token_url:     GoogleHealthSource.oauth.token,
+      base_url:      GoogleHealthSource.base,
+      goal:          parseInt(localStorage.getItem('fb_steps_goal')) || 10000
+    });
+  } catch(e) {}
+}
+// Registra background sync en el SW (idempotente — seguro llamar varias veces)
+async function _swRegisterSync() {
+  try {
+    if (!('serviceWorker' in navigator)) return;
+    var reg = await navigator.serviceWorker.ready;
+    // BackgroundSync (todos los navegadores) — se dispara cuando se restaura conectividad
+    if ('sync' in reg) await reg.sync.register('streak-check');
+    // PeriodicSync (solo Chromium/Android) — requiere permiso + HTTPS
+    if ('periodicSync' in reg) {
+      var ps = await navigator.permissions.query({ name: 'periodic-background-sync' });
+      if (ps.state === 'granted') {
+        await reg.periodicSync.register('streak-daily', { minInterval: 12 * 60 * 60 * 1000 });
+      }
+    }
+  } catch(e) {}
+}
+// Lee racha del SW desde IDB y fusiona con localStorage (toma el máximo)
+async function _mergeSwStreak() {
+  try {
+    var db  = await _swOpenDb();
+    var sw  = await _swDbGet(db, 'streak', 'main');
+    if (!sw || !sw.count) return;
+    var stored = {};
+    try { stored = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}'); } catch(e2) {}
+    if (sw.count > (parseInt(stored.count) || 0)) {
+      localStorage.setItem('fb_streak_steps', JSON.stringify({ count: sw.count, lastDate: sw.lastDate }));
+    }
+  } catch(e) {}
+}
+// ── END SW BRIDGE ──────────────────────────────────────────────────────────
+
 async function refreshGoogleTok() {
   // Singleton: si ya hay un refresh en vuelo, todos esperan el mismo resultado.
   // Evita que Promise.all con 10 requests paralelas roten el refresh_token
@@ -10986,7 +11084,10 @@ async function refreshGoogleTok() {
       if (d.access_token) {
         localStorage.setItem('fb_tok', d.access_token);
         if (d.refresh_token) localStorage.setItem('fb_rt', d.refresh_token);
-        token = d.access_token; return true;
+        token = d.access_token;
+        // Propagar token nuevo al SW para que siga verificando sin abrir la app
+        try { _swStoreCreds(); } catch(e3) {}
+        return true;
       }
       // Refresh token expirado/revocado — cerrar sesión limpiamente
       console.warn('[gh] refresh token revoked — forcing logout');
@@ -11388,6 +11489,8 @@ async function loadRealGoogleData(silentRefresh) {
   try { _wkSaveTodaySnap(); } catch(e) {}
   // Fetch 7-day history for week bar chart (best-effort, never blocks render).
   loadWeekDataGoogle().catch(function(){});
+  // Guardar credenciales en IDB para que el SW verifique pasos en background
+  try { _swStoreCreds(); _swRegisterSync(); } catch(e) {}
 }
 // ══════════════════════════════════════════════════════════════════════════
 // ── PERFIL BIOMÉTRICO DEL USUARIO ─────────────────────────────────────────

@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'fitbit-air-v44';
+const CACHE_VERSION = 'fitbit-air-v45';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -108,6 +108,187 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
+
+// ══════════════════════════════════════════════════════════════════════════
+// ── BACKGROUND STREAK CHECK — Service Worker side ────────────────────────
+// Calls Google Health dailyRollUp for yesterday's steps. Only increments
+// streak, never resets — the app handles resets with full gap-fill on open.
+// IDB database "fb_sw": config store (credentials) + streak store (state).
+// ══════════════════════════════════════════════════════════════════════════
+
+function _swDbOpen() {
+  return new Promise(function(res, rej) {
+    var req = indexedDB.open('fb_sw', 1);
+    req.onupgradeneeded = function(e) {
+      var db = e.target.result;
+      if (!db.objectStoreNames.contains('config')) db.createObjectStore('config', { keyPath: 'key' });
+      if (!db.objectStoreNames.contains('streak')) db.createObjectStore('streak', { keyPath: 'key' });
+    };
+    req.onsuccess = function(e) { res(e.target.result); };
+    req.onerror   = function(e) { rej(e.target.error); };
+  });
+}
+
+function _swDbGet(db, store, key) {
+  return new Promise(function(res) {
+    try {
+      var req = db.transaction(store, 'readonly').objectStore(store).get(key);
+      req.onsuccess = function(e) { res(e.target.result || null); };
+      req.onerror   = function() { res(null); };
+    } catch(e) { res(null); }
+  });
+}
+
+function _swDbPut(db, store, value) {
+  return new Promise(function(res) {
+    try {
+      var req = db.transaction(store, 'readwrite').objectStore(store).put(value);
+      req.onsuccess = function() { res(); };
+      req.onerror   = function() { res(); };
+    } catch(e) { res(); }
+  });
+}
+
+// YYYY-MM-DD using local timezone (offset = days from today, e.g. -1 = yesterday)
+function _swLocalDate(offset) {
+  var d = new Date();
+  if (offset) d.setDate(d.getDate() + offset);
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
+
+// Matches _parseCivilDate in app.html: { date:{year,month,day}, time:{hours,minutes,seconds} }
+function _swCivilDate(ymd) {
+  var p = ymd.split('-').map(Number);
+  return { date: { year: p[0], month: p[1], day: p[2] }, time: { hours: 0, minutes: 0, seconds: 0 } };
+}
+
+// True if dateB is exactly 1 day after dateA (YYYY-MM-DD strings)
+function _swIsConsecutive(dateA, dateB) {
+  try {
+    var a = new Date(dateA + 'T12:00:00');
+    var b = new Date(dateB + 'T12:00:00');
+    return (b - a) === 86400000;
+  } catch(e) { return false; }
+}
+
+async function _swCheckStreak() {
+  var db;
+  try {
+    db = await _swDbOpen();
+    var cfg = await _swDbGet(db, 'config', 'gh_creds');
+    if (!cfg || !cfg.access_token || !cfg.base_url) return;
+
+    var cur = await _swDbGet(db, 'streak', 'main');
+    if (!cur) cur = { key: 'main', count: 0, lastDate: '', lastCheck: '' };
+
+    var yesterday = _swLocalDate(-1);
+    // Already checked yesterday (or newer) — nothing to do
+    if (cur.lastCheck && cur.lastCheck >= yesterday) return;
+
+    var goal = cfg.goal || 10000;
+    var today = _swLocalDate(0); // exclusive end for API
+
+    var rollupBody = JSON.stringify({
+      range: { start: _swCivilDate(yesterday), end: _swCivilDate(today) },
+      windowSizeDays: 1
+    });
+
+    async function _swFetchSteps(tok) {
+      var ac = new AbortController();
+      var tid = setTimeout(function() { ac.abort(); }, 12000);
+      try {
+        return await fetch(cfg.base_url + '/users/me/dataTypes/steps/dataPoints:dailyRollUp', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' },
+          body: rollupBody,
+          signal: ac.signal
+        });
+      } finally { clearTimeout(tid); }
+    }
+
+    var resp = await _swFetchSteps(cfg.access_token);
+
+    // 401 → refresh once and retry
+    if (resp.status === 401 && cfg.refresh_token && cfg.token_url) {
+      try {
+        var rr = await fetch(cfg.token_url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: cfg.refresh_token })
+        });
+        var rd = await rr.json();
+        if (rd.access_token) {
+          cfg.access_token = rd.access_token;
+          if (rd.refresh_token) cfg.refresh_token = rd.refresh_token;
+          await _swDbPut(db, 'config', cfg);
+          resp = await _swFetchSteps(rd.access_token);
+        } else { return; } // refresh token revoked
+      } catch(e2) { return; }
+    }
+
+    // 429 / 5xx → skip silently, streak preserved as-is
+    if (!resp.ok) return;
+
+    var data = await resp.json();
+    var pts = data.rollupDataPoints || [];
+    var steps = 0;
+    for (var i = 0; i < pts.length; i++) {
+      var rp = pts[i];
+      var rs = rp.civilStartTime || (rp.range && rp.range.start);
+      if (!rs) continue;
+      var D = rs.date || rs;
+      var dk = '';
+      if (typeof D === 'string') { dk = D; }
+      else if (D && D.year && D.month && D.day) {
+        dk = D.year + '-' + String(D.month).padStart(2,'0') + '-' + String(D.day).padStart(2,'0');
+      }
+      if (dk === yesterday) {
+        steps = parseInt((rp.steps && (rp.steps.countSum || rp.steps.count_sum || rp.steps.count)) || 0) || 0;
+        break;
+      }
+    }
+
+    // Only increment — never reset from background (app reconciles on open)
+    var newCount = cur.count;
+    var newLast  = cur.lastDate;
+    if (steps >= goal) {
+      var consecutive = !cur.lastDate || _swIsConsecutive(cur.lastDate, yesterday);
+      newCount = consecutive ? cur.count + 1 : 1;
+      newLast  = yesterday;
+    }
+    // steps < goal → preserve streak unchanged (device may not have synced yet)
+
+    await _swDbPut(db, 'streak', {
+      key: 'main', count: newCount, lastDate: newLast,
+      lastCheck: yesterday, steps: steps
+    });
+
+    // Notify any open app windows so the streak badge updates live
+    var clients = await self.clients.matchAll({ includeUncontrolled: true });
+    clients.forEach(function(c) {
+      c.postMessage({ type: 'SW_STREAK_UPDATE', count: newCount, lastDate: newLast });
+    });
+
+  } catch(e) {
+    // Network/IDB error — streak persists unchanged in IDB
+  }
+}
+
+self.addEventListener('sync', function(event) {
+  if (event.tag === 'streak-check') {
+    event.waitUntil(_swCheckStreak());
+  }
+});
+
+self.addEventListener('periodicsync', function(event) {
+  if (event.tag === 'streak-daily') {
+    event.waitUntil(_swCheckStreak());
+  }
+});
+
+// ── END BACKGROUND STREAK ──────────────────────────────────────────────────
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
