@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AIRA — Biometric Dashboard | Tu salud, analizada por IA</title>
-  <meta name="description" content="AIRA transforma tus datos de Fitbit en insights accionables: recovery, sueño, frecuencia cardíaca y actividad. Privado, gratuito y con 5 temas visuales únicos.">
+  <meta name="description" content="AIRA transforma tus datos de Google Health en insights accionables: recovery, sueño, frecuencia cardíaca y actividad. Privado, gratuito y con 5 temas visuales únicos.">
   <meta property="og:title" content="AIRA — Biometric Dashboard">
   <meta property="og:description" content="Tu panel biométrico personal con análisis de inteligencia artificial. Recovery, sueño, HR y actividad en un solo lugar.">
   <meta property="og:image" content="/brand/social/png/og-image.png">
@@ -858,7 +858,7 @@ footer {
   <div class="container">
     <div class="stats-grid">
       <div class="stat-item reveal">
-        <div class="stat-num">6</div>
+        <div class="stat-num">10</div>
         <div class="stat-label" data-i18n="statMetrics">Métricas biométricas</div>
       </div>
       <div class="stat-item reveal reveal-d1">
@@ -883,7 +883,7 @@ footer {
     <div class="section-header reveal">
       <p class="eyebrow" data-i18n="featEyebrow">Lo que monitoreamos</p>
       <h2 class="section-title" style="margin-top:12px;" data-i18n-html="featTitle">Tu salud, en <span>datos reales</span></h2>
-      <p class="section-sub" data-i18n="featSub">AIRA lee directamente de la API de Fitbit. Sin intermediarios, sin delays. Datos biométricos precisos actualizados cada 15 segundos.</p>
+      <p class="section-sub" data-i18n="featSub">AIRA lee directamente de la API de Google Health. Sin intermediarios, sin delays. Datos biométricos precisos actualizados cada 15 segundos.</p>
     </div>
 
     <div class="features-grid">
@@ -935,13 +935,14 @@ footer {
       <div class="feat-card reveal reveal-d5">
         <div class="feat-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
-            <path d="M19 3l1.5 1.5L22 3l-1.5-1.5L19 3z" stroke-width="1.5"/>
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <circle cx="8" cy="12" r="2"/>
+            <path d="M14 10h4M14 14h4"/>
           </svg>
         </div>
-        <div class="feat-title" data-i18n="feat5Title">Coach IA</div>
-        <div class="feat-desc" data-i18n="feat5Desc">Tu entrenador personal siempre disponible. Analiza tus patrones y genera recomendaciones accionables: "Tu RHR subió 8 bpm esta semana — considera reducir el entrenamiento mañana."</div>
-        <div class="feat-tag" data-i18n="feat5Tag">GPT-4 · Personalizado · Contextual</div>
+        <div class="feat-title" data-i18n="feat5Title">Perfil biométrico personal</div>
+        <div class="feat-desc" data-i18n="feat5Desc">FC Máx calculada con la fórmula Tanaka, Fitness Age estimado con VO2 Max y percentiles ACSM, BMR y TDEE personalizados por sexo y nivel de actividad. Visible en el inicio desde el primer acceso, sin navegar a ningún panel.</div>
+        <div class="feat-tag" data-i18n="feat5Tag">Tanaka · ACSM · Fitness Age · VO2</div>
       </div>
 
       <div class="feat-card reveal reveal-d6">
@@ -951,8 +952,8 @@ footer {
           </svg>
         </div>
         <div class="feat-title" data-i18n="feat6Title">Historial gráfico</div>
-        <div class="feat-desc" data-i18n="feat6Desc">Gráficas SVG construidas desde cero: líneas de tendencia, barras apiladas de sueño, HR histórico. Hasta 30 días cacheados en IndexedDB sin gastar el rate limit de Fitbit.</div>
-        <div class="feat-tag" data-i18n="feat6Tag">SVG · IndexedDB · 30 días</div>
+        <div class="feat-desc" data-i18n="feat6Desc">Gráficas SVG construidas desde cero: líneas de tendencia, barras apiladas de sueño, HR histórico. Hasta 30 días en IndexedDB. Los datos del día persisten entre sesiones: al reabrir la app aparecen al instante mientras la API sincroniza en segundo plano.</div>
+        <div class="feat-tag" data-i18n="feat6Tag">SVG · IndexedDB · Persistencia local</div>
       </div>
 
     </div>
@@ -974,7 +975,7 @@ footer {
         <div class="inno-num">01</div>
         <div>
           <div class="inno-title" data-i18n="inno1Title">Tus datos nunca salen de tu dispositivo</div>
-          <div class="inno-desc" data-i18n="inno1Desc">AIRA usa IndexedDB local para cachear todo el historial. No hay servidor nuestro recibiendo tus biometría. No hay perfil tuyo en ninguna nube. Sólo tú y Fitbit, con AIRA como intermediario visible y auditable.</div>
+          <div class="inno-desc" data-i18n="inno1Desc">AIRA usa IndexedDB local para cachear todo el historial. No hay servidor nuestro recibiendo tu biometría. No hay perfil tuyo en ninguna nube. Sólo tú y Google Health, con AIRA como intermediario visible y auditable.</div>
           <div class="inno-pill" data-i18n="inno1Pill">Privacy-first · IndexedDB · Sin telemetría</div>
         </div>
       </div>
@@ -1000,9 +1001,9 @@ footer {
       <div class="inno-card reveal reveal-d4">
         <div class="inno-num">04</div>
         <div>
-          <div class="inno-title" data-i18n="inno4Title">Preparados para cuando Fitbit Web API se apague</div>
-          <div class="inno-desc" data-i18n="inno4Desc">Fitbit cierra su Web API en Septiembre 2026. Mientras otras apps entrarán en pánico, AIRA ya tiene la arquitectura lista: la capa de datos está blindada con un adaptador único. Migrar a Google Health API es reemplazar 30 líneas de código.</div>
-          <div class="inno-pill">Google Health API · Sep 2026 · Adapter pattern</div>
+          <div class="inno-title" data-i18n="inno4Title">Tus datos persisten entre sesiones</div>
+          <div class="inno-desc" data-i18n="inno4Desc">Al cerrar AIRA, tus métricas del día se guardan localmente. Al reabrir, todo aparece al instante sin esperar a la API. Luego AIRA sincroniza en segundo plano de forma silenciosa — sin overlays, sin interrupciones, sin perder lo que ya estabas viendo.</div>
+          <div class="inno-pill" data-i18n="inno4Pill">localStorage · Snapshot · Sincronización silenciosa</div>
         </div>
       </div>
 
@@ -1434,15 +1435,15 @@ const T = {
     feat2Title:'Análisis del sueño', feat2Desc:'Desglose completo por etapas: profundo, REM, ligero y despertar. Eficiencia, tiempo total y tendencias de los últimos 30 días en gráficas interactivas.', feat2Tag:'Stages · Eficiencia · Tendencias',
     feat3Title:'Frecuencia cardíaca', feat3Desc:'Monitoreo intraday en tiempo real con polling cada 15s. RHR histórico con detección de tendencias. Zonas cardíacas y alertas automáticas de anomalías.', feat3Tag:'Intraday · RHR · Tiempo real',
     feat4Title:'Actividad & Strain', feat4Desc:'Pasos, calorías quemadas y tiempo activo por zonas de intensidad. Strain Score diario calculado a partir de tu perfil cardíaco personal para saber cuánto te exigiste realmente.', feat4Tag:'Pasos · Zonas · Strain',
-    feat5Title:'Coach IA', feat5Desc:'Tu entrenador personal siempre disponible. Analiza tus patrones y genera recomendaciones accionables: "Tu RHR subió 8 bpm esta semana — considera reducir el entrenamiento mañana."', feat5Tag:'GPT-4 · Personalizado · Contextual',
-    feat6Title:'Historial gráfico', feat6Desc:'Gráficas SVG construidas desde cero: líneas de tendencia, barras apiladas de sueño, HR histórico. Hasta 30 días cacheados en IndexedDB.', feat6Tag:'SVG · IndexedDB · 30 días',
+    feat5Title:'Perfil biométrico personal', feat5Desc:'FC Máx calculada con la fórmula Tanaka, Fitness Age estimado con VO2 Max y percentiles ACSM, BMR y TDEE personalizados por sexo y nivel de actividad. Visible en el inicio desde el primer acceso, sin navegar a ningún panel.', feat5Tag:'Tanaka · ACSM · Fitness Age · VO2',
+    feat6Title:'Historial gráfico', feat6Desc:'Gráficas SVG construidas desde cero: líneas de tendencia, barras apiladas de sueño, HR histórico. Hasta 30 días en IndexedDB. Los datos del día persisten entre sesiones: al reabrir la app aparecen al instante mientras la API sincroniza en segundo plano.', feat6Tag:'SVG · IndexedDB · Persistencia local',
     innoEyebrow:'Por qué innovamos',
     innoTitle:'Diferente desde<br><span>los cimientos</span>',
     innoSub:'No somos otra app de fitness. AIRA es una apuesta radical por la privacidad, la personalización extrema y la honestidad técnica.',
     inno1Title:'Tus datos nunca salen de tu dispositivo', inno1Desc:'AIRA usa IndexedDB local para cachear todo el historial. No hay servidor nuestro recibiendo tu biometría. No hay perfil tuyo en ninguna nube. Sólo tú y Google Health, con AIRA como intermediario visible y auditable.', inno1Pill:'Privacy-first · IndexedDB · Sin telemetría',
     inno2Title:'5 mundos visuales que ninguna app tiene', inno2Desc:'Aether, Neon Noir, Shinobi o Bloom (gratis) — Voxel y Synthwave (PRO). Cada tema redefine completamente la UI: tipografías, colores, sombras, animaciones. Tu dashboard de salud, con tu identidad.', inno2Pill:'CSS Variables · 5 temas · Sin recargas',
     inno3Title:'PWA instalable: nativa en iOS, Android y desktop', inno3Desc:'AIRA es una Progressive Web App con service worker, manifest y soporte de notificaciones push. Se instala como app nativa desde el navegador, sin App Store. Funciona offline con los datos cacheados.',
-    inno4Title:'Preparados para el futuro de los datos de salud', inno4Desc:'La arquitectura de AIRA está blindada con un adaptador único. Migrar entre APIs de salud es reemplazar 30 líneas de código, sin tocar el resto de la app.',
+    inno4Title:'Tus datos persisten entre sesiones', inno4Desc:'Al cerrar AIRA, tus métricas del día se guardan localmente. Al reabrir, todo aparece al instante sin esperar a la API. Luego AIRA sincroniza en segundo plano de forma silenciosa — sin overlays, sin interrupciones, sin perder lo que ya estabas viendo.', inno4Pill:'localStorage · Snapshot · Sincronización silenciosa',
     themesEyebrow:'Identidad visual',
     themesTitle:'Elige tu <span>mundo</span>',
     themesSub:'Cada tema es una experiencia visual completa. Cambia en tiempo real, sin recargar la página.',
@@ -1513,15 +1514,15 @@ const T = {
     feat2Title:'Sleep Analysis', feat2Desc:'Complete breakdown by stage: deep, REM, light and awake. Efficiency, total time and 30-day trends in interactive charts.', feat2Tag:'Stages · Efficiency · Trends',
     feat3Title:'Heart Rate', feat3Desc:'Real-time intraday monitoring with polling every 15s. Historical RHR with trend detection. Heart rate zones and automatic anomaly alerts.', feat3Tag:'Intraday · RHR · Real-time',
     feat4Title:'Activity & Strain', feat4Desc:'Steps, calories burned and active time by intensity zone. Daily Strain Score calculated from your personal cardiac profile to know how hard you really pushed.', feat4Tag:'Steps · Zones · Strain',
-    feat5Title:'AI Coach', feat5Desc:'Your personal trainer, always available. Analyzes your patterns and generates actionable recommendations: "Your RHR went up 8 bpm this week — consider reducing tomorrow\'s training."', feat5Tag:'GPT-4 · Personalized · Contextual',
-    feat6Title:'Chart History', feat6Desc:'SVG charts built from scratch: trend lines, stacked sleep bars, historical HR. Up to 30 days cached in IndexedDB.', feat6Tag:'SVG · IndexedDB · 30 days',
+    feat5Title:'Personal biometric profile', feat5Desc:'Max HR calculated with the Tanaka formula, Fitness Age estimated from VO2 Max and ACSM percentiles, personalized BMR and TDEE by sex and activity level. Visible on the home screen from first load — no navigation needed.', feat5Tag:'Tanaka · ACSM · Fitness Age · VO2',
+    feat6Title:'Chart History', feat6Desc:'SVG charts built from scratch: trend lines, stacked sleep bars, historical HR. Up to 30 days in IndexedDB. Daily data persists between sessions: on reopen everything appears instantly while the API syncs silently in the background.', feat6Tag:'SVG · IndexedDB · Local persistence',
     innoEyebrow:'Why we innovate',
     innoTitle:'Different from<br><span>the ground up</span>',
     innoSub:'We\'re not another fitness app. AIRA is a radical bet on privacy, extreme personalization and technical honesty.',
     inno1Title:'Your data never leaves your device', inno1Desc:'AIRA uses local IndexedDB to cache all history. No server of ours receives your biometrics. No profile of yours in any cloud. Just you and Google Health, with AIRA as a visible, auditable intermediary.', inno1Pill:'Privacy-first · IndexedDB · No telemetry',
     inno2Title:'5 visual worlds no other app has', inno2Desc:'Aether, Neon Noir, Shinobi or Bloom (free) — Voxel and Synthwave (PRO). Each theme completely redefines the UI: typography, colors, shadows, animations. Your health dashboard, with your identity.', inno2Pill:'CSS Variables · 5 themes · No reloads',
     inno3Title:'Installable PWA: native on iOS, Android and desktop', inno3Desc:'AIRA is a Progressive Web App with service worker, manifest and push notification support. Installs as a native app from the browser, without the App Store. Works offline with cached data.',
-    inno4Title:'Built for the future of health data', inno4Desc:'AIRA\'s architecture is protected by a single adapter layer. Switching between health APIs means replacing 30 lines of code, leaving the rest of the app untouched.',
+    inno4Title:'Your data persists between sessions', inno4Desc:'When you close AIRA, your daily metrics are saved locally. On reopen, everything appears instantly without waiting for the API. AIRA then syncs silently in the background — no overlays, no interruptions, no losing what you were already viewing.', inno4Pill:'localStorage · Snapshot · Silent sync',
     themesEyebrow:'Visual Identity',
     themesTitle:'Choose your <span>world</span>',
     themesSub:'Each theme is a complete visual experience. Switch in real time, no page reload.',
@@ -1623,7 +1624,7 @@ const cIO = new IntersectionObserver((entries) => {
   entries.forEach(e => {
     if (e.isIntersecting) {
       const text = e.target.textContent.trim();
-      if (text === '6')     animateCount(e.target, 6,    '');
+      if (text === '10')    animateCount(e.target, 10,   '+');
       if (text === '5')     animateCount(e.target, 5,    '');
       if (text === '7D')    { setTimeout(() => { e.target.textContent = '7D'; }, 300); }
       if (text === '$9.99') { setTimeout(() => { e.target.textContent = '$9.99'; }, 300); }
