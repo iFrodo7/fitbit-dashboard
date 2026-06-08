@@ -8276,8 +8276,31 @@ function p2(n) { return String(n).padStart(2,'0'); }
 // ── Week bar helpers ────────────────────────────────────────────────────────
 // _wkData: [{date,steps,dist,floors,active,label}, ...] oldest→newest (7 items)
 // _wkSelIdx: currently selected bar index (default 6 = today)
-window._wkData   = null;
-window._wkSelIdx = 6;
+// _wkTodaySnap: DOM snapshot of today's card values, saved after real data loads
+window._wkData      = null;
+window._wkSelIdx    = 6;
+window._wkTodaySnap = null;
+
+// Saves the current steps-card DOM values as the ground truth for "today".
+// Called after loadReal / loadRealGoogleData finishes writing real values.
+// wkBarSel(6) restores from this snap so we never show demo data on tap-back.
+function _wkSaveTodaySnap() {
+  var gv = function(id) { var e=document.getElementById(id); return e ? e.textContent.trim() : null; };
+  var pg = document.getElementById('stepsprog');
+  window._wkTodaySnap = {
+    steps:      gv('stepsv'),
+    prog:       pg ? pg.style.width : null,
+    pct:        gv('stepspct'),
+    dist:       gv('steps-dist-val'),
+    distUnit:   gv('steps-dist-unit'),
+    floors:     gv('steps-floors-val'),
+    floorsUnit: gv('steps-floors-unit'),
+    active:     gv('steps-active-val'),
+    activeUnit: gv('steps-active-unit'),
+    streak:     gv('steps-streak-val'),
+    streakUnit: gv('steps-streak-unit'),
+  };
+}
 
 // Day-of-week abbreviations indexed by getDay() (0=Sun … 6=Sat)
 var _WK_DOW_ES = ['D','L','M','X','J','V','S'];
@@ -8334,7 +8357,25 @@ function wkBarSel(idx) {
     el.classList.toggle('wk-active', i === sel);
   });
 
-  // ── Steps + progress ──
+  // ── Today: restore from DOM snapshot so real provider data is never lost ──
+  if (isToday && window._wkTodaySnap) {
+    var snap = window._wkTodaySnap;
+    var sv; // helper — only write if snap has a value
+    sv = document.getElementById('stepsv');       if(sv && snap.steps)      sv.textContent = snap.steps;
+    sv = document.getElementById('stepsprog');    if(sv && snap.prog!=null)  sv.style.width = snap.prog;
+    sv = document.getElementById('stepspct');     if(sv && snap.pct)        sv.textContent = snap.pct;
+    sv = document.getElementById('steps-dist-val');   if(sv && snap.dist)       sv.textContent = snap.dist;
+    sv = document.getElementById('steps-dist-unit');  if(sv && snap.distUnit)   sv.textContent = snap.distUnit;
+    sv = document.getElementById('steps-floors-val'); if(sv && snap.floors)     sv.textContent = snap.floors;
+    sv = document.getElementById('steps-floors-unit');if(sv && snap.floorsUnit) sv.textContent = snap.floorsUnit;
+    sv = document.getElementById('steps-active-val'); if(sv && snap.active)     sv.textContent = snap.active;
+    sv = document.getElementById('steps-active-unit');if(sv && snap.activeUnit) sv.textContent = snap.activeUnit;
+    sv = document.getElementById('steps-streak-val'); if(sv && snap.streak)     sv.textContent = snap.streak;
+    sv = document.getElementById('steps-streak-unit');if(sv && snap.streakUnit) sv.textContent = snap.streakUnit;
+    return;
+  }
+
+  // ── Steps + progress (past day or today without snap yet) ──
   var steps = d.steps || 0;
   var goal  = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
   var pct   = Math.min((steps / goal) * 100, 100);
@@ -8377,10 +8418,10 @@ function wkBarSel(idx) {
 
 // Fetches 7-day activity time series from Fitbit and refreshes the week bars.
 // Best-effort: any failure leaves the chart with the demo/existing data.
+// Google users: loadWeekDataGoogle() is called from loadRealGoogleData instead.
 async function loadWeekData(headers) {
   if (typeof HS === 'undefined' || !HS.ep.actTs) return;
-  // Google Health API has a different structure — skip for now
-  if (HS.id === 'google') return;
+  if (HS.id === 'google') return; // handled by loadWeekDataGoogle()
   try {
     var pd = '7d';
     var [stR, flR, faR, vaR] = await Promise.all([
@@ -8428,6 +8469,88 @@ async function loadWeekData(headers) {
     if (fEl && fEl.textContent && fEl.textContent !== '—') td.floors = parseInt(fEl.textContent)||td.floors;
     if (aEl && aEl.textContent && aEl.textContent !== '—') td.active = parseInt(aEl.textContent)||td.active;
   } catch(e) { /* best-effort — leave chart as-is */ }
+}
+
+// Fetches 7-day steps / distance / floors from Google Health dailyRollUp
+// and rebuilds the week bars.  Called best-effort from loadRealGoogleData().
+// Uses _parseCivilDate, _ghPost, _rollupBody defined in the Google section below.
+async function loadWeekDataGoogle() {
+  try {
+    // HS is always GoogleHealthSource when this function is called
+    if (typeof HS === 'undefined' || !HS.base) return;
+    var B = HS.base;
+    var td  = _localDateStr();                         // today  YYYY-MM-DD
+    var nd  = _ghNextDay(td);                          // tomorrow (exclusive end for API)
+    // 7-day window: 7 days ago through tomorrow (so today is included)
+    var d7  = (function(){
+      var dt = new Date(); dt.setDate(dt.getDate() - 6);
+      return _localDateStr(dt);
+    })();
+    // Reuse the same rollupBody builder as loadRealGoogleData (defined there)
+    var rb  = function(s, e) {
+      return { range: { start: _parseCivilDate(s), end: _parseCivilDate(e) }, windowSizeDays: 1 };
+    };
+    var [stW, distW, flrW] = await Promise.all([
+      _ghPost(B + '/users/me/dataTypes/steps/dataPoints:dailyRollUp',    rb(d7, nd)),
+      _ghPost(B + '/users/me/dataTypes/distance/dataPoints:dailyRollUp', rb(d7, nd)),
+      _ghPost(B + '/users/me/dataTypes/floors/dataPoints:dailyRollUp',   rb(d7, nd)),
+    ]);
+
+    // Convert rollupDataPoints to date-keyed maps
+    var rangeToDateStr = function(rp) {
+      // Each rollupDataPoint.range.start = {date:{year,month,day}, time:{...}}
+      var rs = rp && rp.range && rp.range.start;
+      if (!rs) return null;
+      var D = rs.date || rs;  // some responses put date inline
+      if (typeof D === 'string') return D;
+      if (D.year && D.month && D.day) {
+        return D.year + '-' + String(D.month).padStart(2,'0') + '-' + String(D.day).padStart(2,'0');
+      }
+      return null;
+    };
+    var _byDate = function(resp, extract) {
+      var m = {};
+      ((resp && resp.rollupDataPoints) || []).forEach(function(rp) {
+        var ds = rangeToDateStr(rp);
+        if (ds) m[ds] = extract(rp);
+      });
+      return m;
+    };
+    var stMap   = _byDate(stW,   function(rp) { return parseInt(rp.steps?.countSum ?? rp.steps?.count_sum ?? rp.steps?.count ?? 0) || 0; });
+    var distMap = _byDate(distW, function(rp) {
+      var m = parseFloat(rp.distance?.metersSum ?? rp.distance?.meters ?? rp.distance?.value ?? 0) || 0;
+      return m / 1000; // → km
+    });
+    var flrMap  = _byDate(flrW,  function(rp) { return parseInt(rp.floors?.countSum ?? rp.floors?.count ?? rp.floors?.value ?? 0) || 0; });
+
+    // Build the 7-day array (oldest → today)
+    var today = new Date();
+    var days  = Array.from({length: 7}, function(_, i) {
+      var dt = new Date(today); dt.setDate(today.getDate() - (6 - i));
+      var ds = _localDateStr(dt);
+      var stp = stMap[ds] || 0;
+      return {
+        date:   ds,
+        steps:  stp,
+        dist:   distMap[ds] != null ? distMap[ds] : (stp * 0.00074),
+        floors: flrMap[ds] || null,
+        active: null, // AZM per-day needs an extra call; skip for now
+      };
+    });
+
+    buildWeeks(days);
+
+    // Patch today's bar (_wkData[6]) with real DOM values saved by _wkSaveTodaySnap
+    // so the today bar shows the same precise numbers as the main card.
+    if (window._wkTodaySnap && window._wkData) {
+      var snap = window._wkTodaySnap;
+      var td7  = window._wkData[6];
+      if (snap.steps)  { var sv = parseInt((snap.steps  || '').replace(/\D/g,'')); if (sv) td7.steps  = sv; }
+      if (snap.dist && snap.dist !== '—')   { var dv = parseFloat(snap.dist);   if (dv) td7.dist   = dv; }
+      if (snap.floors && snap.floors !== '—') { var fv = parseInt(snap.floors); if (fv) td7.floors = fv; }
+      if (snap.active && snap.active !== '—') { var av = parseInt(snap.active); if (av) td7.active = av; }
+    }
+  } catch(e) { /* best-effort — leave chart with existing/demo data */ }
 }
 
 function buildHRC(hrs) {
@@ -10993,6 +11116,11 @@ async function loadRealGoogleData(silentRefresh) {
   // shows up without requiring a Profile tab visit — _applyBioProfile reads localStorage,
   // so it works even when the Google Health API returned no VO2 data this call.
   try { _applyBioProfile(); } catch(e) {}
+  // Snapshot today's DOM values so tapping today on the week bars always restores
+  // real data (not demo _wkData values).  Must run after all DOM writes above.
+  try { _wkSaveTodaySnap(); } catch(e) {}
+  // Fetch 7-day history for week bar chart (best-effort, never blocks render).
+  loadWeekDataGoogle().catch(function(){});
 }
 // ══════════════════════════════════════════════════════════════════════════
 // ── PERFIL BIOMÉTRICO DEL USUARIO ─────────────────────────────────────────
@@ -11683,6 +11811,8 @@ async function loadReal(silentRefresh) {
     const _bcBtn = document.getElementById('btn-connect'); if (_bcBtn) _bcBtn.style.display = 'none'; // hide Connect button
     closeModal(); startPoll(); showToast(T[lang].connected);
     try { _applyBioProfile(); } catch(e) {}
+    // Snapshot today's card so wkBarSel(6) always restores real values, not demo data
+    try { _wkSaveTodaySnap(); } catch(e) {}
   } catch(e) { if(String(e).includes('401')){if(await refreshTok())await loadReal();else{localStorage.removeItem('fb_tok');token='';}} } finally { _saveSnap(); hideLoad(); document.body.classList.remove('is-syncing'); }
 }
 // Daily health summaries from Fitbit/Google (needs oxygen_saturation, heartrate,
