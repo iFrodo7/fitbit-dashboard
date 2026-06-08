@@ -9788,7 +9788,7 @@ function _fmtGoal(key,v){if(key==='stp')return v>=1000?(v/1000).toFixed(v%1000==
 function _recordActivityDay(steps, cal, actMin) {
   if (!steps && !cal && !actMin) return;
   try {
-    var today=new Date().toISOString().slice(0,10);
+    var today=_localDateStr(); // local date, not UTC — avoids timezone-break at 11pm UTC-X
     var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
     hist=hist.filter(function(e){return e.date!==today;});
     hist.push({date:today,steps:steps||0,cal:cal||0,actMin:actMin||0});
@@ -9907,13 +9907,13 @@ function _getStepGoalStreak() {
     if(!hist.length) return 0;
     var goal=(_loadDRGoals().stp)||10000;
     // Check if today's goal is already met (to add it on top of the base streak)
-    var todayUTC=new Date().toISOString().slice(0,10);
+    var todayUTC=_localDateStr(); // local date — prevents UTC offset mismatch
     var todayDay=hist.find(function(e){return e.date===todayUTC;});
     var todayMet=!!(todayDay&&todayDay.steps>=goal);
     // Count consecutive completed days starting from yesterday
     var streak=0;
     for(var i=1;i<=7;i++){
-      var d=new Date(Date.now()-i*86400000).toISOString().slice(0,10);
+      var _di=new Date(); _di.setDate(_di.getDate()-i); var d=_localDateStr(_di);
       var day=hist.find(function(e){return e.date===d;});
       if(day&&day.steps>=goal) streak++;
       else break;
@@ -9925,13 +9925,13 @@ function _getStepGoalStreak() {
 
 function getDailyStreak() {
   try {
-    var today=new Date().toISOString().slice(0,10);
+    var today=_localDateStr(); // local date — UTC would break streak for UTC+ users after midnight
     var s=JSON.parse(localStorage.getItem('fb_streak')||'{}');
     if (s.date===today) return s.count||1;
     // Only advance the streak when the user is authenticated.
     // Unauthenticated demo visits don't count as active days.
     if (!token) return s.count||0;
-    var yest=new Date(Date.now()-86400000).toISOString().slice(0,10);
+    var _yd=new Date(); _yd.setDate(_yd.getDate()-1); var yest=_localDateStr(_yd);
     var cnt=s.date===yest?(s.count||1)+1:1;
     // Detect loss: had a streak >1 that just got reset
     if (cnt===1 && (s.count||0)>1) window._streakLost = s.count;
@@ -9944,6 +9944,7 @@ function _stkMotivMsg(strk, stkMile) {
   var es = lang === 'es';
   if (strk >= 30) return es ? '¡Racha legendaria! Eres imparable 💎' : 'Legendary streak! You\'re unstoppable 💎';
   var left = stkMile ? stkMile - strk : 0;
+  if (left === 0 && strk > 0) return es ? ('🎉 ¡' + strk + ' días completados! Milestone desbloqueado') : ('🎉 ' + strk + '-day milestone unlocked!');
   if (left === 1) return es ? ('¡UN DÍA MÁS para llegar a ' + stkMile + '! No faltes 🔥') : ('ONE MORE DAY to reach ' + stkMile + '! Don\'t miss it 🔥');
   if (strk === 1) return es ? 'Vuelve mañana para mantener tu racha 🔥' : 'Come back tomorrow to keep it going 🔥';
   if (left <= 3) return es ? ('¡Casi llegas! Solo ' + left + ' días más 🔥') : ('Almost there! ' + left + ' more days 🔥');
@@ -10098,7 +10099,7 @@ function openStreakLostSheet(prevStreak) {
 }
 
 function _checkDailyStreakAnim() {
-  var today = new Date().toISOString().slice(0,10);
+  var today = _localDateStr();
   var last; try { last = localStorage.getItem('fb_streak_anim_date'); } catch(e) {}
   cancelStreakReminder(); // user is here, cancel any pending reminder
   if (last === today) return; // already animated today
@@ -10118,7 +10119,7 @@ function _checkDailyStreakAnim() {
 
 function scheduleStreakReminder(strk) {
   if (!notifEnabled() || strk < 1) return;
-  try { localStorage.setItem('fb_last_open_date', new Date().toISOString().slice(0,10)); } catch(e) {}
+  try { localStorage.setItem('fb_last_open_date', _localDateStr()); } catch(e) {}
   var now = new Date();
   var h = now.getHours();
   if (h >= 22) return; // too late tonight
@@ -10188,7 +10189,12 @@ function renderDailyRings() {
       +'<div class="dr-goal" id="'+d.id+'-goal">'+goalHint+'</div>'
     +'</div>';
   }
-  var strk=getDailyStreak();
+  // Badge de racha: muestra meta de pasos (fb_streak_steps / _wkTodayStreakReal),
+  // NO el contador de días que el usuario abrió la app (fb_streak / getDailyStreak).
+  var strk=(function(){
+    if(window._wkTodayStreakReal>0) return window._wkTodayStreakReal;
+    try{var _ss=JSON.parse(localStorage.getItem('fb_streak_steps')||'{}');return _ss.count||0;}catch(e){return 0;}
+  })();
   // Streak level, fire emoji and milestone progress
   var _MILE=[3,7,15,30];
   var stkLvlCls='';
@@ -10414,11 +10420,12 @@ function animateDailyRings() {
         var pct=(1-target/C)*100;
         if(dot&&pct>1){
           var ang=(-90+pct*3.6)*Math.PI/180;
+          // 1200ms = matches the CSS transition duration exactly (arc finishes → dot appears)
           setTimeout(function(){
             dot.setAttribute('cx',(cx+R*Math.cos(ang)).toFixed(2));
             dot.setAttribute('cy',(cy+R*Math.sin(ang)).toFixed(2));
             dot.setAttribute('opacity','0.9');
-          },1100);
+          },1200);
         }
       },i*110);
     });
@@ -11486,7 +11493,10 @@ async function loadRealGoogleData(silentRefresh) {
   if (typeof renderAiraInsights === 'function') renderAiraInsights();
   // Sync streak badge — renderDailyRings() ran before data arrived so badge
   // may show a stale value; update it now that we know the real streak.
-  { const el=document.getElementById('dr-stk'); if(el) el.textContent=getDailyStreak(); }
+  // Actualizar badge con racha real (meta de pasos) + sincronizar _stkAnimData para el sheet
+  { const el=document.getElementById('dr-stk'); const _rs=window._wkTodayStreakReal||0;
+    if(el) el.textContent=_rs;
+    if(window._stkAnimData) window._stkAnimData.strk=_rs; }
   // Always apply bio profile at the end so home bio widget (FC Máx, Fitness Age, VO2)
   // shows up without requiring a Profile tab visit — _applyBioProfile reads localStorage,
   // so it works even when the Google Health API returned no VO2 data this call.
