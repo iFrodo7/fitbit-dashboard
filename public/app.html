@@ -10189,12 +10189,7 @@ function renderDailyRings() {
       +'<div class="dr-goal" id="'+d.id+'-goal">'+goalHint+'</div>'
     +'</div>';
   }
-  // Badge de racha: muestra meta de pasos (fb_streak_steps / _wkTodayStreakReal),
-  // NO el contador de días que el usuario abrió la app (fb_streak / getDailyStreak).
-  var strk=(function(){
-    if(window._wkTodayStreakReal>0) return window._wkTodayStreakReal;
-    try{var _ss=JSON.parse(localStorage.getItem('fb_streak_steps')||'{}');return _ss.count||0;}catch(e){return 0;}
-  })();
+  var strk=getDailyStreak();
   // Streak level, fire emoji and milestone progress
   var _MILE=[3,7,15,30];
   var stkLvlCls='';
@@ -11493,10 +11488,7 @@ async function loadRealGoogleData(silentRefresh) {
   if (typeof renderAiraInsights === 'function') renderAiraInsights();
   // Sync streak badge — renderDailyRings() ran before data arrived so badge
   // may show a stale value; update it now that we know the real streak.
-  // Actualizar badge con racha real (meta de pasos) + sincronizar _stkAnimData para el sheet
-  { const el=document.getElementById('dr-stk'); const _rs=window._wkTodayStreakReal||0;
-    if(el) el.textContent=_rs;
-    if(window._stkAnimData) window._stkAnimData.strk=_rs; }
+  { const el=document.getElementById('dr-stk'); if(el) el.textContent=getDailyStreak(); }
   // Always apply bio profile at the end so home bio widget (FC Máx, Fitness Age, VO2)
   // shows up without requiring a Profile tab visit — _applyBioProfile reads localStorage,
   // so it works even when the Google Health API returned no VO2 data this call.
