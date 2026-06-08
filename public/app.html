@@ -471,6 +471,11 @@ body{
 .wb.wk-active .wbdot{opacity:1;transform:scale(1);}
 .wdl{font-size:10px;letter-spacing:1px;opacity:0.5;font-weight:600;transition:opacity var(--dur-base) var(--ease-std);}
 .wb.wk-active .wdl{opacity:1;}
+/* × miss indicator — shown below label on past days that didn't meet the step goal */
+.wbx{font-size:8px;line-height:1;color:var(--tneg,#ff4455);opacity:0;margin-top:1px;transition:opacity var(--dur-base) var(--ease-std);}
+.wb.wk-miss .wbx{opacity:0.65;}
+.wb.wk-miss.wk-active .wbx{opacity:1;}
+.wb.wk-miss .wbar{opacity:0.55;}
 /* Steps card layout */
 .scard-inner{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;}
 
@@ -8323,14 +8328,19 @@ function buildWeeks(days) {
   });
   window._wkData = data;
   var mx = Math.max.apply(null, data.map(function(d){return d.steps||0;})); if (mx < 1) mx = 1;
+  var goal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
   var c = document.getElementById('wbrs'); if (!c) return;
   c.innerHTML = data.map(function(d,i) {
     var h = Math.max(6, Math.round((d.steps/mx)*100));
     var isTd = i===6;
-    return '<div class="wb' + (isTd?' wk-active':'') + '" data-wi="'+i+'" onclick="wkBarSel('+i+')">' +
+    // Only mark past days that have data but missed the goal (today is still in progress)
+    var missedGoal = !isTd && (d.steps || 0) < goal;
+    var cls = (isTd ? ' wk-active' : '') + (missedGoal ? ' wk-miss' : '');
+    return '<div class="wb'+cls+'" data-wi="'+i+'" onclick="wkBarSel('+i+')">' +
       '<div class="wbdot"></div>' +
       '<div class="wbar" style="height:'+h+'%"></div>' +
       '<div class="wdl">'+d.label+'</div>' +
+      '<div class="wbx">×</div>' +
     '</div>';
   }).join('');
   c.classList.add('wk-has-sel');
@@ -8409,9 +8419,18 @@ function wkBarSel(idx) {
   e = document.getElementById('steps-floors-unit');if(e) e.textContent = es ? ('SUBIDOS' + (isToday?'':' ·'+d.label)) : ('FLOORS' + (isToday?'':' ·'+d.label));
   e = document.getElementById('steps-active-val'); if(e) e.textContent = d.active != null ? d.active : '—';
   e = document.getElementById('steps-active-unit');if(e) e.textContent = 'MIN' + daySufx;
-  // Streak only meaningful for today
+  // Streak: for today use snap (already set above); for past days calculate
+  // consecutive days ending on `sel` that met the step goal.
   e = document.getElementById('steps-streak-val');
-  if (e && !isToday) { e.textContent = '—'; }
+  if (e && !isToday) {
+    var _goal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+    var _streak = 0;
+    for (var _si = sel; _si >= 0; _si--) {
+      if ((data[_si].steps || 0) >= _goal) _streak++;
+      else break;
+    }
+    e.textContent = _streak > 0 ? _streak : '—';
+  }
   e = document.getElementById('steps-streak-unit');
   if (e) e.textContent = es ? 'DÍAS META' : 'DAYS GOAL';
 }
