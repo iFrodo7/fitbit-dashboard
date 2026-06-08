@@ -8588,16 +8588,24 @@ async function loadWeekDataGoogle() {
 
     buildWeeks(days);
 
-    // ── _wkTodayStreakReal: persistent streak across restarts ───────────────
-    // Three sources combined so the RACHA card survives app close/reopen and
-    // shows the real number even for streaks longer than 7 days:
-    //   1. _wkStr7  — backward count in the 7-day live window  (max 7)
-    //   2. _dbStr7  — _getStepGoalStreak() from fb_activity_history (max ~8)
-    //   3. fb_streak_steps in localStorage — persisted counter updated each
-    //      load; survives restarts and grows beyond the 7-day window limit.
+    // ── FIX #2: patch _wkData[6] from snap BEFORE streak calculation ────────
+    // snap.steps comes from the primary activities endpoint (near real-time).
+    // dailyRollUp can lag 15-30 min, so _wkData[6].steps may be stale.
+    // Patching first ensures _wkStr7 and _tmMet use the accurate step count.
+    if (window._wkTodaySnap && window._wkData) {
+      var snap7 = window._wkTodaySnap;
+      var td7   = window._wkData[6];
+      if (snap7.steps)  { var sv7=parseInt((snap7.steps||'').replace(/\D/g,'')); if(sv7) td7.steps  = sv7; }
+      if (snap7.dist   && snap7.dist   !== '—') { var dv7=parseFloat(snap7.dist);  if(dv7) td7.dist   = dv7; }
+      if (snap7.floors && snap7.floors !== '—') { var fv7=parseInt(snap7.floors);  if(fv7) td7.floors = fv7; }
+      if (snap7.active && snap7.active !== '—') { var av7=parseInt(snap7.active);  if(av7) td7.active = av7; }
+    }
+
+    // ── _wkTodayStreakReal: persistent streak that survives app restarts ─────
+    // Sources (highest wins): window backward count | fb_activity_history | fb_streak_steps
     var _strGoal7 = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
 
-    // 1. Window backward count
+    // 1. Window backward count — uses patched _wkData[6].steps (FIX #2 above)
     var _wkStr7 = 0;
     if (window._wkData) {
       for (var _si7 = 6; _si7 >= 0; _si7--) {
@@ -8606,73 +8614,126 @@ async function loadWeekDataGoogle() {
       }
     }
 
-    // 2. Read & update persistent counter: fb_streak_steps = {count, lastDate}
+    // 2. Read & update fb_streak_steps — the only source that grows beyond 7 days
     var _persistedStreak = 0;
     try {
       var _t7    = _localDateStr();
       var _y7    = (function(){ var _d=new Date(); _d.setDate(_d.getDate()-1); return _localDateStr(_d); })();
       var _ps    = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}');
-      var _pc    = _ps.count    || 0;
+      var _pc    = parseInt(_ps.count, 10) || 0;   // parseInt guard: rejects corrupted strings
       var _pd    = _ps.lastDate || '';
+      // _tmMet now reads the patched value (FIX #2): primary endpoint steps > dailyRollUp steps
       var _tmMet = ((window._wkData && window._wkData[6] && window._wkData[6].steps) || 0) >= _strGoal7;
-      var _pNew = _pc, _pdNew = _pd;
+      var _pNew  = 0;
+      var _pdNew = '';
 
-      if (_pd !== _t7) {  // skip if already updated today (e.g. background reload)
+      if (_pd === _t7) {
+        // Already updated this session — read stored value, don't re-save
+        _pNew = _pc; _pdNew = _pd;
+      } else {
+        // gap: days between stored lastDate and today. 999 = no stored date (first run).
         var _gap = _pd ? Math.round((new Date(_t7) - new Date(_pd)) / 86400000) : 999;
 
-        if (_pc > 0 && _gap >= 1 && _gap <= 6) {
-          // stored date is inside our 7-day window — verify all intermediate days
+        if (_gap < 0) {
+          // ── Clock jumped backward (timezone change / NTP) — don't corrupt state
+          _pNew = _pc; _pdNew = _pd;
+
+        } else if (_pc > 0 && _pd && _gap <= 6) {
+          // ── FIX #1 / normal case: stored date within 7-day window ───────────
+          // Verify all intermediate days (lastDate+1 → yesterday) using _wkData.
           var _ok = true;
           for (var _g = 1; _g < _gap; _g++) {
-            var _gi = 6 - (_gap - _g);  // _wkData index for (stored + g) day
+            var _gi = 6 - (_gap - _g);
             if (((window._wkData && window._wkData[_gi] && window._wkData[_gi].steps) || 0) < _strGoal7) {
               _ok = false; break;
             }
           }
           if (_ok) {
-            // Continuous streak — extend by gap days (and today if met)
+            // Streak is continuous through yesterday.
+            // gap=1 + !_tmMet = mid-day open: user hasn't finished today yet.
+            // Formula _pc+(gap-1)+tmMet already handles this correctly:
+            //   gap=1, !tmMet → _pc + 0 + 0 = _pc  (no change, no penalty)
+            //   gap=1,  tmMet → _pc + 0 + 1 = _pc+1 (extend by today)
+            //   gap=2, !tmMet → _pc + 1 + 0 = _pc+1 (extend by verified yesterday)
             _pNew  = _pc + (_gap - 1) + (_tmMet ? 1 : 0);
             _pdNew = _tmMet ? _t7 : _y7;
           } else {
-            // Break found inside window — reset to fresh window count
+            // Real break found in the visible window — reset to confirmed count
             _pNew  = _wkStr7;
             _pdNew = _tmMet ? _t7 : _y7;
           }
-        } else if (_wkStr7 < 7) {
-          // Window shows a break — streak cannot exceed what we see
+
+        } else if (_pc > 0 && _pd && _gap > 6) {
+          // ── FIX #8: gap larger than 7-day window — query the full range ──────
+          // A user who met their goal every day but didn't open the app for 8+
+          // days must NOT lose their streak. Fetch the complete gap from the API.
+          try {
+            var _gapStart = (function(){
+              var _gd = new Date(_pd + 'T00:00:00');
+              _gd.setDate(_gd.getDate() + 1);
+              return _localDateStr(_gd);
+            })();
+            // Fetch dailyRollUp for the full gap: lastDate+1 → today (inclusive)
+            var _gapResp = await _ghPost(
+              B + '/users/me/dataTypes/steps/dataPoints:dailyRollUp',
+              rb(_gapStart, _ghNextDay(_t7))
+            );
+            // Build date → steps map
+            var _gapMap = {};
+            ((_gapResp && _gapResp.rollupDataPoints) || []).forEach(function(rp) {
+              var _gds2 = rangeToDateStr(rp);
+              if (_gds2) _gapMap[_gds2] = parseInt(
+                (rp.steps && (rp.steps.countSum || rp.steps.count_sum || rp.steps.count)) || 0
+              ) || 0;
+            });
+            // Walk each day from gapStart through yesterday (today handled by _tmMet below)
+            var _gWalk    = new Date(_gapStart + 'T00:00:00');
+            var _gWalkEnd = new Date(_y7 + 'T00:00:00');
+            var _runStr   = _pc;
+            var _lastGood = _pd;
+            while (_gWalk <= _gWalkEnd) {
+              var _gds = _localDateStr(_gWalk);
+              if ((_gapMap[_gds] || 0) >= _strGoal7) {
+                _runStr++;
+                _lastGood = _gds;
+              } else {
+                _runStr   = 0;   // real break — restart counter
+                _lastGood = '';
+              }
+              _gWalk.setDate(_gWalk.getDate() + 1);
+            }
+            // Add today only if goal confirmed met (patched steps — FIX #2)
+            if (_tmMet) { _runStr++; _lastGood = _t7; }
+            _pNew  = _runStr;
+            _pdNew = _lastGood || (_tmMet ? _t7 : _y7);
+          } catch(e4) {
+            // API failed — fallback: trust only what the 7-day window shows
+            _pNew  = _wkStr7;
+            _pdNew = _tmMet ? _t7 : _y7;
+          }
+
+        } else {
+          // No stored streak (pc=0) or first run (no stored date) — start from window
           _pNew  = _wkStr7;
           _pdNew = _tmMet ? _t7 : _y7;
-        } else {
-          // Window fully green AND stored date older than window.
-          // Can't verify the gap, so trust the larger value (no break is visible).
-          _pNew  = Math.max(_pc, _wkStr7);
-          _pdNew = _t7;
         }
 
-        _pNew = Math.max(_pNew || 0, 0);
-        localStorage.setItem('fb_streak_steps', JSON.stringify({
-          count: _pNew, lastDate: _pNew > 0 ? _pdNew : ''
-        }));
+        // Persist updated counter (skip only on clock-jump case)
+        if (_gap >= 0) {
+          _pNew = Math.max(_pNew || 0, 0);
+          localStorage.setItem('fb_streak_steps', JSON.stringify({
+            count: _pNew, lastDate: _pNew > 0 ? _pdNew : ''
+          }));
+        }
       }
       _persistedStreak = _pNew;
     } catch(e3) {}
 
-    // 3. Belt-and-suspenders: fb_activity_history based count
+    // 3. Belt-and-suspenders: fb_activity_history based count (max ~8 days)
     var _dbStr7 = 0;
     try { _dbStr7 = (typeof _getStepGoalStreak === 'function' ? _getStepGoalStreak() : 0) || 0; } catch(e2) {}
 
     window._wkTodayStreakReal = Math.max(_wkStr7, _dbStr7, _persistedStreak);
-
-    // Patch today's bar (_wkData[6]) with real DOM values saved by _wkSaveTodaySnap
-    // so the today bar shows the same precise numbers as the main card.
-    if (window._wkTodaySnap && window._wkData) {
-      var snap = window._wkTodaySnap;
-      var td7  = window._wkData[6];
-      if (snap.steps)  { var sv = parseInt((snap.steps  || '').replace(/\D/g,'')); if (sv) td7.steps  = sv; }
-      if (snap.dist && snap.dist !== '—')   { var dv = parseFloat(snap.dist);   if (dv) td7.dist   = dv; }
-      if (snap.floors && snap.floors !== '—') { var fv = parseInt(snap.floors); if (fv) td7.floors = fv; }
-      if (snap.active && snap.active !== '—') { var av = parseInt(snap.active); if (av) td7.active = av; }
-    }
   } catch(e) { /* best-effort — leave chart with existing/demo data */ }
 }
 
