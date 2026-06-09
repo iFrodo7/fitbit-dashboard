@@ -12892,12 +12892,12 @@ function _hDays(n) {
   return out;
 }
 function _hFmtDate(d) {
-  const dd = new Date(d);
+  const dd = new Date(d + 'T12:00:00'); // local noon avoids UTC-offset date shift
   return dd.toLocaleDateString(lang==='es'?'es':'en',{day:'2-digit',month:'short'}).toUpperCase();
 }
 // Compact axis label: "17 MAY" (full) or just day number for dense ranges.
 function _hFmtTick(d, dayOnly) {
-  const dd = new Date(d);
+  const dd = new Date(d + 'T12:00:00'); // local noon avoids UTC-offset date shift
   if (dayOnly) return String(dd.getDate());
   return dd.toLocaleDateString(lang==='es'?'es':'en',{day:'numeric',month:'short'}).replace('.','').toUpperCase();
 }
