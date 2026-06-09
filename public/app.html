@@ -10050,7 +10050,7 @@ async function _driveStreakWrite(data) {
     var fileId = window._driveStreakFileId;
     if (fileId) {
       // Patch existing file content (no metadata change needed)
-      await fetch(_DRIVE_STK_UPL + '/' + fileId + '?uploadType=media', {
+      await _driveFetch(_DRIVE_STK_UPL + '/' + fileId + '?uploadType=media', {
         method: 'PATCH',
         headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
         body: body
@@ -10062,7 +10062,7 @@ async function _driveStreakWrite(data) {
       var _mp = '--' + _bnd + '\r\nContent-Type: application/json\r\n\r\n' + _meta +
                 '\r\n--' + _bnd + '\r\nContent-Type: application/json\r\n\r\n' + body +
                 '\r\n--' + _bnd + '--';
-      var resp = await fetch(_DRIVE_STK_UPL + '?uploadType=multipart', {
+      var resp = await _driveFetch(_DRIVE_STK_UPL + '?uploadType=multipart', {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + token,
                    'Content-Type': 'multipart/related; boundary=' + _bnd },
@@ -10080,7 +10080,7 @@ async function _driveStreakRead() {
   try {
     if (typeof HS === 'undefined' || HS.id !== 'google' || !token) return;
     // Find the file in App Data folder
-    var listResp = await fetch(
+    var listResp = await _driveFetch(
       _DRIVE_STK_BASE + '?spaces=appDataFolder&q=' + encodeURIComponent("name='" + _DRIVE_STK_FILE + "'") + '&fields=files(id)',
       { headers: { 'Authorization': 'Bearer ' + token } }
     );
@@ -10096,7 +10096,7 @@ async function _driveStreakRead() {
     }
     var fileId = files[0].id;
     window._driveStreakFileId = fileId;
-    var fileResp = await fetch(_DRIVE_STK_BASE + '/' + fileId + '?alt=media',
+    var fileResp = await _driveFetch(_DRIVE_STK_BASE + '/' + fileId + '?alt=media',
       { headers: { 'Authorization': 'Bearer ' + token } }
     );
     if (!fileResp.ok) return;
@@ -11333,13 +11333,13 @@ async function loadRealGoogle(displayName, silentRefresh) {
     // If the access token is expired (401), refresh it once and retry.
     if (!displayName) {
       try {
-        let _ui = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        let _ui = await _ghFetch('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: { 'Authorization': 'Bearer ' + token }
         });
         if (_ui.status === 401) {
           const refreshed = await refreshGoogleTok();
           if (refreshed) {
-            _ui = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            _ui = await _ghFetch('https://www.googleapis.com/oauth2/v3/userinfo', {
               headers: { 'Authorization': 'Bearer ' + token }
             });
           }
@@ -11381,6 +11381,11 @@ function _parseCivilDate(d) {
 function _ghFetch(url, opts) {
   const ac = new AbortController();
   const tid = setTimeout(() => ac.abort(), 10000);
+  return fetch(url, { ...opts, signal: ac.signal }).finally(() => clearTimeout(tid));
+}
+function _driveFetch(url, opts) {
+  const ac = new AbortController();
+  const tid = setTimeout(() => ac.abort(), 8000);
   return fetch(url, { ...opts, signal: ac.signal }).finally(() => clearTimeout(tid));
 }
 // Manejo centralizado de 429 — detiene el poll y espera 60s antes de reanudar
