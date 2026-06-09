@@ -11289,10 +11289,13 @@ async function refreshGoogleTok() {
   const rt = localStorage.getItem('fb_rt'); if (!rt) return false;
   window._ghRefreshPromise = (async () => {
     try {
+      const _rtAc = new AbortController();
+      const _rtTid = setTimeout(() => _rtAc.abort(), 12000);
       const r = await fetch(GoogleHealthSource.oauth.token, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refresh_token: rt }),
-      });
+        signal: _rtAc.signal,
+      }).finally(() => clearTimeout(_rtTid));
       const d = await r.json();
       if (d.access_token) {
         localStorage.setItem('fb_tok', d.access_token);
