@@ -11206,6 +11206,9 @@ async function handleGoogleOAuth(code) {
       }
       if (!isNativeApp()) history.replaceState({}, '', location.pathname);
       await loadRealGoogle(_gName);
+      // Refresh PRO state now that fb_email is set — checkProStatus() ran at
+      // initDash() before the OAuth callback completed, so it missed the email.
+      renderCoachAccess(); renderProBtnLabel(); refreshProThemeCards();
       // Auto-trigger checkout if user came from landing "Comenzar prueba gratis"
       if (localStorage.getItem('_pendingSubscribe')) {
         localStorage.removeItem('_pendingSubscribe');
