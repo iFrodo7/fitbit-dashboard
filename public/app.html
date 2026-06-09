@@ -11321,6 +11321,13 @@ async function loadRealGoogle(displayName, silentRefresh) {
     // there's no connection. silentRefresh only skips the skeleton loader (#lov).
     if (!navigator.onLine && !_connInited) _showOwait();
   } else showLoad();
+  // Layer-3 escape hatch: if every await inside stalls, fire hideLoad() after 30s
+  // unconditionally so the user is never permanently stuck at SINCRONIZANDO.
+  var _lrgHatch = setTimeout(function() {
+    hideLoad();
+    document.documentElement.removeAttribute('data-booting');
+    document.body.classList.remove('is-syncing');
+  }, 30000);
   try {
     isReal = true;
     setText('stxt', T[lang].live);
@@ -11358,9 +11365,16 @@ async function loadRealGoogle(displayName, silentRefresh) {
     closeModal();
     startPoll();
     showToast(lang === 'es' ? '◆ GOOGLE CONECTADO' : '◆ GOOGLE CONNECTED');
-    // Fetch real health data now that we're connected
-    await loadRealGoogleData(silentRefresh).catch(e => console.warn('[gh init]', e));
-  } catch (e) { /* keep UI stable */ } finally { _saveSnap(); hideLoad(); document.body.classList.remove('is-syncing'); }
+    // Layer-2: wrap loadRealGoogleData in a 25s ceiling so chained Drive+API
+    // timeouts can't stack past that boundary.
+    await Promise.race([
+      loadRealGoogleData(silentRefresh).catch(e => console.warn('[gh init]', e)),
+      new Promise(function(res) { setTimeout(res, 25000); })
+    ]);
+  } catch (e) { /* keep UI stable */ } finally {
+    clearTimeout(_lrgHatch);
+    _saveSnap(); hideLoad(); document.body.classList.remove('is-syncing');
+  }
 }
 
 // ══════ GOOGLE HEALTH API — DATA LAYER ══════════════════════════════════════
