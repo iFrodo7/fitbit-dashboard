@@ -1750,7 +1750,7 @@ body.t-synth::before{content:'';position:fixed;inset:0;
   background-image:
     repeating-linear-gradient(0deg,rgba(255,0,255,0.055) 0,rgba(255,0,255,0.055) 1px,transparent 1px,transparent 32px),
     repeating-linear-gradient(90deg,rgba(255,0,255,0.055) 0,rgba(255,0,255,0.055) 1px,transparent 1px,transparent 32px);
-  pointer-events:none;z-index:0;}
+  pointer-events:none;z-index:0;animation:swGridScroll 5s linear infinite;}
 /* Neon horizon glow + CRT scanlines */
 body.t-synth::after{content:'';position:fixed;inset:0;
   background:
@@ -1759,7 +1759,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
   pointer-events:none;z-index:999;}
 .t-synth .db-hdr{background:rgba(10,0,21,0.94);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,0,255,0.14);}
 .t-synth .db-name,.t-synth .rnum,.t-synth .snum,.t-synth .vval{font-family:'Rajdhani',sans-serif;font-weight:700;}
-.t-synth .db-name{letter-spacing:8px;}
+.t-synth .db-name{letter-spacing:8px;animation:swGlitch 9s steps(1) infinite;}
 .t-synth .vval{font-size:34px;}
 .t-synth .rnum{font-size:44px;}
 .t-synth #logo-t{font-family:'Rajdhani',sans-serif;font-weight:800;letter-spacing:5px;}
@@ -1779,7 +1779,26 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .t-synth .iitm{background:rgba(255,0,255,0.04);border-color:rgba(255,0,255,0.14);}
 .t-synth .iitm::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,0,255,0.7),transparent);animation:sw-scanline 5s ease-in-out infinite;pointer-events:none;}
 @keyframes sw-scanline{0%,100%{transform:translateY(0);opacity:0;}40%{opacity:0;}50%{transform:translateY(200%);opacity:0.8;}60%{opacity:0;}}
-.t-synth .card:hover,.t-synth .vc:hover{border-color:rgba(255,0,255,0.48);box-shadow:0 0 18px rgba(255,0,255,0.14),0 0 4px rgba(0,255,255,0.1);}
+/* Grid forward scroll */
+@keyframes swGridScroll{from{background-position:0 0}to{background-position:0 32px}}
+/* Name glitch */
+@keyframes swGlitch{
+  0%,90%,100%{transform:none;text-shadow:0 0 14px rgba(255,0,255,.45)}
+  91%{transform:translateX(-4px) skewX(-1deg);text-shadow:4px 0 0 #ff0050,-4px 0 0 #00ffff,0 0 14px rgba(255,0,255,.45)}
+  92%{transform:translateX(3px);text-shadow:-3px 0 0 #ff0050,3px 0 0 #00ffff,0 0 14px rgba(255,0,255,.45)}
+  93%{transform:translateX(-2px);text-shadow:2px 0 0 #ff0050,-2px 0 0 #00ffff,0 0 14px rgba(255,0,255,.45)}
+  94%{transform:none;text-shadow:0 0 14px rgba(255,0,255,.45)}
+}
+/* Card chromatic aberration on hover */
+@keyframes swChrAb{
+  0%{filter:none}
+  25%{filter:drop-shadow(2px 0 0 rgba(255,0,80,.5)) drop-shadow(-2px 0 0 rgba(0,255,255,.5))}
+  50%{filter:drop-shadow(-2px 0 0 rgba(255,0,80,.4)) drop-shadow(2px 0 0 rgba(0,255,255,.4))}
+  75%{filter:drop-shadow(1px 0 0 rgba(255,0,80,.25)) drop-shadow(-1px 0 0 rgba(0,255,255,.25))}
+  100%{filter:none}
+}
+.t-synth .card:hover,.t-synth .vc:hover{border-color:rgba(255,0,255,0.48);box-shadow:0 0 18px rgba(255,0,255,0.14),0 0 4px rgba(0,255,255,0.1);animation:swChrAb .35s ease-out 1;}
+.t-synth .card:hover .rnum,.t-synth .card:hover .vval,.t-synth .vc:hover .rnum,.t-synth .vc:hover .vval{text-shadow:2px 0 0 rgba(255,0,80,.6),-2px 0 0 rgba(0,255,255,.6),0 0 12px rgba(255,0,255,.9);}
 /* AIRA message */
 .t-synth .aira-msg{font-family:'Rajdhani',sans-serif;font-style:normal;font-size:13px;font-weight:600;letter-spacing:1px;}
 .t-synth .rc{display:none;}
