@@ -7646,7 +7646,7 @@ const COACH_FREE_DAILY = 3;
 // Paste the 2 developers' Fitbit user-ids here → Pro free forever (no payment).
 const DEV_FITBIT_IDS = [];
 // Cuentas beta internas — acceso PRO permanente sin Stripe
-const PRO_EMAILS = ['jorge2001cd@gmail.com', 'diegocastil39@gmail.com'];
+window.PRO_EMAILS = ['jorge2001cd@gmail.com', 'diegocastil39@gmail.com'];
 function isPro() {
   // Never trust localStorage alone — checkProStatus() validates with server on every load.
   // DEV_FITBIT_IDS can be used for dev accounts only.
@@ -7655,7 +7655,7 @@ function isPro() {
   if (uid && DEV_FITBIT_IDS.includes(uid)) return true;
   // Cuentas beta internas: acceso PRO por email
   const email = (localStorage.getItem('fb_email') || '').toLowerCase();
-  return !!(email && PRO_EMAILS.includes(email));
+  return !!(email && window.PRO_EMAILS && window.PRO_EMAILS.includes(email));
 }
 // On fresh install or when there's no confirmed Stripe subscription, ensure FREE state.
 (function clearStaleProState() {
