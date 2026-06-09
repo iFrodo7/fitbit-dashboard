@@ -1452,6 +1452,18 @@ body.t-mc{
   font-family:'VT323',monospace;image-rendering:pixelated;
 }
 body.t-mc::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(0deg,rgba(106,80,32,0.055) 0,rgba(106,80,32,0.055) 1px,transparent 1px,transparent 32px),repeating-linear-gradient(90deg,rgba(106,80,32,0.055) 0,rgba(106,80,32,0.055) 1px,transparent 1px,transparent 32px);pointer-events:none;z-index:0;}
+/* ── Voxel C: ciclo día/noche — tinte sobre toda la escena ──── */
+body.t-mc::after{content:'';position:fixed;inset:0;background:var(--mc-tint,transparent);pointer-events:none;z-index:0;transition:background 3s ease;}
+/* ── Voxel A: partículas pixel flotantes (3 capas, posiciones fijas) ── */
+#mc-ambient{display:none;position:fixed;top:0;left:0;width:2px;height:2px;pointer-events:none;z-index:1;}
+#mc-ambient::before,#mc-ambient::after{content:'';position:fixed;top:0;left:0;width:2px;height:2px;pointer-events:none;z-index:1;}
+.t-mc #mc-ambient{display:block;animation:mcPartRise 14s linear infinite;animation-delay:-2s;
+  box-shadow:40px 12vh 0 0 rgba(106,255,58,.5),180px 58vh 0 0 rgba(255,170,0,.45),290px 95vh 0 0 rgba(106,255,58,.4),360px 140vh 0 0 rgba(170,255,100,.45),490px 30vh 0 0 rgba(255,170,0,.5),620px 175vh 0 0 rgba(106,255,58,.4),750px 65vh 0 0 rgba(85,180,255,.45),880px 120vh 0 0 rgba(255,170,0,.5),1010px 45vh 0 0 rgba(106,255,58,.45),1140px 155vh 0 0 rgba(170,255,100,.4),1280px 85vh 0 0 rgba(255,170,0,.45),1400px 195vh 0 0 rgba(106,255,58,.4);}
+.t-mc #mc-ambient::before{animation:mcPartRise 9s linear infinite;animation-delay:-4s;
+  box-shadow:70px 85vh 0 0 rgba(255,170,0,.5),160px 35vh 0 0 rgba(106,255,58,.45),320px 160vh 0 0 rgba(85,180,255,.5),380px 72vh 0 0 rgba(255,170,0,.4),510px 110vh 0 0 rgba(106,255,58,.45),640px 50vh 0 0 rgba(170,255,100,.5),780px 185vh 0 0 rgba(255,170,0,.4),920px 28vh 0 0 rgba(106,255,58,.5),1050px 145vh 0 0 rgba(85,180,255,.4),1180px 95vh 0 0 rgba(255,170,0,.45),1320px 170vh 0 0 rgba(106,255,58,.4);}
+.t-mc #mc-ambient::after{animation:mcPartRise 20s linear infinite;animation-delay:-7s;
+  box-shadow:20px 48vh 0 0 rgba(106,255,58,.4),130px 130vh 0 0 rgba(255,170,0,.5),240px 75vh 0 0 rgba(170,255,100,.45),400px 190vh 0 0 rgba(106,255,58,.4),550px 22vh 0 0 rgba(85,180,255,.45),680px 162vh 0 0 rgba(255,170,0,.45),800px 100vh 0 0 rgba(106,255,58,.5),930px 55vh 0 0 rgba(170,255,100,.4),1060px 178vh 0 0 rgba(255,170,0,.4),1190px 32vh 0 0 rgba(106,255,58,.45),1350px 118vh 0 0 rgba(85,180,255,.4),1450px 80vh 0 0 rgba(255,170,0,.45);}
+@keyframes mcPartRise{from{transform:translateY(0)}to{transform:translateY(-100vh)}}
 .t-mc .db-hdr{background:#1e1600;border-bottom:4px solid #6a5020;box-shadow:0 4px 0 rgba(0,0,0,0.6);}
 .t-mc .card,.t-mc .vc{border:none!important;outline:3px solid #6a5020;box-shadow:inset 0 0 0 1px #8a7040,inset 0 0 0 2px #1a1000,3px 3px 0 rgba(0,0,0,0.7);background:linear-gradient(150deg,#251c00,#1a1200 55%,#251c00)!important;}
 /* VT323 override — use px not rem for crisp rendering */
@@ -2937,6 +2949,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
   <!-- ══ AMBIENT LAYERS (theme-specific, fixed, pointer-events:none) ══ -->
   <div id="bloom-ambient"></div>
   <div id="nn-ambient"></div>
+  <div id="mc-ambient" aria-hidden="true"></div>
 
   <div class="sbar"><div class="sbfi" id="sbfi"></div></div>
   <div class="toast" id="toast"></div>
@@ -6252,6 +6265,17 @@ function startNNAmbient() {
   g.innerHTML = p.map(v => `<div class="${cls[v]}"></div>`).join('');
 })();
 
+// ── Voxel C: ciclo día/noche — tinte ambiente según hora real ───────────────
+function mcApplyTimeOfDay() {
+  var h = new Date().getHours();
+  var tint;
+  if      (h >= 5  && h < 8)  tint = 'rgba(255,140,0,0.09)';   // amanecer — ámbar
+  else if (h >= 8  && h < 17) tint = 'transparent';             // día — verde nativo
+  else if (h >= 17 && h < 20) tint = 'rgba(210,60,0,0.10)';    // atardecer — naranja
+  else                         tint = 'rgba(0,40,140,0.13)';    // noche — azul frío
+  document.body.style.setProperty('--mc-tint', tint);
+}
+
 // ══════ SELECT THEME ══════
 function selectTheme(t) {
   theme = t; localStorage.setItem('fb_t', t);
@@ -6284,6 +6308,10 @@ function _finishSelectTheme(t) {
   // Start theme-specific ambient
   if (t === 'bloom') { requestAnimationFrame(startBloomAmbient); }
   if (t === 'halo')  { requestAnimationFrame(startNNAmbient); }
+  if (t === 'mc') {
+    mcApplyTimeOfDay();
+    if (!window._mcTimeTmr) window._mcTimeTmr = setInterval(mcApplyTimeOfDay, 30 * 60 * 1000);
+  }
   initDash();
   maybeAutoTour();
   refreshBell();
@@ -6309,6 +6337,7 @@ function goBack() {
   document.getElementById('sel').style.display = 'flex';
   document.body.className = '';
   clearInterval(ptmr); clearInterval(cdtmr); clearInterval(slowTmr);
+  if (window._mcTimeTmr) { clearInterval(window._mcTimeTmr); window._mcTimeTmr = null; }
   document.querySelectorAll('.nring').forEach(e => e.remove());
   // Clear ambient layers + injected Neon Noir sweep line
   var ba = document.getElementById('bloom-ambient'); if (ba) ba.innerHTML = '';
