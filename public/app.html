@@ -1827,19 +1827,17 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .synth-eq-info{display:flex;align-items:baseline;gap:8px;}
 .synth-eq-num{font-family:'Rajdhani',sans-serif;font-size:48px;font-weight:700;line-height:1;color:#ff00ff;text-shadow:0 0 14px rgba(255,0,255,0.8),0 0 28px rgba(255,0,255,0.4);}
 .synth-eq-denom{font-size:12px;letter-spacing:2px;opacity:0.35;color:#f0e0ff;}
-/* EQ bar bounce — cada barra tiene --dur y animation-delay distintos → orgánico */
+/* EQ bar — sube rápido (overshoot), baja lento (VU meter asimétrico) + glow reactivo al pico */
 @keyframes swBarShimmer{
-  0%   {transform:scaleY(1);   opacity:.88}
-  20%  {transform:scaleY(.78); opacity:.94}
-  45%  {transform:scaleY(.58); opacity:1}
-  65%  {transform:scaleY(.82); opacity:.91}
-  82%  {transform:scaleY(.66); opacity:.97}
-  100% {transform:scaleY(1);   opacity:.88}
+  0%  {transform:scaleY(.84); filter:brightness(.72); animation-timing-function:cubic-bezier(.05,.85,.2,1)}
+  18% {transform:scaleY(1.06); filter:brightness(1.55); animation-timing-function:cubic-bezier(.5,0,.8,1)}
+  30% {transform:scaleY(.97);  filter:brightness(1.12); animation-timing-function:ease-in}
+  100%{transform:scaleY(.84);  filter:brightness(.72)}
 }
 .synth-eq-bar{
   transform-box:fill-box;
   transform-origin:center bottom;
-  animation:swBarShimmer var(--dur,2.4s) ease-in-out infinite;
+  animation:swBarShimmer var(--dur,2.4s) linear infinite;
 }
 
 /* ── Daily Progress Rings ────────────────────────────────────────── */
@@ -9804,6 +9802,8 @@ function updateSynthEQ(rec, activity, sleep) {
     p.xs.forEach(function(x, bi) {
       const barH  = Math.round(MINY + (MAXY - MINY) * p.env[bi] * p.scale);
       const nSegs = Math.floor(barH / slotH);
+      const delay = (0.11 * (pi * 4 + bi) + bi * 0.07).toFixed(2);
+      const dur   = (1.4 + pi * 0.35 + bi * 0.22).toFixed(2);
       if (nSegs < 1) {
         // placeholder mínimo cuando el ring está vacío
         bars += `<rect x="${x}" y="${BASEY - segH}" width="${W}" height="${segH}" fill="${p.color}" rx="1" opacity="0.15"/>`;
@@ -9818,8 +9818,6 @@ function updateSynthEQ(rec, activity, sleep) {
         const gl     = isPeak ? `0 0 6px ${p.peak}` : p.glow;
         segs += `<rect x="${x}" y="${sy}" width="${W}" height="${segH}" fill="${col}" rx="1" style="filter:drop-shadow(${gl})"/>`;
       }
-      const delay = (0.11 * (pi * 4 + bi) + bi * 0.07).toFixed(2);
-      const dur   = (1.4 + pi * 0.35 + bi * 0.22).toFixed(2);
       bars += `<g class="synth-eq-bar" style="--dur:${dur}s;animation-delay:-${delay}s">${segs}</g>`;
     });
   });
