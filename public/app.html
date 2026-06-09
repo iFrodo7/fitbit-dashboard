@@ -11013,9 +11013,8 @@ const GoogleHealthSource = {
       'https://www.googleapis.com/auth/googlehealth.sleep.readonly',
       'https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly',
       'https://www.googleapis.com/auth/googlehealth.profile.readonly',
-      // App Data folder: stores fb_streak so it survives browser switches.
-      // Silently skipped (403) for tokens issued before this scope was added.
-      'https://www.googleapis.com/auth/drive.appdata',
+      // drive.appdata removed: requires Drive API enabled + registered in OAuth
+      // consent screen. Re-add once Drive API is enabled in Google Cloud Console.
     ].join(' '),
   },
   base: 'https://health.googleapis.com/v4',
