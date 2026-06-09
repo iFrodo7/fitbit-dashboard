@@ -11456,6 +11456,71 @@ function _ghSleepToFitbit(dp) {
   const minA=parseInt(s.summary?.minutesAsleep)||0, minB=parseInt(s.summary?.minutesInSleepPeriod)||0;
   return { startTime:s.interval?.startTime, endTime:s.interval?.endTime, minutesAsleep:minA, timeInBed:minB, efficiency:minB>0?Math.round(minA/minB*100):0, levels:{data:stages,summary:sumMap}, isMainSleep:true };
 }
+// ── 90-day streak initializer (runs once per Google account on first connect) ──
+// Fetches the full 90-day step history and counts the real consecutive streak
+// from yesterday backwards. Writes fb_streak_steps so loadWeekDataGoogle's
+// daily-increment logic can maintain it from there on.
+async function _initStreakFromGoogle() {
+  if (!token) return;
+  var email   = (localStorage.getItem('fb_email') || '').toLowerCase();
+  var flagKey = 'fb_streak_init_v1' + (email ? '_' + email : '');
+  if (localStorage.getItem(flagKey)) return; // already initialized for this account
+
+  try {
+    var td     = _localDateStr();
+    var startDt = new Date(); startDt.setDate(startDt.getDate() - 90);
+    var d90    = _localDateStr(startDt);
+    var nd     = _ghNextDay(td);
+
+    var body = { range: { start: _parseCivilDate(d90), end: _parseCivilDate(nd) }, windowSizeDays: 1 };
+    var resp = await _ghPost(
+      GoogleHealthSource.base + '/users/me/dataTypes/steps/dataPoints:dailyRollUp', body
+    );
+    if (!resp || !resp.rollupDataPoints) return;
+
+    // Build date → steps map using same rangeToDateStr logic as loadWeekDataGoogle
+    var stMap = {};
+    resp.rollupDataPoints.forEach(function(rp) {
+      var cs = rp.civilStartTime;
+      if (!cs) return;
+      var D = cs.date || cs;
+      var ds;
+      if (typeof D === 'string') ds = D;
+      else if (D.year && D.month && D.day)
+        ds = D.year + '-' + String(D.month).padStart(2,'0') + '-' + String(D.day).padStart(2,'0');
+      if (ds) stMap[ds] = parseInt(rp.steps?.countSum ?? rp.steps?.count_sum ?? rp.steps?.count ?? 0) || 0;
+    });
+
+    var goal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+    var streak = 0, lastDate = '';
+
+    // Count consecutive days from yesterday backwards (up to 90)
+    for (var i = 1; i <= 90; i++) {
+      var dt = new Date(); dt.setDate(dt.getDate() - i);
+      var ds = _localDateStr(dt);
+      if (stMap[ds] !== undefined && stMap[ds] >= goal) {
+        streak++;
+        if (!lastDate) lastDate = ds; // most recent completed day in streak
+      } else { break; }
+    }
+    // Add today if the goal is already met
+    if ((stMap[td] || 0) >= goal) { streak++; lastDate = td; }
+
+    // Only persist if this init found a longer streak than what's already stored
+    var existing = {};
+    try { existing = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}'); } catch(e2) {}
+    if (streak > (parseInt(existing.count) || 0)) {
+      localStorage.setItem('fb_streak_steps', JSON.stringify({ count: streak, lastDate: lastDate || td }));
+      window._wkTodayStreakReal = Math.max(window._wkTodayStreakReal || 0, streak);
+      var _sEl = document.getElementById('steps-streak-val');
+      if (_sEl) _sEl.textContent = streak > 0 ? streak : '—';
+    }
+
+    localStorage.setItem(flagKey, '1');
+    console.log('[gh streak init] streak=', streak, 'lastDate=', lastDate);
+  } catch(e) { console.warn('[gh streak init]', e); }
+}
+
 // ── Initial full load ─────────────────────────────────────────────────────
 async function loadRealGoogleData(silentRefresh) {
   // Wipe every HTML demo value up front so hardcoded HTML defaults (8.4 strain,
@@ -11734,6 +11799,10 @@ async function loadRealGoogleData(silentRefresh) {
   // Snapshot today's DOM values so tapping today on the week bars always restores
   // real data (not demo _wkData values).  Must run after all DOM writes above.
   try { _wkSaveTodaySnap(); } catch(e) {}
+  // Initialize 90-day streak on first connect — awaited so fb_streak_steps is
+  // ready before loadWeekDataGoogle reads _persistedStreak from it.
+  // Returns immediately (no-op) on every subsequent load.
+  await _initStreakFromGoogle().catch(function(){});
   // Fetch 7-day history for week bar chart (best-effort, never blocks render).
   loadWeekDataGoogle().catch(function(){});
   // Guardar credenciales en IDB para que el SW verifique pasos en background
