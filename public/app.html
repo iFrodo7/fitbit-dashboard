@@ -8869,6 +8869,9 @@ async function loadWeekDataGoogle() {
     try { _dbStr7 = (typeof _getStepGoalStreak === 'function' ? _getStepGoalStreak() : 0) || 0; } catch(e2) {}
 
     window._wkTodayStreakReal = Math.max(_wkStr7, _dbStr7, _persistedStreak);
+    // Update streak card immediately — don't wait for user to click the bar
+    var _strEl = document.getElementById('steps-streak-val');
+    if (_strEl && window._wkTodayStreakReal > 0) _strEl.textContent = window._wkTodayStreakReal;
 
     // ── FIX #14: calendar-week display (Mon–Sun, today at its natural position) ─
     // Streak calculations above use the rolling days[] array (always has last 7 days).
@@ -8896,6 +8899,8 @@ async function loadWeekDataGoogle() {
     if (window._wkData && window._wkTodayIdx != null) {
       Object.assign(window._wkData[window._wkTodayIdx], days[6]);
     }
+    // Re-save snap with corrected streak so clicking today's bar also shows real value
+    try { _wkSaveTodaySnap(); } catch(e2) {}
   } catch(e) { /* best-effort — leave chart with existing/demo data */ }
 }
 
