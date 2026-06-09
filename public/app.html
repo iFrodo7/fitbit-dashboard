@@ -1630,7 +1630,7 @@ body.t-halo::before{content:'';position:fixed;inset:0;background-image:repeating
 body.t-halo::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.055) 2px,rgba(0,0,0,0.055) 4px);pointer-events:none;z-index:999;}
 .t-halo .db-hdr{background:rgba(6,0,16,0.95);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,45,120,0.14);}
 .t-halo .db-name,.t-halo .rnum,.t-halo .snum,.t-halo .vval{font-family:'Rajdhani',sans-serif;font-weight:700;}
-.t-halo .db-name{letter-spacing:10px;}
+.t-halo .db-name{letter-spacing:10px;animation:swGlitch 7s steps(1) infinite;}
 .t-halo .vval{font-size:34px;}
 .t-halo .rnum{font-size:44px;}
 .t-halo #logo-t{font-family:'Rajdhani',sans-serif;font-weight:800;letter-spacing:5px;}
@@ -1759,7 +1759,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
   pointer-events:none;z-index:999;}
 .t-synth .db-hdr{background:rgba(10,0,21,0.94);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,0,255,0.14);}
 .t-synth .db-name,.t-synth .rnum,.t-synth .snum,.t-synth .vval{font-family:'Rajdhani',sans-serif;font-weight:700;}
-.t-synth .db-name{letter-spacing:8px;animation:swGlitch 9s steps(1) infinite;}
+.t-synth .db-name{letter-spacing:8px;animation:swNeonFlicker 6s ease-in-out infinite;}
 .t-synth .vval{font-size:34px;}
 .t-synth .rnum{font-size:44px;}
 .t-synth #logo-t{font-family:'Rajdhani',sans-serif;font-weight:800;letter-spacing:5px;}
@@ -1781,6 +1781,18 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 @keyframes sw-scanline{0%,100%{transform:translateY(0);opacity:0;}40%{opacity:0;}50%{transform:translateY(200%);opacity:0.8;}60%{opacity:0;}}
 /* Grid forward scroll */
 @keyframes swGridScroll{from{background-position:0 0}to{background-position:0 32px}}
+/* Neon sign flicker — título Synthwave */
+@keyframes swNeonFlicker{
+  0%,100%{opacity:1;text-shadow:0 0 8px rgba(255,0,255,.9),0 0 20px rgba(255,0,255,.5),0 0 40px rgba(0,255,255,.2)}
+  4%{opacity:.7;text-shadow:0 0 3px rgba(255,0,255,.4)}
+  6%{opacity:1;text-shadow:0 0 8px rgba(255,0,255,.9),0 0 20px rgba(255,0,255,.5)}
+  46%{opacity:1;text-shadow:0 0 8px rgba(255,0,255,.9),0 0 20px rgba(255,0,255,.5)}
+  48%{opacity:.55;text-shadow:none}
+  50%{opacity:1;text-shadow:0 0 8px rgba(255,0,255,.9),0 0 22px rgba(255,0,255,.6),0 0 44px rgba(0,255,255,.25)}
+  70%{opacity:1;text-shadow:0 0 8px rgba(255,0,255,.9),0 0 20px rgba(255,0,255,.5)}
+  72%{opacity:.8;text-shadow:0 0 4px rgba(255,0,255,.5)}
+  74%{opacity:1;text-shadow:0 0 8px rgba(255,0,255,.9),0 0 20px rgba(255,0,255,.5)}
+}
 /* Name glitch */
 @keyframes swGlitch{
   0%,90%,100%{transform:none;text-shadow:0 0 14px rgba(255,0,255,.45)}
