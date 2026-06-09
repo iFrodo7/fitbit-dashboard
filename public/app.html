@@ -10465,7 +10465,11 @@ function updateDailyRings() {
   // Registra actividad (ambos planes — útil si el usuario hace upgrade)
   if(isReal&&(steps||cal||actMin)){
     _recordActivityDay(steps,cal,actMin);
-    var _ss=_getStepGoalStreak(),_sse=document.getElementById('steps-streak-val');
+    // Prefer _wkTodayStreakReal (set by loadWeekDataGoogle) — it accounts for
+    // fb_streak_steps (persisted counter) and streaks longer than 7 days.
+    // Falls back to _getStepGoalStreak() only before the first weekly load.
+    var _ss = window._wkTodayStreakReal || _getStepGoalStreak();
+    var _sse=document.getElementById('steps-streak-val');
     if(_sse) _sse.textContent=_ss>0?_ss:'—';
   }
   // Chip de tipo de día — Pro: tipo de día adaptativo | Standard: 🔒 upsell
