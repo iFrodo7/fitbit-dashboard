@@ -1498,6 +1498,19 @@ body.t-mc::after{content:'';position:fixed;inset:0;background:var(--mc-tint,tran
 .t-mc .mc-leg{display:flex;}
 .mc-rsvg{width:100%;height:100%;}
 @keyframes mcBlink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
+/* B: fill-in izq→der al recibir datos */
+@keyframes mcFillIn{0%{opacity:0;}55%{opacity:1;}75%{opacity:.6;}100%{opacity:1;}}
+.mc-fill-in{animation:mcFillIn .22s ease-out both;}
+/* C: LOW HP — blink cuando MIN ACT ≤ 20% */
+@keyframes mcLowHpBlink{0%,49%{opacity:1;}50%,100%{opacity:.12;}}
+/* D: latido del score — velocidad varía con --mc-beat-dur */
+@keyframes mcHpBeat{
+  0%,70%,100%{filter:none;}
+  10%{filter:drop-shadow(0 0 6px #6aff3a);}
+  22%{filter:drop-shadow(0 0 2px #6aff3a);}
+  35%{filter:none;}
+}
+#mc-rscore{animation:mcHpBeat var(--mc-beat-dur,2.2s) ease-in-out infinite;}
 .mc-pulse{animation:mcBlink 1s steps(1) infinite;}
 
 /* ═══════════════════════════════════════
@@ -3182,7 +3195,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
             <use id="mc-s-9" href="#mc-ic-z" x="138" y="44" width="14" height="12" color="#001830"/>
             <rect x="8" y="60" width="144" height="2" fill="#3a2800"/>
             <!-- ── Fila 3: ESTRES (corazones) ── -->
-            <text x="8" y="73" font-family="VT323" font-size="13" fill="#ff5555">MIN ACT.</text>
+            <text id="mc-st-lbl" x="8" y="73" font-family="VT323" font-size="13" fill="#ff5555">MIN ACT.</text>
             <use id="mc-st-0" href="#mc-ic-heart" x="3"   y="75" width="14" height="12" color="#2a0000"/>
             <use id="mc-st-1" href="#mc-ic-heart" x="18"  y="75" width="14" height="12" color="#2a0000"/>
             <use id="mc-st-2" href="#mc-ic-heart" x="33"  y="75" width="14" height="12" color="#2a0000"/>
@@ -9667,15 +9680,43 @@ function setHRZones({ zones=[], restHR=61, maxHR=172 }) {
 // ══════ MC RING — PIXEL ART ICONS ══════
 function setMCHearts(type, filled) {
   const cols = {
-    r:  { on: '#ffdd00', off: '#2a2000' },  // rayos recuperación: dorado / oscuro
-    s:  { on: '#5bc8ff', off: '#001830' },  // Z sueño: azul diamante / oscuro
-    st: { on: '#ff5555', off: '#2a0000' }   // corazones estrés: rojo / rojo oscuro
+    r:  { on: '#ffdd00', off: '#2a2000' },
+    s:  { on: '#5bc8ff', off: '#001830' },
+    st: { on: '#ff5555', off: '#2a0000' }
   };
   const c = cols[type];
   if (!c) return;
+  const isLowHP = (type === 'st' && filled <= 2);
   for (let i = 0; i < 10; i++) {
     const el = document.getElementById(`mc-${type}-${i}`);
-    if (el) el.setAttribute('color', i < filled ? c.on : c.off);
+    if (!el) continue;
+    const isOn = i < filled;
+    el.setAttribute('color', isOn ? c.on : c.off);
+    // B: fill-in izq→der con delay escalonado en iconos "on"
+    el.classList.remove('mc-fill-in');
+    el.style.animation = '';
+    el.style.animationDelay = '';
+    if (isOn) {
+      const delay = (i * 0.07).toFixed(2) + 's';
+      if (isLowHP) {
+        // C: LOW HP — blink en lugar de fill-in
+        el.style.animation = `mcLowHpBlink 0.65s steps(1) infinite ${delay}`;
+      } else {
+        el.style.animationDelay = delay;
+        el.classList.add('mc-fill-in');
+      }
+    }
+  }
+  // C: blink en label MIN ACT. cuando HP crítico
+  if (type === 'st') {
+    const lbl = document.getElementById('mc-st-lbl');
+    if (lbl) lbl.style.animation = isLowHP ? 'mcLowHpBlink 0.65s steps(1) infinite' : '';
+    // D: velocidad del latido según nivel de HP
+    const svg = document.querySelector('.mc-rsvg');
+    if (svg) {
+      const dur = filled >= 7 ? '2.6s' : filled >= 4 ? '1.5s' : '0.65s';
+      svg.style.setProperty('--mc-beat-dur', dur);
+    }
   }
 }
 
