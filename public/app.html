@@ -10470,7 +10470,20 @@ function updateDailyRings() {
     // Falls back to _getStepGoalStreak() only before the first weekly load.
     var _ss = window._wkTodayStreakReal || _getStepGoalStreak();
     var _sse=document.getElementById('steps-streak-val');
-    if(_sse) _sse.textContent=_ss>0?_ss:'—';
+    // Show "90+" with disclaimer if streak hit the 90-day init cap and hasn't grown past it yet
+    var _strStored = {}; try { _strStored = JSON.parse(localStorage.getItem('fb_streak_steps')||'{}'); } catch(e2) {}
+    var _isCapped = _strStored.capped && _ss <= 90;
+    if(_sse) _sse.textContent = _isCapped ? '90+' : (_ss>0?_ss:'—');
+    var _sUnit = document.getElementById('steps-streak-unit');
+    if (_sUnit) {
+      if (_isCapped) {
+        _sUnit.textContent = lang==='es' ? 'DÍAS META · MÁX. 90D' : 'GOAL DAYS · MAX 90D';
+        _sUnit.title = lang==='es' ? 'AIRA verifica hasta 90 días de historial. Tu racha real puede ser mayor.' : 'AIRA checks up to 90 days of history. Your real streak may be longer.';
+      } else {
+        _sUnit.textContent = lang==='es' ? 'DÍAS META' : 'DAYS GOAL';
+        _sUnit.title = '';
+      }
+    }
   }
   // Chip de tipo de día — Pro: tipo de día adaptativo | Standard: 🔒 upsell
   var dtEl=document.getElementById('dr-daytype');
@@ -11506,18 +11519,29 @@ async function _initStreakFromGoogle() {
     // Add today if the goal is already met
     if ((stMap[td] || 0) >= goal) { streak++; lastDate = td; }
 
+    // Cap detection: if all 90 days were ✓ the real streak may be longer
+    var capped = (streak >= 90);
+
     // Only persist if this init found a longer streak than what's already stored
     var existing = {};
     try { existing = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}'); } catch(e2) {}
     if (streak > (parseInt(existing.count) || 0)) {
-      localStorage.setItem('fb_streak_steps', JSON.stringify({ count: streak, lastDate: lastDate || td }));
+      localStorage.setItem('fb_streak_steps', JSON.stringify({ count: streak, lastDate: lastDate || td, capped: capped }));
       window._wkTodayStreakReal = Math.max(window._wkTodayStreakReal || 0, streak);
-      var _sEl = document.getElementById('steps-streak-val');
-      if (_sEl) _sEl.textContent = streak > 0 ? streak : '—';
+      var _sEl  = document.getElementById('steps-streak-val');
+      var _sUnit = document.getElementById('steps-streak-unit');
+      if (_sEl)  _sEl.textContent  = capped ? '90+' : (streak > 0 ? streak : '—');
+      if (_sUnit && capped) {
+        var _capNote = lang === 'es' ? 'DÍAS META · AIRA verifica hasta 90 días' : 'GOAL DAYS · AIRA verifies up to 90 days';
+        _sUnit.textContent = _capNote;
+        _sUnit.title = lang === 'es'
+          ? 'AIRA analiza hasta 90 días de historial. Tu racha real puede ser mayor.'
+          : 'AIRA checks up to 90 days of history. Your real streak may be longer.';
+      }
     }
 
     localStorage.setItem(flagKey, '1');
-    console.log('[gh streak init] streak=', streak, 'lastDate=', lastDate);
+    console.log('[gh streak init] streak=', streak, capped ? '(90-day cap reached)' : '', 'lastDate=', lastDate);
   } catch(e) { console.warn('[gh streak init]', e); }
 }
 
