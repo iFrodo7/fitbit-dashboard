@@ -1455,8 +1455,8 @@ body.t-mc::before{content:'';position:fixed;inset:0;background-image:repeating-l
 /* ── Voxel C: ciclo día/noche — tinte sobre toda la escena ──── */
 body.t-mc::after{content:'';position:fixed;inset:0;background:var(--mc-tint,transparent);pointer-events:none;z-index:0;transition:background 3s ease;}
 /* ── Voxel A: partículas pixel flotantes (3 capas, posiciones fijas) ── */
-#mc-ambient{display:none;position:fixed;top:0;left:0;width:2px;height:2px;pointer-events:none;z-index:1;}
-#mc-ambient::before,#mc-ambient::after{content:'';position:fixed;top:0;left:0;width:2px;height:2px;pointer-events:none;z-index:1;}
+#mc-ambient{display:none;position:fixed;top:0;left:0;width:2px;height:2px;pointer-events:none;z-index:0;}
+#mc-ambient::before,#mc-ambient::after{content:'';position:fixed;top:0;left:0;width:2px;height:2px;pointer-events:none;z-index:0;}
 .t-mc #mc-ambient{display:block;animation:mcPartRise 14s linear infinite;animation-delay:-2s;
   box-shadow:40px 12vh 0 0 rgba(106,255,58,.5),180px 58vh 0 0 rgba(255,170,0,.45),290px 95vh 0 0 rgba(106,255,58,.4),360px 140vh 0 0 rgba(170,255,100,.45),490px 30vh 0 0 rgba(255,170,0,.5),620px 175vh 0 0 rgba(106,255,58,.4),750px 65vh 0 0 rgba(85,180,255,.45),880px 120vh 0 0 rgba(255,170,0,.5),1010px 45vh 0 0 rgba(106,255,58,.45),1140px 155vh 0 0 rgba(170,255,100,.4),1280px 85vh 0 0 rgba(255,170,0,.45),1400px 195vh 0 0 rgba(106,255,58,.4);}
 .t-mc #mc-ambient::before{animation:mcPartRise 9s linear infinite;animation-delay:-4s;
