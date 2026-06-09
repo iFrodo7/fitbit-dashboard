@@ -9687,25 +9687,21 @@ function setMCHearts(type, filled) {
   const c = cols[type];
   if (!c) return;
   const isLowHP = (type === 'st' && filled <= 2);
+  // Paso 1: resetear todas a 'none' para forzar restart de animación
   for (let i = 0; i < 10; i++) {
     const el = document.getElementById(`mc-${type}-${i}`);
+    if (el) { el.setAttribute('color', i < filled ? c.on : c.off); el.style.animation = 'none'; }
+  }
+  // Paso 2: forzar reflow (un solo read del DOM basta para todos)
+  document.getElementById(`mc-${type}-0`)?.getBoundingClientRect();
+  // Paso 3: asignar animación fresca a los iconos "on"
+  for (let i = 0; i < filled; i++) {
+    const el = document.getElementById(`mc-${type}-${i}`);
     if (!el) continue;
-    const isOn = i < filled;
-    el.setAttribute('color', isOn ? c.on : c.off);
-    // B: fill-in izq→der con delay escalonado en iconos "on"
-    el.classList.remove('mc-fill-in');
-    el.style.animation = '';
-    el.style.animationDelay = '';
-    if (isOn) {
-      const delay = (i * 0.07).toFixed(2) + 's';
-      if (isLowHP) {
-        // C: LOW HP — blink en lugar de fill-in
-        el.style.animation = `mcLowHpBlink 0.65s steps(1) infinite ${delay}`;
-      } else {
-        el.style.animationDelay = delay;
-        el.classList.add('mc-fill-in');
-      }
-    }
+    const delay = (i * 0.07).toFixed(2) + 's';
+    el.style.animation = isLowHP
+      ? `mcLowHpBlink 0.65s steps(1) infinite ${delay}`
+      : `mcFillIn .22s ease-out ${delay} both`;
   }
   // C: blink en label MIN ACT. cuando HP crítico
   if (type === 'st') {
