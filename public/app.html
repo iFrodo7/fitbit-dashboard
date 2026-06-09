@@ -1827,9 +1827,20 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .synth-eq-info{display:flex;align-items:baseline;gap:8px;}
 .synth-eq-num{font-family:'Rajdhani',sans-serif;font-size:48px;font-weight:700;line-height:1;color:#ff00ff;text-shadow:0 0 14px rgba(255,0,255,0.8),0 0 28px rgba(255,0,255,0.4);}
 .synth-eq-denom{font-size:12px;letter-spacing:2px;opacity:0.35;color:#f0e0ff;}
-/* Idle bar shimmer */
-@keyframes swBarShimmer{0%,100%{opacity:0.85;}50%{opacity:1;}}
-.synth-eq-bar{animation:swBarShimmer var(--dur,2.4s) ease-in-out infinite;}
+/* EQ bar bounce — cada barra tiene --dur y animation-delay distintos → orgánico */
+@keyframes swBarShimmer{
+  0%   {transform:scaleY(1);   opacity:.88}
+  20%  {transform:scaleY(.78); opacity:.94}
+  45%  {transform:scaleY(.58); opacity:1}
+  65%  {transform:scaleY(.82); opacity:.91}
+  82%  {transform:scaleY(.66); opacity:.97}
+  100% {transform:scaleY(1);   opacity:.88}
+}
+.synth-eq-bar{
+  transform-box:fill-box;
+  transform-origin:center bottom;
+  animation:swBarShimmer var(--dur,2.4s) ease-in-out infinite;
+}
 
 /* ── Daily Progress Rings ────────────────────────────────────────── */
 .drw{border-top:1px solid rgba(255,255,255,0.07);margin-top:14px;padding-top:13px;}
@@ -9807,8 +9818,8 @@ function updateSynthEQ(rec, activity, sleep) {
         const gl     = isPeak ? `0 0 6px ${p.peak}` : p.glow;
         segs += `<rect x="${x}" y="${sy}" width="${W}" height="${segH}" fill="${col}" rx="1" style="filter:drop-shadow(${gl})"/>`;
       }
-      const delay = (0.08 * (pi * 4 + bi)).toFixed(2);
-      const dur   = (2.0 + pi * 0.28 + bi * 0.14).toFixed(2);
+      const delay = (0.11 * (pi * 4 + bi) + bi * 0.07).toFixed(2);
+      const dur   = (1.4 + pi * 0.35 + bi * 0.22).toFixed(2);
       bars += `<g class="synth-eq-bar" style="--dur:${dur}s;animation-delay:-${delay}s">${segs}</g>`;
     });
   });
