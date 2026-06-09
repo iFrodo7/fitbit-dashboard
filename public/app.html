@@ -3058,9 +3058,9 @@ body.t-synth::after{content:'';position:fixed;inset:0;
               <line x1="67" y1="4" x2="67" y2="100" stroke="rgba(255,0,255,0.18)" stroke-width="0.7" stroke-dasharray="2,3"/>
               <line x1="130" y1="4" x2="130" y2="100" stroke="rgba(255,0,255,0.18)" stroke-width="0.7" stroke-dasharray="2,3"/>
               <!-- Pillar labels -->
-              <text x="36"  y="109" text-anchor="middle" fill="rgba(0,255,255,0.55)"   font-size="6.5" font-family="IBM Plex Mono,monospace" letter-spacing="1.5">REC</text>
-              <text x="99"  y="109" text-anchor="middle" fill="rgba(255,123,58,0.55)"  font-size="6.5" font-family="IBM Plex Mono,monospace" letter-spacing="1.5">ACT</text>
-              <text x="162" y="109" text-anchor="middle" fill="rgba(168,85,247,0.55)"  font-size="6.5" font-family="IBM Plex Mono,monospace" letter-spacing="1.5">SLP</text>
+              <text x="36"  y="109" text-anchor="middle" fill="rgba(0,255,255,0.55)"   font-size="6.5" font-family="IBM Plex Mono,monospace" letter-spacing="1.5">STP</text>
+              <text x="99"  y="109" text-anchor="middle" fill="rgba(255,123,58,0.55)"  font-size="6.5" font-family="IBM Plex Mono,monospace" letter-spacing="1.5">CAL</text>
+              <text x="162" y="109" text-anchor="middle" fill="rgba(168,85,247,0.55)"  font-size="6.5" font-family="IBM Plex Mono,monospace" letter-spacing="1.5">ACT</text>
               <!-- Bars rendered by JS -->
               <g id="synth-eq-bars"></g>
             </svg>
@@ -3123,7 +3123,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
             <rect x="157" y="127" width="3"  height="12" fill="#6a5020"/>
             <rect x="146" y="137" width="12" height="3"  fill="#6a5020"/>
             <!-- ── Fila 1: RECUPERACION (rayos) ── -->
-            <text x="8" y="11" font-family="VT323" font-size="13" fill="#ffdd00">* RECUPERACION</text>
+            <text x="8" y="11" font-family="VT323" font-size="13" fill="#ffdd00">* PASOS</text>
             <use id="mc-r-0" href="#mc-ic-bolt" x="5"   y="13" width="10" height="14" color="#2a2000"/>
             <use id="mc-r-1" href="#mc-ic-bolt" x="20"  y="13" width="10" height="14" color="#2a2000"/>
             <use id="mc-r-2" href="#mc-ic-bolt" x="35"  y="13" width="10" height="14" color="#2a2000"/>
@@ -3136,7 +3136,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
             <use id="mc-r-9" href="#mc-ic-bolt" x="140" y="13" width="10" height="14" color="#2a2000"/>
             <rect x="8" y="29" width="144" height="2" fill="#3a2800"/>
             <!-- ── Fila 2: SUENO (Zs) ── -->
-            <text x="8" y="42" font-family="VT323" font-size="13" fill="#5bc8ff">* SUENO</text>
+            <text x="8" y="42" font-family="VT323" font-size="13" fill="#5bc8ff">* CALORIAS</text>
             <use id="mc-s-0" href="#mc-ic-z" x="3"   y="44" width="14" height="12" color="#001830"/>
             <use id="mc-s-1" href="#mc-ic-z" x="18"  y="44" width="14" height="12" color="#001830"/>
             <use id="mc-s-2" href="#mc-ic-z" x="33"  y="44" width="14" height="12" color="#001830"/>
@@ -3149,7 +3149,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
             <use id="mc-s-9" href="#mc-ic-z" x="138" y="44" width="14" height="12" color="#001830"/>
             <rect x="8" y="60" width="144" height="2" fill="#3a2800"/>
             <!-- ── Fila 3: ESTRES (corazones) ── -->
-            <text x="8" y="73" font-family="VT323" font-size="13" fill="#ff5555">HP ESTRES</text>
+            <text x="8" y="73" font-family="VT323" font-size="13" fill="#ff5555">MIN ACT.</text>
             <use id="mc-st-0" href="#mc-ic-heart" x="3"   y="75" width="14" height="12" color="#2a0000"/>
             <use id="mc-st-1" href="#mc-ic-heart" x="18"  y="75" width="14" height="12" color="#2a0000"/>
             <use id="mc-st-2" href="#mc-ic-heart" x="33"  y="75" width="14" height="12" color="#2a0000"/>
@@ -3169,9 +3169,9 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         </div>
         <!-- Leyenda MC -->
         <div class="mc-leg">
-          <span class="mc-ldot" style="background:#ffdd00;box-shadow:2px 2px 0 #2a2000;"></span>RECUP
-          <span class="mc-ldot" style="background:#5bc8ff;box-shadow:2px 2px 0 #001830;margin-left:8px;"></span>SUENO
-          <span class="mc-ldot" style="background:#ff5555;box-shadow:2px 2px 0 #600000;margin-left:8px;"></span>HP
+          <span class="mc-ldot" style="background:#ffdd00;box-shadow:2px 2px 0 #2a2000;"></span>PASOS
+          <span class="mc-ldot" style="background:#5bc8ff;box-shadow:2px 2px 0 #001830;margin-left:8px;"></span>CAL
+          <span class="mc-ldot" style="background:#ff5555;box-shadow:2px 2px 0 #600000;margin-left:8px;"></span>ACT
         </div>
 
         <!-- Naruto Ring — naruto theme only -->
@@ -9708,8 +9708,7 @@ function setStressBars({ hrv=68, rhr=61, br=14 }) {
   setBar('sbar-rhr', 'sval-rhr', rhrPct, rhr, 'bpm');
   setBar('sbar-br',  'sval-br',  brPct,  br,  'rpm');
   // hud-sfil (MIN ACT arc) → driven by activity composite in updateDailyRings()
-  // MC ring — corazones: más corazones = menos estrés (más salud)
-  setMCHearts('st', Math.round((100-score)/10));
+  // MC stress hearts now driven by activity rings in updateDailyRings()
 }
 function setCalbars({ sed=0, lig=0, mod=0, int=0 }) {
   const total = 1440;
@@ -9750,7 +9749,7 @@ function updateSynthEQ(rec, activity, sleep) {
   const g = document.getElementById('synth-eq-bars');
   const numEl = document.getElementById('synth-eq-num');
   if (!g) return;
-  if (numEl) numEl.textContent = Math.round(rec || 0);
+  if (numEl) numEl.textContent = Math.round(((rec||0) + (activity||0) + (sleep||0)) / 3);
 
   const W = 10, BASEY = 100, MAXY = 88, MINY = 5;
   const segH = 4, segGap = 2, slotH = segH + segGap;
@@ -9810,9 +9809,7 @@ function updateScores({ rec, strain, sleepPct }) {
   if (rf) rf.style.strokeDashoffset = (339*(1-rec/100)).toFixed(1);
   animN('rscore', 0, rec, 1200);
   // HUD ring arcs + number → all driven by activity composite in updateDailyRings()
-  // MC ring — iconos de pixel art
-  setMCHearts('r', Math.round(rec/10));
-  setMCHearts('s', Math.round(sleepPct/10));
+  // MC ring icons now driven by activity rings in updateDailyRings()
   // mc-rscore → driven by activity composite in updateDailyRings()
   // nrt-rfil arc + nrt-rscore driven by activity composite in updateDailyRings()
   // Naruto bars — live data
@@ -10571,9 +10568,15 @@ function updateDailyRings() {
   // Composite = promedio de los 3 anillos de actividad → actualiza TODOS los temas
   var composite=Math.round((data[0].pct+data[1].pct+data[2].pct)/3);
   window._lastActivityComposite = composite;
-  // Synthwave EQ: actualizar los 3 pilares con datos frescos
+  // Synthwave EQ: usar los mismos 3 anillos (steps, cal, actMin)
   if (typeof theme !== 'undefined' && theme === 'synth') {
-    updateSynthEQ(window._lastRec||0, composite, window._lastSleepPct||0);
+    updateSynthEQ(data[0].pct||0, data[1].pct||0, data[2].pct||0);
+  }
+  // Voxel (MC): íconos de pixel-art sincronizados con los 3 anillos
+  if (typeof theme !== 'undefined' && theme === 'mc') {
+    setMCHearts('r',  Math.round(Math.min(100, data[0].pct) / 10));
+    setMCHearts('s',  Math.round(Math.min(100, data[1].pct) / 10));
+    setMCHearts('st', Math.round(Math.min(100, data[2].pct) / 10));
   }
   var tr='stroke-dashoffset 0.9s var(--ease-out)';
   // SHINOBI
