@@ -1817,12 +1817,10 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 /* ── Synthwave EQ ── */
 .synth-eq{display:none;flex-direction:column;align-items:center;gap:10px;}
 .t-synth .synth-eq{display:flex;}
-.synth-eq-screen{position:relative;width:196px;height:112px;border-radius:6px;overflow:hidden;border:none;background:rgba(6,0,18,0.92);box-shadow:0 0 0 1px rgba(0,255,255,0.12),0 0 18px rgba(255,0,255,0.35),0 0 40px rgba(255,0,255,0.15),0 0 70px rgba(0,255,255,0.08),inset 0 0 32px rgba(0,0,0,0.7);}
+.synth-eq-screen{position:relative;width:196px;height:112px;border-radius:4px;overflow:hidden;border:none;background:transparent;}
 .synth-eq-svg{display:block;width:100%;height:100%;}
 /* CRT scanlines */
-.synth-eq-screen::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.18) 3px,rgba(0,0,0,0.18) 4px);pointer-events:none;z-index:2;}
 /* Corner brackets */
-.synth-eq-screen::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,0,255,0.25) 0%,transparent 8%),linear-gradient(225deg,rgba(0,255,255,0.15) 0%,transparent 8%);pointer-events:none;z-index:1;}
 /* Score + label row */
 .synth-eq-info{display:flex;align-items:baseline;gap:8px;}
 .synth-eq-num{font-family:'Rajdhani',sans-serif;font-size:48px;font-weight:700;line-height:1;color:#ff00ff;text-shadow:0 0 14px rgba(255,0,255,0.8),0 0 28px rgba(255,0,255,0.4);}
