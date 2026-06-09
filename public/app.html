@@ -11150,7 +11150,7 @@ async function startGoogleOAuth() {
     `&client_id=${encodeURIComponent(GoogleHealthSource.clientId)}` +
     `&redirect_uri=${encodeURIComponent(getRedirectUri())}` +
     `&scope=${encodeURIComponent(GoogleHealthSource.oauth.scope)}` +
-    `&access_type=offline&prompt=consent&include_granted_scopes=true`;
+    `&access_type=offline&prompt=consent`;
   if (isNativeApp() && window.Capacitor?.Plugins?.Browser) window.Capacitor.Plugins.Browser.open({ url });
   else location.href = url;
 }
