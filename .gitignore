@@ -34,3 +34,4 @@ next-env.d.ts
 
 # Local Claude Code tooling (preview launch config, etc.)
 .claude/
+.env*
