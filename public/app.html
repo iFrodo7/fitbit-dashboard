@@ -1827,11 +1827,12 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .synth-eq-info{display:flex;align-items:baseline;gap:8px;}
 .synth-eq-num{font-family:'Rajdhani',sans-serif;font-size:48px;font-weight:700;line-height:1;color:#ff00ff;text-shadow:0 0 14px rgba(255,0,255,0.8),0 0 28px rgba(255,0,255,0.4);}
 .synth-eq-denom{font-size:12px;letter-spacing:2px;opacity:0.35;color:#f0e0ff;}
-/* EQ bar — sube rápido (overshoot), baja lento (VU meter asimétrico) + glow reactivo al pico */
+/* EQ bar — sube rápido (overshoot), cae rápido, reposa en base + glow reactivo al pico */
 @keyframes swBarShimmer{
   0%  {transform:scaleY(.84); filter:brightness(.72); animation-timing-function:cubic-bezier(.05,.85,.2,1)}
   18% {transform:scaleY(1.06); filter:brightness(1.55); animation-timing-function:cubic-bezier(.5,0,.8,1)}
-  30% {transform:scaleY(.97);  filter:brightness(1.12); animation-timing-function:ease-in}
+  27% {transform:scaleY(.97);  filter:brightness(1.1);  animation-timing-function:cubic-bezier(.4,0,.7,1)}
+  55% {transform:scaleY(.84);  filter:brightness(.72); animation-timing-function:ease-in-out}
   100%{transform:scaleY(.84);  filter:brightness(.72)}
 }
 .synth-eq-bar{
