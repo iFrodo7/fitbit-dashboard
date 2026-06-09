@@ -11484,7 +11484,7 @@ async function _initStreakFromGoogle() {
 
   try {
     var td     = _localDateStr();
-    var startDt = new Date(); startDt.setDate(startDt.getDate() - 90);
+    var startDt = new Date(); startDt.setDate(startDt.getDate() - 89); // 89 days back + today + tomorrow = 91 → API max is 90 days span
     var d90    = _localDateStr(startDt);
     var nd     = _ghNextDay(td);
 
