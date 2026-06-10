@@ -428,7 +428,12 @@ body.sheet-lock{overflow:hidden;}
 /* In jiggle mode the press-scale (!important) would override the wobble animation
    mid-cycle → visible stutter right before a drag lifts. Freezing the pressed card
    instead reads as "selected, awaiting lift" — same as iOS. */
-.jiggle-mode .vc:active{transform:none!important;}}
+.jiggle-mode .vc:active{transform:none!important;}
+/* iOS fires :hover as persistent sticky-hover after first tap — without this, every
+   tapped widget would float 2px above baseline (translateY from .vc:hover) until
+   another element is tapped, creating theme-dependent visual inconsistency.
+   On touch, feedback is delivered exclusively via the :active scale rules above. */
+.vc:hover,.card:hover,.cbtn:hover{transform:none;}}
 
 /* Readiness ring */
 .rw{display:flex;flex-direction:column;align-items:center;gap:12px;transition:filter var(--dur-base) var(--ease-std);}
@@ -778,21 +783,96 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .av-edit-badge{position:absolute;right:-2px;bottom:-2px;width:17px;height:17px;border-radius:50%;background:var(--ta);color:var(--bg);font-size:9px;display:flex;align-items:center;justify-content:center;z-index:3;box-shadow:0 1px 4px rgba(0,0,0,0.4);}
 .av-lock-ic{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;z-index:4;}
 #pv-avatar{--av-size:50px;}
-#home-av{--av-size:42px;}
-/* identity corner: avatar + clock column in the home greet */
+/* identity corner: clock column in the home greet */
 .db-greet-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;align-self:flex-end;padding-bottom:4px;}
 /* desktop: pin to the far right edge, top-aligned with the greet (name hero left ←→ identity right) */
 @media(min-width:641px){
   .db-greet-right{margin-left:auto;align-self:flex-start;padding-bottom:0;}
 }
-/* mobile: the greet column wraps → pin the avatar top-right, aligned with the name row */
-@media(max-width:640px){
-  .db-greet{position:relative;}
-  .db-greet > div:first-child{padding-right:50px;}
-  #home-av{--av-size:40px;position:absolute;top:2px;right:0;}
-}
 /* Voxel: square identity (Minecraft skin culture) */
 .t-mc .av-wrap{border-radius:8px;}
+/* ══════ PULSE IDENTITY CARD ══════ */
+.pulse-card{padding:0;overflow:hidden;position:relative;}
+.pulse-bg{position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 120% 130% at 18% 50%,rgba(var(--ta-rgb,0,200,255),0.10) 0%,transparent 65%),radial-gradient(ellipse 80% 90% at 82% 15%,rgba(var(--ta2-rgb,120,80,255),0.07) 0%,transparent 60%);}
+.pulse-hero{position:relative;display:flex;align-items:center;gap:16px;padding:20px 18px 16px;z-index:1;}
+.pulse-av-section{position:relative;flex-shrink:0;width:104px;height:104px;display:flex;align-items:center;justify-content:center;}
+.pulse-av-section .av-wrap{--av-size:74px;position:relative;z-index:2;}
+.pulse-orbits{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:1;}
+.po-track{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:2;stroke-linecap:round;}
+.po-arc{fill:none;stroke-width:2.5;stroke-linecap:round;}
+.po-arc-0{stroke:var(--tpos,#00c864);}
+.po-arc-1{stroke:var(--ta2);}
+.po-arc-2{stroke:var(--ta);}
+@keyframes poArcIn{from{opacity:0}to{opacity:1}}
+.po-arc.po-visible{animation:poArcIn 0.6s var(--ease-out) both;}
+.pulse-identity{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;z-index:1;}
+#pv-uname{font-size:17px !important;font-weight:800 !important;letter-spacing:0px !important;color:var(--txt) !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15;}
+.pulse-tier-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:1px;}
+.pulse-tier-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(var(--ta-rgb,0,200,255),0.09);border:1px solid rgba(var(--ta-rgb,0,200,255),0.24);border-radius:var(--r-full);padding:4px 11px 4px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background var(--dur-base) var(--ease-std),border-color var(--dur-base) var(--ease-std),transform var(--dur-fast) var(--ease-spring);font-family:inherit;}
+.pulse-tier-badge:active{transform:scale(0.94);}
+.ptb-icon{font-size:10px;color:var(--ta);}
+.ptb-name{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--ta);text-transform:uppercase;font-family:'IBM Plex Mono',monospace;}
+#pv-ustatus{font-size:8px !important;letter-spacing:1.5px !important;opacity:0.32 !important;margin:0 !important;}
+.pulse-tier-progress{width:100%;height:2px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;margin-top:2px;}
+.pulse-tier-fill{height:100%;background:var(--ta);border-radius:2px;transition:width 1.3s var(--ease-out);}
+.pulse-pts{font-size:9px;opacity:0.32;letter-spacing:1.5px;font-family:'IBM Plex Mono',monospace;}
+.pulse-stats{position:relative;display:flex;align-items:stretch;border-top:1px solid rgba(255,255,255,0.06);z-index:1;}
+.pls-chip{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:11px 6px;gap:2px;}
+.pls-sep{flex:none;width:1px;background:rgba(255,255,255,0.06);margin:10px 0;}
+.pls-v{font-size:15px;font-weight:800;color:var(--txt);font-family:'Rajdhani',sans-serif;letter-spacing:-0.3px;line-height:1;transition:color var(--dur-base) var(--ease-std);}
+.pls-l{font-size:7px;letter-spacing:1.5px;opacity:0.32;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;}
+.pulse-action-row{position:relative;padding:10px 18px 14px;z-index:1;}
+/* Records showcase */
+.pulse-records{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px;}
+.rec-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:var(--r-md);padding:10px 8px 9px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;}
+.rec-icon{font-size:17px;line-height:1;margin-bottom:2px;}
+.rec-val{font-size:13px;font-weight:800;color:var(--ta);font-family:'Rajdhani',sans-serif;letter-spacing:-0.2px;line-height:1.1;}
+.rec-lbl{font-size:7px;letter-spacing:1.5px;opacity:0.32;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;line-height:1.3;}
+.rec-sub{font-size:9px;opacity:0.27;letter-spacing:0.3px;margin-top:1px;}
+/* Per-theme RGB vars for PULSE CARD gradients/badges */
+.t-fut  .pulse-card{--ta-rgb:0,245,255;--ta2-rgb:123,47,255;}
+.t-halo .pulse-card{--ta-rgb:255,45,120;--ta2-rgb:189,0,255;}
+.t-mc   .pulse-card{--ta-rgb:106,255,58;--ta2-rgb:255,170,0;}
+.t-naruto .pulse-card{--ta-rgb:74,106,132;--ta2-rgb:192,208,224;}
+.t-bloom .pulse-card{--ta-rgb:232,92,138;--ta2-rgb:196,127,181;}
+.t-synth .pulse-card{--ta-rgb:0,255,255;--ta2-rgb:255,0,255;}
+/* Tier Sheet */
+.tier-sheet{position:fixed;inset:0;z-index:8400;}
+.ts-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.62);}
+.ts-panel{position:absolute;bottom:0;left:0;right:0;background:var(--bg);border-top:1px solid var(--bdr);border-radius:20px 20px 0 0;transform:translateY(100%);transition:transform 0.34s var(--ease-spring);max-height:90vh;overflow-y:auto;overscroll-behavior:contain;padding-bottom:env(safe-area-inset-bottom,20px);}
+.ts-panel.open{transform:translateY(0);}
+.ts-head{display:flex;align-items:center;padding:0 18px 12px;border-bottom:1px solid var(--sub);}
+.ts-title{font-size:10px;font-weight:800;letter-spacing:3px;flex:1;font-family:'IBM Plex Mono',monospace;}
+.ts-hero{display:flex;flex-direction:column;align-items:center;padding:24px 20px 20px;border-bottom:1px solid var(--sub);}
+.ts-current-icon{font-size:40px;line-height:1;margin-bottom:8px;}
+.ts-current-name{font-size:21px;font-weight:900;color:var(--ta);letter-spacing:2.5px;margin-bottom:6px;}
+.ts-pts-row{display:flex;align-items:baseline;gap:5px;}
+.ts-pts-now{font-size:30px;font-weight:900;color:var(--txt);font-family:'Rajdhani',sans-serif;letter-spacing:-1px;line-height:1;}
+.ts-pts-label{font-size:11px;font-weight:700;opacity:0.38;letter-spacing:2px;}
+.ts-progress-wrap{width:100%;margin-top:14px;}
+.ts-progress-bar{width:100%;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;}
+.ts-progress-fill{height:100%;background:var(--ta);border-radius:2px;transition:width 1.2s var(--ease-out);}
+.ts-progress-label{font-size:9px;opacity:0.35;letter-spacing:0.5px;margin-top:7px;font-family:'IBM Plex Mono',monospace;text-align:center;}
+.ts-max-label{font-size:11px;font-weight:700;color:var(--ta);letter-spacing:2px;margin-top:12px;}
+.ts-how{padding:16px 20px;border-bottom:1px solid var(--sub);}
+.ts-how-title{font-size:8px;letter-spacing:3px;opacity:0.28;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;margin-bottom:10px;}
+.ts-how-item{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:11px;line-height:1.35;border-bottom:1px solid rgba(255,255,255,0.04);}
+.ts-how-item:last-child{border-bottom:none;}
+.ts-how-item>span:first-child{font-size:14px;width:22px;text-align:center;flex-shrink:0;}
+.ts-how-item b{color:var(--ta);font-weight:800;}
+.ts-tiers{padding:14px 20px 8px;}
+.ts-tiers-title{font-size:8px;letter-spacing:3px;opacity:0.28;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;margin-bottom:10px;}
+.ts-tier-item{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:var(--r-md);border:1px solid transparent;margin-bottom:4px;transition:background var(--dur-base) var(--ease-std),border-color var(--dur-base) var(--ease-std);}
+.ts-tier-item.done{opacity:0.4;}
+.ts-tier-item.current{background:rgba(var(--ta-rgb,0,200,255),0.07);border-color:rgba(var(--ta-rgb,0,200,255),0.22);}
+.ts-tier-icon{font-size:17px;width:24px;text-align:center;flex-shrink:0;}
+.ts-tier-info{flex:1;min-width:0;}
+.ts-tier-name{font-size:12px;font-weight:700;letter-spacing:0.5px;line-height:1.2;}
+.ts-tier-pts{font-size:9px;opacity:0.3;letter-spacing:1px;font-family:'IBM Plex Mono',monospace;}
+.ts-current-dot{width:7px;height:7px;border-radius:50%;background:var(--ta);box-shadow:0 0 5px var(--ta);flex-shrink:0;animation:pulse-dot 2s ease-in-out infinite;}
+.ts-done-chk{font-size:11px;color:var(--tpos,#00c864);flex-shrink:0;font-weight:700;}
+/* Tier-up fullscreen overlay (reuses ach-ul- infrastructure) */
+#tier-up-ov{position:fixed;inset:0;z-index:9200;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);cursor:pointer;-webkit-tap-highlight-color:transparent;animation:achOvIn 0.25s ease both;}
 /* AURA ID bottom sheet */
 #av-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:8100;opacity:0;pointer-events:none;transition:opacity 0.22s;touch-action:none;}
 #av-overlay.av-open{opacity:1;pointer-events:all;}
@@ -3118,8 +3198,6 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         <div id="aira-msg" class="aira-msg" aria-live="polite"></div>
       </div>
       <div class="db-greet-right">
-        <!-- AURA ID — tap → profile -->
-        <button class="av-wrap" id="home-av" onclick="navigate('profile')" aria-label="Perfil"></button>
         <div class="db-date" id="clock" style="margin-top:0;"></div>
       </div>
     </div>
@@ -4759,19 +4837,60 @@ body.t-synth::after{content:'';position:fixed;inset:0;
       </div>
     </div>
 
-    <!-- User card -->
-    <div class="card hv-card">
-      <div class="pv-user">
-        <button class="av-wrap" id="pv-avatar" onclick="openAvatarSheet()" aria-label="AURA ID"></button>
-        <div>
+    <!-- PULSE IDENTITY CARD -->
+    <div class="card hv-card pulse-card" id="pulse-card">
+      <div class="pulse-bg"></div>
+      <!-- Hero: orbital avatar + identity block -->
+      <div class="pulse-hero">
+        <div class="pulse-av-section">
+          <!-- 3 orbital arcs: recovery · sleep · steps -->
+          <svg class="pulse-orbits" viewBox="0 0 104 104" aria-hidden="true">
+            <circle class="po-track" cx="52" cy="52" r="49"/>
+            <path class="po-arc po-arc-0" id="po-arc-0"/>
+            <circle class="po-track" cx="52" cy="52" r="41"/>
+            <path class="po-arc po-arc-1" id="po-arc-1"/>
+            <circle class="po-track" cx="52" cy="52" r="33"/>
+            <path class="po-arc po-arc-2" id="po-arc-2"/>
+          </svg>
+          <button class="av-wrap" id="pv-avatar" onclick="openAvatarSheet()" aria-label="AURA ID"></button>
+        </div>
+        <div class="pulse-identity">
           <div class="pv-uname" id="pv-uname">—</div>
-          <div class="pv-ustatus" id="pv-ustatus">DEMO MODE</div>
+          <div class="pulse-tier-row">
+            <button class="pulse-tier-badge" id="pulse-tier-badge" onclick="openTierSheet()">
+              <span class="ptb-icon" id="ptb-icon">◦</span>
+              <span class="ptb-name" id="ptb-name">LATENTE</span>
+            </button>
+            <span class="pv-ustatus" id="pv-ustatus">DEMO</span>
+          </div>
+          <div class="pulse-tier-progress"><div class="pulse-tier-fill" id="pulse-tier-fill" style="width:0%"></div></div>
+          <div class="pulse-pts" id="pulse-pts">0 PTS</div>
         </div>
       </div>
-      <button class="pv-connect-btn" id="pv-connect-btn" onclick="openModal()">CONECTAR CON GOOGLE →</button>
-      <button class="pv-disconnect-btn" id="pv-disconnect-btn" onclick="disconnectFitbit()" style="display:none;">DESCONECTAR</button>
+      <!-- Live stats strip: Recovery · Racha · HRV -->
+      <div class="pulse-stats">
+        <div class="pls-chip">
+          <div class="pls-v" id="plsv-rec">—</div>
+          <div class="pls-l" id="plsl-rec">RECOVERY</div>
+        </div>
+        <div class="pls-sep"></div>
+        <div class="pls-chip">
+          <div class="pls-v" id="plsv-str">—</div>
+          <div class="pls-l" id="plsl-str">RACHA</div>
+        </div>
+        <div class="pls-sep"></div>
+        <div class="pls-chip">
+          <div class="pls-v" id="plsv-hrv">—</div>
+          <div class="pls-l">HRV</div>
+        </div>
+      </div>
+      <!-- Connect / disconnect -->
+      <div class="pulse-action-row">
+        <button class="pv-connect-btn" id="pv-connect-btn" onclick="openModal()">CONECTAR CON GOOGLE →</button>
+        <button class="pv-disconnect-btn" id="pv-disconnect-btn" onclick="disconnectFitbit()" style="display:none;">DESCONECTAR</button>
+      </div>
       <!-- 忍 Naruto Easter egg: shinobi rank block — visible only in .t-naruto -->
-      <div class="nrt-egg nrt-rank-block">
+      <div class="nrt-egg nrt-rank-block" style="margin:0 18px 14px;">
         <div class="nrt-rank-ttl" id="nrt-pv-rank-ttl">忍の階級 · RANGO SHINOBI</div>
         <div class="nrt-rank-val" id="nrt-pv-rank-val">下忍 · GENIN</div>
         <div class="nrt-rank-nindo" id="nrt-pv-nindo">Todo maestro fue una vez principiante. Sigue entrenando.</div>
@@ -6779,7 +6898,7 @@ function initSwipeNav() {
 
   // Long-press en cards con data-onb → abre su tooltip explicativo
   let lpTimer = null, lpEl = null, lpStartX = 0, lpStartY = 0;
-  const clearLP = () => { if (lpTimer) { clearTimeout(lpTimer); lpTimer = null; } if (lpEl) { lpEl.style.transform=''; lpEl = null; } };
+  const clearLP = () => { if (lpTimer) { clearTimeout(lpTimer); lpTimer = null; } if (lpEl) { lpEl.style.transform=''; lpEl.style.transition=''; lpEl = null; } };
   document.addEventListener('touchstart', (e) => {
     const card = e.target.closest('[data-onb]');
     if (!card || overlayOpen() || _jiggleActive) return;
@@ -8179,9 +8298,9 @@ function renderProfile() {
   // AIRA Pro plan menu
   renderProUI();
 
-  // AURA ID — living avatar (photo | themed monogram + vital ring + frame)
-  renderAvatar(document.getElementById('pv-avatar'), { editBadge: true });
-  updateAvatarVitals();
+  // PULSE IDENTITY CARD — avatar + orbital rings + tier badge + live stats
+  atlasCheckDailyAward();
+  renderPulseCard();
 
   // Theme buttons
   ['bloom','halo','naruto','fut'].forEach(id => {
@@ -10192,6 +10311,8 @@ function updateSynthEQ(rec, activity, sleep) {
 function updateScores({ rec, strain, sleepPct }) {
   // AURA ID — vital ring follows recovery + live BPM
   try { updateAvatarVitals(); } catch(e) {}
+  // PULSE IDENTITY — live stats strip + orbital arcs
+  try { updatePulseCardLive(); } catch(e) {}
   // Anillo estándar (otros temas)
   const rf = document.getElementById('rfil');
   if (rf) rf.style.strokeDashoffset = (339*(1-rec/100)).toFixed(1);
@@ -14924,6 +15045,8 @@ function checkAchievements(t, silent) {
     }
   });
   _saveAchStats(s); _saveAchUnlocked(u);
+  // Award Atlas points for each new achievement (+25 per logro)
+  if (newUnlocks.length > 0) { try { for (var _ai = 0; _ai < newUnlocks.length; _ai++) atlasAddAchPts(); } catch(e){} }
   newUnlocks.forEach(function(i) { _showAchToast(t, i); });
   _updateAchBadges(t);
   return newUnlocks.length;
@@ -15222,6 +15345,385 @@ function _replayAchAnim(idx) {
   // Cierra el drawer y espera a que salga antes de mostrar la animación
   closeAch();
   setTimeout(function() { _showAchUnlockAnim(t, idx); }, 320);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PULSE IDENTITY SYSTEM — Atlas Tier + Orbital Card + Records
+// ══════════════════════════════════════════════════════════════════════
+
+// ── Atlas tier definitions ──────────────────────────────────────────
+var _ATLAS_TIERS = [
+  { tier:0, min:0,    icon:'◦' },
+  { tier:1, min:100,  icon:'◆' },
+  { tier:2, min:300,  icon:'◈' },
+  { tier:3, min:700,  icon:'◉' },
+  { tier:4, min:1500, icon:'⬡' },
+  { tier:5, min:3000, icon:'✦' },
+  { tier:6, min:6000, icon:'★' }
+];
+
+var _ATLAS_NAMES = {
+  es:{
+    base:   ['LATENTE','ACTIVO','FLUJO','PICO','ÉLITE','MAESTRO','LEYENDA'],
+    mc:     ['MINERO','CONSTRUCTOR','ARTESANO','REDSTONE','ARQUITECTO','MAGO','LEYENDA'],
+    halo:   ['RECLUTA','MARINE','ODST','SPARTAN','COMANDANTE','ALMIRANTE','RECLAIMER'],
+    naruto: ['ACADÉMICO','GENIN','CHŪNIN','JONIN','ANBU','SENNIN','HOKAGE'],
+    fut:    ['SEÑAL','PULSO','NODO','NEXO','NÚCLEO','ÁPICE','SOBERANO'],
+    bloom:  ['SEMILLA','BROTE','FLOR','FLORECIENTE','RADIANTE','LUMINARIA','ASCENDENTE'],
+    synth:  ['SEÑAL','PORTADORA','ONDA','FRECUENCIA','RESONANCIA','OVERDRIVE','TRASCIENDE']
+  },
+  en:{
+    base:   ['LATENT','ACTIVE','FLOW','PEAK','ELITE','MASTER','LEGEND'],
+    mc:     ['MINER','BUILDER','CRAFTER','REDSTONE','ARCHITECT','MAGE','LEGEND'],
+    halo:   ['RECRUIT','MARINE','ODST','SPARTAN','COMMANDER','ADMIRAL','RECLAIMER'],
+    naruto: ['ACADEMY','GENIN','CHŪNIN','JONIN','ANBU','SENNIN','HOKAGE'],
+    fut:    ['SIGNAL','PULSE','NODE','NEXUS','CORE','APEX','SOVEREIGN'],
+    bloom:  ['SEEDLING','SPROUT','BLOOM','FLOURISH','RADIANT','LUMINARY','ASCENDANT'],
+    synth:  ['SIGNAL','CARRIER','WAVE','FREQUENCY','RESONANCE','OVERDRIVE','TRANSCEND']
+  }
+};
+
+function atlasGetPts() {
+  return parseInt(localStorage.getItem('fb_atlas_pts') || '0', 10) || 0;
+}
+
+function atlasGetTier(pts) {
+  var p = (pts == null) ? atlasGetPts() : pts;
+  var t = 0;
+  for (var i = 0; i < _ATLAS_TIERS.length; i++) {
+    if (p >= _ATLAS_TIERS[i].min) t = i;
+  }
+  var def = _ATLAS_TIERS[t];
+  var nxt = _ATLAS_TIERS[t + 1];
+  var pct = nxt ? Math.min(1, (p - def.min) / (nxt.min - def.min)) : 1;
+  return { tier: t, pts: p, icon: def.icon, pct: pct, next: nxt ? nxt.min : null };
+}
+
+function atlasGetTierName(tierIdx) {
+  var th = (typeof theme !== 'undefined') ? theme : 'fut';
+  var l  = (typeof lang  !== 'undefined') ? lang  : 'es';
+  var pool = (_ATLAS_NAMES[l] && _ATLAS_NAMES[l][th]) || _ATLAS_NAMES.es.base;
+  return pool[Math.min(tierIdx, pool.length - 1)];
+}
+
+// Award points once per calendar day based on today's biometric data.
+// Safe to call multiple times — only runs once per date.
+function atlasCheckDailyAward() {
+  var today = new Date().toISOString().slice(0, 10);
+  if (localStorage.getItem('fb_atlas_last_award') === today) return;
+  var pts = 0;
+  // Recovery ring + bonus
+  var rec = window._lastRec;
+  if (rec != null && rec > 0)  pts += 10;
+  if (rec != null && rec >= 67) pts += 15;
+  // Sleep ring + bonus
+  var slp = window._lastSleepPct;
+  if (slp != null && slp > 0)    pts += 10;
+  if (slp != null && slp >= 0.85) pts += 10;
+  // Steps ring
+  var stepsEl = document.getElementById('stepsv');
+  var steps = stepsEl ? parseInt(stepsEl.textContent.replace(/[^0-9]/g,'') || '0', 10) : 0;
+  if (steps >= 10000) pts += 10;
+  // Streak bonus
+  var streak = 0;
+  try { streak = getDailyStreak ? getDailyStreak() : 0; } catch(e) {}
+  if (streak > 0) pts += 5;
+  if (pts <= 0) return;
+  var prev = atlasGetPts();
+  var total = prev + pts;
+  var prevTier = atlasGetTier(prev);
+  localStorage.setItem('fb_atlas_pts', String(total));
+  localStorage.setItem('fb_atlas_last_award', today);
+  var newTier = atlasGetTier(total);
+  if (newTier.tier > prevTier.tier) {
+    setTimeout(function() { _showTierUpAnim(newTier.tier); }, 900);
+  }
+  updateRecords();
+}
+
+// Award bonus points for an achievement unlock (called from _showAchUnlockAnim path).
+function atlasAddAchPts() {
+  var prev = atlasGetPts();
+  var total = prev + 25;
+  var prevTier = atlasGetTier(prev);
+  localStorage.setItem('fb_atlas_pts', String(total));
+  var newTier = atlasGetTier(total);
+  if (newTier.tier > prevTier.tier) {
+    setTimeout(function() { _showTierUpAnim(newTier.tier); }, 900);
+  }
+  // Refresh pts display if profile is open
+  var el = document.getElementById('pulse-pts');
+  if (el) el.textContent = total + ' PTS';
+  var fill = document.getElementById('pulse-tier-fill');
+  if (fill) fill.style.width = (atlasGetTier(total).pct * 100).toFixed(0) + '%';
+}
+
+// ── Orbital SVG arc drawing ─────────────────────────────────────────
+function _poArc(cx, cy, r, pct) {
+  if (pct <= 0) return '';
+  if (pct >= 1) {
+    // Full circle via two 180° arcs (SVG can't render a 360° arc as a single arc)
+    return 'M ' + cx + ' ' + (cy - r)
+      + ' A ' + r + ' ' + r + ' 0 1 1 ' + (cx - 0.001) + ' ' + (cy - r) + ' Z';
+  }
+  var rad = Math.PI / 180;
+  var start = -90;
+  var end   = start + pct * 360;
+  var x1 = cx + r * Math.cos(start * rad);
+  var y1 = cy + r * Math.sin(start * rad);
+  var x2 = cx + r * Math.cos(end   * rad);
+  var y2 = cy + r * Math.sin(end   * rad);
+  var lg = (end - start) > 180 ? 1 : 0;
+  return 'M ' + x1.toFixed(2) + ' ' + y1.toFixed(2)
+    + ' A ' + r + ' ' + r + ' 0 ' + lg + ' 1 ' + x2.toFixed(2) + ' ' + y2.toFixed(2);
+}
+
+function updatePulseOrbits() {
+  var cx = 52, cy = 52;
+  var radii = [49, 41, 33];
+  var rec = window._lastRec;
+  var slp = window._lastSleepPct;
+  var stepsEl = document.getElementById('stepsv');
+  var steps   = stepsEl ? parseInt(stepsEl.textContent.replace(/[^0-9]/g,'') || '0', 10) : 0;
+  var pcts = [
+    rec  != null ? Math.min(1, rec / 100)  : 0,
+    slp  != null ? Math.min(1, slp)        : 0,
+    Math.min(1, steps / 10000)
+  ];
+  for (var i = 0; i < 3; i++) {
+    var arc = document.getElementById('po-arc-' + i);
+    if (!arc) continue;
+    var d = _poArc(cx, cy, radii[i], pcts[i]);
+    arc.setAttribute('d', d);
+    if (d && !arc.classList.contains('po-visible')) arc.classList.add('po-visible');
+  }
+}
+
+// ── PULSE CARD render + live update ────────────────────────────────
+function renderPulseCard() {
+  var es = lang === 'es';
+  var tier = atlasGetTier();
+  // Name (pv-uname is shared with legacy renderProfile binding)
+  var nameEl = document.getElementById('pulse-pts');
+  if (nameEl) nameEl.textContent = tier.pts + ' PTS';
+  // Tier badge
+  var icon  = document.getElementById('ptb-icon');
+  var tname = document.getElementById('ptb-name');
+  if (icon)  icon.textContent  = tier.icon;
+  if (tname) tname.textContent = atlasGetTierName(tier.tier);
+  // Progress bar
+  var fill = document.getElementById('pulse-tier-fill');
+  if (fill) fill.style.width = (tier.pct * 100).toFixed(0) + '%';
+  // Avatar
+  renderAvatar(document.getElementById('pv-avatar'), { editBadge: true });
+  updateAvatarVitals();
+  // Orbital arcs
+  updatePulseOrbits();
+  // Live stats
+  updatePulseCardLive();
+  // i18n labels
+  var lRec = document.getElementById('plsl-rec');
+  var lStr = document.getElementById('plsl-str');
+  var lRcl = document.getElementById('pulse-records-lbl');
+  if (lRec) lRec.textContent = 'RECOVERY';
+  if (lStr) lStr.textContent = es ? 'RACHA' : 'STREAK';
+  if (lRcl) lRcl.textContent = es ? 'RÉCORDS PERSONALES' : 'PERSONAL RECORDS';
+}
+
+function updatePulseCardLive() {
+  var es = lang === 'es';
+  // Recovery chip
+  var rec = window._lastRec;
+  var elR = document.getElementById('plsv-rec');
+  if (elR) {
+    elR.textContent = rec != null ? Math.round(rec) : '—';
+    elR.style.color = rec == null ? '' : rec >= 67 ? 'var(--tpos,#00c864)' : rec >= 34 ? '#f59e0b' : 'var(--tneg)';
+  }
+  // Streak chip
+  var strEl = document.getElementById('steps-streak-val');
+  var str   = strEl ? parseInt(strEl.textContent || '0', 10) : 0;
+  var elS = document.getElementById('plsv-str');
+  if (elS) elS.textContent = str > 0 ? str + (es ? 'd' : 'd') : '—';
+  // HRV chip
+  var hrvEl = document.getElementById('hrv');
+  var hrv   = hrvEl ? hrvEl.textContent.trim() : '—';
+  var elH = document.getElementById('plsv-hrv');
+  if (elH) elH.textContent = (hrv && hrv !== '—' && hrv !== '') ? hrv + 'ms' : '—';
+  // Orbital arcs update whenever live data changes
+  updatePulseOrbits();
+}
+
+// ── Personal records ───────────────────────────────────────────────
+function updateRecords() {
+  var stored = {};
+  try { stored = JSON.parse(localStorage.getItem('fb_records') || '{}'); } catch(e) {}
+  var rec    = window._lastRec;
+  var streak = 0;
+  try { streak = getDailyStreak ? getDailyStreak() : 0; } catch(e) {}
+  if (rec != null && (stored.peakRecovery == null || rec > stored.peakRecovery)) {
+    stored.peakRecovery = Math.round(rec);
+    stored.peakRecoveryDate = new Date().toISOString().slice(0, 10);
+  }
+  if (streak > (stored.bestStreak || 0)) stored.bestStreak = streak;
+  var today = new Date().toISOString().slice(0, 10);
+  if (stored.lastActiveDate !== today) {
+    stored.totalActiveDays = (stored.totalActiveDays || 0) + 1;
+    stored.lastActiveDate  = today;
+  }
+  try { localStorage.setItem('fb_records', JSON.stringify(stored)); } catch(e) {}
+  return stored;
+}
+
+function renderRecordsShowcase() {
+  var el = document.getElementById('pulse-records');
+  if (!el) return;
+  var es = lang === 'es';
+  var r  = {};
+  try { r = JSON.parse(localStorage.getItem('fb_records') || '{}'); } catch(e) {}
+  var items = [
+    { icon:'🔥', lbl: es ? 'MEJOR RACHA'   : 'BEST STREAK',    val: (r.bestStreak || 0) + (es ? 'd' : 'd'),            sub: '' },
+    { icon:'⚡', lbl: es ? 'PEAK RECOVERY' : 'PEAK RECOVERY',  val: r.peakRecovery ? r.peakRecovery + 'pts' : '—',      sub: r.peakRecoveryDate ? r.peakRecoveryDate.slice(5) : '' },
+    { icon:'📅', lbl: es ? 'DÍAS ACTIVOS'  : 'ACTIVE DAYS',    val: (r.totalActiveDays || 0) + (es ? 'd' : 'd'),        sub: '' }
+  ];
+  el.innerHTML = items.map(function(it) {
+    return '<div class="rec-card">'
+      + '<div class="rec-icon">' + it.icon + '</div>'
+      + '<div class="rec-val">'  + it.val  + '</div>'
+      + '<div class="rec-lbl">'  + it.lbl  + '</div>'
+      + (it.sub ? '<div class="rec-sub">' + it.sub + '</div>' : '')
+      + '</div>';
+  }).join('');
+}
+
+// ── Tier Sheet (bottom sheet) ──────────────────────────────────────
+function openTierSheet() {
+  var old = document.getElementById('tier-sheet'); if (old) old.remove();
+  var es   = lang === 'es';
+  var tier = atlasGetTier();
+  var name = atlasGetTierName(tier.tier);
+  var ptsToNext = tier.next ? tier.next - tier.pts : 0;
+  var nextName  = tier.next ? atlasGetTierName(tier.tier + 1) : null;
+  var tierItems = _ATLAS_TIERS.map(function(td, i) {
+    var n   = atlasGetTierName(i);
+    var done    = tier.pts >= td.min;
+    var current = tier.tier === i;
+    return '<div class="ts-tier-item' + (current ? ' current' : done ? ' done' : '') + '">'
+      + '<span class="ts-tier-icon">' + td.icon + '</span>'
+      + '<div class="ts-tier-info">'
+        + '<div class="ts-tier-name">' + n + '</div>'
+        + '<div class="ts-tier-pts">'  + (td.min === 0 ? '0 pts' : td.min + '+ pts') + '</div>'
+      + '</div>'
+      + (current ? '<span class="ts-current-dot"></span>'
+         : done  ? '<span class="ts-done-chk">✓</span>' : '')
+      + '</div>';
+  }).join('');
+  var sh = document.createElement('div');
+  sh.id = 'tier-sheet'; sh.className = 'tier-sheet';
+  sh.setAttribute('role','dialog'); sh.setAttribute('aria-modal','true');
+  sh.innerHTML = '<div class="ts-backdrop" onclick="closeTierSheet()"></div>'
+    + '<div class="ts-panel" id="ts-panel">'
+    + '<div class="ach-handle"></div>'
+    + '<div class="ts-head">'
+      + '<div class="ts-title">' + (es ? 'RANGO ATLAS' : 'ATLAS RANK') + '</div>'
+      + '<button class="ach-close" onclick="closeTierSheet()" aria-label="Cerrar">✕</button>'
+    + '</div>'
+    + '<div class="ts-hero">'
+      + '<div class="ts-current-icon">' + tier.icon + '</div>'
+      + '<div class="ts-current-name">' + name + '</div>'
+      + '<div class="ts-pts-row">'
+        + '<span class="ts-pts-now">' + tier.pts + '</span>'
+        + '<span class="ts-pts-label">PTS</span>'
+      + '</div>'
+      + (tier.next
+          ? '<div class="ts-progress-wrap">'
+            + '<div class="ts-progress-bar"><div class="ts-progress-fill" id="ts-prog-fill" style="width:0%"></div></div>'
+            + '<div class="ts-progress-label">' + ptsToNext + (es ? ' pts para ' : ' pts to ') + nextName + '</div>'
+            + '</div>'
+          : '<div class="ts-max-label">✦ ' + (es ? 'RANGO MÁXIMO' : 'MAX RANK') + '</div>')
+    + '</div>'
+    + '<div class="ts-how">'
+      + '<div class="ts-how-title">' + (es ? 'CÓMO GANAR PUNTOS' : 'HOW TO EARN POINTS') + '</div>'
+      + '<div class="ts-how-item"><span>🎯</span><span>' + (es ? 'Ring diario completo' : 'Complete a daily ring') + ' · <b>+10 pts</b></span></div>'
+      + '<div class="ts-how-item"><span>⚡</span><span>Recovery ≥ 67 · <b>+15 pts</b></span></div>'
+      + '<div class="ts-how-item"><span>🌙</span><span>' + (es ? 'Sueño ≥ 85%' : 'Sleep ≥ 85%') + ' · <b>+10 pts</b></span></div>'
+      + '<div class="ts-how-item"><span>🔥</span><span>' + (es ? 'Mantener racha activa' : 'Keep streak alive') + ' · <b>+5 pts/día</b></span></div>'
+      + '<div class="ts-how-item"><span>🏆</span><span>' + (es ? 'Desbloquear un logro' : 'Unlock achievement') + ' · <b>+25 pts</b></span></div>'
+    + '</div>'
+    + '<div class="ts-tiers">'
+      + '<div class="ts-tiers-title">' + (es ? 'TODOS LOS RANGOS' : 'ALL RANKS') + '</div>'
+      + tierItems
+    + '</div>'
+    + '</div>';
+  document.body.appendChild(sh);
+  _sheetLock(true);
+  requestAnimationFrame(function() {
+    var panel = document.getElementById('ts-panel');
+    if (panel) panel.classList.add('open');
+    var fill = document.getElementById('ts-prog-fill');
+    if (fill) setTimeout(function() { fill.style.width = (tier.pct * 100).toFixed(0) + '%'; }, 60);
+  });
+}
+
+function closeTierSheet() {
+  var sh = document.getElementById('tier-sheet'); if (!sh) return;
+  _sheetLock(false);
+  var panel = document.getElementById('ts-panel');
+  if (panel) { panel.style.transform = 'translateY(100%)'; }
+  setTimeout(function() { var s = document.getElementById('tier-sheet'); if (s) s.remove(); }, 320);
+}
+
+// ── Tier-up fullscreen celebration ────────────────────────────────
+function _showTierUpAnim(tierIdx) {
+  var old = document.getElementById('tier-up-ov'); if (old) old.remove();
+  var es   = lang === 'es';
+  var def  = _ATLAS_TIERS[Math.min(tierIdx, _ATLAS_TIERS.length - 1)];
+  var name = atlasGetTierName(tierIdx);
+  var ov = document.createElement('div');
+  ov.id = 'tier-up-ov';
+  ov.innerHTML =
+      '<div class="ach-ul-flash"></div>'
+    + '<div class="ach-ul-shock"></div>'
+    + '<div class="ach-ul-shock2"></div>'
+    + '<div class="ach-ul-parts" id="tu-parts"></div>'
+    + '<div class="ach-ul-icon-wrap">'
+      + '<div class="ach-ul-glow"></div>'
+      + '<div class="ach-ul-icon">' + def.icon + '</div>'
+    + '</div>'
+    + '<div class="ach-ul-content">'
+      + '<div class="ach-ul-eye">'  + (es ? '// NUEVO RANGO' : '// NEW RANK') + '</div>'
+      + '<div class="ach-ul-name">' + name + '</div>'
+      + '<div class="ach-ul-desc">' + (es
+          ? 'Has subido al rango <strong>' + name + '</strong>. Sigue así.'
+          : 'You\'ve reached <strong>' + name + '</strong> rank. Keep it up.') + '</div>'
+      + '<div class="ach-ul-tap">'  + (es ? 'toca para continuar' : 'tap to continue') + '</div>'
+    + '</div>';
+  document.body.appendChild(ov);
+  if (navigator.vibrate) navigator.vibrate([30, 40, 60, 40, 30]);
+  // Spawn particles (same approach as achievement system)
+  var parts = document.getElementById('tu-parts');
+  if (parts) {
+    var taColor  = getComputedStyle(document.documentElement).getPropertyValue('--ta').trim()  || '#00f5ff';
+    var ta2Color = getComputedStyle(document.documentElement).getPropertyValue('--ta2').trim() || '#7b2fff';
+    for (var i = 0; i < 20; i++) {
+      var p = document.createElement('div');
+      p.className = 'ach-ul-part';
+      var angle = (i / 20) * 360, dist = 80 + Math.random() * 90;
+      var tx = Math.cos(angle * Math.PI / 180) * dist;
+      var ty = Math.sin(angle * Math.PI / 180) * dist;
+      var delay = 0.25 + Math.random() * 0.18, sz = 3 + Math.floor(Math.random() * 5);
+      var col = i % 3 === 0 ? ta2Color : taColor;
+      p.style.cssText = '--tx:' + tx + 'px;--ty:' + ty + 'px;animation-delay:' + delay + 's;width:' + sz + 'px;height:' + sz + 'px;background:' + col + ';box-shadow:0 0 ' + (sz + 3) + 'px ' + col + ';';
+      parts.appendChild(p);
+    }
+  }
+  var gone = false;
+  function dismiss() {
+    if (gone) return; gone = true;
+    ov.style.animation = 'achOvOut 0.45s var(--ease-std) both';
+    setTimeout(function() { var o = document.getElementById('tier-up-ov'); if (o) o.remove(); renderPulseCard(); }, 460);
+  }
+  ov.addEventListener('click', dismiss);
+  setTimeout(dismiss, 5000);
 }
 </script>
 
