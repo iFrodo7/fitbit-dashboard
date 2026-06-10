@@ -6634,6 +6634,8 @@ function initSwipeNav() {
     card.style.transition = 'transform 0.12s ease';
     card.style.transform = 'scale(0.985)';
     lpTimer = setTimeout(() => {
+      // N3: jiggle fires at 450ms; if it won the race, abort the onboarding sheet.
+      if (_jiggleActive) { card.style.transform=''; lpTimer=null; lpEl=null; return; }
       card.style.transform = '';
       if (navigator.vibrate) navigator.vibrate([12, 8, 12]);
       showOnb(card.dataset.onb);
@@ -9171,6 +9173,12 @@ function applyWMSizes() {
 }
 
 function _setupJiggleLongPress() {
+  // N1: guard against duplicate registrations when the user switches themes.
+  // _setupJiggleLongPress is called from initDash() on every theme change, and
+  // document-level mousemove/mouseup listeners accumulate without teardown.
+  // Each duplicate arms its own 450ms timer → long-press fires _startDrag N times.
+  if (window._jiggleLPInit) return;
+  window._jiggleLPInit = true;
   var vg = document.querySelector('.vg');
   if (!vg) return;
   var startX, startY;
@@ -9181,12 +9189,13 @@ function _setupJiggleLongPress() {
     var card = e.target.closest('.vc');
     if (!card) return;
     var t = e.touches ? e.touches[0] : e;
+    var _lpTouchId = e.touches ? t.identifier : null; // N2: capture owning touch ID
     startX = t.clientX; startY = t.clientY;
     _jiggleLongTimer = setTimeout(function() {
       _jiggleLongTimer = null;
       if (navigator.vibrate) navigator.vibrate([8, 40, 12]);
       if (!_jiggleActive) enterJiggle();
-      else _startDrag(card, t.clientX, t.clientY);
+      else _startDrag(card, t.clientX, t.clientY, null, _lpTouchId);
     }, 450);
   }
   function onMove(e) {
@@ -9208,9 +9217,9 @@ function _setupJiggleLongPress() {
 
 function enterJiggle() {
   if (_jiggleActive) return;
-  _jiggleActive = true;
   var vg = document.querySelector('.vg');
-  if (!vg) return;
+  if (!vg) return;                     // N6/D5: guard BEFORE mutating state
+  _jiggleActive = true;
   vg.classList.add('jiggle-mode');
   var sizes = loadWMSize();
   var cards = vg.querySelectorAll('.vc:not(.wm-widget-hidden)');
@@ -9281,8 +9290,8 @@ function _refreshJiggleBadges() {
 var _dragArm = null;
 var _DRAG_THRESH = 8;
 
-function _armDrag(card, x, y) {
-  _dragArm = { card:card, x:x, y:y };
+function _armDrag(card, x, y, touchId) {
+  _dragArm = { card:card, x:x, y:y, touchId: touchId != null ? touchId : null };
   document.addEventListener('touchmove', _armMove, {passive:false});
   document.addEventListener('touchend',  _disarmDrag);
   document.addEventListener('touchcancel', _disarmDrag);
@@ -9291,12 +9300,23 @@ function _armDrag(card, x, y) {
 }
 function _armMove(e) {
   if (!_dragArm) return;
-  var t = e.touches ? e.touches[0] : e;
+  // N2: find the specific touch that started the arm, not just touches[0]
+  var t;
+  if (e.touches) {
+    if (_dragArm.touchId != null) {
+      for (var _ai = 0; _ai < e.touches.length; _ai++) {
+        if (e.touches[_ai].identifier === _dragArm.touchId) { t = e.touches[_ai]; break; }
+      }
+      if (!t) return; // this move event is for a different finger
+    } else {
+      t = e.touches[0];
+    }
+  } else { t = e; }
   if (Math.abs(t.clientX - _dragArm.x) > _DRAG_THRESH ||
       Math.abs(t.clientY - _dragArm.y) > _DRAG_THRESH) {
     var a = _dragArm; _disarmDrag();
     if (e.cancelable) e.preventDefault();
-    _startDrag(a.card, t.clientX, t.clientY);
+    _startDrag(a.card, t.clientX, t.clientY, null, a.touchId);
     // Fast-gesture fix: on a quick swipe the touchend can arrive before the
     // first requestAnimationFrame fires. _dragHitTest never runs, the slot
     // stays at the card's original position and the drop lands there.
@@ -9326,7 +9346,7 @@ function _onCardTouchStart(e) {
   if (!_jiggleActive) return;
   if (e.target.closest('.wm-x-btn,.wm-sz-btn')) return;
   var t = e.touches[0];
-  _armDrag(this, t.clientX, t.clientY);
+  _armDrag(this, t.clientX, t.clientY, t.identifier); // N2: track which finger owns the drag
 }
 
 function _onCardMouseStart(e) {
@@ -9351,7 +9371,13 @@ function _flipReorder(vg, mutate) {
 
   // Step 3 — ALL "last" reads batched before any writes (ONE reflow here).
   var last = new Map();
-  cards.forEach(function(c){ last.set(c, c.getBoundingClientRect()); });
+  cards.forEach(function(c){
+    var r = c.getBoundingClientRect();
+    last.set(c, r);
+    // D3: cache the logical (post-mutation) position on the element so _dragHitTest
+    // reads the destination rect, not the mid-animation position.
+    c._flipFinalRect = r;
+  });
 
   // Step 4 — Pure writes: apply inverted transforms so cards appear to stay put.
   // No reads between writes → zero additional reflows in this pass.
@@ -9380,10 +9406,12 @@ function _flipReorder(vg, mutate) {
     c.classList.add('wm-flip');
     c.style.transition = '';
     c.style.transform  = '';
+    // D3: clear the cached rect once the animation settles so fresh reads take over.
+    c.addEventListener('transitionend', function(){ c._flipFinalRect = null; }, {once:true});
   });
 }
 
-function _startDrag(card, cx, cy, rect) {
+function _startDrag(card, cx, cy, rect, touchId) {
   if (_dragState) return;
   if (_dragArm) _disarmDrag(); // hold-to-lift won the race; drop the armed intent
   rect = rect || card.getBoundingClientRect();
@@ -9392,6 +9420,10 @@ function _startDrag(card, cx, cy, rect) {
   // Ghost: positioned at 0,0 and driven only by translate3d for GPU compositing.
   var ghost = card.cloneNode(true);
   ghost.className = 'wm-drag-ghost';
+  // N5: strip all IDs so document.getElementById() can never resolve to the ghost
+  // during a live poll (would update the wrong — soon-to-be-destroyed — element).
+  ghost.removeAttribute('id');
+  ghost.querySelectorAll('[id]').forEach(function(n){ n.removeAttribute('id'); });
   ghost.querySelectorAll('.wm-x-btn,.wm-sz-btn').forEach(function(b){ b.remove(); });
   ghost.style.width  = rect.width + 'px';
   ghost.style.height = rect.height + 'px';
@@ -9412,7 +9444,8 @@ function _startDrag(card, cx, cy, rect) {
     // para mantener esa distancia relativa.  Usar rect.left/top aquí —
     // NO cx-rect.left — evita que el ghost salte al origen al iniciar el drag.
     x:rect.left, y:rect.top,
-    lastBefore:null, lastRef:card, raf:0, pending:false
+    lastBefore:null, lastRef:card, raf:0, pending:false,
+    touchId: touchId != null ? touchId : null  // N2: which finger owns this drag
   };
   // Spring lift on pickup: pop scale up, settle to drag scale.
   ghost.style.transform = 'translate3d(' + _dragState.x + 'px,' + _dragState.y + 'px,0) scale(1) rotate(0deg)';
@@ -9430,7 +9463,18 @@ function _startDrag(card, cx, cy, rect) {
 
 function _onDragMove(e) {
   if (!_dragState) return;
-  var t = e.touches ? e.touches[0] : e;
+  // N2: track only the finger that started the drag, ignore others.
+  var t;
+  if (e.touches) {
+    if (_dragState.touchId != null) {
+      for (var _mi = 0; _mi < e.touches.length; _mi++) {
+        if (e.touches[_mi].identifier === _dragState.touchId) { t = e.touches[_mi]; break; }
+      }
+      if (!t) return; // different finger — let it scroll freely
+    } else {
+      t = e.touches[0];
+    }
+  } else { t = e; }
   if (e.cancelable) e.preventDefault();
   var d = _dragState;
   d.x = t.clientX - d.ox;
@@ -9473,12 +9517,22 @@ function _dragHitTest(d) {
   var targets = addCard ? cards.concat([addCard]) : cards;
   var best = null, bestDist = Infinity, bestRect = null;
   targets.forEach(function(el){
-    var r = el.getBoundingClientRect();
+    // D3: prefer the cached logical rect (post-FLIP-mutation) so hit-testing uses
+    // destination positions rather than the mid-animation (transform-shifted) ones.
+    var r = (el._flipFinalRect && el.classList.contains('wm-flip'))
+      ? el._flipFinalRect
+      : el.getBoundingClientRect();
     var dist = Math.hypot(d.px - (r.left + r.width/2), d.py - (r.top + r.height/2));
     if (dist < bestDist) { bestDist = dist; best = el; bestRect = r; }
   });
   if (!best) return;
-  var before = d.py < bestRect.top + bestRect.height/2;
+  // D2: in a multi-column grid, same-row neighbours should be ordered by X, not Y.
+  var cxBest = bestRect.left + bestRect.width/2;
+  var cyBest = bestRect.top  + bestRect.height/2;
+  var inSameRow = Math.abs(d.py - cyBest) < bestRect.height * 0.5;
+  var before = inSameRow ? d.px < cxBest : d.py < cyBest;
+  // N4: wm-add-card is a hard boundary — never allow a widget to land after it.
+  if (best === addCard) before = true;
   if (best !== d.lastRef || before !== d.lastBefore) {
     d.lastRef = best; d.lastBefore = before;
     if (navigator.vibrate) navigator.vibrate(6); // tick on each reposition
@@ -9516,7 +9570,20 @@ function _stopAutoScroll() {
 
 function _onDragEnd(e) {
   if (!_dragState) return;
+  // N2: ignore touchend from a finger that didn't start this drag (multitouch).
+  if (e && e.changedTouches && _dragState.touchId != null) {
+    var _ours = false;
+    for (var _ti = 0; _ti < e.changedTouches.length; _ti++) {
+      if (e.changedTouches[_ti].identifier === _dragState.touchId) { _ours = true; break; }
+    }
+    if (!_ours) return;
+  }
   var d = _dragState; _dragState = null;
+  // D1: flush the pending rAF hit-test BEFORE cancelling the frame.
+  // On a fast gesture the touchend arrives in the same tick as the last touchmove,
+  // before the rAF fires. Without this flush the slot stays at the +8px position
+  // (where the drag armed) and the card snaps back to its origin.
+  if (d.pending && d.px != null) { _dragPaint(d); _dragHitTest(d); }
   if (d.raf) cancelAnimationFrame(d.raf);
   _stopAutoScroll();
   if (navigator.vibrate) navigator.vibrate([4, 20, 8]); // settle tick
@@ -9543,7 +9610,12 @@ function _onDragEnd(e) {
   d.ghost.style.opacity = '0';
   d.ghost.style.transform = 'translate3d(' + dest.left + 'px,' + dest.top + 'px,0) scale(1) rotate(0deg)';
   var ghost = d.ghost, card = d.card;
+  // N7: guard against double-fire (transitionend + setTimeout fallback both running).
+  // A second drag started within 420ms would have its wm-reordering class killed by
+  // the first drag's fallback setTimeout — the idempotent flag prevents that.
+  var _doneFired = false;
   var done = function(){
+    if (_doneFired) return; _doneFired = true;
     ghost.remove();
     card.classList.remove('wm-dragging');
     card.style.opacity = '';
