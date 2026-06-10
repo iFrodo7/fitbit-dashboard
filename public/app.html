@@ -8643,16 +8643,22 @@ function wkBarSel(idx) {
     }
     e.textContent = _streak > 0 ? _streak : '×';
   } else if (e && isToday) {
-    // Today without snap yet (first load or snap cleared): use streakReal or count back
-    var _strReal = window._wkTodayStreakReal || 0;
-    if (!_strReal) {
-      var _strGoalFb = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
-      for (var _tsiF = _wkTdIdx; _tsiF >= 0; _tsiF--) {
-        if ((data[_tsiF].steps || 0) >= _strGoalFb) _strReal++;
-        else break;
+    // FIX #16: show '-' when today's goal not yet reached (undecided — not a miss yet)
+    var _tdGoalBar = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+    var _tdStepsBar = (data[_wkTdIdx] && data[_wkTdIdx].steps) || 0;
+    if (_tdStepsBar < _tdGoalBar) {
+      e.textContent = '-';
+    } else {
+      // Today's goal met — show full streak including today
+      var _strReal = window._wkTodayStreakReal || 0;
+      if (!_strReal) {
+        for (var _tsiF = _wkTdIdx; _tsiF >= 0; _tsiF--) {
+          if ((data[_tsiF].steps || 0) >= _tdGoalBar) _strReal++;
+          else break;
+        }
       }
+      e.textContent = _strReal > 0 ? _strReal : '×';
     }
-    e.textContent = _strReal > 0 ? _strReal : '×';
   }
   e = document.getElementById('steps-streak-unit');
   if (e) e.textContent = es ? 'DÍAS META' : 'DAYS GOAL';
@@ -8967,8 +8973,12 @@ async function loadWeekDataGoogle() {
 
     window._wkTodayStreakReal = Math.max(_wkStr7, _dbStr7, _persistedStreak);
     // Update streak card immediately — don't wait for user to click the bar
+    // FIX #16: show '-' when today's goal not yet reached (undecided)
     var _strEl = document.getElementById('steps-streak-val');
-    if (_strEl && window._wkTodayStreakReal > 0) _strEl.textContent = window._wkTodayStreakReal;
+    if (_strEl) {
+      var _tmMetDisp = ((days[6] && days[6].steps) || 0) >= _strGoal7;
+      _strEl.textContent = !_tmMetDisp ? '-' : (window._wkTodayStreakReal > 0 ? window._wkTodayStreakReal : '—');
+    }
 
     // ── FIX #14: calendar-week display (Mon–Sun, today at its natural position) ─
     // Streak calculations above use the rolling days[] array (always has last 7 days).
@@ -10591,7 +10601,10 @@ function updateDailyRings() {
     // Show "90+" with disclaimer if streak hit the 90-day init cap and hasn't grown past it yet
     var _strStored = {}; try { _strStored = JSON.parse(localStorage.getItem('fb_streak_steps')||'{}'); } catch(e2) {}
     var _isCapped = _strStored.capped && _ss <= 90;
-    if(_sse) _sse.textContent = _isCapped ? '90+' : (_ss>0?_ss:'—');
+    // FIX #16: show '-' when today's goal not yet reached (undecided)
+    var _ssGoal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+    var _ssTodayMet = steps >= _ssGoal;
+    if(_sse) _sse.textContent = !_ssTodayMet ? '-' : (_isCapped ? '90+' : (_ss>0?_ss:'—'));
     var _sUnit = document.getElementById('steps-streak-unit');
     if (_sUnit) {
       if (_isCapped) {
