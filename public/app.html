@@ -63,7 +63,12 @@ body{
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
   text-rendering:optimizeLegibility;
+  /* No native rubber-band/PTR fighting the custom pull-to-refresh spinner */
+  overscroll-behavior-y:contain;
 }
+/* Shared body lock while a bottom sheet is open (ach/avatar/onboarding) —
+   background must never scroll behind a sheet (iOS sheet behaviour). */
+body.sheet-lock{overflow:hidden;}
 
 /* ═══════════════════════════════════════
    SELECTOR SCREEN
@@ -419,7 +424,11 @@ body{
 .vc{padding:12px 14px;border:var(--cbdr);background:var(--cbg);position:relative;overflow:hidden;transition:border-color var(--dur-base) var(--ease-std),box-shadow var(--dur-base) var(--ease-std),transform var(--dur-base) var(--ease-std);display:flex;flex-direction:column;min-height:110px;contain:layout;}
 .vc:hover{border-color:var(--ta);box-shadow:0 0 12px rgba(0,0,0,0.3);transform:translateY(-2px);}
 @media(hover:none){.vc:active{transform:scale(0.97)!important;transition:transform 80ms var(--ease-std)!important;}
-.card:active{transform:scale(0.98)!important;transition:transform 80ms var(--ease-std)!important;}}
+.card:active{transform:scale(0.98)!important;transition:transform 80ms var(--ease-std)!important;}
+/* In jiggle mode the press-scale (!important) would override the wobble animation
+   mid-cycle → visible stutter right before a drag lifts. Freezing the pressed card
+   instead reads as "selected, awaiting lift" — same as iOS. */
+.jiggle-mode .vc:active{transform:none!important;}}
 
 /* Readiness ring */
 .rw{display:flex;flex-direction:column;align-items:center;gap:12px;transition:filter var(--dur-base) var(--ease-std);}
@@ -739,7 +748,80 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 
 /* Profile view */
 .pv-user{display:flex;align-items:center;gap:14px;padding-bottom:14px;border-bottom:1px solid var(--sub);margin-bottom:14px;}
-.pv-avatar{width:46px;height:46px;border-radius:50%;background:var(--sub);border:2px solid var(--ta);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+/* ══════ AURA ID — living avatar (portrait · vital ring · frame) ══════ */
+/* Layer 1 portrait: photo or themed monogram. Layer 2 ring: recovery color,
+   beats at the user's live BPM (--av-beat). Layer 3 frame: unlockables. */
+.av-wrap{position:relative;width:var(--av-size,46px);height:var(--av-size,46px);border-radius:50%;flex-shrink:0;cursor:pointer;-webkit-tap-highlight-color:transparent;background:none;border:none;padding:0;font-family:inherit;display:inline-block;}
+.av-wrap.av-live{animation:av-beat var(--av-beat,1s) ease-in-out infinite;}
+@keyframes av-beat{0%,40%,100%{transform:scale(1)}10%{transform:scale(1.05)}20%{transform:scale(1)}30%{transform:scale(1.028)}}
+.av-core{position:absolute;inset:3px;border-radius:inherit;overflow:hidden;background:var(--sub);display:flex;align-items:center;justify-content:center;z-index:2;}
+.av-img{width:100%;height:100%;object-fit:cover;display:block;}
+.av-mono{font-size:calc(var(--av-size,46px)*0.34);font-weight:800;letter-spacing:1px;color:var(--ta);user-select:none;line-height:1;}
+.t-mc .av-mono{font-family:'VT323',monospace;font-size:calc(var(--av-size,46px)*0.44);}
+.t-naruto .av-mono{font-family:'Noto Serif JP',serif;}
+.t-halo .av-mono,.t-fut .av-mono{font-family:'Rajdhani',sans-serif;}
+.t-bloom .av-mono{font-family:'Nunito',sans-serif;}
+.av-ring{position:absolute;inset:0;border-radius:inherit;z-index:1;overflow:hidden;}
+.av-wrap:not(.av-live) .av-ring{animation:av-breathe 4s var(--ease-std) infinite;}
+@keyframes av-breathe{0%,100%{opacity:0.55}50%{opacity:1}}
+/* frame: AURA — vital ring, color = recovery state (--av-vital set by JS) */
+.av-f-aura .av-ring{border:2px solid var(--av-vital,var(--ta));box-shadow:0 0 10px -2px var(--av-vital,var(--ta));}
+/* frames with spinning conic gradient: oversized pseudo rotates behind .av-core */
+.av-f-ember .av-ring::before,.av-f-legend .av-ring::before,.av-f-pro .av-ring::before{content:'';position:absolute;inset:-40%;animation:av-spin 3.4s linear infinite;}
+@keyframes av-spin{to{transform:rotate(360deg)}}
+.av-f-ember .av-ring::before{background:conic-gradient(#f59e0b,#ff5a00,#ff2d2d,#ffb300,#f59e0b);}
+.av-f-ember .av-ring{box-shadow:0 0 12px -2px #ff5a00;}
+.av-f-legend .av-ring::before{background:conic-gradient(#f7d774,#b8860b,#fff8dc,#d4af37,#f7d774);animation-duration:5s;}
+.av-f-legend .av-ring{box-shadow:0 0 12px -2px #d4af37;}
+.av-f-pro .av-ring::before{background:conic-gradient(var(--ta),var(--ta2),var(--ta),var(--ta2),var(--ta));}
+.av-f-pro .av-ring{box-shadow:0 0 14px -2px var(--ta2);}
+.av-edit-badge{position:absolute;right:-2px;bottom:-2px;width:17px;height:17px;border-radius:50%;background:var(--ta);color:var(--bg);font-size:9px;display:flex;align-items:center;justify-content:center;z-index:3;box-shadow:0 1px 4px rgba(0,0,0,0.4);}
+.av-lock-ic{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;z-index:4;}
+#pv-avatar{--av-size:50px;}
+#home-av{--av-size:42px;}
+/* identity corner: avatar + clock column in the home greet */
+.db-greet-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;align-self:flex-end;padding-bottom:4px;}
+/* desktop: pin to the far right edge, top-aligned with the greet (name hero left ←→ identity right) */
+@media(min-width:641px){
+  .db-greet-right{margin-left:auto;align-self:flex-start;padding-bottom:0;}
+}
+/* mobile: the greet column wraps → pin the avatar top-right, aligned with the name row */
+@media(max-width:640px){
+  .db-greet{position:relative;}
+  .db-greet > div:first-child{padding-right:50px;}
+  #home-av{--av-size:40px;position:absolute;top:2px;right:0;}
+}
+/* Voxel: square identity (Minecraft skin culture) */
+.t-mc .av-wrap{border-radius:8px;}
+/* AURA ID bottom sheet */
+#av-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:8100;opacity:0;pointer-events:none;transition:opacity 0.22s;touch-action:none;}
+#av-overlay.av-open{opacity:1;pointer-events:all;}
+#av-sheet{position:fixed;bottom:0;left:0;right:0;z-index:8101;background:var(--bg);border-top:1px solid var(--bdr);border-radius:20px 20px 0 0;transform:translateY(110%);transition:transform 0.32s var(--ease-spring);padding-bottom:env(safe-area-inset-bottom,16px);max-height:88vh;overflow-y:auto;overscroll-behavior:contain;}
+#av-sheet.av-open{transform:translateY(0);}
+.av-sheet-body{padding:4px 20px 22px;}
+.av-preview-row{display:flex;flex-direction:column;align-items:center;gap:14px;padding:10px 0 18px;}
+#av-preview{--av-size:110px;cursor:default;}
+.av-actions{display:flex;gap:8px;width:100%;max-width:300px;margin:0 auto;}
+.av-btn{flex:1;padding:12px;background:var(--ta);color:var(--bg);border:none;cursor:pointer;font-family:inherit;font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border-radius:var(--r-md);transition:opacity var(--dur-fast) var(--ease-std);-webkit-tap-highlight-color:transparent;}
+.av-btn:active{opacity:0.7;}
+.av-btn.ghost{background:transparent;color:var(--txt);border:1px solid var(--bdr);opacity:0.8;}
+.av-frames{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px;}
+.av-frame-opt{display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:1px solid transparent;cursor:pointer;padding:8px 2px;border-radius:var(--r-md);font-family:inherit;color:var(--txt);transition:border-color var(--dur-fast) var(--ease-std),background var(--dur-fast) var(--ease-std);-webkit-tap-highlight-color:transparent;}
+.av-frame-opt.sel{border-color:var(--ta);background:rgba(255,255,255,0.04);}
+.av-frame-opt .av-wrap{--av-size:50px;}
+.av-frame-opt.locked .av-core,.av-frame-opt.locked .av-ring{filter:grayscale(1);opacity:0.35;}
+.av-frame-name{font-size:8px;letter-spacing:1px;opacity:0.7;text-transform:uppercase;text-align:center;line-height:1.3;}
+.av-hint{font-size:9.5px;opacity:0.45;letter-spacing:0.5px;text-align:center;margin-top:16px;line-height:1.55;}
+/* crop stage */
+#av-crop{display:none;}
+#av-crop.open{display:block;}
+.avc-title{font-size:11px;letter-spacing:3px;font-weight:700;color:var(--ta);text-align:center;margin:6px 0 4px;text-transform:uppercase;}
+.avc-stage{position:relative;width:min(72vw,250px);height:min(72vw,250px);margin:14px auto 0;border-radius:50%;overflow:hidden;border:2px solid var(--ta);touch-action:none;background:#000;cursor:grab;}
+.t-mc .avc-stage{border-radius:8px;}
+.avc-stage img{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform;user-select:none;-webkit-user-drag:none;pointer-events:none;max-width:none;}
+.avc-zoom-row{display:flex;align-items:center;gap:12px;margin:16px auto 2px;max-width:280px;}
+.avc-zoom{flex:1;accent-color:var(--ta);}
+.avc-hint{font-size:9.5px;opacity:0.45;letter-spacing:0.5px;text-align:center;margin-top:8px;}
 .pv-uname{font-size:16px;font-weight:700;letter-spacing:2px;color:var(--ta);}
 .pv-ustatus{font-size:9px;letter-spacing:1.5px;opacity:0.4;margin-top:3px;}
 .pv-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--sub);}
@@ -1161,6 +1243,11 @@ body.is-syncing .pulsable::after{content:"";position:absolute;inset:0;background
 .onb-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:950;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);animation:onbFade 0.25s ease-out;}
 .onb-ov.on{display:flex;}
 @keyframes onbFade{from{opacity:0;}to{opacity:1;}}
+/* Exit mirrors the entrance — a sheet that snaps to display:none reads as a glitch */
+.onb-ov.closing{animation:onbFadeOut 0.22s ease-out both;}
+.onb-ov.closing .onb-card{animation:onbSlideOut 0.22s var(--ease-std) both;}
+@keyframes onbFadeOut{to{opacity:0;}}
+@keyframes onbSlideOut{to{transform:translateY(100%);}}
 .onb-card{background:var(--bg);border:1px solid var(--ta);border-bottom:none;width:100%;max-width:480px;padding:22px 22px calc(28px + env(safe-area-inset-bottom));border-radius:8px 8px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,0.6);animation:onbSlide 0.3s var(--ease-std);}
 @keyframes onbSlide{from{transform:translateY(100%);}to{transform:translateY(0);}}
 .onb-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px;}
@@ -2093,9 +2180,9 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .tc-ach-bar{width:28px;height:2px;background:rgba(255,255,255,0.1);border-radius:1px;overflow:hidden;}
 .tc-ach-fill{height:100%;border-radius:1px;transition:width 0.6s ease;}
 /* achievements bottom sheet */
-#ach-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:8100;opacity:0;pointer-events:none;transition:opacity 0.22s;}
+#ach-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:8100;opacity:0;pointer-events:none;transition:opacity 0.22s;touch-action:none;}
 #ach-overlay.ach-open{opacity:1;pointer-events:all;}
-#ach-drawer{position:fixed;bottom:0;left:0;right:0;z-index:8101;background:var(--bg);border-top:1px solid var(--bdr);transform:translateY(110%);transition:transform 0.32s var(--ease-spring);padding-bottom:env(safe-area-inset-bottom,16px);max-height:70vh;overflow-y:auto;}
+#ach-drawer{position:fixed;bottom:0;left:0;right:0;z-index:8101;background:var(--bg);border-top:1px solid var(--bdr);transform:translateY(110%);transition:transform 0.32s var(--ease-spring);padding-bottom:env(safe-area-inset-bottom,16px);max-height:70vh;overflow-y:auto;overscroll-behavior:contain;}
 #ach-drawer.ach-open{transform:translateY(0);}
 .ach-handle{width:36px;height:4px;background:var(--sub);border-radius:2px;margin:12px auto 0;}
 .ach-head{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;}
@@ -2183,7 +2270,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 /* ── Widget Manager ── */
 #wm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:8000;display:none;transition:background var(--dur-base) var(--ease-std);}
 #wm-overlay.wm-open{background:rgba(0,0,0,0.72);}
-#wm-drawer{position:fixed;bottom:0;left:0;right:0;z-index:8001;background:var(--bg);border-top:1px solid var(--bdr);transform:translateY(110%);transition:transform var(--dur-slow) var(--ease-spring);padding-bottom:env(safe-area-inset-bottom,16px);}
+#wm-drawer{position:fixed;bottom:0;left:0;right:0;z-index:8001;background:var(--bg);border-top:1px solid var(--bdr);transform:translateY(110%);transition:transform var(--dur-slow) var(--ease-spring);padding-bottom:env(safe-area-inset-bottom,16px);overscroll-behavior:contain;}
 #wm-drawer.wm-open{transform:translateY(0);}
 .wm-handle{width:36px;height:4px;background:var(--sub);border-radius:2px;margin:12px auto 0;}
 .wm-drawer-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 8px;}
@@ -2226,13 +2313,18 @@ body.t-synth::after{content:'';position:fixed;inset:0;
   transition:transform 0.16s var(--ease-out);
   will-change:transform;
 }
-/* X delete badge */
+/* X delete badge — 20px visual disc inside a 36px hit area (HIG 44pt-ish target).
+   The transparent border IS the hit halo: background-clip keeps the disc at 20px,
+   drop-shadow follows the disc alpha (box-shadow would outline the 36px box),
+   and the inset ring hugs the padding-box = the visible disc edge. Missing this
+   button used to START A DRAG — the halo absorbs near-miss taps instead. */
 .wm-x-btn{
-  position:absolute;top:-9px;left:-9px;z-index:20;
-  width:20px;height:20px;border-radius:50%;
-  background:rgba(58,58,64,0.95);
-  border:none;padding:0;cursor:pointer;display:none;
-  box-shadow:0 1px 5px rgba(0,0,0,0.6),0 0 0 1.5px rgba(255,255,255,0.15);
+  position:absolute;top:-17px;left:-17px;z-index:20;
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(58,58,64,0.95);background-clip:padding-box;
+  border:8px solid transparent;padding:0;cursor:pointer;display:none;
+  box-shadow:inset 0 0 0 1.5px rgba(255,255,255,0.15);
+  filter:drop-shadow(0 1px 4px rgba(0,0,0,0.55));
   transition:transform 0.1s;
 }
 .wm-x-btn::before,.wm-x-btn::after{
@@ -2243,13 +2335,14 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .wm-x-btn::after {transform:translate(-50%,-50%) rotate(-45deg);}
 .wm-x-btn:active{transform:scale(0.82);}
 .jiggle-mode .wm-x-btn{display:block;}
-/* resize badge (bottom-right) */
+/* resize badge (bottom-right) — same 36px halo around a 20px disc */
 .wm-sz-btn{
-  position:absolute;bottom:-9px;right:-9px;z-index:20;
-  width:20px;height:20px;border-radius:50%;
-  background:rgba(58,58,64,0.95);
-  border:none;padding:0;cursor:pointer;display:none;
-  box-shadow:0 1px 5px rgba(0,0,0,0.6),0 0 0 1.5px rgba(255,255,255,0.15);
+  position:absolute;bottom:-17px;right:-17px;z-index:20;
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(58,58,64,0.95);background-clip:padding-box;
+  border:8px solid transparent;padding:0;cursor:pointer;display:none;
+  box-shadow:inset 0 0 0 1.5px rgba(255,255,255,0.15);
+  filter:drop-shadow(0 1px 4px rgba(0,0,0,0.55));
   font-size:9px;color:rgba(255,255,255,0.85);line-height:20px;text-align:center;
   transition:transform 0.1s;
 }
@@ -3024,7 +3117,9 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         <!-- AIRA contextual narrative — generated from biometric state -->
         <div id="aira-msg" class="aira-msg" aria-live="polite"></div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;align-self:flex-end;padding-bottom:4px;">
+      <div class="db-greet-right">
+        <!-- AURA ID — tap → profile -->
+        <button class="av-wrap" id="home-av" onclick="navigate('profile')" aria-label="Perfil"></button>
         <div class="db-date" id="clock" style="margin-top:0;"></div>
       </div>
     </div>
@@ -4667,7 +4762,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
     <!-- User card -->
     <div class="card hv-card">
       <div class="pv-user">
-        <div class="pv-avatar" id="pv-avatar">◉</div>
+        <button class="av-wrap" id="pv-avatar" onclick="openAvatarSheet()" aria-label="AURA ID"></button>
         <div>
           <div class="pv-uname" id="pv-uname">—</div>
           <div class="pv-ustatus" id="pv-ustatus">DEMO MODE</div>
@@ -5268,6 +5363,23 @@ const T = {
     pv_status_demo: 'MODO DEMO',
     pv_status_live: '◆ EN VIVO',
     owait_msg: 'ESPERANDO CONEXIÓN', owait_sig: 'SIN SEÑAL',
+    /* AURA ID — living avatar */
+    av_title: 'AURA ID',
+    av_add: 'AGREGAR FOTO', av_change: 'CAMBIAR FOTO', av_remove: 'QUITAR',
+    av_frames: 'MARCO',
+    av_f_aura: 'AURA', av_f_ember: 'RACHA', av_f_legend: 'LEYENDA', av_f_pro: 'AIRA PRO',
+    av_lk7: '🔒 RACHA 7D', av_lk30: '🔒 RACHA 30D', av_lkpro: '🔒 SOLO PRO',
+    av_lk7_toast: 'Desbloquea con una racha de 7 días 🔥',
+    av_lk30_toast: 'Desbloquea con una racha de 30 días 🔥',
+    av_lkpro_toast: 'Marco exclusivo de AIRA PRO',
+    av_crop_t: 'AJUSTA TU FOTO',
+    av_crop_hint: 'Arrastra para mover · pellizca o desliza para acercar',
+    av_use: 'USAR FOTO', av_cancel: 'CANCELAR',
+    av_saved: 'Identidad actualizada',
+    av_removed: 'Foto eliminada',
+    av_err_read: 'No se pudo leer la imagen',
+    av_err_save: 'No se pudo guardar — imagen muy pesada',
+    av_hint: 'El marco AURA cambia de color con tu recovery y late al ritmo de tu corazón en vivo. Tu foto nunca sale de este dispositivo.',
   },
   en: {
     sel_eye: '// choose your biometric monitoring interface',
@@ -5516,6 +5628,23 @@ const T = {
     pv_status_demo: 'DEMO MODE',
     pv_status_live: '◆ LIVE',
     owait_msg: 'WAITING FOR CONNECTION', owait_sig: 'NO SIGNAL',
+    /* AURA ID — living avatar */
+    av_title: 'AURA ID',
+    av_add: 'ADD PHOTO', av_change: 'CHANGE PHOTO', av_remove: 'REMOVE',
+    av_frames: 'FRAME',
+    av_f_aura: 'AURA', av_f_ember: 'STREAK', av_f_legend: 'LEGEND', av_f_pro: 'AIRA PRO',
+    av_lk7: '🔒 7D STREAK', av_lk30: '🔒 30D STREAK', av_lkpro: '🔒 PRO ONLY',
+    av_lk7_toast: 'Unlock with a 7-day streak 🔥',
+    av_lk30_toast: 'Unlock with a 30-day streak 🔥',
+    av_lkpro_toast: 'AIRA PRO exclusive frame',
+    av_crop_t: 'ADJUST YOUR PHOTO',
+    av_crop_hint: 'Drag to move · pinch or slide to zoom',
+    av_use: 'USE PHOTO', av_cancel: 'CANCEL',
+    av_saved: 'Identity updated',
+    av_removed: 'Photo removed',
+    av_err_read: 'Could not read the image',
+    av_err_save: 'Could not save — image too large',
+    av_hint: 'The AURA frame shifts color with your recovery and beats with your live heart rate. Your photo never leaves this device.',
   }
 };
 
@@ -6510,7 +6639,7 @@ setLang(lang);
 // ══════ PULL TO REFRESH (mobile) ══════
 (function initPTR() {
   if (!('ontouchstart' in window)) return;
-  let startY = 0, currentY = 0, pulling = false, refreshing = false;
+  let startY = 0, startX = 0, currentY = 0, pulling = false, refreshing = false, axis = null;
   const THRESHOLD = 80;
   const ptr = document.getElementById('ptr');
 
@@ -6519,12 +6648,24 @@ setLang(lang);
     // card at the top of the grid would otherwise flash the spinner.
     if (window.scrollY > 0 || refreshing || document.querySelector('.vg.jiggle-mode')) return;
     startY = e.touches[0].clientY;
-    pulling = true;
+    startX = e.touches[0].clientX;
+    pulling = true; axis = null;
   }, { passive: true });
 
   document.addEventListener('touchmove', (e) => {
     if (!pulling) return;
     currentY = e.touches[0].clientY;
+    // Direction lock: a horizontal tab-swipe with a slight downward arc used to
+    // paint a ghost spinner. Decide the gesture's axis once (~12px of travel)
+    // and bail out for the rest of the gesture if it isn't a clear pull-down.
+    if (axis === null) {
+      const adx = Math.abs(e.touches[0].clientX - startX);
+      const ady = Math.abs(currentY - startY);
+      if (adx > 12 || ady > 12) {
+        axis = ady >= adx * 1.2 ? 'v' : 'h';
+        if (axis === 'h') { pulling = false; if (ptr) { ptr.classList.remove('show'); ptr.style.cssText = ''; } return; }
+      }
+    }
     const diff = currentY - startY;
     if (diff > 0 && window.scrollY === 0) {
       const progress = Math.min(diff / THRESHOLD, 1.2);
@@ -6571,6 +6712,7 @@ function initSwipeNav() {
   if (!('ontouchstart' in window)) return;
   const TABS = ['home', 'stats', 'history', 'profile'];
   let startX = 0, startY = 0, tracking = false, horizontal = null;
+  let lastX = 0, lastT = 0, vx = 0; // smoothed horizontal velocity (px/ms) for flick detection
 
   const overlayOpen = () => !!document.querySelector('.onb-ov.on, .tour-ov.on, .mov.on, .vg.jiggle-mode');
   const currentTab = () => document.querySelector('.bnav-btn.active')?.dataset.tab || 'home';
@@ -6580,6 +6722,7 @@ function initSwipeNav() {
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
     tracking = true; horizontal = null;
+    lastX = startX; lastT = e.timeStamp; vx = 0;
   }, { passive: true });
 
   document.addEventListener('touchmove', (e) => {
@@ -6587,6 +6730,12 @@ function initSwipeNav() {
     if (overlayOpen()) { tracking = false; reset(); return; }
     const dx = e.touches[0].clientX - startX;
     const dy = e.touches[0].clientY - startY;
+    // Exponentially-smoothed velocity — a single noisy sample can't fake a flick
+    const dt = e.timeStamp - lastT;
+    if (dt > 0) {
+      vx = 0.7 * vx + 0.3 * ((e.touches[0].clientX - lastX) / dt);
+      lastX = e.touches[0].clientX; lastT = e.timeStamp;
+    }
     if (horizontal === null && (Math.abs(dx) > 12 || Math.abs(dy) > 12)) {
       // Lock direction: horizontal only if clearly more X than Y movement
       horizontal = Math.abs(dx) > Math.abs(dy) * 1.6;
@@ -6616,7 +6765,11 @@ function initSwipeNav() {
     if (!horizontal) return;
     const dx = e.changedTouches[0].clientX - startX;
     reset();
-    if (Math.abs(dx) < 55) return;
+    // Navigate on distance OR on a fast flick (velocity), like UIPageViewController:
+    // a quick 25px flick should turn the page — requiring 55px of travel for
+    // every swipe makes navigation feel heavy.
+    const flick = Math.abs(vx) > 0.45 && Math.abs(dx) > 20 && (vx > 0) === (dx > 0);
+    if (Math.abs(dx) < 55 && !flick) return;
     const idx = TABS.indexOf(currentTab());
     if (dx < 0 && idx < TABS.length - 1) navigate(TABS[idx + 1]);      // swipe izquierda → siguiente tab
     else if (dx > 0 && idx > 0) navigate(TABS[idx - 1]);              // swipe derecha → tab anterior
@@ -6677,6 +6830,15 @@ function navigate(tab) {
   _updateBnavInd(tab);
   // Already in this view? Skip the re-render (prevents double-fire jank / stuck nav).
   if (tab !== 'home' && document.body.classList.contains('view-' + tab)) return;
+  // Re-tap on the active Home tab = smooth scroll to top, nothing else (iOS tab bar
+  // behaviour). Replaying the ring animation on every tap read as a glitch.
+  if (tab === 'home'
+      && !document.body.classList.contains('view-history')
+      && !document.body.classList.contains('view-stats')
+      && !document.body.classList.contains('view-profile')) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
   if (navigator.vibrate) navigator.vibrate(10);
 
   // Close all overlays first
@@ -8017,9 +8179,9 @@ function renderProfile() {
   // AIRA Pro plan menu
   renderProUI();
 
-  // Avatar emoji by theme
-  const avatars = { bloom: '✦', mc: '⛏', halo: '▲', naruto: '🔥', fut: '◉' };
-  document.getElementById('pv-avatar').textContent = avatars[theme] || '◉';
+  // AURA ID — living avatar (photo | themed monogram + vital ring + frame)
+  renderAvatar(document.getElementById('pv-avatar'), { editBadge: true });
+  updateAvatarVitals();
 
   // Theme buttons
   ['bloom','halo','naruto','fut'].forEach(id => {
@@ -9254,6 +9416,7 @@ function enterJiggle() {
         saveWMSize(s);
         c.classList.toggle('wm-span2', !nowWide);
         szBtn.textContent = nowWide ? '⊞' : '⊡';
+        _clampJiggleBadges(); // span change reflows the grid — re-fit edge badges
       });
       c.appendChild(szBtn);
     }
@@ -9261,6 +9424,7 @@ function enterJiggle() {
     c.addEventListener('touchstart', _onCardTouchStart, {passive:false});
     c.addEventListener('mousedown',  _onCardMouseStart);
   });
+  _clampJiggleBadges();
   document.getElementById('jiggle-done')?.classList.add('jd-visible');
   // Tap outside widgets exits jiggle — delayed 350ms so the long-press that
   // triggered jiggle doesn't immediately exit it. Timer stored so exitJiggle()
@@ -9280,6 +9444,22 @@ function _refreshJiggleBadges() {
   if (!vg || !_jiggleActive) return;
   vg.querySelectorAll('.vc:not(.wm-widget-hidden)').forEach(function(c, i) {
     c.style.setProperty('--ji', i);
+  });
+  _clampJiggleBadges();
+}
+
+// Edge-to-edge cards (halo hero rows bleed to the viewport edge) used to clip
+// the X/resize discs at the screen boundary — a delete control you can't fully
+// see or tap. Pull the badge inward just enough to keep the 20px disc visible;
+// the formula self-clamps to the default -17px offset for interior cards.
+function _clampJiggleBadges() {
+  var vw = window.innerWidth;
+  document.querySelectorAll('.vg.jiggle-mode .vc:not(.wm-widget-hidden)').forEach(function(c) {
+    // mid-FLIP rects are transform-shifted — prefer the cached destination rect
+    var r = c._flipFinalRect || c.getBoundingClientRect();
+    var x = c.querySelector('.wm-x-btn'), s = c.querySelector('.wm-sz-btn');
+    if (x) x.style.left  = Math.max(-17, -6 - Math.round(r.left)) + 'px';
+    if (s) s.style.right = Math.max(-17, Math.round(r.right - vw - 6)) + 'px';
   });
 }
 
@@ -10010,6 +10190,8 @@ function updateSynthEQ(rec, activity, sleep) {
 }
 
 function updateScores({ rec, strain, sleepPct }) {
+  // AURA ID — vital ring follows recovery + live BPM
+  try { updateAvatarVitals(); } catch(e) {}
   // Anillo estándar (otros temas)
   const rf = document.getElementById('rfil');
   if (rf) rf.style.strokeDashoffset = (339*(1-rec/100)).toFixed(1);
@@ -12996,17 +13178,35 @@ function hideLoad() {
 }
 
 // ══════ ONBOARDING — metric tooltips ══════
+// Refcounted body scroll-lock shared by every bottom sheet (ach/avatar/onboarding).
+// A counter — not a boolean — so overlapping sheets can't unlock each other early.
+window._sheetLocks = 0;
+function _sheetLock(on) {
+  window._sheetLocks = Math.max(0, (window._sheetLocks || 0) + (on ? 1 : -1));
+  document.body.classList.toggle('sheet-lock', window._sheetLocks > 0);
+}
+
 function showOnb(key) {
   if (_jiggleActive) return; // no abrir tooltips durante modo edición
   const ov = document.getElementById('onb-ov');
   const data = T[lang]?.onb?.[key]; if (!data || !ov) return;
   document.getElementById('onb-ttl').textContent = data.ttl;
   document.getElementById('onb-bd').innerHTML = data.bd;
-  ov.classList.add('on');
+  // Reopening while the close animation runs: keep 'on' (and its lock), just cancel the exit.
+  if (window._onbCloseTimer) { clearTimeout(window._onbCloseTimer); window._onbCloseTimer = null; }
+  ov.classList.remove('closing');
+  if (!ov.classList.contains('on')) { ov.classList.add('on'); _sheetLock(true); }
   if (navigator.vibrate) navigator.vibrate(8);
 }
 function closeOnb() {
-  document.getElementById('onb-ov')?.classList.remove('on');
+  const ov = document.getElementById('onb-ov');
+  if (!ov || !ov.classList.contains('on') || ov.classList.contains('closing')) return;
+  ov.classList.add('closing'); // exit animation (fade + slide-down), then hide
+  window._onbCloseTimer = setTimeout(() => {
+    window._onbCloseTimer = null;
+    ov.classList.remove('on', 'closing');
+    _sheetLock(false);
+  }, 230);
 }
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeOnb(); endTour(); } });
 
@@ -14189,6 +14389,318 @@ function showSplash() {
 }
 
 // ══════════════════════════════════════════════════════════════════════
+// AURA ID — living avatar system
+// 3 layers: portrait (photo in localStorage `fb_avatar` | themed monogram),
+// vital ring (color = recovery via --av-vital, beats at live BPM via --av-beat),
+// frame (unlockables: aura free · ember 7d streak · legend 30d · pro = isPro()).
+// Photo is cropped on-device to 256px JPEG — never leaves the browser.
+// ══════════════════════════════════════════════════════════════════════
+window._avCrop = null;          // crop session: {img,url,S,scale,min,x,y,ptrs}
+window._avCropBound = false;    // lazy pointer-handler binding (sheet HTML loads after this script)
+
+var _AV_FRAMES = ['aura', 'ember', 'legend', 'pro'];
+
+function avGet() {
+  try {
+    return {
+      photo: localStorage.getItem('fb_avatar') || '',
+      frame: localStorage.getItem('fb_avatar_frame') || 'aura',
+      unlocked: JSON.parse(localStorage.getItem('fb_avatar_unlocked') || '{}')
+    };
+  } catch(e) { return { photo:'', frame:'aura', unlocked:{} }; }
+}
+
+function avInitials() {
+  var n = (localStorage.getItem('fb_display_name') || document.getElementById('uname')?.textContent || '').trim();
+  if (!n || /^(USUARIO|USER|—|-)$/i.test(n)) return '◉';
+  var p = n.split(/\s+/);
+  return ((p[0][0] || '') + (p.length > 1 ? (p[p.length-1][0] || '') : '')).toUpperCase();
+}
+
+// Streak frames stay unlocked forever once earned (persisted). PRO is an
+// entitlement — checked live, never persisted, re-locks if the plan lapses.
+function avFrameUnlocked(id) {
+  if (id === 'aura') return true;
+  var st = avGet();
+  if (id !== 'pro' && st.unlocked[id]) return true;
+  var ok = false;
+  try {
+    if (id === 'ember')  ok = getDailyStreak() >= 7;
+    if (id === 'legend') ok = getDailyStreak() >= 30;
+    if (id === 'pro')    ok = isPro();
+  } catch(e) { return false; }
+  if (ok && id !== 'pro') {
+    st.unlocked[id] = true;
+    try { localStorage.setItem('fb_avatar_unlocked', JSON.stringify(st.unlocked)); } catch(e) {}
+  }
+  return ok;
+}
+
+function avFrameFor(st) {
+  var f = _AV_FRAMES.indexOf(st.frame) >= 0 ? st.frame : 'aura';
+  return avFrameUnlocked(f) ? f : 'aura';
+}
+
+function renderAvatar(el, opts) {
+  if (!el) return;
+  opts = opts || {};
+  var st = avGet();
+  var frame = opts.frame || avFrameFor(st);
+  el.classList.add('av-wrap');
+  _AV_FRAMES.forEach(function(f) { el.classList.remove('av-f-' + f); });
+  el.classList.add('av-f-' + frame);
+  var photo = opts.noPhoto ? '' : st.photo;
+  var core = photo ? '<img class="av-img" src="' + photo + '" alt="">'
+                   : '<span class="av-mono">' + avInitials() + '</span>';
+  el.innerHTML = '<span class="av-ring"></span><span class="av-core">' + core + '</span>'
+    + (opts.editBadge ? '<span class="av-edit-badge">✎</span>' : '')
+    + (opts.lockIcon ? '<span class="av-lock-ic">🔒</span>' : '');
+}
+
+function avRenderAll() {
+  renderAvatar(document.getElementById('home-av'));
+  renderAvatar(document.getElementById('pv-avatar'), { editBadge: true });
+  updateAvatarVitals();
+}
+
+// Vital ring color (recTextFor thresholds) + live heartbeat from #hrv.
+// Sets CSS vars on :root so every avatar instance updates without re-render.
+function updateAvatarVitals() {
+  var rec = window._lastRec;
+  var col = rec == null ? 'var(--ta)'
+          : rec >= 67  ? 'var(--tpos)'
+          : rec >= 34  ? '#f59e0b'
+          : 'var(--tneg)';
+  document.documentElement.style.setProperty('--av-vital', col);
+  var bpm = parseInt(document.getElementById('hrv')?.textContent, 10);
+  var live = !!localStorage.getItem('fb_tok') && bpm > 0;
+  if (live) document.documentElement.style.setProperty('--av-beat', (60 / bpm).toFixed(2) + 's');
+  ['home-av', 'pv-avatar', 'av-preview'].forEach(function(id) {
+    document.getElementById(id)?.classList.toggle('av-live', live);
+  });
+  // monogram refresh if the display name arrived after first render (no-photo case)
+  if (!avGet().photo) {
+    var ini = avInitials();
+    document.querySelectorAll('#home-av .av-mono, #pv-avatar .av-mono').forEach(function(m) {
+      if (m.textContent !== ini) m.textContent = ini;
+    });
+  }
+}
+
+// ── sheet ──────────────────────────────────────────────────────────────
+function openAvatarSheet() {
+  var t = T[lang], st = avGet(), cur = avFrameFor(st);
+  document.getElementById('av-title').textContent = t.av_title;
+  document.getElementById('av-photo-btn').textContent = st.photo ? t.av_change : t.av_add;
+  var rm = document.getElementById('av-remove-btn');
+  rm.textContent = t.av_remove;
+  rm.style.display = st.photo ? '' : 'none';
+  document.getElementById('av-frames-lbl').textContent = t.av_frames;
+  document.getElementById('av-hint').textContent = t.av_hint;
+  var names = { aura:t.av_f_aura, ember:t.av_f_ember, legend:t.av_f_legend, pro:t.av_f_pro };
+  var locks = { ember:t.av_lk7, legend:t.av_lk30, pro:t.av_lkpro };
+  document.getElementById('av-frames').innerHTML = _AV_FRAMES.map(function(f) {
+    var unl = avFrameUnlocked(f);
+    return '<button class="av-frame-opt' + (f === cur ? ' sel' : '') + (unl ? '' : ' locked') + '" onclick="avSelectFrame(\'' + f + '\')">'
+      + '<span class="av-wrap" id="av-th-' + f + '"></span>'
+      + '<span class="av-frame-name">' + (unl ? names[f] : locks[f]) + '</span>'
+      + '</button>';
+  }).join('');
+  _AV_FRAMES.forEach(function(f) {
+    renderAvatar(document.getElementById('av-th-' + f), { frame: f, lockIcon: !avFrameUnlocked(f) });
+  });
+  renderAvatar(document.getElementById('av-preview'), { frame: cur });
+  _avCloseCrop();
+  var sheet = document.getElementById('av-sheet');
+  // openAvatarSheet re-runs on frame select to re-render — only lock on a real open
+  if (!sheet.classList.contains('av-open')) _sheetLock(true);
+  document.getElementById('av-overlay').classList.add('av-open');
+  sheet.classList.add('av-open');
+  updateAvatarVitals();
+}
+
+function closeAvatarSheet() {
+  _avCloseCrop();
+  var sheet = document.getElementById('av-sheet');
+  if (sheet && sheet.classList.contains('av-open')) _sheetLock(false);
+  document.getElementById('av-overlay')?.classList.remove('av-open');
+  sheet?.classList.remove('av-open');
+}
+
+function avSelectFrame(f) {
+  var t = T[lang];
+  if (!avFrameUnlocked(f)) {
+    var toasts = { ember:t.av_lk7_toast, legend:t.av_lk30_toast, pro:t.av_lkpro_toast };
+    showToast(toasts[f] || '');
+    return;
+  }
+  try { localStorage.setItem('fb_avatar_frame', f); } catch(e) {}
+  avRenderAll();
+  openAvatarSheet(); // re-render selection states
+}
+
+function avRemovePhoto() {
+  try { localStorage.removeItem('fb_avatar'); } catch(e) {}
+  avRenderAll();
+  openAvatarSheet();
+  showToast(T[lang].av_removed);
+}
+
+// ── photo pick + crop (drag to pan · pinch/slider to zoom) ────────────
+function avPickPhoto() { document.getElementById('av-file').click(); }
+
+function avFileChosen(inp) {
+  var f = inp.files && inp.files[0];
+  inp.value = '';
+  if (!f) return;
+  var url = URL.createObjectURL(f);
+  var img = new Image();
+  img.onload = function() { _avOpenCrop(img, url); };
+  img.onerror = function() { URL.revokeObjectURL(url); showToast(T[lang].av_err_read); };
+  img.src = url;
+}
+
+function _avOpenCrop(img, url) {
+  var t = T[lang];
+  document.getElementById('avc-title').textContent = t.av_crop_t;
+  document.getElementById('avc-hint').textContent = t.av_crop_hint;
+  document.getElementById('avc-cancel').textContent = t.av_cancel;
+  document.getElementById('avc-use').textContent = t.av_use;
+  document.getElementById('av-main').style.display = 'none';
+  document.getElementById('av-crop').classList.add('open');
+  var stage = document.getElementById('avc-stage');
+  var S = stage.clientWidth;
+  var min = S / Math.min(img.naturalWidth, img.naturalHeight); // cover
+  window._avCrop = { img:img, url:url, S:S, scale:min, min:min,
+                     x:(S - img.naturalWidth * min) / 2, y:(S - img.naturalHeight * min) / 2,
+                     ptrs:new Map() };
+  document.getElementById('avc-img').src = url;
+  document.getElementById('avc-zoom').value = 0;
+  _avBindCrop(stage);
+  _avApply();
+}
+
+function _avCloseCrop() {
+  if (window._avCrop) { try { URL.revokeObjectURL(window._avCrop.url); } catch(e) {} }
+  window._avCrop = null;
+  document.getElementById('av-crop')?.classList.remove('open');
+  var m = document.getElementById('av-main');
+  if (m) m.style.display = '';
+}
+
+function avCancelCrop() { _avCloseCrop(); }
+
+function _avClamp() {
+  var c = window._avCrop;
+  var w = c.img.naturalWidth * c.scale, h = c.img.naturalHeight * c.scale;
+  c.x = Math.min(0, Math.max(c.S - w, c.x));
+  c.y = Math.min(0, Math.max(c.S - h, c.y));
+}
+
+function _avApply() {
+  var c = window._avCrop;
+  if (!c) return;
+  _avClamp();
+  document.getElementById('avc-img').style.transform =
+    'translate(' + c.x + 'px,' + c.y + 'px) scale(' + c.scale + ')';
+}
+
+// zoom anchored at a stage point (cx,cy) so the pixel under it stays put
+function _avZoomTo(ns, cx, cy) {
+  var c = window._avCrop;
+  ns = Math.min(c.min * 3, Math.max(c.min, ns));
+  c.x = cx - (cx - c.x) * (ns / c.scale);
+  c.y = cy - (cy - c.y) * (ns / c.scale);
+  c.scale = ns;
+  _avApply();
+}
+
+function avZoom(v) {
+  var c = window._avCrop;
+  if (!c) return;
+  _avZoomTo(c.min * (1 + v / 100 * 2), c.S / 2, c.S / 2);
+}
+
+function _avBindCrop(stage) {
+  if (window._avCropBound) return;
+  window._avCropBound = true;
+  stage.addEventListener('pointerdown', function(e) {
+    var c = window._avCrop; if (!c) return;
+    // Double-tap → toggle zoom centred on the tap point (iOS Photos crop gesture)
+    var lt = window._avLastTap;
+    if (lt && e.timeStamp - lt.t < 300 && Math.hypot(e.clientX - lt.x, e.clientY - lt.y) < 24 && c.ptrs.size === 0) {
+      window._avLastTap = null;
+      var r = stage.getBoundingClientRect();
+      var img = document.getElementById('avc-img');
+      var target = c.scale > c.min * 1.05 ? c.min : c.min * 2.2;
+      img.style.transition = 'transform 0.26s var(--ease-out)';
+      _avZoomTo(target, e.clientX - r.left, e.clientY - r.top);
+      document.getElementById('avc-zoom').value = Math.round((c.scale / c.min - 1) / 2 * 100);
+      setTimeout(function() { img.style.transition = ''; }, 280);
+      e.preventDefault();
+      return; // this press is a zoom toggle, not the start of a pan
+    }
+    window._avLastTap = { t: e.timeStamp, x: e.clientX, y: e.clientY };
+    stage.setPointerCapture(e.pointerId);
+    c.ptrs.set(e.pointerId, { x:e.clientX, y:e.clientY });
+    e.preventDefault();
+  });
+  stage.addEventListener('pointermove', function(e) {
+    var c = window._avCrop; if (!c || !c.ptrs.has(e.pointerId)) return;
+    var pts = Array.from(c.ptrs.entries());
+    if (pts.length === 1) {                       // pan
+      var p = c.ptrs.get(e.pointerId);
+      c.x += e.clientX - p.x; c.y += e.clientY - p.y;
+      p.x = e.clientX; p.y = e.clientY;
+      _avApply();
+    } else if (pts.length === 2) {                // pinch
+      var o = c.ptrs.get(e.pointerId);
+      var other = pts[0][0] === e.pointerId ? pts[1][1] : pts[0][1];
+      var d0 = Math.hypot(o.x - other.x, o.y - other.y);
+      o.x = e.clientX; o.y = e.clientY;
+      var d1 = Math.hypot(o.x - other.x, o.y - other.y);
+      if (d0 > 0) {
+        var r = stage.getBoundingClientRect();
+        _avZoomTo(c.scale * (d1 / d0), (o.x + other.x) / 2 - r.left, (o.y + other.y) / 2 - r.top);
+        document.getElementById('avc-zoom').value = Math.round((c.scale / c.min - 1) / 2 * 100);
+      }
+    }
+    e.preventDefault();
+  });
+  function lift(e) { window._avCrop?.ptrs.delete(e.pointerId); }
+  stage.addEventListener('pointerup', lift);
+  stage.addEventListener('pointercancel', lift);
+}
+
+function avSaveCrop() {
+  var c = window._avCrop;
+  if (!c) return;
+  var out = document.createElement('canvas');
+  out.width = 256; out.height = 256;
+  var ctx = out.getContext('2d');
+  var k = 256 / c.S;
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, 256, 256);
+  ctx.drawImage(c.img, c.x * k, c.y * k, c.img.naturalWidth * c.scale * k, c.img.naturalHeight * c.scale * k);
+  var data;
+  try { data = out.toDataURL('image/jpeg', 0.86); } catch(e) { showToast(T[lang].av_err_read); return; }
+  try { localStorage.setItem('fb_avatar', data); } catch(e) { showToast(T[lang].av_err_save); return; }
+  _avCloseCrop();
+  avRenderAll();
+  openAvatarSheet();
+  showToast(T[lang].av_saved);
+}
+
+// live BPM → heartbeat: observe the home HR number (covers every poll path)
+(function() {
+  var el = document.getElementById('hrv');
+  if (el && window.MutationObserver) {
+    new MutationObserver(function() { try { updateAvatarVitals(); } catch(e) {} })
+      .observe(el, { childList:true, characterData:true, subtree:true });
+  }
+})();
+avRenderAll();
+
+// ══════════════════════════════════════════════════════════════════════
 // BOOT — runs LAST so every top-level const/function is initialized.
 // This is the fix for bug #12 (TDZ abort). If you add new top-level state,
 // you can now safely use `let`/`const` again as long as it's declared
@@ -14670,6 +15182,7 @@ function openAch() {
   }
   var ov = document.getElementById('ach-overlay');
   var dr = document.getElementById('ach-drawer');
+  if (dr && !dr.classList.contains('ach-open')) _sheetLock(true);
   if (ov) ov.classList.add('ach-open');
   if (dr) dr.classList.add('ach-open');
 }
@@ -14677,6 +15190,7 @@ function openAch() {
 function closeAch() {
   var ov = document.getElementById('ach-overlay');
   var dr = document.getElementById('ach-drawer');
+  if (dr && dr.classList.contains('ach-open')) _sheetLock(false);
   if (ov) ov.classList.remove('ach-open');
   if (dr) dr.classList.remove('ach-open');
 }
@@ -14722,5 +15236,44 @@ function _replayAchAnim(idx) {
   <div class="ach-list" id="ach-list"></div>
 </div>
 <div id="ach-toast"></div>
+
+<!-- AURA ID — avatar overlay + sheet -->
+<div id="av-overlay" onclick="closeAvatarSheet()"></div>
+<div id="av-sheet" role="dialog" aria-modal="true" aria-label="AURA ID">
+  <div class="ach-handle"></div>
+  <div class="ach-head">
+    <div class="ach-title" id="av-title">AURA ID</div>
+    <button class="ach-close" onclick="closeAvatarSheet()" aria-label="Cerrar">✕</button>
+  </div>
+  <div class="av-sheet-body">
+    <div id="av-main">
+      <div class="av-preview-row">
+        <span class="av-wrap" id="av-preview"></span>
+        <div class="av-actions">
+          <button class="av-btn" id="av-photo-btn" onclick="avPickPhoto()">CAMBIAR FOTO</button>
+          <button class="av-btn ghost" id="av-remove-btn" onclick="avRemovePhoto()" style="display:none;">QUITAR</button>
+        </div>
+      </div>
+      <div class="pv-section-lbl" id="av-frames-lbl">MARCO</div>
+      <div class="av-frames" id="av-frames"></div>
+      <div class="av-hint" id="av-hint"></div>
+    </div>
+    <div id="av-crop">
+      <div class="avc-title" id="avc-title">AJUSTA TU FOTO</div>
+      <div class="avc-stage" id="avc-stage"><img id="avc-img" alt=""></div>
+      <div class="avc-zoom-row">
+        <span style="font-size:12px;opacity:0.5;">−</span>
+        <input type="range" class="avc-zoom" id="avc-zoom" min="0" max="100" value="0" oninput="avZoom(this.value)" aria-label="Zoom">
+        <span style="font-size:15px;opacity:0.5;">+</span>
+      </div>
+      <div class="avc-hint" id="avc-hint"></div>
+      <div class="av-actions" style="margin-top:16px;">
+        <button class="av-btn ghost" id="avc-cancel" onclick="avCancelCrop()">CANCELAR</button>
+        <button class="av-btn" id="avc-use" onclick="avSaveCrop()">USAR FOTO</button>
+      </div>
+    </div>
+  </div>
+  <input type="file" id="av-file" accept="image/*" style="display:none;" onchange="avFileChosen(this)">
+</div>
 </body>
 </html>
