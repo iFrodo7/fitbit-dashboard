@@ -2223,7 +2223,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
    for the FLIP spring that flows siblings out of the way (iOS behaviour). */
 .jiggle-mode.wm-reordering .vc:not(.wm-dragging){animation:none;}
 .jiggle-mode.wm-reordering .vc.wm-flip{
-  transition:transform 0.22s var(--ease-out);
+  transition:transform 0.16s var(--ease-out);
   will-change:transform;
 }
 /* X delete badge */
@@ -2261,7 +2261,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
   border:var(--cbdr);background:var(--cbg);overflow:hidden;
   transform:translate3d(0,0,0) scale(1) rotate(0deg);
   box-shadow:0 2px 8px rgba(0,0,0,0.25);
-  opacity:0.96;
+  opacity:0.88;
   transition:box-shadow var(--dur-base) var(--ease-std),opacity var(--dur-base) var(--ease-std);
 }
 .wm-drag-ghost.wm-lift{
@@ -9445,14 +9445,14 @@ function _startDrag(card, cx, cy, rect, touchId) {
     // NO cx-rect.left — evita que el ghost salte al origen al iniciar el drag.
     x:rect.left, y:rect.top,
     lastBefore:null, lastRef:card, raf:0, pending:false,
-    touchId: touchId != null ? touchId : null  // N2: which finger owns this drag
+    touchId: touchId != null ? touchId : null,  // N2: which finger owns this drag
+    lastSlotPx:null, lastSlotPy:null, _slotPlaced:false  // hysteresis tracking
   };
-  // Spring lift on pickup: pop scale up, settle to drag scale.
-  ghost.style.transform = 'translate3d(' + _dragState.x + 'px,' + _dragState.y + 'px,0) scale(1) rotate(0deg)';
-  ghost.offsetWidth;
-  ghost.style.transition = 'transform 0.18s var(--ease-spring),box-shadow 0.22s var(--ease-std),opacity 0.22s var(--ease-std)';
-  ghost.classList.add('wm-lift');
+  // Instant pickup: ghost appears immediately at drag scale so the response feels 1:1.
+  // The old 0.18s spring caused a perceived lag on pickup — ghost lagged behind the finger.
+  // Box-shadow and opacity still animate in from CSS (wm-lift class).
   ghost.style.transform = 'translate3d(' + _dragState.x + 'px,' + _dragState.y + 'px,0) scale(1.045) rotate(1.4deg)';
+  ghost.classList.add('wm-lift');
 
   document.addEventListener('touchmove',  _onDragMove, {passive:false});
   document.addEventListener('touchend',   _onDragEnd);
@@ -9507,6 +9507,10 @@ function _dragPaint(d) {
   d.ghost.style.transform = 'translate3d(' + d.x + 'px,' + d.y + 'px,0) scale(1.045) rotate(1.4deg)';
 }
 
+// Hysteresis: minimum finger travel (px) after a slot change before the next.
+// Prevents rapid FLIP oscillation from micro-movements near grid midpoints.
+var _HIT_HYSTERESIS = 28;
+
 // Find the nearest slot and, if the insertion point changed, spring siblings
 // out of the way + give a soft haptic tick (iOS "snap into place" feel).
 function _dragHitTest(d) {
@@ -9526,16 +9530,34 @@ function _dragHitTest(d) {
     if (dist < bestDist) { bestDist = dist; best = el; bestRect = r; }
   });
   if (!best) return;
-  // D2: in a multi-column grid, same-row neighbours should be ordered by X, not Y.
-  var cxBest = bestRect.left + bestRect.width/2;
-  var cyBest = bestRect.top  + bestRect.height/2;
-  var inSameRow = Math.abs(d.py - cyBest) < bestRect.height * 0.5;
-  var before = inSameRow ? d.px < cxBest : d.py < cyBest;
+
+  // D2 (improved): for same-row neighbours use the GRID COLUMN MIDPOINT, not the
+  // target card's centre. This eliminates a ~half-column dead zone that existed when
+  // using cxBest — the old logic required the finger to cross the target card's centre
+  // before the slot would move, which felt restrictive on horizontal swaps.
+  var vgRect = vg.getBoundingClientRect();
+  var colMid = vgRect.left + vgRect.width / 2; // boundary between the two columns
+  var cyBest = bestRect.top + bestRect.height / 2;
+  // Tighter same-row band (0.35 × height) so vertical drags don't trigger X-axis
+  // logic too aggressively — only fires when the finger is clearly within the row.
+  var inSameRow = Math.abs(d.py - cyBest) < bestRect.height * 0.35;
+  var before = inSameRow ? d.px < colMid : d.py < cyBest;
   // N4: wm-add-card is a hard boundary — never allow a widget to land after it.
   if (best === addCard) before = true;
-  if (best !== d.lastRef || before !== d.lastBefore) {
+
+  var posChanged = best !== d.lastRef || before !== d.lastBefore;
+  if (posChanged) {
+    // Hysteresis: after the first slot placement (_slotPlaced), suppress changes
+    // smaller than _HIT_HYSTERESIS px so the slot doesn't flicker at midpoints.
+    if (d._slotPlaced) {
+      var ddx = d.px - d.lastSlotPx;
+      var ddy = d.py - d.lastSlotPy;
+      if (Math.hypot(ddx, ddy) < _HIT_HYSTERESIS) return;
+    }
     d.lastRef = best; d.lastBefore = before;
-    if (navigator.vibrate) navigator.vibrate(6); // tick on each reposition
+    d.lastSlotPx = d.px; d.lastSlotPy = d.py;
+    d._slotPlaced = true;
+    if (navigator.vibrate) navigator.vibrate(6); // haptic tick on each snap
     _flipReorder(vg, function(){
       vg.insertBefore(d.slot, before ? best : best.nextSibling);
     });
