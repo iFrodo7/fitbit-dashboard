@@ -782,7 +782,7 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .av-f-pro .av-ring{box-shadow:0 0 14px -2px var(--ta2);}
 .av-edit-badge{position:absolute;right:-2px;bottom:-2px;width:17px;height:17px;border-radius:50%;background:var(--ta);color:var(--bg);font-size:9px;display:flex;align-items:center;justify-content:center;z-index:3;box-shadow:0 1px 4px rgba(0,0,0,0.4);}
 .av-lock-ic{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;z-index:4;}
-#pv-avatar{--av-size:50px;}
+#pv-avatar{--av-size:120px;}
 /* identity corner: clock column in the home greet */
 .db-greet-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;align-self:flex-end;padding-bottom:4px;}
 /* desktop: pin to the far right edge, top-aligned with the greet (name hero left ←→ identity right) */
@@ -795,8 +795,8 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .pulse-card{padding:0;overflow:hidden;position:relative;}
 .pulse-bg{position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 120% 130% at 18% 50%,rgba(var(--ta-rgb,0,200,255),0.10) 0%,transparent 65%),radial-gradient(ellipse 80% 90% at 82% 15%,rgba(var(--ta2-rgb,120,80,255),0.07) 0%,transparent 60%);}
 .pulse-hero{position:relative;display:flex;align-items:center;gap:16px;padding:20px 18px 16px;z-index:1;}
-.pulse-av-section{position:relative;flex-shrink:0;width:104px;height:104px;display:flex;align-items:center;justify-content:center;}
-.pulse-av-section .av-wrap{--av-size:74px;position:relative;z-index:2;}
+.pulse-av-section{position:relative;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.pulse-av-section .av-wrap{--av-size:120px;}
 .pulse-orbits{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:1;}
 .po-track{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:2;stroke-linecap:round;}
 .po-arc{fill:none;stroke-width:2.5;stroke-linecap:round;}
@@ -4843,15 +4843,6 @@ body.t-synth::after{content:'';position:fixed;inset:0;
       <!-- Hero: orbital avatar + identity block -->
       <div class="pulse-hero">
         <div class="pulse-av-section">
-          <!-- 3 orbital arcs: recovery · sleep · steps -->
-          <svg class="pulse-orbits" viewBox="0 0 104 104" aria-hidden="true">
-            <circle class="po-track" cx="52" cy="52" r="49"/>
-            <path class="po-arc po-arc-0" id="po-arc-0"/>
-            <circle class="po-track" cx="52" cy="52" r="41"/>
-            <path class="po-arc po-arc-1" id="po-arc-1"/>
-            <circle class="po-track" cx="52" cy="52" r="33"/>
-            <path class="po-arc po-arc-2" id="po-arc-2"/>
-          </svg>
           <button class="av-wrap" id="pv-avatar" onclick="openAvatarSheet()" aria-label="AURA ID"></button>
         </div>
         <div class="pulse-identity">
@@ -15479,8 +15470,8 @@ function _poArc(cx, cy, r, pct) {
 }
 
 function updatePulseOrbits() {
-  var cx = 52, cy = 52;
-  var radii = [49, 41, 33];
+  var cx = 75, cy = 75;
+  var radii = [71, 62, 53];
   var rec = window._lastRec;
   var slp = window._lastSleepPct;
   var stepsEl = document.getElementById('stepsv');
