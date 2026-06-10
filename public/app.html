@@ -8619,17 +8619,27 @@ function wkBarSel(idx) {
       if ((data[_si].steps || 0) >= _goal) _streak++;
       else break;
     }
-    // Cross-window extension: if streak fills entire visible window from 0 to sel
-    // AND all days from sel+1 to today also met the goal, the streak extends
-    // before the visible window → derive from _wkTodayStreakReal.
-    // FIX #14: use _wkTdIdx (calendar position of today, not hardcoded 6).
-    // Example: 10-day streak, today at idx 3, viewing idx 0 → 10-(3-0)=7, not 10-(6-0)=4.
-    if (_streak > 0 && _streak === sel + 1 && window._wkTodayStreakReal > _wkTdIdx + 1) {
-      var _allAfterMet = true;
-      for (var _di = sel + 1; _di <= _wkTdIdx; _di++) {
-        if ((data[_di].steps || 0) < _goal) { _allAfterMet = false; break; }
+    // Cross-window extension: the run reaches the window's left edge (idx 0), so the
+    // real streak may continue before the visible week → derive from _wkTodayStreakReal.
+    // FIX #15: anchor on the most-recent goal-met day `_m` (≤ today), NOT on today.
+    // _wkTodayStreakReal counts the streak through the last COMPLETED day (it starts
+    // from yesterday so an unfinished today doesn't break it). The old code required
+    // every day up to *today* to have met the goal — so on a day where today's goal
+    // wasn't reached yet, the bridge collapsed and a past day showed "1" instead of
+    // the real streak. Anchoring on the last met day fixes that.
+    if (_streak > 0 && _streak === sel + 1 && window._wkTodayStreakReal) {
+      var _m = -1;
+      for (var _mi = _wkTdIdx; _mi >= 0; _mi--) {
+        if ((data[_mi].steps || 0) >= _goal) { _m = _mi; break; }
       }
-      if (_allAfterMet) _streak = window._wkTodayStreakReal - (_wkTdIdx - sel);
+      // Only bridge when `sel` is inside the same contiguous run as the anchor `_m`.
+      if (_m >= sel) {
+        var _contig = true;
+        for (var _ci = sel; _ci <= _m; _ci++) {
+          if ((data[_ci].steps || 0) < _goal) { _contig = false; break; }
+        }
+        if (_contig) _streak = Math.max(_streak, window._wkTodayStreakReal - (_m - sel));
+      }
     }
     e.textContent = _streak > 0 ? _streak : '×';
   } else if (e && isToday) {
