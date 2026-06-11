@@ -9289,43 +9289,67 @@ async function loadWeekDataGoogle() {
         }
       } catch(e5) {}
     }
-    // FIX #17b: retroactive recovery — if prevCount still missing, read the SW IDB
-    // (fb_sw/streak) which never resets on miss, so it still holds the last confirmed
-    // streak. Fires when todayStreak < SW count, covering streak=0 AND streak resumed.
+    // FIX #17c: retroactive recovery via fb_history IDB (authoritative 90-day source).
+    // Replaces FIX #17b (SW IDB) which was unreliable — SW starts tracking mid-streak
+    // and may hold a lower count than the real historical streak.
+    // Algorithm: scan rolling days[] for the last goal-met segment before the current
+    // gap, then walk backwards through fb_history to extend it before the window start.
     if (!window._wkPrevStreakCount) {
       try {
-        var _swDb17 = await new Promise(function(res) {
-          try {
-            var r = indexedDB.open('fb_sw', 1);
-            r.onsuccess = function(e) { res(e.target.result); };
-            r.onerror = function() { res(null); };
-            r.onblocked = function() { res(null); };
-          } catch(e6) { res(null); }
-        });
-        if (_swDb17) {
-          var _swSt17 = await new Promise(function(res) {
+        // Step 1: find where today's current streak starts (rolling window, idx 6 = today)
+        var _cs17c = 7; // sentinel: no current streak
+        for (var _ci17c = 6; _ci17c >= 0; _ci17c--) {
+          if (((days[_ci17c] && days[_ci17c].steps) || 0) >= _strGoal7) _cs17c = _ci17c;
+          else break;
+        }
+        // Step 2: find last goal-met day BEFORE the current streak's gap
+        var _pe17c = -1;
+        for (var _pi17c = _cs17c - 1; _pi17c >= 0; _pi17c--) {
+          if (((days[_pi17c] && days[_pi17c].steps) || 0) >= _strGoal7) { _pe17c = _pi17c; break; }
+        }
+        if (_pe17c >= 0) {
+          // Step 3: count contiguous met days ending at _pe17c
+          var _wc17c = 0;
+          for (var _pk17c = _pe17c; _pk17c >= 0; _pk17c--) {
+            if (((days[_pk17c] && days[_pk17c].steps) || 0) >= _strGoal7) _wc17c++;
+            else break;
+          }
+          // Step 4: if run hits the left edge, extend backwards via fb_history
+          var _prExt17c = 0;
+          if (_pe17c - _wc17c + 1 === 0) {
             try {
-              var q = _swDb17.transaction('streak','readonly').objectStore('streak').get('main');
-              q.onsuccess = function(e) { res(e.target.result || null); };
-              q.onerror = function() { res(null); };
-            } catch(e6) { res(null); }
-          });
-          _swDb17.close();
-          if (_swSt17 && _swSt17.count > window._wkTodayStreakReal && _swSt17.lastDate) {
-            window._wkPrevStreakCount   = _swSt17.count;
-            window._wkPrevStreakEndDate = _swSt17.lastDate;
-            // Persist into fb_streak_steps.prevCount so future loads skip IDB
-            try {
-              var _pss17c = JSON.parse(localStorage.getItem('fb_streak_steps')||'{}');
-              if (!_pss17c.prevCount) {
-                _pss17c.prevCount   = _swSt17.count;
-                _pss17c.prevLastDate = _swSt17.lastDate;
-                localStorage.setItem('fb_streak_steps', JSON.stringify(_pss17c));
+              var _histAll17c = await _hGetAll();
+              var _histMap17c = {};
+              _histAll17c.forEach(function(r) {
+                if (r.date && r.steps != null) _histMap17c[r.date] = r.steps;
+              });
+              var _wd17c = new Date(days[0].date + 'T12:00:00');
+              _wd17c.setDate(_wd17c.getDate() - 1);
+              for (var _wj17c = 0; _wj17c < 90; _wj17c++) {
+                var _wds17c = _localDateStr(_wd17c);
+                if (_histMap17c[_wds17c] !== undefined) {
+                  if (_histMap17c[_wds17c] >= _strGoal7) { _prExt17c++; _wd17c.setDate(_wd17c.getDate() - 1); }
+                  else break;
+                } else break;
               }
-            } catch(e7) {}
+            } catch(e8c) {}
+          }
+          var _tot17c = _wc17c + _prExt17c;
+          if (_tot17c > 0) {
+            window._wkPrevStreakCount   = _tot17c;
+            window._wkPrevStreakEndDate = days[_pe17c].date;
+            // Persist so subsequent loads skip the IDB scan
+            try {
+              var _psd17c = JSON.parse(localStorage.getItem('fb_streak_steps')||'{}');
+              if (!_psd17c.prevCount || _tot17c > _psd17c.prevCount) {
+                _psd17c.prevCount    = _tot17c;
+                _psd17c.prevLastDate = days[_pe17c].date;
+                localStorage.setItem('fb_streak_steps', JSON.stringify(_psd17c));
+              }
+            } catch(e9c) {}
           }
         }
-      } catch(e5b) {}
+      } catch(e7c) {}
     }
     // Update streak card immediately — don't wait for user to click the bar
     // FIX #16: show '-' when today's goal not yet reached (undecided)
