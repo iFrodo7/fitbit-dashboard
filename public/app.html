@@ -780,6 +780,31 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .av-f-legend .av-ring{box-shadow:0 0 12px -2px #d4af37;}
 .av-f-pro .av-ring::before{background:conic-gradient(var(--ta),var(--ta2),var(--ta),var(--ta2),var(--ta));}
 .av-f-pro .av-ring{box-shadow:0 0 14px -2px var(--ta2);}
+/* NOVA — doble ring con onda expansiva */
+.av-f-nova .av-ring{border:2px solid #7b2fff;animation:novaPulse 1.8s ease-out infinite;}
+.av-f-nova .av-ring2{position:absolute;inset:-5px;border-radius:50%;border:1.5px solid rgba(123,47,255,0.35);pointer-events:none;z-index:0;animation:novaPulse2 1.8s ease-out 0.6s infinite;}
+@keyframes novaPulse{0%{box-shadow:0 0 0 0 rgba(123,47,255,0.65)}70%{box-shadow:0 0 0 10px rgba(123,47,255,0)}100%{box-shadow:0 0 0 0 rgba(123,47,255,0)}}
+@keyframes novaPulse2{0%{opacity:0.85;transform:scale(1)}100%{opacity:0;transform:scale(1.38)}}
+/* NEBULA — destellos RGB orbitando */
+.av-f-nebula .av-ring{border:1.5px solid rgba(123,47,255,0.5);animation:nebRotate 8s linear infinite;}
+.av-f-nebula .av-ring::before{content:'';position:absolute;inset:-35%;background:conic-gradient(transparent 60deg,rgba(123,47,255,0.65) 65deg,rgba(0,245,255,0.45) 80deg,transparent 90deg,transparent 180deg,rgba(232,92,138,0.55) 190deg,transparent 200deg,transparent 300deg,rgba(0,245,255,0.35) 310deg,transparent 320deg);animation:av-spin 4s linear infinite;border-radius:50%;}
+@keyframes nebRotate{0%{box-shadow:2px 0 8px rgba(0,245,255,0.5)}25%{box-shadow:0 2px 8px rgba(123,47,255,0.5)}50%{box-shadow:-2px 0 8px rgba(232,92,138,0.5)}75%{box-shadow:0 -2px 8px rgba(0,245,255,0.4)}100%{box-shadow:2px 0 8px rgba(0,245,255,0.5)}}
+/* GLITCH — RGB split con distorsión, solo temas Halo/Futuristic */
+.t-halo .av-f-glitch .av-ring,.t-fut .av-f-glitch .av-ring{border:2px solid #ff2d78;}
+.t-halo .av-f-glitch .av-ring::before,.t-fut .av-f-glitch .av-ring::before{content:'';position:absolute;inset:-2px;border-radius:50%;border:2px solid #00f5ff;animation:glitchA 2s steps(1) infinite;clip-path:polygon(0 30%,100% 30%,100% 60%,0 60%);}
+.t-halo .av-f-glitch .av-ring::after,.t-fut .av-f-glitch .av-ring::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid #7b2fff;animation:glitchB 2.3s steps(1) infinite;clip-path:polygon(0 65%,100% 65%,100% 85%,0 85%);}
+@keyframes glitchA{0%,90%,100%{opacity:1;transform:translateX(0)}92%{transform:translateX(2px)}94%{transform:translateX(-2px)}96%{transform:translateX(1px)}}
+@keyframes glitchB{0%,85%,100%{opacity:1;transform:translateX(0)}87%{transform:translateX(-3px)}89%{transform:translateX(2px)}}
+/* PIXEL — borde pixelado cuadrado, solo tema Minecraft */
+.t-mc .av-f-pixel .av-ring{border-radius:8px!important;border:none;overflow:visible;}
+.t-mc .av-f-pixel .av-ring::before{content:'';position:absolute;inset:0;border-radius:8px;background:repeating-linear-gradient(90deg,#6aff3a 0,#6aff3a 4px,transparent 4px,transparent 8px);animation:pixBlink 1s steps(1) infinite;}
+.t-mc .av-f-pixel .av-ring::after{content:'';position:absolute;inset:0;border-radius:8px;background:repeating-linear-gradient(0deg,#6aff3a 0,#6aff3a 4px,transparent 4px,transparent 8px);animation:pixBlink 1s steps(1) 0.5s infinite;}
+.t-mc .av-f-pixel .av-core{border-radius:6px!important;}
+.t-mc .av-f-pixel{border-radius:8px!important;}
+@keyframes pixBlink{0%,49%{opacity:1}50%,100%{opacity:0}}
+/* av-ring2: only visible on Nova */
+.av-ring2{display:none;}
+.av-f-nova .av-ring2{display:block;}
 .av-edit-badge{position:absolute;right:-2px;bottom:-2px;width:17px;height:17px;border-radius:50%;background:var(--ta);color:var(--bg);font-size:9px;display:flex;align-items:center;justify-content:center;z-index:3;box-shadow:0 1px 4px rgba(0,0,0,0.4);}
 .av-lock-ic{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;z-index:4;}
 #pv-avatar{--av-size:120px;}
@@ -795,9 +820,9 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .pulse-card{padding:0;overflow:hidden;position:relative;}
 .pulse-bg{position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 120% 130% at 18% 50%,rgba(var(--ta-rgb,0,200,255),0.10) 0%,transparent 65%),radial-gradient(ellipse 80% 90% at 82% 15%,rgba(var(--ta2-rgb,120,80,255),0.07) 0%,transparent 60%);}
 .pulse-hero{position:relative;display:flex;align-items:center;gap:16px;padding:20px 18px 16px;z-index:1;}
-.pulse-av-section{position:relative;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.pulse-av-section{position:relative;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:160px;height:160px;}
 .pulse-av-section .av-wrap{--av-size:120px;}
-.pulse-orbits{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:1;}
+.pulse-orbits{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:0;}
 .po-track{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:2;stroke-linecap:round;}
 .po-arc{fill:none;stroke-width:2.5;stroke-linecap:round;}
 .po-arc-0{stroke:var(--tpos,#00c864);}
@@ -816,6 +841,20 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .pulse-tier-progress{width:100%;height:2px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;margin-top:2px;}
 .pulse-tier-fill{height:100%;background:var(--ta);border-radius:2px;transition:width 1.3s var(--ease-out);}
 .pulse-pts{font-size:9px;opacity:0.32;letter-spacing:1.5px;font-family:'IBM Plex Mono',monospace;}
+/* Marco-First hero additions */
+.pulse-frame-row{display:flex;align-items:center;gap:5px;margin:3px 0 1px;}
+#pv-frame-icon{font-size:11px;color:var(--ta);}
+#pv-frame-name{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--ta);text-transform:uppercase;}
+#pv-streak-val{font-size:9px;opacity:0.38;letter-spacing:1px;}
+#pulse-pts{font-size:22px;font-weight:900;color:var(--txt);font-family:'Rajdhani',sans-serif;letter-spacing:-0.5px;line-height:1;margin-top:3px;}
+#pulse-pts span{font-size:9px;opacity:0.35;font-weight:400;letter-spacing:2px;margin-left:3px;font-family:'IBM Plex Mono',monospace;vertical-align:middle;}
+/* Action buttons */
+.pulse-actions{display:flex;gap:6px;margin-bottom:8px;}
+.pulse-action-btn{flex:1;padding:9px 4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:var(--r-sm);font-family:inherit;font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--txt);cursor:pointer;text-transform:uppercase;transition:background var(--dur-fast) var(--ease-std),border-color var(--dur-fast) var(--ease-std);-webkit-tap-highlight-color:transparent;}
+.pulse-action-btn:active{opacity:0.7;}
+.pulse-action-btn.hi{background:rgba(var(--ta-rgb,0,200,255),0.08);border-color:rgba(var(--ta-rgb,0,200,255),0.22);color:var(--ta);}
+/* Records section */
+.pulse-records-section{padding:2px 18px 14px;position:relative;z-index:1;}
 .pulse-stats{position:relative;display:flex;align-items:stretch;border-top:1px solid rgba(255,255,255,0.06);z-index:1;}
 .pls-chip{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:11px 6px;gap:2px;}
 .pls-sep{flex:none;width:1px;background:rgba(255,255,255,0.06);margin:10px 0;}
@@ -4837,16 +4876,30 @@ body.t-synth::after{content:'';position:fixed;inset:0;
       </div>
     </div>
 
-    <!-- PULSE IDENTITY CARD -->
+    <!-- PULSE IDENTITY CARD — Marco-First -->
     <div class="card hv-card pulse-card" id="pulse-card">
       <div class="pulse-bg"></div>
-      <!-- Hero: orbital avatar + identity block -->
+      <!-- Hero: avatar con orbits + identity block -->
       <div class="pulse-hero">
         <div class="pulse-av-section">
-          <button class="av-wrap" id="pv-avatar" onclick="openAvatarSheet()" aria-label="AURA ID"></button>
+          <svg class="pulse-orbits" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle class="po-track" cx="80" cy="80" r="78"/>
+            <circle class="po-track" cx="80" cy="80" r="71"/>
+            <circle class="po-track" cx="80" cy="80" r="64"/>
+            <path class="po-arc po-arc-0" id="po-arc-0"/>
+            <path class="po-arc po-arc-1" id="po-arc-1"/>
+            <path class="po-arc po-arc-2" id="po-arc-2"/>
+          </svg>
+          <button class="av-wrap" id="pv-avatar" onclick="openAvatarSheet()" aria-label="AURA ID" style="position:relative;z-index:1;"></button>
         </div>
         <div class="pulse-identity">
           <div class="pv-uname" id="pv-uname">—</div>
+          <!-- Marco-First: nombre del marco + racha prominentes -->
+          <div class="pulse-frame-row">
+            <span id="pv-frame-icon">◦</span>
+            <span id="pv-frame-name">AURA</span>
+            <span id="pv-streak-val"></span>
+          </div>
           <div class="pulse-tier-row">
             <button class="pulse-tier-badge" id="pulse-tier-badge" onclick="openTierSheet()">
               <span class="ptb-icon" id="ptb-icon">◦</span>
@@ -4855,7 +4908,8 @@ body.t-synth::after{content:'';position:fixed;inset:0;
             <span class="pv-ustatus" id="pv-ustatus">DEMO</span>
           </div>
           <div class="pulse-tier-progress"><div class="pulse-tier-fill" id="pulse-tier-fill" style="width:0%"></div></div>
-          <div class="pulse-pts" id="pulse-pts">0 PTS</div>
+          <!-- PTS en grande -->
+          <div id="pulse-pts">0 <span>PTS</span></div>
         </div>
       </div>
       <!-- Live stats strip: Recovery · Racha · HRV -->
@@ -4875,8 +4929,18 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           <div class="pls-l">HRV</div>
         </div>
       </div>
-      <!-- Connect / disconnect -->
+      <!-- Récords personales -->
+      <div class="pulse-records-section">
+        <div class="pv-section-lbl" id="pulse-records-lbl">RÉCORDS PERSONALES</div>
+        <div class="pulse-records" id="pulse-records"></div>
+      </div>
+      <!-- Botones de acción + connect/disconnect -->
       <div class="pulse-action-row">
+        <div class="pulse-actions">
+          <button class="pulse-action-btn" onclick="navigate('stats')">📊 STATS</button>
+          <button class="pulse-action-btn hi" onclick="openAvatarSheet()">✦ MARCOS</button>
+          <button class="pulse-action-btn" onclick="avShareCard()">📤</button>
+        </div>
         <button class="pv-connect-btn" id="pv-connect-btn" onclick="openModal()">CONECTAR CON GOOGLE →</button>
         <button class="pv-disconnect-btn" id="pv-disconnect-btn" onclick="disconnectFitbit()" style="display:none;">DESCONECTAR</button>
       </div>
@@ -5477,11 +5541,18 @@ const T = {
     av_title: 'AURA ID',
     av_add: 'AGREGAR FOTO', av_change: 'CAMBIAR FOTO', av_remove: 'QUITAR',
     av_frames: 'MARCO',
-    av_f_aura: 'AURA', av_f_ember: 'RACHA', av_f_legend: 'LEYENDA', av_f_pro: 'AIRA PRO',
-    av_lk7: '🔒 RACHA 7D', av_lk30: '🔒 RACHA 30D', av_lkpro: '🔒 SOLO PRO',
+    av_f_aura: 'AURA', av_f_ember: 'RACHA', av_f_legend: 'LEYENDA', av_f_nova: 'NOVA', av_f_nebula: 'NEBULA', av_f_glitch: 'GLITCH', av_f_pixel: 'PIXEL', av_f_pro: 'AIRA PRO',
+    av_lk7: '🔒 RACHA 7D', av_lk30: '🔒 RACHA 30D', av_lk14: '🔒 RACHA 14D', av_lkneb: '🔒 REC 90×3', av_lkglitch: '🔒 HALO/AETHER', av_lkpix: '🔒 VOXEL', av_lkpro: '🔒 SOLO PRO',
     av_lk7_toast: 'Desbloquea con una racha de 7 días 🔥',
     av_lk30_toast: 'Desbloquea con una racha de 30 días 🔥',
+    av_lk14_toast: 'Desbloquea con una racha de 14 días 🌟',
+    av_lkneb_toast: 'Logra recovery 90+ tres veces para desbloquear ✨',
+    av_lkglitch_toast: 'Marco exclusivo de los temas Halo y Aether',
+    av_lkpix_toast: 'Marco exclusivo del tema Voxel (Minecraft)',
     av_lkpro_toast: 'Marco exclusivo de AIRA PRO',
+    av_apply: 'APLICAR',
+    av_shared: 'Tarjeta compartida ✓',
+    av_share_dl: 'Tarjeta guardada ✓',
     av_crop_t: 'AJUSTA TU FOTO',
     av_crop_hint: 'Arrastra para mover · pellizca o desliza para acercar',
     av_use: 'USAR FOTO', av_cancel: 'CANCELAR',
@@ -5742,11 +5813,18 @@ const T = {
     av_title: 'AURA ID',
     av_add: 'ADD PHOTO', av_change: 'CHANGE PHOTO', av_remove: 'REMOVE',
     av_frames: 'FRAME',
-    av_f_aura: 'AURA', av_f_ember: 'STREAK', av_f_legend: 'LEGEND', av_f_pro: 'AIRA PRO',
-    av_lk7: '🔒 7D STREAK', av_lk30: '🔒 30D STREAK', av_lkpro: '🔒 PRO ONLY',
+    av_f_aura: 'AURA', av_f_ember: 'STREAK', av_f_legend: 'LEGEND', av_f_nova: 'NOVA', av_f_nebula: 'NEBULA', av_f_glitch: 'GLITCH', av_f_pixel: 'PIXEL', av_f_pro: 'AIRA PRO',
+    av_lk7: '🔒 7D STREAK', av_lk30: '🔒 30D STREAK', av_lk14: '🔒 14D STREAK', av_lkneb: '🔒 REC 90×3', av_lkglitch: '🔒 HALO/AETHER', av_lkpix: '🔒 VOXEL', av_lkpro: '🔒 PRO ONLY',
     av_lk7_toast: 'Unlock with a 7-day streak 🔥',
     av_lk30_toast: 'Unlock with a 30-day streak 🔥',
+    av_lk14_toast: 'Unlock with a 14-day streak 🌟',
+    av_lkneb_toast: 'Achieve recovery 90+ three times to unlock ✨',
+    av_lkglitch_toast: 'Exclusive to Halo and Aether themes',
+    av_lkpix_toast: 'Exclusive to Voxel (Minecraft) theme',
     av_lkpro_toast: 'AIRA PRO exclusive frame',
+    av_apply: 'APPLY',
+    av_shared: 'Card shared ✓',
+    av_share_dl: 'Card saved ✓',
     av_crop_t: 'ADJUST YOUR PHOTO',
     av_crop_hint: 'Drag to move · pinch or slide to zoom',
     av_use: 'USE PHOTO', av_cancel: 'CANCEL',
@@ -8703,6 +8781,7 @@ window._wkTodaySnap      = null;
 // Real streak for today combining _wkData (7-day window) + _getStepGoalStreak() (IndexedDB).
 // Handles streaks longer than 7 days (e.g. 90-day streak user).
 window._wkTodayStreakReal    = 0;
+window._avPendingFrame       = null; // frame previewed but not yet saved
 window._wkPrevStreakCount    = 0;   // FIX #17: pre-break streak count, for historical bars
 window._wkPrevStreakEndDate  = '';  // FIX #17: last date of that pre-break streak
 window._driveStreakFileId = null; // cached Drive file-id for fb_streak sync
@@ -14615,7 +14694,7 @@ function showSplash() {
 window._avCrop = null;          // crop session: {img,url,S,scale,min,x,y,ptrs}
 window._avCropBound = false;    // lazy pointer-handler binding (sheet HTML loads after this script)
 
-var _AV_FRAMES = ['aura', 'ember', 'legend', 'pro'];
+var _AV_FRAMES = ['aura', 'ember', 'legend', 'nova', 'nebula', 'glitch', 'pixel', 'pro'];
 
 function avGet() {
   try {
@@ -14634,19 +14713,24 @@ function avInitials() {
   return ((p[0][0] || '') + (p.length > 1 ? (p[p.length-1][0] || '') : '')).toUpperCase();
 }
 
-// Streak frames stay unlocked forever once earned (persisted). PRO is an
-// entitlement — checked live, never persisted, re-locks if the plan lapses.
+// Streak/achievement frames persist once earned. PRO re-checks live.
+// Glitch/Pixel are theme-gated (no persistence — tied to active theme).
 function avFrameUnlocked(id) {
   if (id === 'aura') return true;
   var st = avGet();
-  if (id !== 'pro' && st.unlocked[id]) return true;
+  var themePersistable = id !== 'pro' && id !== 'glitch' && id !== 'pixel';
+  if (themePersistable && st.unlocked[id]) return true;
   var ok = false;
   try {
     if (id === 'ember')  ok = getDailyStreak() >= 7;
     if (id === 'legend') ok = getDailyStreak() >= 30;
+    if (id === 'nova')   ok = getDailyStreak() >= 14;
+    if (id === 'nebula') { var _nd = JSON.parse(localStorage.getItem('fb_nebula_days')||'[]'); ok = _nd.length >= 3; }
+    if (id === 'glitch') ok = (typeof theme !== 'undefined' && (theme === 'halo' || theme === 'fut'));
+    if (id === 'pixel')  ok = (typeof theme !== 'undefined' && theme === 'mc');
     if (id === 'pro')    ok = isPro();
   } catch(e) { return false; }
-  if (ok && id !== 'pro') {
+  if (ok && themePersistable) {
     st.unlocked[id] = true;
     try { localStorage.setItem('fb_avatar_unlocked', JSON.stringify(st.unlocked)); } catch(e) {}
   }
@@ -14669,7 +14753,7 @@ function renderAvatar(el, opts) {
   var photo = opts.noPhoto ? '' : st.photo;
   var core = photo ? '<img class="av-img" src="' + photo + '" alt="">'
                    : '<span class="av-mono">' + avInitials() + '</span>';
-  el.innerHTML = '<span class="av-ring"></span><span class="av-core">' + core + '</span>'
+  el.innerHTML = '<span class="av-ring"></span><span class="av-ring2"></span><span class="av-core">' + core + '</span>'
     + (opts.editBadge ? '<span class="av-edit-badge">✎</span>' : '')
     + (opts.lockIcon ? '<span class="av-lock-ic">🔒</span>' : '');
 }
@@ -14707,29 +14791,61 @@ function updateAvatarVitals() {
 // ── sheet ──────────────────────────────────────────────────────────────
 function openAvatarSheet() {
   var t = T[lang], st = avGet(), cur = avFrameFor(st);
+  // Reset pending preview state
+  window._avPendingFrame = null;
+  var ar = document.getElementById('av-apply-row');
+  if (ar) ar.style.display = 'none';
+  var applyBtn = document.getElementById('av-apply-btn');
+  if (applyBtn) applyBtn.textContent = t.av_apply || 'APLICAR';
+
   document.getElementById('av-title').textContent = t.av_title;
   document.getElementById('av-photo-btn').textContent = st.photo ? t.av_change : t.av_add;
   var rm = document.getElementById('av-remove-btn');
   rm.textContent = t.av_remove;
   rm.style.display = st.photo ? '' : 'none';
   document.getElementById('av-frames-lbl').textContent = t.av_frames;
-  document.getElementById('av-hint').textContent = t.av_hint;
-  var names = { aura:t.av_f_aura, ember:t.av_f_ember, legend:t.av_f_legend, pro:t.av_f_pro };
-  var locks = { ember:t.av_lk7, legend:t.av_lk30, pro:t.av_lkpro };
-  document.getElementById('av-frames').innerHTML = _AV_FRAMES.map(function(f) {
+
+  // Dynamic hint: muestra el marco más cercano a desbloquear
+  var _hStreak = 0; try { _hStreak = getDailyStreak(); } catch(e) {}
+  var _hNeb = 0; try { _hNeb = JSON.parse(localStorage.getItem('fb_nebula_days')||'[]').length; } catch(e) {}
+  var _es = lang === 'es';
+  var _hint = t.av_hint;
+  if (!avFrameUnlocked('ember'))  _hint = _es ? ('Faltan ' + (7  - _hStreak) + ' días para EMBER 🔥')  : ((7  - _hStreak) + ' days left for EMBER 🔥');
+  else if (!avFrameUnlocked('nova'))   _hint = _es ? ('Faltan ' + (14 - _hStreak) + ' días para NOVA 🌟')  : ((14 - _hStreak) + ' days left for NOVA 🌟');
+  else if (!avFrameUnlocked('legend')) _hint = _es ? ('Faltan ' + (30 - _hStreak) + ' días para LEGEND ✦') : ((30 - _hStreak) + ' days left for LEGEND ✦');
+  else if (!avFrameUnlocked('nebula')) _hint = _es ? ('Necesitas ' + (3 - _hNeb) + ' recovery 90+ más para NEBULA ✨') : ((3 - _hNeb) + ' more 90+ recoveries for NEBULA ✨');
+  document.getElementById('av-hint').textContent = _hint;
+
+  var names = { aura:t.av_f_aura, ember:t.av_f_ember, legend:t.av_f_legend, nova:t.av_f_nova||'NOVA', nebula:t.av_f_nebula||'NEBULA', glitch:t.av_f_glitch||'GLITCH', pixel:t.av_f_pixel||'PIXEL', pro:t.av_f_pro };
+  // Locks con progreso dinámico
+  var locks = {
+    ember:  _hStreak + '/7',
+    legend: _hStreak + '/30',
+    nova:   _hStreak + '/14',
+    nebula: _hNeb + '/3×90',
+    glitch: t.av_lkglitch || '🔒',
+    pixel:  t.av_lkpix || '🔒',
+    pro:    t.av_lkpro
+  };
+  // Filtrar marcos exclusivos de tema
+  var visibleFrames = _AV_FRAMES.filter(function(f) {
+    if (f === 'glitch') return (typeof theme !== 'undefined' && (theme === 'halo' || theme === 'fut'));
+    if (f === 'pixel')  return (typeof theme !== 'undefined' && theme === 'mc');
+    return true;
+  });
+  document.getElementById('av-frames').innerHTML = visibleFrames.map(function(f) {
     var unl = avFrameUnlocked(f);
-    return '<button class="av-frame-opt' + (f === cur ? ' sel' : '') + (unl ? '' : ' locked') + '" onclick="avSelectFrame(\'' + f + '\')">'
+    return '<button class="av-frame-opt' + (f === cur ? ' sel' : '') + (unl ? '' : ' locked') + '" data-avf="' + f + '" onclick="avSelectFrame(\'' + f + '\')">'
       + '<span class="av-wrap" id="av-th-' + f + '"></span>'
       + '<span class="av-frame-name">' + (unl ? names[f] : locks[f]) + '</span>'
       + '</button>';
   }).join('');
-  _AV_FRAMES.forEach(function(f) {
+  visibleFrames.forEach(function(f) {
     renderAvatar(document.getElementById('av-th-' + f), { frame: f, lockIcon: !avFrameUnlocked(f) });
   });
   renderAvatar(document.getElementById('av-preview'), { frame: cur });
   _avCloseCrop();
   var sheet = document.getElementById('av-sheet');
-  // openAvatarSheet re-runs on frame select to re-render — only lock on a real open
   if (!sheet.classList.contains('av-open')) _sheetLock(true);
   document.getElementById('av-overlay').classList.add('av-open');
   sheet.classList.add('av-open');
@@ -14747,13 +14863,157 @@ function closeAvatarSheet() {
 function avSelectFrame(f) {
   var t = T[lang];
   if (!avFrameUnlocked(f)) {
-    var toasts = { ember:t.av_lk7_toast, legend:t.av_lk30_toast, pro:t.av_lkpro_toast };
+    var toasts = { ember:t.av_lk7_toast, legend:t.av_lk30_toast, nova:t.av_lk14_toast,
+                   nebula:t.av_lkneb_toast, glitch:t.av_lkglitch_toast, pixel:t.av_lkpix_toast, pro:t.av_lkpro_toast };
     showToast(toasts[f] || '');
     return;
   }
+  window._avPendingFrame = f;
+  // Solo actualiza preview y marca sel — no guarda todavía
+  renderAvatar(document.getElementById('av-preview'), { frame: f });
+  updateAvatarVitals();
+  document.querySelectorAll('.av-frame-opt').forEach(function(btn) {
+    btn.classList.toggle('sel', btn.dataset.avf === f);
+  });
+  var ar = document.getElementById('av-apply-row');
+  if (ar) ar.style.display = '';
+}
+
+function avApplyFrame() {
+  var f = window._avPendingFrame;
+  if (!f) return;
   try { localStorage.setItem('fb_avatar_frame', f); } catch(e) {}
+  window._avPendingFrame = null;
   avRenderAll();
-  openAvatarSheet(); // re-render selection states
+  openAvatarSheet();
+}
+
+function avCancelFramePreview() {
+  window._avPendingFrame = null;
+  var st = avGet();
+  var cur = avFrameFor(st);
+  renderAvatar(document.getElementById('av-preview'), { frame: cur });
+  document.querySelectorAll('.av-frame-opt').forEach(function(btn) {
+    btn.classList.toggle('sel', btn.dataset.avf === cur);
+  });
+  var ar = document.getElementById('av-apply-row');
+  if (ar) ar.style.display = 'none';
+}
+
+async function avShareCard() {
+  var t = T[lang];
+  var es = lang === 'es';
+  var canvas = document.createElement('canvas');
+  canvas.width = 400; canvas.height = 420;
+  var ctx = canvas.getContext('2d');
+  // Fondo del tema
+  var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0a0a0f';
+  ctx.fillStyle = bgColor || '#0a0a0f';
+  ctx.fillRect(0, 0, 400, 420);
+  // Gradiente radial de acento
+  var taColor = getComputedStyle(document.documentElement).getPropertyValue('--ta').trim() || '#00f5ff';
+  try {
+    var grad = ctx.createRadialGradient(80, 190, 0, 80, 190, 300);
+    grad.addColorStop(0, taColor.includes('rgb') ? taColor.replace(')', ',0.13)').replace('rgb(','rgba(') : taColor + '22');
+    grad.addColorStop(1, 'transparent');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 400, 420);
+  } catch(e) {}
+  // Avatar
+  var st = avGet();
+  var frame = avFrameFor(st);
+  var cx = 200, cy = 150, r = 68;
+  var frameGlow = { aura: taColor, ember:'#ff5a00', legend:'#d4af37', nova:'#7b2fff', nebula:'#7b2fff', glitch:'#ff2d78', pixel:'#6aff3a', pro: taColor };
+  var fc = frameGlow[frame] || taColor;
+  ctx.save();
+  ctx.shadowColor = fc; ctx.shadowBlur = 22;
+  ctx.beginPath(); ctx.arc(cx, cy, r + 2, 0, Math.PI * 2);
+  ctx.strokeStyle = fc; ctx.lineWidth = 3; ctx.stroke();
+  ctx.restore();
+  if (st.photo) {
+    try {
+      var img = new Image();
+      await new Promise(function(res, rej) { img.onload = res; img.onerror = rej; img.src = st.photo; });
+      ctx.save();
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
+      ctx.drawImage(img, cx - r, cy - r, r * 2, r * 2);
+      ctx.restore();
+    } catch(e) { _avShareInitials(ctx, cx, cy, r, taColor); }
+  } else { _avShareInitials(ctx, cx, cy, r, taColor); }
+  // Nombre de usuario
+  var txtColor = getComputedStyle(document.documentElement).getPropertyValue('--txt').trim() || '#e8e8e8';
+  var uname = (localStorage.getItem('fb_display_name') || document.getElementById('uname')?.textContent?.trim() || 'USER').toUpperCase();
+  ctx.fillStyle = txtColor || '#e8e8e8';
+  ctx.font = 'bold 24px Rajdhani, sans-serif';
+  ctx.textAlign = 'center'; ctx.fillText(uname, 200, 248);
+  // Nombre del marco
+  var frameNames = { aura:'AURA', ember:'EMBER', legend:'LEGEND', nova:'NOVA', nebula:'NEBULA', glitch:'GLITCH', pixel:'PIXEL', pro:'PRO' };
+  ctx.fillStyle = fc;
+  ctx.font = 'bold 11px IBM Plex Mono, monospace';
+  ctx.fillText('◈ ' + (frameNames[frame] || frame.toUpperCase()), 200, 268);
+  // Stats
+  var rec = window._lastRec;
+  var strEl = document.getElementById('steps-streak-val');
+  var str = strEl ? parseInt(strEl.textContent || '0', 10) : 0;
+  var hrvEl = document.getElementById('hrv');
+  var hrv = hrvEl ? hrvEl.textContent.trim() : '—';
+  var stats = [
+    { lbl: 'RECOVERY', val: rec != null ? Math.round(rec) + '' : '—' },
+    { lbl: es ? 'RACHA' : 'STREAK', val: str > 0 ? str + 'd' : '—' },
+    { lbl: 'HRV', val: (hrv && hrv !== '—') ? hrv + 'ms' : '—' }
+  ];
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(40, 296); ctx.lineTo(360, 296); ctx.stroke();
+  stats.forEach(function(s, i) {
+    var x = 80 + i * 120;
+    ctx.fillStyle = txtColor || '#e8e8e8';
+    ctx.font = 'bold 19px Rajdhani, sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText(s.val, x, 324);
+    ctx.fillStyle = 'rgba(255,255,255,0.32)'; ctx.font = '8px IBM Plex Mono, monospace';
+    ctx.fillText(s.lbl, x, 339);
+  });
+  // Récords
+  var r2 = {}; try { r2 = JSON.parse(localStorage.getItem('fb_records') || '{}'); } catch(e) {}
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+  ctx.beginPath(); ctx.moveTo(40, 358); ctx.lineTo(360, 358); ctx.stroke();
+  var recs = [
+    { lbl: es ? 'MEJOR RACHA' : 'BEST STREAK', val: (r2.bestStreak || 0) + 'd' },
+    { lbl: es ? 'MAX PASOS' : 'MAX STEPS', val: r2.maxSteps ? (r2.maxSteps >= 1000 ? (r2.maxSteps/1000).toFixed(1)+'k' : r2.maxSteps+'') : '—' },
+    { lbl: 'PEAK REC', val: r2.peakRecovery ? r2.peakRecovery + '' : '—' }
+  ];
+  recs.forEach(function(s, i) {
+    var x = 80 + i * 120;
+    ctx.fillStyle = fc; ctx.font = 'bold 15px Rajdhani, sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText(s.val, x, 381);
+    ctx.fillStyle = 'rgba(255,255,255,0.28)'; ctx.font = '7px IBM Plex Mono, monospace';
+    ctx.fillText(s.lbl, x, 394);
+  });
+  // Branding
+  ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.font = '8px IBM Plex Mono, monospace';
+  ctx.textAlign = 'center'; ctx.fillText('FITBIT AIR · AURA ID', 200, 412);
+  canvas.toBlob(async function(blob) {
+    if (!blob) return;
+    var file = new File([blob], 'aura-id.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: 'AURA ID' }); showToast(t.av_shared || '✓'); return; } catch(e) {}
+    }
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = url; a.download = 'aura-id.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+    showToast(t.av_share_dl || '✓');
+  }, 'image/png');
+}
+
+function _avShareInitials(ctx, cx, cy, r, taColor) {
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
+  ctx.fillStyle = '#1a1a2e'; ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+  ctx.fillStyle = taColor || '#00f5ff';
+  ctx.font = 'bold 48px Rajdhani, sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(avInitials(), cx, cy);
+  ctx.restore();
 }
 
 function avRemovePhoto() {
@@ -15575,8 +15835,8 @@ function _poArc(cx, cy, r, pct) {
 }
 
 function updatePulseOrbits() {
-  var cx = 75, cy = 75;
-  var radii = [71, 62, 53];
+  var cx = 80, cy = 80;
+  var radii = [78, 71, 64]; // ajustados para viewBox 160×160, avatar 120px (r=60)
   var rec = window._lastRec;
   var slp = window._lastSleepPct;
   var stepsEl = document.getElementById('stepsv');
@@ -15599,9 +15859,9 @@ function updatePulseOrbits() {
 function renderPulseCard() {
   var es = lang === 'es';
   var tier = atlasGetTier();
-  // Name (pv-uname is shared with legacy renderProfile binding)
+  // PTS en grande
   var nameEl = document.getElementById('pulse-pts');
-  if (nameEl) nameEl.textContent = tier.pts + ' PTS';
+  if (nameEl) nameEl.innerHTML = tier.pts + ' <span>PTS</span>';
   // Tier badge
   var icon  = document.getElementById('ptb-icon');
   var tname = document.getElementById('ptb-name');
@@ -15610,6 +15870,19 @@ function renderPulseCard() {
   // Progress bar
   var fill = document.getElementById('pulse-tier-fill');
   if (fill) fill.style.width = (tier.pct * 100).toFixed(0) + '%';
+  // Marco-First: nombre del marco y racha en el hero
+  var st = avGet();
+  var frame = avFrameFor(st);
+  var _frameIcons = { aura:'◦', ember:'🔥', legend:'✦', nova:'◈', nebula:'✧', glitch:'⚡', pixel:'⛏', pro:'♾' };
+  var _frameNames = { aura:'AURA', ember:'EMBER', legend:'LEGEND', nova:'NOVA', nebula:'NEBULA', glitch:'GLITCH', pixel:'PIXEL', pro:'PRO' };
+  var pvFi = document.getElementById('pv-frame-icon');
+  var pvFn = document.getElementById('pv-frame-name');
+  if (pvFi) pvFi.textContent = _frameIcons[frame] || '◦';
+  if (pvFn) pvFn.textContent = _frameNames[frame] || frame.toUpperCase();
+  var strEl = document.getElementById('steps-streak-val');
+  var str = strEl ? parseInt(strEl.textContent || '0', 10) : 0;
+  var pvSv = document.getElementById('pv-streak-val');
+  if (pvSv) pvSv.textContent = str > 0 ? '· ' + str + (es ? ' días' : ' days') : '';
   // Avatar
   renderAvatar(document.getElementById('pv-avatar'), { editBadge: true });
   updateAvatarVitals();
@@ -15624,6 +15897,9 @@ function renderPulseCard() {
   if (lRec) lRec.textContent = 'RECOVERY';
   if (lStr) lStr.textContent = es ? 'RACHA' : 'STREAK';
   if (lRcl) lRcl.textContent = es ? 'RÉCORDS PERSONALES' : 'PERSONAL RECORDS';
+  // Récords
+  updateRecords();
+  renderRecordsShowcase();
 }
 
 function updatePulseCardLive() {
@@ -15656,15 +15932,32 @@ function updateRecords() {
   var rec    = window._lastRec;
   var streak = 0;
   try { streak = getDailyStreak ? getDailyStreak() : 0; } catch(e) {}
+  var today = new Date().toISOString().slice(0, 10);
+  // Peak recovery
   if (rec != null && (stored.peakRecovery == null || rec > stored.peakRecovery)) {
     stored.peakRecovery = Math.round(rec);
-    stored.peakRecoveryDate = new Date().toISOString().slice(0, 10);
+    stored.peakRecoveryDate = today;
   }
+  // Best streak
   if (streak > (stored.bestStreak || 0)) stored.bestStreak = streak;
-  var today = new Date().toISOString().slice(0, 10);
+  // Active days
   if (stored.lastActiveDate !== today) {
     stored.totalActiveDays = (stored.totalActiveDays || 0) + 1;
     stored.lastActiveDate  = today;
+  }
+  // Max pasos del día
+  var stepsEl = document.getElementById('stepsv');
+  var stepsToday = stepsEl ? parseInt(stepsEl.textContent.replace(/[^0-9]/g,'') || '0', 10) : 0;
+  if (stepsToday > (stored.maxSteps || 0)) {
+    stored.maxSteps = stepsToday;
+    stored.maxStepsDate = today;
+  }
+  // Nebula tracking: contar días únicos con recovery >= 90
+  if (rec != null && rec >= 90) {
+    try {
+      var nd = JSON.parse(localStorage.getItem('fb_nebula_days') || '[]');
+      if (nd.indexOf(today) === -1) { nd.push(today); localStorage.setItem('fb_nebula_days', JSON.stringify(nd)); }
+    } catch(e) {}
   }
   try { localStorage.setItem('fb_records', JSON.stringify(stored)); } catch(e) {}
   return stored;
@@ -15676,10 +15969,12 @@ function renderRecordsShowcase() {
   var es = lang === 'es';
   var r  = {};
   try { r = JSON.parse(localStorage.getItem('fb_records') || '{}'); } catch(e) {}
+  var maxS = r.maxSteps || 0;
+  var maxSStr = maxS >= 1000 ? (maxS / 1000).toFixed(1) + 'k' : (maxS ? maxS + '' : '—');
   var items = [
-    { icon:'🔥', lbl: es ? 'MEJOR RACHA'   : 'BEST STREAK',    val: (r.bestStreak || 0) + (es ? 'd' : 'd'),            sub: '' },
-    { icon:'⚡', lbl: es ? 'PEAK RECOVERY' : 'PEAK RECOVERY',  val: r.peakRecovery ? r.peakRecovery + 'pts' : '—',      sub: r.peakRecoveryDate ? r.peakRecoveryDate.slice(5) : '' },
-    { icon:'📅', lbl: es ? 'DÍAS ACTIVOS'  : 'ACTIVE DAYS',    val: (r.totalActiveDays || 0) + (es ? 'd' : 'd'),        sub: '' }
+    { icon:'🔥', lbl: es ? 'MEJOR RACHA'   : 'BEST STREAK',   val: (r.bestStreak || 0) + 'd',  sub: '' },
+    { icon:'👣', lbl: es ? 'MAX PASOS'     : 'MAX STEPS',     val: maxSStr,                     sub: r.maxStepsDate ? r.maxStepsDate.slice(5) : '' },
+    { icon:'⚡', lbl: es ? 'PEAK RECOVERY' : 'PEAK RECOVERY', val: r.peakRecovery ? r.peakRecovery + '' : '—', sub: r.peakRecoveryDate ? r.peakRecoveryDate.slice(5) : '' }
   ];
   el.innerHTML = items.map(function(it) {
     return '<div class="rec-card">'
@@ -15854,6 +16149,11 @@ function _showTierUpAnim(tierIdx) {
       </div>
       <div class="pv-section-lbl" id="av-frames-lbl">MARCO</div>
       <div class="av-frames" id="av-frames"></div>
+      <!-- Preview apply/cancel — visible solo al seleccionar un marco sin guardar -->
+      <div id="av-apply-row" class="av-actions" style="display:none;margin-top:10px;">
+        <button class="av-btn" id="av-apply-btn" onclick="avApplyFrame()">APLICAR</button>
+        <button class="av-btn ghost" onclick="avCancelFramePreview()">CANCELAR</button>
+      </div>
       <div class="av-hint" id="av-hint"></div>
     </div>
     <div id="av-crop">
