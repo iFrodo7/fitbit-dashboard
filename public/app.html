@@ -8702,7 +8702,9 @@ window._wkSelIdx         = 6;
 window._wkTodaySnap      = null;
 // Real streak for today combining _wkData (7-day window) + _getStepGoalStreak() (IndexedDB).
 // Handles streaks longer than 7 days (e.g. 90-day streak user).
-window._wkTodayStreakReal = 0;
+window._wkTodayStreakReal    = 0;
+window._wkPrevStreakCount    = 0;   // FIX #17: pre-break streak count, for historical bars
+window._wkPrevStreakEndDate  = '';  // FIX #17: last date of that pre-break streak
 window._driveStreakFileId = null; // cached Drive file-id for fb_streak sync
 
 // Saves the current steps-card DOM values as the ground truth for "today".
@@ -8894,25 +8896,45 @@ function wkBarSel(idx) {
       else break;
     }
     // Cross-window extension: the run reaches the window's left edge (idx 0), so the
-    // real streak may continue before the visible week → derive from _wkTodayStreakReal.
-    // FIX #15: anchor on the most-recent goal-met day `_m` (≤ today), NOT on today.
-    // _wkTodayStreakReal counts the streak through the last COMPLETED day (it starts
-    // from yesterday so an unfinished today doesn't break it). The old code required
-    // every day up to *today* to have met the goal — so on a day where today's goal
-    // wasn't reached yet, the bridge collapsed and a past day showed "1" instead of
-    // the real streak. Anchoring on the last met day fixes that.
-    if (_streak > 0 && _streak === sel + 1 && window._wkTodayStreakReal) {
-      var _m = -1;
-      for (var _mi = _wkTdIdx; _mi >= 0; _mi--) {
-        if ((data[_mi].steps || 0) >= _goal) { _m = _mi; break; }
-      }
-      // Only bridge when `sel` is inside the same contiguous run as the anchor `_m`.
-      if (_m >= sel) {
-        var _contig = true;
-        for (var _ci = sel; _ci <= _m; _ci++) {
-          if ((data[_ci].steps || 0) < _goal) { _contig = false; break; }
+    // real streak may continue before the visible week. Two cases:
+    // FIX #15: current streak still active — anchor on last goal-met day `_m`.
+    // FIX #17: current streak broke (todayStreakReal=0) — bridge using the preserved
+    //   pre-break count from _wkPrevStreakCount / _wkPrevStreakEndDate.
+    if (_streak > 0 && _streak === sel + 1) {
+      var _realStr17 = window._wkTodayStreakReal || 0;
+      var _bridged17 = false;
+      if (_realStr17) {
+        // FIX #15 path: active streak — anchor on most-recent goal-met day
+        var _m = -1;
+        for (var _mi = _wkTdIdx; _mi >= 0; _mi--) {
+          if ((data[_mi].steps || 0) >= _goal) { _m = _mi; break; }
         }
-        if (_contig) _streak = Math.max(_streak, window._wkTodayStreakReal - (_m - sel));
+        if (_m >= sel) {
+          var _contig = true;
+          for (var _ci = sel; _ci <= _m; _ci++) {
+            if ((data[_ci].steps || 0) < _goal) { _contig = false; break; }
+          }
+          if (_contig) { _streak = Math.max(_streak, _realStr17 - (_m - sel)); _bridged17 = true; }
+        }
+      }
+      // FIX #17 path: fires when FIX #15 didn't bridge (streak broke, or resumed after gap).
+      // Uses prevCount (pre-break peak) to show correct historical count for past bars.
+      if (!_bridged17 && window._wkPrevStreakCount && window._wkPrevStreakEndDate) {
+        var _selDate17 = data[sel] && data[sel].date;
+        if (_selDate17 && _selDate17 <= window._wkPrevStreakEndDate) {
+          var _daysToEnd17 = Math.round(
+            (new Date(window._wkPrevStreakEndDate + 'T12:00:00') -
+             new Date(_selDate17 + 'T12:00:00')) / 86400000
+          );
+          // Verify sel is contiguous up to prevLastDate (no miss between them in-window)
+          var _pContig17 = true;
+          for (var _pci17 = sel; _pci17 <= _wkTdIdx; _pci17++) {
+            var _pcd17 = data[_pci17];
+            if (!_pcd17 || _pcd17.date > window._wkPrevStreakEndDate) break;
+            if ((_pcd17.steps || 0) < _goal) { _pContig17 = false; break; }
+          }
+          if (_pContig17) _streak = Math.max(_streak, window._wkPrevStreakCount - _daysToEnd17);
+        }
       }
     }
     e.textContent = _streak > 0 ? _streak : '×';
@@ -9233,9 +9255,19 @@ async function loadWeekDataGoogle() {
         // Persist updated counter (skip only on clock-jump case)
         if (_gap >= 0) {
           _pNew = Math.max(_pNew || 0, 0);
-          localStorage.setItem('fb_streak_steps', JSON.stringify({
-            count: _pNew, lastDate: _pNew > 0 ? _pdNew : ''
-          }));
+          var _saveStrObj = { count: _pNew, lastDate: _pNew > 0 ? _pdNew : '' };
+          // FIX #17: when streak resets downward preserve the old peak so past
+          // bars in wkBarSel can show their correct historical count.
+          if (_pc > _pNew && _pd) {
+            _saveStrObj.prevCount = _pc;
+            _saveStrObj.prevLastDate = _pd;
+            window._wkPrevStreakCount = _pc;
+            window._wkPrevStreakEndDate = _pd;
+          } else if (_ps.prevCount) {
+            _saveStrObj.prevCount = _ps.prevCount;
+            _saveStrObj.prevLastDate = _ps.prevLastDate || '';
+          }
+          localStorage.setItem('fb_streak_steps', JSON.stringify(_saveStrObj));
         }
       }
       _persistedStreak = _pNew;
@@ -9246,6 +9278,55 @@ async function loadWeekDataGoogle() {
     try { _dbStr7 = (typeof _getStepGoalStreak === 'function' ? _getStepGoalStreak() : 0) || 0; } catch(e2) {}
 
     window._wkTodayStreakReal = Math.max(_wkStr7, _dbStr7, _persistedStreak);
+    // FIX #17: populate prev-streak window vars from localStorage for wkBarSel.
+    // Covers page-refresh and the _pd===_t7 fast-path (no write happens there).
+    if (!window._wkPrevStreakCount) {
+      try {
+        var _prevStrLoad = JSON.parse(localStorage.getItem('fb_streak_steps')||'{}');
+        if (_prevStrLoad.prevCount && parseInt(_prevStrLoad.prevCount,10) > window._wkTodayStreakReal) {
+          window._wkPrevStreakCount = parseInt(_prevStrLoad.prevCount, 10);
+          window._wkPrevStreakEndDate = _prevStrLoad.prevLastDate || '';
+        }
+      } catch(e5) {}
+    }
+    // FIX #17b: retroactive recovery — if prevCount still missing, read the SW IDB
+    // (fb_sw/streak) which never resets on miss, so it still holds the last confirmed
+    // streak. Fires when todayStreak < SW count, covering streak=0 AND streak resumed.
+    if (!window._wkPrevStreakCount) {
+      try {
+        var _swDb17 = await new Promise(function(res) {
+          try {
+            var r = indexedDB.open('fb_sw', 1);
+            r.onsuccess = function(e) { res(e.target.result); };
+            r.onerror = function() { res(null); };
+            r.onblocked = function() { res(null); };
+          } catch(e6) { res(null); }
+        });
+        if (_swDb17) {
+          var _swSt17 = await new Promise(function(res) {
+            try {
+              var q = _swDb17.transaction('streak','readonly').objectStore('streak').get('main');
+              q.onsuccess = function(e) { res(e.target.result || null); };
+              q.onerror = function() { res(null); };
+            } catch(e6) { res(null); }
+          });
+          _swDb17.close();
+          if (_swSt17 && _swSt17.count > window._wkTodayStreakReal && _swSt17.lastDate) {
+            window._wkPrevStreakCount   = _swSt17.count;
+            window._wkPrevStreakEndDate = _swSt17.lastDate;
+            // Persist into fb_streak_steps.prevCount so future loads skip IDB
+            try {
+              var _pss17c = JSON.parse(localStorage.getItem('fb_streak_steps')||'{}');
+              if (!_pss17c.prevCount) {
+                _pss17c.prevCount   = _swSt17.count;
+                _pss17c.prevLastDate = _swSt17.lastDate;
+                localStorage.setItem('fb_streak_steps', JSON.stringify(_pss17c));
+              }
+            } catch(e7) {}
+          }
+        }
+      } catch(e5b) {}
+    }
     // Update streak card immediately — don't wait for user to click the bar
     // FIX #16: show '-' when today's goal not yet reached (undecided)
     var _strEl = document.getElementById('steps-streak-val');
