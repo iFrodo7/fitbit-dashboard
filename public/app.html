@@ -807,7 +807,7 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .av-f-nova .av-ring2{display:block;}
 .av-edit-badge{position:absolute;right:-2px;bottom:-2px;width:17px;height:17px;border-radius:50%;background:var(--ta);color:var(--bg);font-size:9px;display:flex;align-items:center;justify-content:center;z-index:3;box-shadow:0 1px 4px rgba(0,0,0,0.4);}
 .av-lock-ic{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;z-index:4;}
-#pv-avatar{--av-size:120px;}
+#pv-avatar{--av-size:56px;}
 /* identity corner: clock column in the home greet */
 .db-greet-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;align-self:flex-end;padding-bottom:4px;}
 /* desktop: pin to the far right edge, top-aligned with the greet (name hero left ←→ identity right) */
@@ -817,64 +817,98 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 /* Voxel: square identity (Minecraft skin culture) */
 .t-mc .av-wrap{border-radius:8px;}
 /* ══════ PULSE IDENTITY CARD ══════ */
+/* ─── PULSE CARD — Racha Hero ─────────────────────────────── */
 .pulse-card{padding:0;overflow:hidden;position:relative;}
-.pulse-bg{position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 120% 130% at 18% 50%,rgba(var(--ta-rgb,0,200,255),0.10) 0%,transparent 65%),radial-gradient(ellipse 80% 90% at 82% 15%,rgba(var(--ta2-rgb,120,80,255),0.07) 0%,transparent 60%);}
-.pulse-hero{position:relative;display:flex;align-items:center;gap:16px;padding:20px 18px 16px;z-index:1;}
-.pulse-av-section{position:relative;flex-shrink:0;display:flex;align-items:center;justify-content:center;width:160px;height:160px;}
-.pulse-av-section .av-wrap{--av-size:120px;}
-.pulse-orbits{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:0;}
-.po-track{fill:none;stroke:rgba(255,255,255,0.07);stroke-width:2;stroke-linecap:round;}
-.po-arc{fill:none;stroke-width:2.5;stroke-linecap:round;}
-.po-arc-0{stroke:var(--tpos,#00c864);}
-.po-arc-1{stroke:var(--ta2);}
-.po-arc-2{stroke:var(--ta);}
-@keyframes poArcIn{from{opacity:0}to{opacity:1}}
-.po-arc.po-visible{animation:poArcIn 0.6s var(--ease-out) both;}
-.pulse-identity{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;z-index:1;}
-#pv-uname{font-size:17px !important;font-weight:800 !important;letter-spacing:0px !important;color:var(--txt) !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15;}
-.pulse-tier-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:1px;}
-.pulse-tier-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(var(--ta-rgb,0,200,255),0.09);border:1px solid rgba(var(--ta-rgb,0,200,255),0.24);border-radius:var(--r-full);padding:4px 11px 4px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background var(--dur-base) var(--ease-std),border-color var(--dur-base) var(--ease-std),transform var(--dur-fast) var(--ease-spring);font-family:inherit;}
+.pulse-bg{position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 150% 100% at 50% -10%,rgba(var(--ta-rgb,0,200,255),0.13) 0%,transparent 55%),radial-gradient(ellipse 70% 70% at 90% 90%,rgba(var(--ta2-rgb,120,80,255),0.07) 0%,transparent 55%);}
+/* Ghost watermark — big streak number behind everything */
+.streak-ghost{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:220px;font-weight:900;line-height:1;letter-spacing:-12px;color:rgba(var(--ta-rgb,0,200,255),0.045);pointer-events:none;z-index:0;font-family:'Rajdhani',sans-serif;user-select:none;animation:ghostFloat 7s ease-in-out infinite;white-space:nowrap;}
+.t-mc     .streak-ghost{font-family:'VT323',monospace;letter-spacing:0;font-size:230px;}
+.t-naruto .streak-ghost{font-family:'Permanent Marker',cursive;font-size:180px;letter-spacing:-6px;}
+/* Compact identity header */
+.pulse-compact-id{position:relative;display:flex;align-items:center;gap:12px;padding:16px 18px 6px;z-index:2;}
+.pulse-compact-id .pulse-av-section{width:auto;height:auto;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.pcid-text{flex:1;min-width:0;}
+#pv-uname{font-size:14px !important;font-weight:800 !important;letter-spacing:0 !important;color:var(--txt) !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2 !important;}
+.pcid-sub{display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;}
+#pv-ustatus{font-size:7px !important;letter-spacing:1.5px !important;opacity:0.26 !important;margin:0 !important;}
+.pulse-tier-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.pulse-tier-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(var(--ta-rgb,0,200,255),0.09);border:1px solid rgba(var(--ta-rgb,0,200,255),0.24);border-radius:var(--r-full);padding:3px 9px 3px 7px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background var(--dur-base) var(--ease-std),border-color var(--dur-base) var(--ease-std),transform var(--dur-fast) var(--ease-spring);font-family:inherit;}
 .pulse-tier-badge:active{transform:scale(0.94);}
-.ptb-icon{font-size:10px;color:var(--ta);}
-.ptb-name{font-size:9px;font-weight:800;letter-spacing:2px;color:var(--ta);text-transform:uppercase;font-family:'IBM Plex Mono',monospace;}
-#pv-ustatus{font-size:8px !important;letter-spacing:1.5px !important;opacity:0.32 !important;margin:0 !important;}
-.pulse-tier-progress{width:100%;height:2px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;margin-top:2px;}
-.pulse-tier-fill{height:100%;background:var(--ta);border-radius:2px;transition:width 1.3s var(--ease-out);}
-.pulse-pts{font-size:9px;opacity:0.32;letter-spacing:1.5px;font-family:'IBM Plex Mono',monospace;}
-/* Marco-First hero additions */
-.pulse-frame-row{display:flex;align-items:center;gap:5px;margin:3px 0 1px;}
-#pv-frame-icon{font-size:11px;color:var(--ta);}
-#pv-frame-name{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--ta);text-transform:uppercase;}
-#pv-streak-val{font-size:9px;opacity:0.38;letter-spacing:1px;}
-#pulse-pts{font-size:22px;font-weight:900;color:var(--txt);font-family:'Rajdhani',sans-serif;letter-spacing:-0.5px;line-height:1;margin-top:3px;}
-#pulse-pts span{font-size:9px;opacity:0.35;font-weight:400;letter-spacing:2px;margin-left:3px;font-family:'IBM Plex Mono',monospace;vertical-align:middle;}
-/* Action buttons */
+.ptb-icon{font-size:9px;color:var(--ta);}
+.ptb-name{font-size:8px;font-weight:800;letter-spacing:2px;color:var(--ta);text-transform:uppercase;font-family:'IBM Plex Mono',monospace;}
+#pv-ustatus{font-size:7px !important;letter-spacing:1.5px !important;opacity:0.26 !important;margin:0 !important;}
+#pulse-pts{font-size:9px;opacity:0.32;letter-spacing:1.5px;font-family:'IBM Plex Mono',monospace;flex-shrink:0;white-space:nowrap;}
+#pulse-pts span{opacity:0.7;font-size:8px;margin-left:2px;letter-spacing:1.5px;}
+/* ── STREAK HERO ── */
+.streak-hero{position:relative;z-index:1;padding:4px 18px 18px;text-align:center;}
+.streak-num-wrap{display:inline-block;position:relative;}
+.streak-num{display:block;font-size:104px;font-weight:900;line-height:1;letter-spacing:-5px;color:var(--ta);font-family:'Rajdhani',sans-serif;}
+.t-mc     .streak-num{font-family:'VT323',monospace;font-size:128px;letter-spacing:0;}
+.t-naruto .streak-num{font-family:'Permanent Marker',cursive;font-size:86px;letter-spacing:-2px;}
+.t-bloom  .streak-num{font-family:'Nunito',sans-serif;font-weight:900;}
+.streak-num.sh-anim{animation:streakGlow 3.5s ease-in-out infinite,streakIn 0.65s var(--ease-spring) both;}
+.streak-num.sh-idle{animation:streakGlow 3.5s ease-in-out infinite;}
+.streak-num.sh-pop {animation:streakGlow 3.5s ease-in-out infinite,streakPop 0.55s var(--ease-spring) both;}
+.streak-hero.zero .streak-num{opacity:0.3;font-size:80px;letter-spacing:-3px;}
+.t-mc.streak-hero.zero .streak-num,.t-mc .streak-hero.zero .streak-num{font-size:96px;}
+.streak-unit{font-size:8px;letter-spacing:4px;color:var(--ta);opacity:0.6;margin-top:-2px;font-family:'IBM Plex Mono',monospace;}
+.streak-tagline{font-size:8px;letter-spacing:2.5px;opacity:0.28;margin-top:10px;font-family:'IBM Plex Mono',monospace;}
+/* Milestone glow override */
+.streak-hero.milestone .streak-num{animation:streakGlow 1.4s ease-in-out infinite,streakPop 0.65s var(--ease-spring) both;}
+/* Tier progress bar anchored below streak */
+.streak-progress{width:140px;height:2px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;margin:12px auto 0;}
+.pulse-tier-fill{height:100%;background:var(--ta);border-radius:2px;transition:width 1.4s var(--ease-out);}
+/* ── ANIMATIONS ── */
+@keyframes streakIn{
+  from{opacity:0;transform:translateY(20px) scale(0.88);}
+  to  {opacity:1;transform:translateY(0)    scale(1);  }
+}
+@keyframes streakGlow{
+  0%,100%{text-shadow:0 0 28px rgba(var(--ta-rgb,0,200,255),0.30),0 0 60px rgba(var(--ta-rgb,0,200,255),0.10);}
+  50%    {text-shadow:0 0 58px rgba(var(--ta-rgb,0,200,255),0.58),0 0 120px rgba(var(--ta-rgb,0,200,255),0.22);}
+}
+@keyframes ghostFloat{
+  0%,100%{transform:translate(-50%,-50%) translateY(0);}
+  50%    {transform:translate(-50%,-50%) translateY(-14px);}
+}
+@keyframes streakPop{
+  0%  {transform:scale(1);}
+  35% {transform:scale(1.08);}
+  65% {transform:scale(0.97);}
+  100%{transform:scale(1);}
+}
+@keyframes particleFly{
+  0%  {opacity:1;transform:translate(0,0) scale(1);}
+  100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);}
+}
+.streak-spark{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--ta);pointer-events:none;animation:particleFly 0.75s var(--ease-out) both;}
+/* Stats strip */
+.pulse-stats{position:relative;display:flex;align-items:stretch;border-top:1px solid rgba(255,255,255,0.06);z-index:1;}
+.pls-chip{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 6px;gap:3px;}
+.pls-sep{flex:none;width:1px;background:rgba(255,255,255,0.06);margin:10px 0;}
+.pls-v{font-size:16px;font-weight:800;color:var(--txt);font-family:'Rajdhani',sans-serif;letter-spacing:-0.3px;line-height:1;transition:color var(--dur-base) var(--ease-std);}
+.pls-l{font-size:7px;letter-spacing:1.5px;opacity:0.32;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;}
+/* Action row */
+.pulse-action-row{position:relative;padding:10px 18px 14px;z-index:1;}
 .pulse-actions{display:flex;gap:6px;margin-bottom:8px;}
 .pulse-action-btn{flex:1;padding:9px 4px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:var(--r-sm);font-family:inherit;font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--txt);cursor:pointer;text-transform:uppercase;transition:background var(--dur-fast) var(--ease-std),border-color var(--dur-fast) var(--ease-std);-webkit-tap-highlight-color:transparent;}
 .pulse-action-btn:active{opacity:0.7;}
 .pulse-action-btn.hi{background:rgba(var(--ta-rgb,0,200,255),0.08);border-color:rgba(var(--ta-rgb,0,200,255),0.22);color:var(--ta);}
 /* Records section */
-.pulse-records-section{padding:2px 18px 14px;position:relative;z-index:1;}
-.pulse-stats{position:relative;display:flex;align-items:stretch;border-top:1px solid rgba(255,255,255,0.06);z-index:1;}
-.pls-chip{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:11px 6px;gap:2px;}
-.pls-sep{flex:none;width:1px;background:rgba(255,255,255,0.06);margin:10px 0;}
-.pls-v{font-size:15px;font-weight:800;color:var(--txt);font-family:'Rajdhani',sans-serif;letter-spacing:-0.3px;line-height:1;transition:color var(--dur-base) var(--ease-std);}
-.pls-l{font-size:7px;letter-spacing:1.5px;opacity:0.32;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;}
-.pulse-action-row{position:relative;padding:10px 18px 14px;z-index:1;}
-/* Records showcase */
+.pulse-records-section{padding:2px 18px 10px;position:relative;z-index:1;}
 .pulse-records{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px;}
 .rec-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:var(--r-md);padding:10px 8px 9px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;}
-.rec-icon{font-size:17px;line-height:1;margin-bottom:2px;}
+.rec-icon{font-size:16px;line-height:1;margin-bottom:2px;}
 .rec-val{font-size:13px;font-weight:800;color:var(--ta);font-family:'Rajdhani',sans-serif;letter-spacing:-0.2px;line-height:1.1;}
 .rec-lbl{font-size:7px;letter-spacing:1.5px;opacity:0.32;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;line-height:1.3;}
 .rec-sub{font-size:9px;opacity:0.27;letter-spacing:0.3px;margin-top:1px;}
-/* Per-theme RGB vars for PULSE CARD gradients/badges */
-.t-fut  .pulse-card{--ta-rgb:0,245,255;--ta2-rgb:123,47,255;}
-.t-halo .pulse-card{--ta-rgb:255,45,120;--ta2-rgb:189,0,255;}
-.t-mc   .pulse-card{--ta-rgb:106,255,58;--ta2-rgb:255,170,0;}
+/* Per-theme RGB vars */
+.t-fut    .pulse-card{--ta-rgb:0,245,255;--ta2-rgb:123,47,255;}
+.t-halo   .pulse-card{--ta-rgb:255,45,120;--ta2-rgb:189,0,255;}
+.t-mc     .pulse-card{--ta-rgb:106,255,58;--ta2-rgb:255,170,0;}
 .t-naruto .pulse-card{--ta-rgb:74,106,132;--ta2-rgb:192,208,224;}
-.t-bloom .pulse-card{--ta-rgb:232,92,138;--ta2-rgb:196,127,181;}
-.t-synth .pulse-card{--ta-rgb:0,255,255;--ta2-rgb:255,0,255;}
+.t-bloom  .pulse-card{--ta-rgb:232,92,138;--ta2-rgb:196,127,181;}
+.t-synth  .pulse-card{--ta-rgb:0,255,255;--ta2-rgb:255,0,255;}
 /* Tier Sheet */
 .tier-sheet{position:fixed;inset:0;z-index:8400;}
 .ts-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.62);}
@@ -4876,43 +4910,43 @@ body.t-synth::after{content:'';position:fixed;inset:0;
       </div>
     </div>
 
-    <!-- PULSE IDENTITY CARD — Marco-First -->
+    <!-- PULSE CARD — Racha Hero -->
     <div class="card hv-card pulse-card" id="pulse-card">
       <div class="pulse-bg"></div>
-      <!-- Hero: avatar con orbits + identity block -->
-      <div class="pulse-hero">
+      <!-- Ghost watermark number -->
+      <div class="streak-ghost" id="streak-ghost" aria-hidden="true">0</div>
+
+      <!-- Compact identity: avatar · nombre · tier · pts -->
+      <div class="pulse-compact-id">
         <div class="pulse-av-section">
-          <svg class="pulse-orbits" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <circle class="po-track" cx="80" cy="80" r="78"/>
-            <circle class="po-track" cx="80" cy="80" r="71"/>
-            <circle class="po-track" cx="80" cy="80" r="64"/>
-            <path class="po-arc po-arc-0" id="po-arc-0"/>
-            <path class="po-arc po-arc-1" id="po-arc-1"/>
-            <path class="po-arc po-arc-2" id="po-arc-2"/>
-          </svg>
-          <button class="av-wrap" id="pv-avatar" onclick="openAvatarSheet()" aria-label="AURA ID" style="position:relative;z-index:1;"></button>
+          <button class="av-wrap" id="pv-avatar" onclick="openAvatarSheet()" aria-label="AURA ID"></button>
         </div>
-        <div class="pulse-identity">
-          <div class="pv-uname" id="pv-uname">—</div>
-          <!-- Marco-First: nombre del marco + racha prominentes -->
-          <div class="pulse-frame-row">
-            <span id="pv-frame-icon">◦</span>
-            <span id="pv-frame-name">AURA</span>
-            <span id="pv-streak-val"></span>
+        <div class="pcid-text">
+          <div id="pv-uname">—</div>
+          <div class="pcid-sub">
+            <div class="pulse-tier-row">
+              <button class="pulse-tier-badge" id="pulse-tier-badge" onclick="openTierSheet()">
+                <span class="ptb-icon" id="ptb-icon">◦</span>
+                <span class="ptb-name" id="ptb-name">LATENTE</span>
+              </button>
+              <span id="pv-ustatus">DEMO</span>
+            </div>
           </div>
-          <div class="pulse-tier-row">
-            <button class="pulse-tier-badge" id="pulse-tier-badge" onclick="openTierSheet()">
-              <span class="ptb-icon" id="ptb-icon">◦</span>
-              <span class="ptb-name" id="ptb-name">LATENTE</span>
-            </button>
-            <span class="pv-ustatus" id="pv-ustatus">DEMO</span>
-          </div>
-          <div class="pulse-tier-progress"><div class="pulse-tier-fill" id="pulse-tier-fill" style="width:0%"></div></div>
-          <!-- PTS en grande -->
-          <div id="pulse-pts">0 <span>PTS</span></div>
         </div>
+        <div id="pulse-pts">0 <span>PTS</span></div>
       </div>
-      <!-- Live stats strip: Recovery · Racha · HRV -->
+
+      <!-- RACHA HERO — el número que se presume -->
+      <div class="streak-hero" id="streak-hero">
+        <div class="streak-num-wrap" id="streak-num-wrap">
+          <span class="streak-num sh-idle" id="streak-hero-num">0</span>
+        </div>
+        <div class="streak-unit" id="streak-unit-lbl">DÍAS SEGUIDOS</div>
+        <div class="streak-tagline" id="streak-tagline">COMIENZA HOY</div>
+        <div class="streak-progress"><div class="pulse-tier-fill" id="pulse-tier-fill" style="width:0%"></div></div>
+      </div>
+
+      <!-- Live stats: Recovery · HRV · Sueño -->
       <div class="pulse-stats">
         <div class="pls-chip">
           <div class="pls-v" id="plsv-rec">—</div>
@@ -4920,31 +4954,40 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         </div>
         <div class="pls-sep"></div>
         <div class="pls-chip">
-          <div class="pls-v" id="plsv-str">—</div>
-          <div class="pls-l" id="plsl-str">RACHA</div>
-        </div>
-        <div class="pls-sep"></div>
-        <div class="pls-chip">
           <div class="pls-v" id="plsv-hrv">—</div>
           <div class="pls-l">HRV</div>
         </div>
+        <div class="pls-sep"></div>
+        <div class="pls-chip">
+          <div class="pls-v" id="plsv-slp">—</div>
+          <div class="pls-l" id="plsl-slp">SUEÑO</div>
+        </div>
       </div>
-      <!-- Récords personales -->
+      <!-- Hidden backward-compat elements -->
+      <span id="plsv-str" style="display:none"></span>
+      <span id="plsl-str" style="display:none"></span>
+      <span id="pv-frame-icon" style="display:none"></span>
+      <span id="pv-frame-name" style="display:none"></span>
+      <span id="pv-streak-val" style="display:none"></span>
+
+      <!-- Records -->
       <div class="pulse-records-section">
         <div class="pv-section-lbl" id="pulse-records-lbl">RÉCORDS PERSONALES</div>
         <div class="pulse-records" id="pulse-records"></div>
       </div>
-      <!-- Botones de acción + connect/disconnect -->
+
+      <!-- Actions -->
       <div class="pulse-action-row">
         <div class="pulse-actions">
-          <button class="pulse-action-btn" onclick="navigate('stats')">📊 STATS</button>
-          <button class="pulse-action-btn hi" onclick="openAvatarSheet()">✦ MARCOS</button>
-          <button class="pulse-action-btn" onclick="avShareCard()">📤</button>
+          <button class="pulse-action-btn" onclick="navigate('stats')">STATS</button>
+          <button class="pulse-action-btn hi" onclick="openAvatarSheet()">MARCOS</button>
+          <button class="pulse-action-btn" onclick="avShareCard()">SHARE</button>
         </div>
         <button class="pv-connect-btn" id="pv-connect-btn" onclick="openModal()">CONECTAR CON GOOGLE →</button>
         <button class="pv-disconnect-btn" id="pv-disconnect-btn" onclick="disconnectFitbit()" style="display:none;">DESCONECTAR</button>
       </div>
-      <!-- 忍 Naruto Easter egg: shinobi rank block — visible only in .t-naruto -->
+
+      <!-- Naruto easter egg -->
       <div class="nrt-egg nrt-rank-block" style="margin:0 18px 14px;">
         <div class="nrt-rank-ttl" id="nrt-pv-rank-ttl">忍の階級 · RANGO SHINOBI</div>
         <div class="nrt-rank-val" id="nrt-pv-rank-val">下忍 · GENIN</div>
@@ -15856,12 +15899,102 @@ function updatePulseOrbits() {
 }
 
 // ── PULSE CARD render + live update ────────────────────────────────
+// ── Streak Hero helpers ────────────────────────────────────────
+function _streakTagline(n, es) {
+  var thm = localStorage.getItem('fb_t') || 'fut';
+  if (n === 0) {
+    var z = {
+      halo:   es ? 'INICIALIZA TU PROTOCOLO'       : 'INITIALIZE YOUR PROTOCOL',
+      naruto: es ? 'EL CAMINO DEL NINJA COMIENZA'  : 'THE NINJA PATH BEGINS',
+      mc:     es ? '[NUEVA PARTIDA]'                : '[NEW GAME]',
+      bloom:  es ? 'PLANTA LA PRIMERA SEMILLA'      : 'PLANT THE FIRST SEED',
+      synth:  es ? 'ACTIVA LA SEÑAL'                : 'ACTIVATE THE SIGNAL',
+      fut:    es ? 'CALIBRA TU SISTEMA'             : 'CALIBRATE YOUR SYSTEM',
+    };
+    return z[thm] || (es ? 'COMIENZA HOY' : 'START TODAY');
+  }
+  if (n >= 100) return es ? 'LEYENDA. PUNTO.'            : 'LEGEND. PERIOD.';
+  if (n >= 60)  return es ? 'DOS MESES DE FUEGO PURO'    : 'TWO MONTHS OF PURE FIRE';
+  if (n >= 30)  return es ? 'UN MES SIN EXCUSAS'         : 'ONE MONTH, NO EXCUSES';
+  if (n >= 14)  return es ? 'DOS SEMANAS SÓLIDAS'        : 'TWO SOLID WEEKS';
+  if (n >= 7) {
+    var w7 = {
+      halo:   es ? 'SEMANA PERFECTA · PROTOCOLO ACTIVO' : 'PERFECT WEEK · PROTOCOL ACTIVE',
+      naruto: es ? '一週間の修行完了'                     : 'ONE WEEK OF TRAINING COMPLETE',
+      mc:     es ? 'LOGRO: UNA SEMANA PERFECTA'         : 'ACHIEVEMENT: PERFECT WEEK',
+      bloom:  es ? 'UNA SEMANA EN PLENA FLORACIÓN'      : 'ONE WEEK IN FULL BLOOM',
+    };
+    return w7[thm] || (es ? 'UNA SEMANA PERFECTA' : 'A PERFECT WEEK');
+  }
+  if (n >= 3) return es ? 'EL HÁBITO SE FORMA AQUÍ' : 'THE HABIT FORMS HERE';
+  return es ? 'SIN FALLAR UN DÍA' : 'NOT MISSING A DAY';
+}
+
+function _animateStreakHero(target) {
+  var el    = document.getElementById('streak-hero-num');
+  var ghost = document.getElementById('streak-ghost');
+  var hero  = document.getElementById('streak-hero');
+  if (!el) return;
+
+  // Ghost watermark — update immediately
+  if (ghost) ghost.textContent = target > 0 ? target : '0';
+
+  // Hero state classes
+  if (hero) {
+    hero.classList.toggle('zero', target === 0);
+    var isMilestone = target > 0 && (target === 7 || target === 14 || target === 30 || target === 60 || target === 100 || target % 50 === 0);
+    hero.classList.toggle('milestone', isMilestone);
+  }
+
+  if (target === 0) { el.textContent = '0'; el.className = 'streak-num sh-idle'; return; }
+
+  // Trigger entrance animation class
+  el.className = 'streak-num sh-anim';
+  // Force reflow so animation restarts cleanly each time profile is opened
+  void el.offsetWidth;
+
+  var start = 0;
+  var duration = Math.min(1100, Math.max(400, target * 28));
+  var startTime = null;
+
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    var progress = Math.min((ts - startTime) / duration, 1);
+    var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    el.textContent = Math.round(eased * target);
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      el.textContent = target;
+      // Milestone: particle burst
+      var isMilestone = target === 7 || target === 14 || target === 30 || target === 60 || target === 100 || target % 50 === 0;
+      if (isMilestone) _streakParticleBurst(el);
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+function _streakParticleBurst(anchor) {
+  var wrap = document.getElementById('streak-num-wrap');
+  if (!wrap) return;
+  var angles = [0, 45, 90, 135, 180, 225, 270, 315];
+  angles.forEach(function(deg) {
+    var rad = deg * Math.PI / 180;
+    var dist = 40 + Math.random() * 30;
+    var sp = document.createElement('span');
+    sp.className = 'streak-spark';
+    sp.style.cssText = 'top:50%;left:50%;--tx:' + Math.round(Math.cos(rad)*dist) + 'px;--ty:' + Math.round(Math.sin(rad)*dist) + 'px;animation-delay:' + (Math.random()*0.08).toFixed(2) + 's;';
+    wrap.appendChild(sp);
+    setTimeout(function(){ sp.remove(); }, 900);
+  });
+}
+
 function renderPulseCard() {
   var es = lang === 'es';
   var tier = atlasGetTier();
-  // PTS en grande
-  var nameEl = document.getElementById('pulse-pts');
-  if (nameEl) nameEl.innerHTML = tier.pts + ' <span>PTS</span>';
+  // PTS
+  var ptsEl = document.getElementById('pulse-pts');
+  if (ptsEl) ptsEl.innerHTML = tier.pts + ' <span>PTS</span>';
   // Tier badge
   var icon  = document.getElementById('ptb-icon');
   var tname = document.getElementById('ptb-name');
@@ -15869,41 +16002,49 @@ function renderPulseCard() {
   if (tname) tname.textContent = atlasGetTierName(tier.tier);
   // Progress bar
   var fill = document.getElementById('pulse-tier-fill');
-  if (fill) fill.style.width = (tier.pct * 100).toFixed(0) + '%';
-  // Marco-First: nombre del marco y racha en el hero
+  if (fill) {
+    fill.style.width = '0%';
+    setTimeout(function(){ fill.style.width = (tier.pct * 100).toFixed(0) + '%'; }, 120);
+  }
+  // Frame (backward compat — elements are hidden)
   var st = avGet();
   var frame = avFrameFor(st);
-  var _frameIcons = { aura:'◦', ember:'🔥', legend:'✦', nova:'◈', nebula:'✧', glitch:'⚡', pixel:'⛏', pro:'♾' };
+  var _frameIcons = { aura:'◦', ember:'◆', legend:'✦', nova:'◈', nebula:'✧', glitch:'◉', pixel:'◼', pro:'◉' };
   var _frameNames = { aura:'AURA', ember:'EMBER', legend:'LEGEND', nova:'NOVA', nebula:'NEBULA', glitch:'GLITCH', pixel:'PIXEL', pro:'PRO' };
   var pvFi = document.getElementById('pv-frame-icon');
   var pvFn = document.getElementById('pv-frame-name');
   if (pvFi) pvFi.textContent = _frameIcons[frame] || '◦';
   if (pvFn) pvFn.textContent = _frameNames[frame] || frame.toUpperCase();
+  // Read streak from the step-goal chip (most up-to-date source)
   var strEl = document.getElementById('steps-streak-val');
-  var str = strEl ? parseInt(strEl.textContent || '0', 10) : 0;
-  var pvSv = document.getElementById('pv-streak-val');
-  if (pvSv) pvSv.textContent = str > 0 ? '· ' + str + (es ? ' días' : ' days') : '';
+  var str   = strEl ? (parseInt(strEl.textContent, 10) || 0) : 0;
+  var pvSv  = document.getElementById('pv-streak-val');
+  if (pvSv) pvSv.textContent = str > 0 ? str + (es ? ' d' : ' d') : '';
+  // Animate the big hero number
+  _animateStreakHero(str);
+  // Streak unit + tagline (theme + milestone aware)
+  var unitEl    = document.getElementById('streak-unit-lbl');
+  var taglineEl = document.getElementById('streak-tagline');
+  if (unitEl)    unitEl.textContent    = es ? (str === 1 ? 'DÍA SEGUIDO' : 'DÍAS SEGUIDOS') : (str === 1 ? 'DAY STREAK' : 'DAYS STREAK');
+  if (taglineEl) taglineEl.textContent = _streakTagline(str, es);
   // Avatar
   renderAvatar(document.getElementById('pv-avatar'), { editBadge: true });
   updateAvatarVitals();
-  // Orbital arcs
-  updatePulseOrbits();
-  // Live stats
+  // Live stats (Recovery / HRV / Sleep)
   updatePulseCardLive();
   // i18n labels
   var lRec = document.getElementById('plsl-rec');
-  var lStr = document.getElementById('plsl-str');
+  var lSlp = document.getElementById('plsl-slp');
   var lRcl = document.getElementById('pulse-records-lbl');
   if (lRec) lRec.textContent = 'RECOVERY';
-  if (lStr) lStr.textContent = es ? 'RACHA' : 'STREAK';
+  if (lSlp) lSlp.textContent = es ? 'SUEÑO' : 'SLEEP';
   if (lRcl) lRcl.textContent = es ? 'RÉCORDS PERSONALES' : 'PERSONAL RECORDS';
-  // Récords
+  // Records
   updateRecords();
   renderRecordsShowcase();
 }
 
 function updatePulseCardLive() {
-  var es = lang === 'es';
   // Recovery chip
   var rec = window._lastRec;
   var elR = document.getElementById('plsv-rec');
@@ -15911,18 +16052,31 @@ function updatePulseCardLive() {
     elR.textContent = rec != null ? Math.round(rec) : '—';
     elR.style.color = rec == null ? '' : rec >= 67 ? 'var(--tpos,#00c864)' : rec >= 34 ? '#f59e0b' : 'var(--tneg)';
   }
-  // Streak chip
-  var strEl = document.getElementById('steps-streak-val');
-  var str   = strEl ? parseInt(strEl.textContent || '0', 10) : 0;
-  var elS = document.getElementById('plsv-str');
-  if (elS) elS.textContent = str > 0 ? str + (es ? 'd' : 'd') : '—';
   // HRV chip
   var hrvEl = document.getElementById('hrv');
   var hrv   = hrvEl ? hrvEl.textContent.trim() : '—';
-  var elH = document.getElementById('plsv-hrv');
+  var elH   = document.getElementById('plsv-hrv');
   if (elH) elH.textContent = (hrv && hrv !== '—' && hrv !== '') ? hrv + 'ms' : '—';
-  // Orbital arcs update whenever live data changes
-  updatePulseOrbits();
+  // Sleep chip — use _lastSleepPct (0–1) or seff element as fallback
+  var slpPct = window._lastSleepPct;
+  var elSlp  = document.getElementById('plsv-slp');
+  if (elSlp) {
+    if (slpPct != null) {
+      var slpV = slpPct > 1 ? Math.round(slpPct) : Math.round(slpPct * 100);
+      elSlp.textContent = slpV + '%';
+      elSlp.style.color = slpV >= 85 ? 'var(--tpos,#00c864)' : slpV >= 65 ? '#f59e0b' : 'var(--tneg)';
+    } else {
+      var seffEl = document.getElementById('seff');
+      var seffV  = seffEl ? seffEl.textContent.trim() : '';
+      elSlp.textContent = (seffV && seffV !== '—') ? seffV + '%' : '—';
+      elSlp.style.color = '';
+    }
+  }
+  // Keep backward-compat hidden streak element in sync
+  var strEl = document.getElementById('steps-streak-val');
+  var str   = strEl ? (parseInt(strEl.textContent, 10) || 0) : 0;
+  var elS   = document.getElementById('plsv-str');
+  if (elS) elS.textContent = str > 0 ? str : '—';
 }
 
 // ── Personal records ───────────────────────────────────────────────
