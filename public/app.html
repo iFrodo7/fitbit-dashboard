@@ -12263,13 +12263,21 @@ async function _ghPost(url, body) {
 }
 // Convert Google sleep DataPoint → Fitbit-like shape (for renderHypnogram + updSl)
 function _ghSleepToFitbit(dp) {
-  if (!dp?.sleep) return null;
-  const s=dp.sleep;
-  const stages=(s.stages||[]).map(st=>({ level:st.type==='AWAKE'?'wake':(st.type||'').toLowerCase(), dateTime:st.startTime, seconds:Math.max(0,Math.round((new Date(st.endTime)-new Date(st.startTime))/1000)) }));
+  const s = dp?.sleep ?? dp?.sleepSession;
+  if (!s) return null;
+  const _type = st => { const t=(st.type||st.stage||''); return t==='AWAKE'?'wake':t.toLowerCase(); };
+  const stages=(s.stages||s.sleepStages||[]).map(st=>({
+    level: _type(st),
+    dateTime: st.startTime||st.start,
+    seconds: st.seconds ?? Math.max(0,Math.round((new Date(st.endTime||st.end)-new Date(st.startTime||st.start))/1000))
+  }));
   const sumMap={};
-  (s.stagesSummary||[]).forEach(st=>{ const k=st.type==='AWAKE'?'wake':(st.type||'').toLowerCase(); sumMap[k]={minutes:parseInt(st.minutes)||0}; });
-  const minA=parseInt(s.summary?.minutesAsleep)||0, minB=parseInt(s.summary?.minutesInSleepPeriod)||0;
-  return { startTime:s.interval?.startTime, endTime:s.interval?.endTime, minutesAsleep:minA, timeInBed:minB, efficiency:minB>0?Math.round(minA/minB*100):0, levels:{data:stages,summary:sumMap}, isMainSleep:true };
+  (s.stagesSummary||s.stageSummaries||[]).forEach(st=>{ sumMap[_type(st)]={minutes:parseInt(st.minutes||st.totalMinutes)||0}; });
+  const minA=parseInt(s.summary?.minutesAsleep||s.summary?.totalSleepDuration)||0;
+  const minB=parseInt(s.summary?.minutesInSleepPeriod||s.summary?.totalDuration)||0;
+  const start=s.interval?.startTime||s.startTime||s.start;
+  const end  =s.interval?.endTime  ||s.endTime  ||s.end;
+  return { startTime:start, endTime:end, minutesAsleep:minA, timeInBed:minB, efficiency:minB>0?Math.round(minA/minB*100):0, levels:{data:stages,summary:sumMap}, isMainSleep:true };
 }
 // ── 90-day streak initializer (runs once per Google account on first connect) ──
 // Fetches the full 90-day step history and counts the real consecutive streak
@@ -12546,18 +12554,26 @@ async function loadRealGoogleData(silentRefresh) {
   // Step-goal streak: consecutive days meeting step goal from activity history
   { const ss=_getStepGoalStreak(); const el=document.getElementById('steps-streak-val'); if(el) el.textContent=ss>0?ss:'—'; }
 
-  const slDP=slD?.dataPoints?.[0]; let sleepMin=0,sleepEff=0,deepMin=0,remMin=0;
-  if (slDP?.sleep) {
+  const slDP=slD?.dataPoints?.[0];
+  console.log('[gh sleep raw]', JSON.stringify(slDP));
+  let sleepMin=0,sleepEff=0,deepMin=0,remMin=0;
+  // Google Health may use 'sleep' or 'sleepSession' as the wrapper field
+  const _slObj = slDP?.sleep ?? slDP?.sleepSession ?? slDP;
+  if (_slObj?.summary || _slObj?.stagesSummary || _slObj?.stages) {
     const sm={};
-    (slDP.sleep.stagesSummary||[]).forEach(s=>{const k=s.type==='AWAKE'?'wake':(s.type||'').toLowerCase(); sm[k]=parseInt(s.minutes)||0;});
-    updSl(sm); renderHypnogram(_ghSleepToFitbit(slDP));
-    sleepMin=parseInt(slDP.sleep.summary?.minutesAsleep)||0;
-    const tib=parseInt(slDP.sleep.summary?.minutesInSleepPeriod)||0;
+    (_slObj.stagesSummary || _slObj.stageSummaries || []).forEach(s=>{
+      const k=( s.type||s.stage||'' )==='AWAKE'?'wake':(s.type||s.stage||'').toLowerCase();
+      sm[k]=parseInt(s.minutes||s.totalMinutes)||0;
+    });
+    updSl(sm);
+    // Wrap in a compatible shape for renderHypnogram regardless of top-level field name
+    renderHypnogram(_ghSleepToFitbit({ sleep: _slObj }));
+    sleepMin=parseInt(_slObj.summary?.minutesAsleep||_slObj.summary?.totalSleepDuration||0)||0;
+    const tib=parseInt(_slObj.summary?.minutesInSleepPeriod||_slObj.summary?.totalDuration||0)||0;
     sleepEff=tib>0?Math.round(sleepMin/tib*100):85;
     deepMin=sm.deep||0; remMin=sm.rem||0;
-    // Populate efficiency and awakenings that updSl() doesn't set
     const el_eff=document.getElementById('sl-eff-v'); if(el_eff) el_eff.textContent=sleepEff;
-    const wakeSegs=(slDP.sleep.stages||[]).filter(s=>s.type==='AWAKE').length;
+    const wakeSegs=(_slObj.stages||[]).filter(s=>(s.type||s.stage||'')==='AWAKE').length;
     const el_wk=document.getElementById('sl-wake-v'); if(el_wk) el_wk.textContent=wakeSegs||'—';
   }
 
