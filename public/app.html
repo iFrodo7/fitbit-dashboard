@@ -10305,7 +10305,7 @@ function setHRZones({ zones=[], restHR=61, maxHR=172 }) {
   const top   = Math.max(base, fat, card, peak, 1);
   const setBar = (bid, mid, min) => setTimeout(() => {
     const b = document.getElementById(bid); if (b) b.style.width = (min / top * 100).toFixed(1) + '%';
-    const m = document.getElementById(mid); if (m) m.textContent = min + 'm';
+    const m = document.getElementById(mid); if (m) m.textContent = min > 0 ? min + 'm' : '—';
   }, 150);
   setBar('hrbar-base',   'hrmin-base',   base);
   setBar('hrbar-fat',    'hrmin-fat',    fat);
@@ -12335,7 +12335,7 @@ async function loadRealGoogleData(silentRefresh) {
   await _driveStreakRead().catch(function(){});
   // Always wipe HTML demo defaults so nothing leaks if the API returns no data.
   // Numeric displays with HTML demo defaults
-  _clr('stressv','0'); _clr('steps-active-val','0');
+  _clr('stressv','—'); _clr('steps-active-val','0');
   _clr('strain-val','0'); _clr('sleep-pct-val','0');
   { const d=document.getElementById('stress-zone-dot'); if(d) d.style.left='0%'; }
   // Reset HRV / SpO2 / Temp zone dots a valores neutros saludables antes de fetch
@@ -12434,7 +12434,11 @@ async function loadRealGoogleData(silentRefresh) {
   }
   // Google Health doesn't expose skin temp — clear HTML demo value
   { const e=document.getElementById('tempv'); if(e) e.textContent='—'; }
-  const rhrRaw=rhrD?.dataPoints?.[0]?.dailyRestingHeartRate?.beatsPerMinute;
+  // Field name fallback: API returns restingHeartRate (not dailyRestingHeartRate)
+  const rhrRaw=rhrD?.dataPoints?.[0]?.dailyRestingHeartRate?.beatsPerMinute
+              ??rhrD?.dataPoints?.[0]?.restingHeartRate?.beatsPerMinute
+              ??rhrD?.dataPoints?.[0]?.heartRateAverage?.beatsPerMinute;
+  console.log('[gh rhr raw]', JSON.stringify(rhrD?.dataPoints?.[0]));
   if (rhrRaw) {
     rhr_v=parseInt(rhrRaw);
     const e=document.getElementById('hr-rest'); if(e) e.textContent=rhr_v;
@@ -12535,9 +12539,10 @@ async function loadRealGoogleData(silentRefresh) {
     const _totalAct=fatMin+cardioMin+peakMin;
     setCalbars({ sed:Math.max(0, 1440-_totalAct-60), lig:fatMin, mod:cardioMin, int:peakMin });
   }
-  // Fallback: si AZM no devolvió datos, calcular zonas desde HR intraday
-  // Usa hrMax del perfil biométrico (Tanaka 208-0.7*age) o escala el max observado.
-  if (!azZones.length && hrD?.dataPoints?.length) {
+  // Fallback: si AZM no devolvió datos O devolvió todo-cero (field name mismatch),
+  // calcular zonas desde HR intraday como proxy.
+  const azTotal=azZones.reduce((s,z)=>s+z.minutes,0);
+  if ((!azZones.length || azTotal===0) && hrD?.dataPoints?.length) {
     const _bpm=hrD.dataPoints.map(p=>parseInt(p.heartRate?.beatsPerMinute)||0).filter(v=>v>40);
     const _hm=window._bioProfile?.hrMax || Math.max(Math.round(maxHR_v*1.15), 180);
     const _z1=_hm*0.50, _z2=_hm*0.70, _z3=_hm*0.85;
@@ -12564,7 +12569,7 @@ async function loadRealGoogleData(silentRefresh) {
   // Only compute scores when at least one real biometric arrived.
   // Without this guard, rhr_v=65 (hardcoded default) leaks into calcScores
   // and gives ~9% recovery even when Google returned zero data.
-  const _rhrReal = !!(rhrD?.dataPoints?.[0]?.dailyRestingHeartRate?.beatsPerMinute) || !!(window._rhrFallback);
+  const _rhrReal = !!rhrRaw || !!(window._rhrFallback); // rhrRaw already covers all field-name fallbacks
   const _hasRealData = _rhrReal || sleepMin > 0 || azZones.length > 0 || !!(hrD?.dataPoints?.length);
   if (_hasRealData) {
     updateScores(calcScores({sleepMin,sleepEff,deep:deepMin,rem:remMin,rhr:rhr_v,zones:azZones}));
@@ -12973,12 +12978,20 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
     ]);
 
     // ── SpO2 / HRV / Tasa respiratoria ────────────────────────────────────
-    const sp=spo2?.dataPoints?.[0]?.dailyOxygenSaturation;
-    const hv=hrv?.dataPoints?.[0]?.dailyHeartRateVariability;
-    const bv=br?.dataPoints?.[0]?.dailyRespiratoryRate;
-    set('spo2v',    sp?.avg??sp?.avgPercent??sp?.value);
-    set('hrvv',     hv?.rmssd??hv?.dailyRmssd??hv?.value);
-    set('resp-val', bv?.rate??bv?.breathingRate??bv?.value);
+    // Field name fallbacks: API may omit "daily" prefix (restingHeartRate vs dailyRestingHeartRate)
+    const sp=spo2?.dataPoints?.[0]?.dailyOxygenSaturation
+           ??spo2?.dataPoints?.[0]?.oxygenSaturation
+           ??spo2?.dataPoints?.[0];
+    const hv=hrv?.dataPoints?.[0]?.dailyHeartRateVariability
+           ??hrv?.dataPoints?.[0]?.heartRateVariability
+           ??hrv?.dataPoints?.[0];
+    const bv=br?.dataPoints?.[0]?.dailyRespiratoryRate
+           ??br?.dataPoints?.[0]?.respiratoryRate
+           ??br?.dataPoints?.[0];
+    console.log('[gh metrics raw]', {spo2:JSON.stringify(spo2?.dataPoints?.[0]),hrv:JSON.stringify(hrv?.dataPoints?.[0]),br:JSON.stringify(br?.dataPoints?.[0])});
+    set('spo2v',    sp?.avg??sp?.avgPercent??sp?.percentage??sp?.value);
+    set('hrvv',     hv?.rmssd??hv?.dailyRmssd??hv?.rmssdMs??hv?.value);
+    set('resp-val', bv?.rate??bv?.breathingRate??bv?.breathsPerMinute??bv?.value);
     const spv=sp?.avg??sp?.avgPercent??sp?.value;
     const hvv=hv?.rmssd??hv?.dailyRmssd??hv?.value;
     const bvv=bv?.rate??bv?.breathingRate??bv?.value;
@@ -13060,6 +13073,18 @@ async function pollFastGoogle() {
       if (lat&&lat!==parseInt(document.getElementById('hrv').textContent)){document.getElementById('hrv').textContent=lat;document.getElementById('hrlive').textContent=lat;flash('hrv');flash('hrlive');}
       const st=Math.max(1,Math.floor(ds.length/48));
       hrHist=ds.filter((_,i)=>i%st===0).slice(0,48).map(p=>parseInt(p.heartRate?.beatsPerMinute)||0).reverse(); buildHRC(hrHist);
+      // Populate REPOSO / MÁXIMO if loadRealGoogleData left them as "—" (initial-load race or field-name mismatch)
+      const _bpmPoll=ds.map(p=>parseInt(p.heartRate?.beatsPerMinute)||0).filter(v=>v>40);
+      if (_bpmPoll.length) {
+        const _mxEl=document.getElementById('hr-max');
+        if (_mxEl&&(_mxEl.textContent==='—'||!_mxEl.textContent.trim())) _mxEl.textContent=Math.max(..._bpmPoll);
+        const _hrEl=document.getElementById('hr-rest');
+        if (_hrEl&&(_hrEl.textContent==='—'||!_hrEl.textContent.trim())) {
+          const _srtP=[..._bpmPoll].sort((a,b)=>a-b);
+          const _fb=_srtP[Math.max(0,Math.floor(_srtP.length*0.05))];
+          if (_fb) { window._rhrFallback=_fb; _hrEl.textContent=_fb; }
+        }
+      }
     }
     if (stD?.rollupDataPoints?.length) {
       const _sdp=stD.rollupDataPoints[0];
