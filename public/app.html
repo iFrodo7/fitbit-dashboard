@@ -9390,6 +9390,13 @@ async function loadWeekDataGoogle() {
             _saveStrObj.prevLastDate = _ps.prevLastDate || '';
           }
           localStorage.setItem('fb_streak_steps', JSON.stringify(_saveStrObj));
+          // Sync to Drive only when count grew, so other browsers pick it up
+          if (_pNew > _pc) {
+            try {
+              var _dsd = JSON.parse(localStorage.getItem('fb_streak') || '{}');
+              if (_dsd.date && _dsd.count) _driveStreakWrite(_dsd);
+            } catch(_dse) {}
+          }
         }
       }
       _persistedStreak = _pNew;
@@ -10799,7 +10806,11 @@ var _DRIVE_STK_UPL  = 'https://www.googleapis.com/upload/drive/v3/files';
 async function _driveStreakWrite(data) {
   try {
     if (typeof HS === 'undefined' || HS.id !== 'google' || !token) return;
-    var body = JSON.stringify(data);
+    // Also bundle fb_streak_steps so it survives a browser switch
+    var _ss = {}; try { _ss = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}'); } catch(e) {}
+    var payload = Object.assign({}, data);
+    if (_ss && _ss.count > 0) payload.ss = { count: _ss.count, lastDate: _ss.lastDate || '' };
+    var body = JSON.stringify(payload);
     var fileId = window._driveStreakFileId;
     if (fileId) {
       // Patch existing file content (no metadata change needed)
@@ -10865,9 +10876,36 @@ async function _driveStreakRead() {
     var lcDate  = localData.date  || '';
     var lcCount = localData.count || 0;
 
-    // Determine if Drive has better data
+    // ── Apply steps streak from Drive (independent of app-open streak) ────────
+    // Always check ss so a browser that already has an up-to-date app-open
+    // streak still receives a higher steps streak from another device.
+    var _needDriveWrite = false;
+    if (driveData.ss && (driveData.ss.count || 0) > 0) {
+      var _localSS = {}; try { _localSS = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}'); } catch(e) {}
+      if ((driveData.ss.count || 0) > (parseInt(_localSS.count, 10) || 0)) {
+        localStorage.setItem('fb_streak_steps', JSON.stringify(driveData.ss));
+        window._wkTodayStreakReal = Math.max(window._wkTodayStreakReal || 0, driveData.ss.count);
+        var _ssEl = document.getElementById('steps-streak-val');
+        if (_ssEl) _ssEl.textContent = driveData.ss.count > 0 ? driveData.ss.count : '—';
+        var _heroEl = document.getElementById('streak-hero-num');
+        if (_heroEl && (parseInt(_heroEl.textContent, 10) || 0) < driveData.ss.count) {
+          if (typeof _animateStreakHero === 'function') _animateStreakHero(driveData.ss.count);
+        }
+        _needDriveWrite = true;
+      }
+    }
+
+    // Determine if Drive has better app-open streak data
     var useDrive = (drDate === lcDate) ? (drCount > lcCount) : (drDate > lcDate);
-    if (!useDrive) return; // local is already up-to-date
+    if (!useDrive) {
+      // App-open streak is already up-to-date locally; only write back if we
+      // changed fb_streak_steps so Drive reflects the merged steps count.
+      if (_needDriveWrite) {
+        var _curAppStreak = JSON.parse(localStorage.getItem('fb_streak') || '{}');
+        if (_curAppStreak.date) await _driveStreakWrite(_curAppStreak);
+      }
+      return;
+    }
 
     // Advance the count to today if Drive's last record was yesterday
     var finalCount;
@@ -10888,7 +10926,8 @@ async function _driveStreakRead() {
       if (_stkBn) _stkBn.textContent = finalCount;
     }
 
-    // Write merged value back so Drive reflects today's browser-switch open
+    // Write merged value back (fb_streak_steps already updated above, so
+    // _driveStreakWrite will bundle the correct ss in its payload)
     await _driveStreakWrite(merged);
   } catch (_dre) {}
 }
@@ -11792,6 +11831,7 @@ const GoogleHealthSource = {
       'https://www.googleapis.com/auth/googlehealth.sleep.readonly',
       'https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly',
       'https://www.googleapis.com/auth/googlehealth.profile.readonly',
+      'https://www.googleapis.com/auth/googlehealth.irregular_rhythm_notification.readonly',
       // drive.appdata removed: requires Drive API enabled + registered in OAuth
       // consent screen. Re-add once Drive API is enabled in Google Cloud Console.
     ].join(' '),
@@ -12192,14 +12232,14 @@ function _gh429() {
   clearInterval(ptmr);
   setTimeout(() => { if (isReal && token) { ptmr = setInterval(pollFastGoogle, pSec * 1000); } }, 60000);
 }
-async function _ghGet(url) {
+async function _ghGet(url, quiet) {
   if (!token) return null;
   try {
     let r = await _ghFetch(url, { headers:{'Authorization':'Bearer '+token} });
     if (r.status===401) { const ok=await refreshGoogleTok(); if(!ok)return null; r=await _ghFetch(url,{headers:{'Authorization':'Bearer '+token}}); }
     if (r.status===429) { _gh429(); return null; }
     if (!r.ok) {
-      try { const _e=await r.json(); console.warn('[gh]',r.status,url.split('?')[0],JSON.stringify(_e).slice(0,300)); } catch(e2) { console.warn('[gh]',r.status,url.split('?')[0]); }
+      if (!quiet) { try { const _e=await r.json(); console.warn('[gh]',r.status,url.split('?')[0],JSON.stringify(_e).slice(0,300)); } catch(e2) { console.warn('[gh]',r.status,url.split('?')[0]); } }
       return null;
     }
     return r.json();
@@ -12864,7 +12904,8 @@ async function _loadAFibData() {
   _setAFibUI({ status:'pending' });
   try {
     const data = await _ghGet(
-      `${GoogleHealthSource.base}/users/me/dataTypes/irregular-rhythm-notification/dataPoints?pageSize=50`
+      `${GoogleHealthSource.base}/users/me/dataTypes/irregular-rhythm-notification/dataPoints?pageSize=50`,
+      true /* quiet: 403 = scope not yet granted, handled below */
     );
     const points = data?.dataPoints || [];
     if (!points.length) { _setAFibUI({ status:'no-data' }); return; }
