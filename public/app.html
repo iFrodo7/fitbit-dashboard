@@ -12348,6 +12348,9 @@ async function loadRealGoogleData(silentRefresh) {
   _clr('str-hrv','—'); _clr('str-rhr','—');
   // HRV zone label
   _clr('u-hrv','—');
+  // Trend indicators — hardcoded HTML defaults that are never reset otherwise
+  { const _ct=(id)=>{const e=document.getElementById(id);if(e){e.textContent='·';e.style.color='var(--bdr)';}};
+    _ct('hrv-trd'); _ct('spo2-trd'); }
   // Main display cards — HTML defaults are 68 / 61 (same as demo), must clear upfront
   _clr('hrv','—'); _clr('hr-rest','—');
   // Steps section sub-metrics — never updated by Google flow
@@ -12767,6 +12770,17 @@ async function _calcHRVBaseline() {
     setEl('hrv-base-val', Math.round(mean));
     setEl('hrv-sdnn-val', Math.round(sdnn));
     window._hrvBaseline = {mean:Math.round(mean), sdnn:Math.round(sdnn), n:vals.length};
+    // Calcular tendencia HRV: hoy vs media baseline
+    const _todayHrv = parseFloat(document.getElementById('hrvv')?.textContent);
+    if (!isNaN(_todayHrv) && _todayHrv > 0) {
+      const _diff = _todayHrv - Math.round(mean);
+      const _trd = document.getElementById('hrv-trd');
+      if (_trd) {
+        if (_diff >= 3)      { _trd.textContent='↑'; _trd.style.color='var(--tpos)'; }
+        else if (_diff<=-3)  { _trd.textContent='↓'; _trd.style.color='var(--tneg)'; }
+        else                 { _trd.textContent='→'; _trd.style.color='rgba(255,255,255,0.3)'; }
+      }
+    }
     // Si tenemos VO2max y perfil, recalcular fitness age
     if (window._vo2Max) _applyBioProfile();
     console.log('[gh hrv-baseline]', window._hrvBaseline);
@@ -12982,6 +12996,14 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
     }
     // Actualiza dots con datos reales; si no hay, usa defaults neutros saludables
     updateZoneDots({ hrv:hrvNum??48, spo2:spo2Num??98, temp:tempNum??36.4 });
+    // Fix: updateZoneDots uses default hrv=48 when no real data → label says "RMSSD — BUENO" incorrectly
+    if (hrvNum == null) { const _u=document.getElementById('u-hrv'); if(_u) _u.textContent='—'; }
+    // Fix: populate SpO2 / HRV sub-values that updateZoneDots always resets to "—"
+    const _sv=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null)e.textContent=v;};
+    if (spv != null) { _sv('spo2-avg-val', Math.round(+spv)); }
+    if (sp?.min != null) { _sv('spo2-low-val', Math.round(+sp.min)); }
+    const _sdnn = hv?.sdnn ?? hv?.sdnnHrv ?? hv?.sdnnValue;
+    if (_sdnn != null) { _sv('hrv-sdnn-val', Math.round(+_sdnn)); }
     if (typeof syncTicker==='function') syncTicker();
   } catch(e) { console.warn('[gh loadHealthMetricsGoogle]',e); }
 }
