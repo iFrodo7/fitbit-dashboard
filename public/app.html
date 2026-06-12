@@ -10802,10 +10802,12 @@ function getDailyStreak() {
 var _DRIVE_STK_FILE = 'aira_app_streak.json';
 var _DRIVE_STK_BASE = 'https://www.googleapis.com/drive/v3/files';
 var _DRIVE_STK_UPL  = 'https://www.googleapis.com/upload/drive/v3/files';
+window._driveUnavailable = false; // set true on first 403 to skip retries
 
 async function _driveStreakWrite(data) {
   try {
     if (typeof HS === 'undefined' || HS.id !== 'google' || !token) return;
+    if (window._driveUnavailable) return;
     // Also bundle fb_streak_steps so it survives a browser switch
     var _ss = {}; try { _ss = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}'); } catch(e) {}
     var payload = Object.assign({}, data);
@@ -10843,13 +10845,14 @@ async function _driveStreakWrite(data) {
 async function _driveStreakRead() {
   try {
     if (typeof HS === 'undefined' || HS.id !== 'google' || !token) return;
+    if (window._driveUnavailable) return;
     // Find the file in App Data folder
     var listResp = await _driveFetch(
       _DRIVE_STK_BASE + '?spaces=appDataFolder&q=' + encodeURIComponent("name='" + _DRIVE_STK_FILE + "'") + '&fields=files(id)',
       { headers: { 'Authorization': 'Bearer ' + token } }
     );
-    // 403 = scope not granted (old token) — silent fallback to localStorage
-    if (!listResp.ok) return;
+    // 403 = scope not granted — mark unavailable so we stop retrying this session
+    if (!listResp.ok) { if (listResp.status === 403) window._driveUnavailable = true; return; }
     var list = await listResp.json();
     var files = list.files || [];
     if (!files.length) {
@@ -12838,7 +12841,7 @@ async function _calcHRVBaseline() {
   try {
     const data = await _ghGet(`${GoogleHealthSource.base}/users/me/dataTypes/daily-heart-rate-variability/dataPoints?pageSize=30`);
     const vals = (data?.dataPoints||[])
-      .map(dp=>{ const hv=dp.dailyHeartRateVariability; return parseFloat(hv?.rmssd??hv?.dailyRmssd??hv?.value)||null; })
+      .map(dp=>{ const hv=dp.dailyHeartRateVariability??dp; return parseFloat(hv?.rmssd??hv?.dailyRmssd??hv?.squareOfSuccessiveDifferencesMilliseconds??hv?.value)||null; })
       .filter(v=>v!=null&&v>0);
     if (vals.length < 3) return;
     const mean = vals.reduce((a,b)=>a+b,0)/vals.length;
@@ -13030,10 +13033,10 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
            ??br?.dataPoints?.[0];
     console.log('[gh metrics raw]', {spo2:JSON.stringify(spo2?.dataPoints?.[0]),hrv:JSON.stringify(hrv?.dataPoints?.[0]),br:JSON.stringify(br?.dataPoints?.[0])});
     set('spo2v',    sp?.avg??sp?.avgPercent??sp?.percentage??sp?.value);
-    set('hrvv',     hv?.rmssd??hv?.dailyRmssd??hv?.rmssdMs??hv?.value);
+    set('hrvv',     hv?.rmssd??hv?.dailyRmssd??hv?.rmssdMs??hv?.squareOfSuccessiveDifferencesMilliseconds??hv?.value);
     set('resp-val', bv?.rate??bv?.breathingRate??bv?.breathsPerMinute??bv?.value);
     const spv=sp?.avg??sp?.avgPercent??sp?.value;
-    const hvv=hv?.rmssd??hv?.dailyRmssd??hv?.value;
+    const hvv=hv?.rmssd??hv?.dailyRmssd??hv?.squareOfSuccessiveDifferencesMilliseconds??hv?.value;
     const bvv=bv?.rate??bv?.breathingRate??bv?.value;
     const hrvNum  = hvv!=null ? Math.round(+hvv)  : null;
     const brNum   = bvv!=null ? Math.round(+bvv)  : null;
