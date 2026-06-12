@@ -10297,6 +10297,7 @@ function setHRZones({ zones=[], restHR=61, maxHR=172 }) {
   const rEl = document.getElementById('hr-rest'); if (rEl && restHR != null) rEl.textContent = restHR;
   const mEl = document.getElementById('hr-max');  if (mEl && maxHR  != null) mEl.textContent = maxHR;
   // Zonas (escala relativa al máximo de minutos entre todas)
+  if (!zones.length) return; // no zone data — don't overwrite "—" with 0m
   const base  = zones.find(z => z.name === 'Out of Range')?.minutes || 0;
   const fat   = zones.find(z => z.name === 'Fat Burn')?.minutes     || 0;
   const card  = zones.find(z => z.name === 'Cardio')?.minutes       || 0;
@@ -12554,10 +12555,8 @@ async function loadRealGoogleData(silentRefresh) {
     if (!window._drAnimDone) { window._drAnimDone = true; setTimeout(animateDailyRings, 200); }
   }
   notifCheckRHR(rhr_v); notifMarkSync();
-  // Only call setHRZones when there is real zone data — avoids overwriting "—" with "0m"
-  if (azZones.length > 0 || _rhrReal || maxHR_v > 0) {
-    setHRZones({zones:azZones, restHR:_rhrReal?rhr_v:null, maxHR:maxHR_v>0?maxHR_v:null});
-  }
+  // setHRZones updates restHR/maxHR always; zone bars only when azZones has data (guard inside)
+  setHRZones({zones:azZones, restHR:_rhrReal?rhr_v:null, maxHR:maxHR_v>0?maxHR_v:null});
   syncTicker();
   // Pass null rhr when not real so loadHealthMetricsGoogle skips hardcoded fallbacks
   loadHealthMetricsGoogle(td, _rhrReal?rhr_v:null);
