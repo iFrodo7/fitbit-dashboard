@@ -10417,19 +10417,23 @@ function setStressBars({ hrv=68, rhr=61, br=14 }) {
   const hEl = document.getElementById('str-hrv'); if (hEl && hrv != null) hEl.textContent = hrv;
   const rEl = document.getElementById('str-rhr'); if (rEl && rhr != null) rEl.textContent = rhr;
   // Barras de contribución (mayor barra = más estrés en ese factor)
-  const hrvPct = Math.max(0, Math.min((1 - (hrv - 20) / 80) * 100, 100));
-  const rhrPct = Math.max(0, Math.min((rhr - 40) / 50 * 100, 100));
-  const brPct  = Math.max(0, Math.min((br - 10) / 10 * 100, 100));
+  const _hrvS = hrv != null ? hrv : null;
+  const _rhrS = rhr != null ? rhr : null;
+  const _brS  = br  != null ? br  : null;
+  const hrvPct = _hrvS != null ? Math.max(0, Math.min((1 - (_hrvS - 20) / 80) * 100, 100)) : 0;
+  const rhrPct = _rhrS != null ? Math.max(0, Math.min((_rhrS - 40) / 50 * 100, 100)) : 0;
+  const brPct  = _brS  != null ? Math.max(0, Math.min((_brS  - 10) / 10 * 100, 100)) : 0;
   const col = p => p < 33 ? 'var(--tpos)' : p < 66 ? '#f59e0b' : 'var(--tneg)';
   const setBar = (bid, vid, pct, val, unit) => setTimeout(() => {
     const b = document.getElementById(bid);
-    if (b) { b.style.width = pct.toFixed(1) + '%'; b.style.background = col(pct); }
     const v = document.getElementById(vid);
+    if (val == null) { if (b) b.style.width='0%'; if (v) v.textContent='—'; return; }
+    if (b) { b.style.width = pct.toFixed(1) + '%'; b.style.background = col(pct); }
     if (v) v.textContent = val + unit;
   }, 150);
-  setBar('sbar-hrv', 'sval-hrv', hrvPct, hrv, 'ms');
-  setBar('sbar-rhr', 'sval-rhr', rhrPct, rhr, 'bpm');
-  setBar('sbar-br',  'sval-br',  brPct,  br,  'rpm');
+  setBar('sbar-hrv', 'sval-hrv', hrvPct, _hrvS, 'ms');
+  setBar('sbar-rhr', 'sval-rhr', rhrPct, _rhrS, 'bpm');
+  setBar('sbar-br',  'sval-br',  brPct,  _brS,  'rpm');
   // hud-sfil (MIN ACT arc) → driven by activity composite in updateDailyRings()
   // MC stress hearts now driven by activity rings in updateDailyRings()
 }
@@ -12353,6 +12357,10 @@ async function loadRealGoogleData(silentRefresh) {
     _ct('hrv-trd'); _ct('spo2-trd'); }
   // Main display cards — HTML defaults are 68 / 61 (same as demo), must clear upfront
   _clr('hrv','—'); _clr('hr-rest','—');
+  // HR zone bars — HTML defaults (840m/52m/22m/6m) must be cleared; will repopulate from AZM
+  ['hrmin-base','hrmin-fat','hrmin-cardio','hrmin-peak'].forEach(id=>_clr(id,'—'));
+  // Calorías intensity bars — HTML defaults (520m/185m/18m/27m) never cleared before
+  ['cmin-sed','cmin-lig','cmin-mod','cmin-int'].forEach(id=>_clr(id,'—'));
   // Steps section sub-metrics — never updated by Google flow
   _clr('steps-streak-val','—');
   // Sleep section — ALL values are hardcoded HTML demos (7h 22m / 84/100 / 91% / etc.)
@@ -12521,12 +12529,17 @@ async function loadRealGoogleData(silentRefresh) {
     _azCardio=cardioMin; _azPeak=peakMin;
     azZones=[{name:'Fat Burn',minutes:fatMin},{name:'Cardio',minutes:cardioMin},{name:'Peak',minutes:peakMin}];
     const el_a=document.getElementById('steps-active-val'); if(el_a) el_a.textContent=fatMin+cardioMin+peakMin;
+    // Populate Calorías intensity bars: fat=LIGERO, cardio=MODER, peak=INTENSO
+    // Sedentary = remainder (rough: 1440 − active − ~60min untracked)
+    const _totalAct=fatMin+cardioMin+peakMin;
+    setCalbars({ sed:Math.max(0, 1440-_totalAct-60), lig:fatMin, mod:cardioMin, int:peakMin });
   }
   // Sync hrmin elements NOW — before updateScores()→updateDailyRings() reads them.
   // Without this, updateDailyRings() picks up the HTML demo values ("22m"/"6m")
   // and the Activity ring shows ~93% even when no real AZM data has arrived.
-  { const e=document.getElementById('hrmin-cardio'); if(e) e.textContent=_azCardio+'m'; }
-  { const e=document.getElementById('hrmin-peak');   if(e) e.textContent=_azPeak+'m'; }
+  // wipe section already cleared these to "—"; only overwrite when we have real values.
+  if (_azCardio>0) { const e=document.getElementById('hrmin-cardio'); if(e) e.textContent=_azCardio+'m'; }
+  if (_azPeak>0)   { const e=document.getElementById('hrmin-peak');   if(e) e.textContent=_azPeak+'m'; }
 
   // Only compute scores when at least one real biometric arrived.
   // Without this guard, rhr_v=65 (hardcoded default) leaks into calcScores
@@ -12541,8 +12554,10 @@ async function loadRealGoogleData(silentRefresh) {
     if (!window._drAnimDone) { window._drAnimDone = true; setTimeout(animateDailyRings, 200); }
   }
   notifCheckRHR(rhr_v); notifMarkSync();
-  // Pass null for rhr/maxHR when using defaults so setHRZones doesn't show fake values
-  setHRZones({zones:azZones, restHR:_rhrReal?rhr_v:null, maxHR:maxHR_v>0?maxHR_v:null});
+  // Only call setHRZones when there is real zone data — avoids overwriting "—" with "0m"
+  if (azZones.length > 0 || _rhrReal || maxHR_v > 0) {
+    setHRZones({zones:azZones, restHR:_rhrReal?rhr_v:null, maxHR:maxHR_v>0?maxHR_v:null});
+  }
   syncTicker();
   // Pass null rhr when not real so loadHealthMetricsGoogle skips hardcoded fallbacks
   loadHealthMetricsGoogle(td, _rhrReal?rhr_v:null);
