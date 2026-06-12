@@ -12535,6 +12535,25 @@ async function loadRealGoogleData(silentRefresh) {
     const _totalAct=fatMin+cardioMin+peakMin;
     setCalbars({ sed:Math.max(0, 1440-_totalAct-60), lig:fatMin, mod:cardioMin, int:peakMin });
   }
+  // Fallback: si AZM no devolvió datos, calcular zonas desde HR intraday
+  // Usa hrMax del perfil biométrico (Tanaka 208-0.7*age) o escala el max observado.
+  if (!azZones.length && hrD?.dataPoints?.length) {
+    const _bpm=hrD.dataPoints.map(p=>parseInt(p.heartRate?.beatsPerMinute)||0).filter(v=>v>40);
+    const _hm=window._bioProfile?.hrMax || Math.max(Math.round(maxHR_v*1.15), 180);
+    const _z1=_hm*0.50, _z2=_hm*0.70, _z3=_hm*0.85;
+    const _mpp=Math.max(1,Math.round(1440/hrD.dataPoints.length)); // minutos por punto
+    let _fat=0,_card=0,_peak=0,_sed=0;
+    _bpm.forEach(bpm=>{ if(bpm>=_z3)_peak++; else if(bpm>=_z2)_card++; else if(bpm>=_z1)_fat++; else _sed++; });
+    _fat=Math.round(_fat*_mpp); _card=Math.round(_card*_mpp); _peak=Math.round(_peak*_mpp); _sed=Math.round(_sed*_mpp);
+    const _tot=_fat+_card+_peak;
+    if(_tot>0||_bpm.length>10){
+      azZones=[{name:'Fat Burn',minutes:_fat},{name:'Cardio',minutes:_card},{name:'Peak',minutes:_peak}];
+      _azCardio=_card; _azPeak=_peak;
+      const el_a=document.getElementById('steps-active-val'); if(el_a) el_a.textContent=_tot;
+      setCalbars({ sed:_sed, lig:_fat, mod:_card, int:_peak });
+      console.log('[hr zones fallback]',{hrMax:_hm,fat:_fat,card:_card,peak:_peak,sed:_sed});
+    }
+  }
   // Sync hrmin elements NOW — before updateScores()→updateDailyRings() reads them.
   // Without this, updateDailyRings() picks up the HTML demo values ("22m"/"6m")
   // and the Activity ring shows ~93% even when no real AZM data has arrived.
