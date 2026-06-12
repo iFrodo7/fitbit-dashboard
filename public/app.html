@@ -12560,20 +12560,39 @@ async function loadRealGoogleData(silentRefresh) {
   // Google Health may use 'sleep' or 'sleepSession' as the wrapper field
   const _slObj = slDP?.sleep ?? slDP?.sleepSession ?? slDP;
   if (_slObj?.summary || _slObj?.stagesSummary || _slObj?.stages) {
+    const _typeKey = s => (s.type||s.stage||'')==='AWAKE'?'wake':(s.type||s.stage||'').toLowerCase();
     const sm={};
+    // Build summary from stagesSummary if available
     (_slObj.stagesSummary || _slObj.stageSummaries || []).forEach(s=>{
-      const k=( s.type||s.stage||'' )==='AWAKE'?'wake':(s.type||s.stage||'').toLowerCase();
-      sm[k]=parseInt(s.minutes||s.totalMinutes)||0;
+      sm[_typeKey(s)] = parseInt(s.minutes||s.totalMinutes)||0;
     });
+    // Fallback: compute summary from individual stages array when stagesSummary is empty
+    if (!Object.keys(sm).length && (_slObj.stages||[]).length) {
+      (_slObj.stages||[]).forEach(st=>{
+        const k=_typeKey(st);
+        const secs=st.seconds ?? Math.max(0,Math.round((new Date(st.endTime||st.end)-new Date(st.startTime||st.start))/1000));
+        sm[k]=(sm[k]||0)+Math.round(secs/60);
+      });
+    }
     updSl(sm);
-    // Wrap in a compatible shape for renderHypnogram regardless of top-level field name
     renderHypnogram(_ghSleepToFitbit({ sleep: _slObj }));
-    sleepMin=parseInt(_slObj.summary?.minutesAsleep||_slObj.summary?.totalSleepDuration||0)||0;
-    const tib=parseInt(_slObj.summary?.minutesInSleepPeriod||_slObj.summary?.totalDuration||0)||0;
+    // Total sleep minutes — try summary first, then derive from sm
+    sleepMin=parseInt(_slObj.summary?.minutesAsleep||_slObj.summary?.totalSleepDuration)||0;
+    if (!sleepMin) sleepMin=(sm.deep||0)+(sm.rem||0)+(sm.light||0);
+    const tib=parseInt(_slObj.summary?.minutesInSleepPeriod||_slObj.summary?.totalDuration)||0 || sleepMin+(sm.wake||0);
     sleepEff=tib>0?Math.round(sleepMin/tib*100):85;
     deepMin=sm.deep||0; remMin=sm.rem||0;
+    // Write TOTAL, INICIO, FIN to DOM (cleared to "—" at load start)
+    const _hm2=m=>`${Math.floor(m/60)}h ${String(m%60).padStart(2,'0')}m`;
+    const el_tot=document.getElementById('sl-total-v'); if(el_tot&&sleepMin>0) el_tot.textContent=_hm2(sleepMin);
+    const _slStart=_slObj.interval?.startTime||_slObj.startTime||_slObj.start;
+    const _slEnd  =_slObj.interval?.endTime  ||_slObj.endTime  ||_slObj.end;
+    const el_st=document.getElementById('sl-start-v'); if(el_st&&_slStart) el_st.textContent=_slStart.slice(11,16);
+    const el_en=document.getElementById('sl-end-v');   if(el_en&&_slEnd)   el_en.textContent=_slEnd.slice(11,16);
+    // Score dot position based on efficiency
+    const _dot=document.getElementById('sleep-score-dot'); if(_dot) _dot.style.left=Math.max(2,Math.min(sleepEff,98))+'%';
     const el_eff=document.getElementById('sl-eff-v'); if(el_eff) el_eff.textContent=sleepEff;
-    const wakeSegs=(_slObj.stages||[]).filter(s=>(s.type||s.stage||'')==='AWAKE').length;
+    const wakeSegs=(_slObj.stages||[]).filter(s=>_typeKey(s)==='wake').length;
     const el_wk=document.getElementById('sl-wake-v'); if(el_wk) el_wk.textContent=wakeSegs||'—';
   }
 
@@ -12603,7 +12622,10 @@ async function loadRealGoogleData(silentRefresh) {
   if ((!azZones.length || azTotal===0) && hrD?.dataPoints?.length) {
     const _bpm=hrD.dataPoints.map(p=>parseInt(p.heartRate?.beatsPerMinute)||0).filter(v=>v>40);
     const _hm=window._bioProfile?.hrMax || Math.max(Math.round(maxHR_v*1.15), 180);
-    const _z1=_hm*0.50, _z2=_hm*0.70, _z3=_hm*0.85;
+    // Fat burn floor: the higher of 50% maxHR or restHR+15bpm, so resting/sleep
+    // time doesn't inflate the fat-burn zone count (bug: previously showed 800m+).
+    const _rhrBase = (rhr_v && rhr_v > 40) ? rhr_v : 65;
+    const _z1=Math.max(_hm*0.50, _rhrBase+15), _z2=_hm*0.70, _z3=_hm*0.85;
     const _mpp=Math.max(1,Math.round(1440/hrD.dataPoints.length)); // minutos por punto
     let _fat=0,_card=0,_peak=0,_sed=0;
     _bpm.forEach(bpm=>{ if(bpm>=_z3)_peak++; else if(bpm>=_z2)_card++; else if(bpm>=_z1)_fat++; else _sed++; });
