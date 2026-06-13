@@ -12597,6 +12597,17 @@ async function loadRealGoogleData(silentRefresh) {
     const el_eff=document.getElementById('sl-eff-v'); if(el_eff) el_eff.textContent=sleepEff;
     const wakeSegs=(_slObj.stages||[]).filter(s=>_typeKey(s)==='wake').length;
     const el_wk=document.getElementById('sl-wake-v'); if(el_wk) el_wk.textContent=wakeSegs||'—';
+    // Sleep score from Google Health (separate from efficiency)
+    const _ghScore = slDP?.sleepScore ?? slDP?.overallSleepScore
+      ?? _slObj.summary?.overallSleepScore ?? _slObj.summary?.sleepScore
+      ?? _slObj.sleepScore ?? _slObj.score ?? _slObj.sleepQualityScore
+      ?? _slObj.summary?.sleepQualityScore;
+    console.log('[gh sleep score]', _ghScore, 'summary keys:', Object.keys(_slObj.summary||{}));
+    const el_sc=document.getElementById('sl-score-v');
+    if (el_sc && _ghScore != null) {
+      el_sc.textContent = Math.round(_ghScore) + '/100';
+      if (_dot) _dot.style.left = Math.max(2, Math.min(Math.round(_ghScore), 98)) + '%';
+    }
   }
 
   // Active Zone Minutes → HR zone bars + active-minutes sub-field + strain
