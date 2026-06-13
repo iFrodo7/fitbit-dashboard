@@ -12634,7 +12634,7 @@ async function loadRealGoogleData(silentRefresh) {
     _fat=Math.round(_fat*_mpp); _card=Math.round(_card*_mpp); _peak=Math.round(_peak*_mpp); _sed=Math.round(_sed*_mpp);
     const _tot=_fat+_card+_peak;
     if(_tot>0||_bpm.length>10){
-      azZones=[{name:'Fat Burn',minutes:_fat},{name:'Cardio',minutes:_card},{name:'Peak',minutes:_peak}];
+      azZones=[{name:'Out of Range',minutes:_sed},{name:'Fat Burn',minutes:_fat},{name:'Cardio',minutes:_card},{name:'Peak',minutes:_peak}];
       _azCardio=_card; _azPeak=_peak;
       const el_a=document.getElementById('steps-active-val'); if(el_a) el_a.textContent=_tot;
       setCalbars({ sed:_sed, lig:_fat, mod:_card, int:_peak });
