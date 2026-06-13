@@ -12439,7 +12439,7 @@ async function loadRealGoogleData(silentRefresh) {
   //   • steps & AZM list returns per-minute samples that many devices never write;
   //     dailyRollUp always returns the pre-aggregated daily total.
   const _rollupBody = (start,end) => ({range:{start:_parseCivilDate(start),end:_parseCivilDate(end)},windowSizeDays:1});
-  const [hrD,rhrD,stD,slD,calD,azD,exD,distD,flrD] = await Promise.all([
+  const [hrD,rhrD,stD,slD,calD,azD,exD,distD,flrD,slScoreD] = await Promise.all([
     _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=1440`),
     _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?pageSize=1`),
     _ghPost(`${B}/users/me/dataTypes/steps/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
@@ -12449,6 +12449,7 @@ async function loadRealGoogleData(silentRefresh) {
     _ghGet(GoogleHealthSource.ep.exerciseSessions(after7, nd)),
     _ghPost(`${B}/users/me/dataTypes/distance/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
     _ghPost(`${B}/users/me/dataTypes/floors/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
+    _ghGet(`${B}/users/me/dataTypes/daily-sleep-score/dataPoints?pageSize=1`),
   ]);
   console.log('[gh raw]', {hrD,rhrD,stD,slD,calD,azD});
   let rhr_v=65, maxHR_v=0;
@@ -12597,16 +12598,23 @@ async function loadRealGoogleData(silentRefresh) {
     const el_eff=document.getElementById('sl-eff-v'); if(el_eff) el_eff.textContent=sleepEff;
     const wakeSegs=(_slObj.stages||[]).filter(s=>_typeKey(s)==='wake').length;
     const el_wk=document.getElementById('sl-wake-v'); if(el_wk) el_wk.textContent=wakeSegs||'—';
-    // Sleep score from Google Health (separate from efficiency)
-    const _ghScore = slDP?.sleepScore ?? slDP?.overallSleepScore
+    // Sleep score: try dedicated endpoint first, then fields in sleep data, then compute
+    const _apiScore = slScoreD?.dataPoints?.[0]?.dailySleepScore?.overallScore
+      ?? slScoreD?.dataPoints?.[0]?.sleepScore
+      ?? slScoreD?.dataPoints?.[0]?.score
+      ?? slDP?.sleepScore ?? slDP?.overallSleepScore
       ?? _slObj.summary?.overallSleepScore ?? _slObj.summary?.sleepScore
-      ?? _slObj.sleepScore ?? _slObj.score ?? _slObj.sleepQualityScore
-      ?? _slObj.summary?.sleepQualityScore;
-    console.log('[gh sleep score]', _ghScore, 'summary keys:', Object.keys(_slObj.summary||{}));
+      ?? _slObj.sleepScore ?? _slObj.score;
+    console.log('[gh sleep score] api:', _apiScore, 'slScoreD:', JSON.stringify(slScoreD?.dataPoints?.[0]));
+    const _finalScore = _apiScore != null ? Math.round(_apiScore) : (sleepMin > 0 ? Math.min(100,
+      Math.min(40, Math.round(sleepMin / 420 * 40)) +                  // duration (7h=max)
+      Math.round((deepMin + remMin) / Math.max(sleepMin, 1) * 40) +    // stages quality
+      Math.round(sleepEff / 100 * 20)                                   // efficiency
+    ) : null);
     const el_sc=document.getElementById('sl-score-v');
-    if (el_sc && _ghScore != null) {
-      el_sc.textContent = Math.round(_ghScore) + '/100';
-      if (_dot) _dot.style.left = Math.max(2, Math.min(Math.round(_ghScore), 98)) + '%';
+    if (el_sc && _finalScore != null) {
+      el_sc.textContent = _finalScore + '/100';
+      if (_dot) _dot.style.left = Math.max(2, Math.min(_finalScore, 98)) + '%';
     }
   }
 
