@@ -12606,14 +12606,16 @@ async function loadRealGoogleData(silentRefresh) {
       ?? _slObj.summary?.overallSleepScore ?? _slObj.summary?.sleepScore
       ?? _slObj.sleepScore ?? _slObj.score;
     console.log('[gh sleep score] api:', _apiScore, 'slScoreD:', JSON.stringify(slScoreD?.dataPoints?.[0]));
-    const _finalScore = _apiScore != null ? Math.round(_apiScore) : (sleepMin > 0 ? Math.min(100,
+    const _computedScore = sleepMin > 0 ? Math.min(100,
       Math.min(40, Math.round(sleepMin / 420 * 40)) +                  // duration (7h=max)
       Math.round((deepMin + remMin) / Math.max(sleepMin, 1) * 40) +    // stages quality
       Math.round(sleepEff / 100 * 20)                                   // efficiency
-    ) : null);
+    ) : null;
+    const _finalScore = _apiScore != null ? Math.round(_apiScore) : _computedScore;
+    const _scoreIsEstimated = _apiScore == null && _computedScore != null;
     const el_sc=document.getElementById('sl-score-v');
     if (el_sc && _finalScore != null) {
-      el_sc.textContent = _finalScore + '/100';
+      el_sc.textContent = (_scoreIsEstimated ? '~' : '') + _finalScore + '/100';
       if (_dot) _dot.style.left = Math.max(2, Math.min(_finalScore, 98)) + '%';
     }
   }
