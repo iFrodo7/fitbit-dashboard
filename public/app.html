@@ -12881,7 +12881,7 @@ async function _calcHRVBaseline() {
   try {
     const data = await _ghGet(`${GoogleHealthSource.base}/users/me/dataTypes/daily-heart-rate-variability/dataPoints?pageSize=30`);
     const vals = (data?.dataPoints||[])
-      .map(dp=>{ const hv=dp.dailyHeartRateVariability??dp; return parseFloat(hv?.rmssd??hv?.dailyRmssd??hv?.squareOfSuccessiveDifferencesMilliseconds??hv?.value)||null; })
+      .map(dp=>{ const hv=dp.dailyHeartRateVariability??dp; return parseFloat(hv?.averageHeartRateVariabilityMilliseconds??hv?.rmssd??hv?.dailyRmssd??hv?.squareOfSuccessiveDifferencesMilliseconds??hv?.value)||null; })
       .filter(v=>v!=null&&v>0);
     if (vals.length < 3) return;
     const mean = vals.reduce((a,b)=>a+b,0)/vals.length;
@@ -13073,10 +13073,10 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
            ??br?.dataPoints?.[0];
     console.log('[gh metrics raw]', {spo2:JSON.stringify(spo2?.dataPoints?.[0]),hrv:JSON.stringify(hrv?.dataPoints?.[0]),br:JSON.stringify(br?.dataPoints?.[0])});
     set('spo2v',    sp?.avg??sp?.avgPercent??sp?.percentage??sp?.value);
-    set('hrvv',     hv?.rmssd??hv?.dailyRmssd??hv?.rmssdMs??hv?.squareOfSuccessiveDifferencesMilliseconds??hv?.value);
+    set('hrvv',     hv?.averageHeartRateVariabilityMilliseconds??hv?.rmssd??hv?.dailyRmssd??hv?.rmssdMs??hv?.squareOfSuccessiveDifferencesMilliseconds??hv?.value);
     set('resp-val', bv?.rate??bv?.breathingRate??bv?.breathsPerMinute??bv?.value);
     const spv=sp?.avg??sp?.avgPercent??sp?.value;
-    const hvv=hv?.rmssd??hv?.dailyRmssd??hv?.squareOfSuccessiveDifferencesMilliseconds??hv?.value;
+    const hvv=hv?.averageHeartRateVariabilityMilliseconds??hv?.rmssd??hv?.dailyRmssd??hv?.squareOfSuccessiveDifferencesMilliseconds??hv?.value;
     const bvv=bv?.rate??bv?.breathingRate??bv?.value;
     const hrvNum  = hvv!=null ? Math.round(+hvv)  : null;
     const brNum   = bvv!=null ? Math.round(+bvv)  : null;
@@ -13131,7 +13131,7 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
     const _sv=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null)e.textContent=v;};
     if (spv != null) { _sv('spo2-avg-val', Math.round(+spv)); }
     if (sp?.min != null) { _sv('spo2-low-val', Math.round(+sp.min)); }
-    const _sdnn = hv?.sdnn ?? hv?.sdnnHrv ?? hv?.sdnnValue;
+    const _sdnn = hv?.sdnn ?? hv?.sdnnHrv ?? hv?.sdnnValue ?? hv?.deepSleepRootMeanSquareOfSuccessiveDifferencesMilliseconds;
     if (_sdnn != null) { _sv('hrv-sdnn-val', Math.round(+_sdnn)); }
     if (typeof syncTicker==='function') syncTicker();
   } catch(e) { console.warn('[gh loadHealthMetricsGoogle]',e); }
