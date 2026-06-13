@@ -11248,7 +11248,7 @@ function updateDailyRings() {
   var pro=typeof isPro==='function'&&isPro();
   var goals=pro?_getActivityBaseline():_loadDRGoals();
   var cal=nv('calv')||nv('cal-act'), steps=nv('stepsv');
-  var actMin=nv('hrmin-cardio')+nv('hrmin-peak');
+  var actMin=nv('hrmin-fat')+nv('hrmin-cardio')+nv('hrmin-peak');
   var rec=window._lastRec||0;
   var dt=_getDayType(rec);
   var mult=pro?dt.mult:1.0;
