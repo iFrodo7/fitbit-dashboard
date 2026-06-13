@@ -4255,6 +4255,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           <div class="xarrow">▼</div>
           <!-- Solo las barras de intensidad se expanden -->
           <div class="vc-xpnd">
+            <div style="font-size:8px;letter-spacing:2px;opacity:0.35;text-transform:uppercase;margin-bottom:8px;" id="cal-bars-lbl">DISTRIBUCIÓN DE ACTIVIDAD</div>
             <div class="cal-bars">
               <div class="cal-bar-row"><span class="cal-bar-lbl" id="cbar-sed-lbl">SEDET.</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="cbar-sed" style="width:0%;background:rgba(255,255,255,0.25)"></div></div><span class="cal-bar-val" id="cmin-sed">520m</span></div>
               <div class="cal-bar-row"><span class="cal-bar-lbl" id="cbar-lig-lbl">LIGERO</span><div class="cal-bar-trk"><div class="cal-bar-fil" id="cbar-lig" style="width:0%;background:var(--ta);opacity:0.6"></div></div><span class="cal-bar-val" id="cmin-lig">185m</span></div>
@@ -10450,7 +10451,7 @@ function setCalbars({ sed=0, lig=0, mod=0, int=0 }) {
   const set = (barId, minId, min) => {
     const b = document.getElementById(barId);
     const m = document.getElementById(minId);
-    if (m) m.textContent = min > 0 ? min + 'm' : '—';
+    if (m) m.textContent = min > 0 ? min + ' min' : '—';
     if (b) setTimeout(() => { b.style.width = Math.min(min / total * 100, 100).toFixed(1) + '%'; }, 150);
   };
   set('cbar-sed','cmin-sed', sed);
