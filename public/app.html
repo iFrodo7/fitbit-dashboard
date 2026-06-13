@@ -12591,8 +12591,9 @@ async function loadRealGoogleData(silentRefresh) {
     const el_tot=document.getElementById('sl-total-v'); if(el_tot&&sleepMin>0) el_tot.textContent=_hm2(sleepMin);
     const _slStart=_slObj.interval?.startTime||_slObj.startTime||_slObj.start;
     const _slEnd  =_slObj.interval?.endTime  ||_slObj.endTime  ||_slObj.end;
-    const el_st=document.getElementById('sl-start-v'); if(el_st&&_slStart) el_st.textContent=_slStart.slice(11,16);
-    const el_en=document.getElementById('sl-end-v');   if(el_en&&_slEnd)   el_en.textContent=_slEnd.slice(11,16);
+    const _fmtLocalTime = s => { if(!s) return null; const d=new Date(s); return isNaN(d)?s.slice(11,16):d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}); };
+    const el_st=document.getElementById('sl-start-v'); if(el_st&&_slStart) el_st.textContent=_fmtLocalTime(_slStart);
+    const el_en=document.getElementById('sl-end-v');   if(el_en&&_slEnd)   el_en.textContent=_fmtLocalTime(_slEnd);
     // Score dot position based on efficiency
     const _dot=document.getElementById('sleep-score-dot'); if(_dot) _dot.style.left=Math.max(2,Math.min(sleepEff,98))+'%';
     const el_eff=document.getElementById('sl-eff-v'); if(el_eff) el_eff.textContent=sleepEff;
