@@ -4180,9 +4180,9 @@ body.t-synth::after{content:'';position:fixed;inset:0;
               <div class="cal-box-unit">MS PROM.</div>
             </div>
             <div class="cal-box">
-              <div class="cal-box-lbl" id="lbl-hrv-sdnn">VARIACIÓN</div>
+              <div class="cal-box-lbl" id="lbl-hrv-sdnn">PROM. DÍA</div>
               <div class="cal-box-val" id="hrv-sdnn-val">—</div>
-              <div class="cal-box-unit">MS SDNN</div>
+              <div class="cal-box-unit">MS RMSSD</div>
             </div>
           </div>
         </div>
@@ -10394,7 +10394,7 @@ function updateZoneDots({ hrv=48, spo2=98, temp=36.4 } = {}) {
     u.textContent = 'RMSSD — ' + s;
   }
   // Sub-métricas — solo mostramos datos reales o "—" si no están disponibles.
-  // HRV base personal y SDNN requieren historial de 7d que la API no entrega en este endpoint.
+  // HRV base personal requiere historial de 7d que la API no entrega en este endpoint.
   const setV = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
   setV('hrv-base-val', '—');
   setV('hrv-sdnn-val', '—');
@@ -12895,7 +12895,7 @@ function _loadBioProfileInputs() {
 
 // ══════════════════════════════════════════════════════════════════════════
 // ── HRV BASELINE PERSONAL (últimos 30 días) ────────────────────────────────
-// Llena hrv-base-val (media RMSSD) y hrv-sdnn-val (desviación entre días).
+// Llena hrv-base-val (media RMSSD de 30 días).
 // ══════════════════════════════════════════════════════════════════════════
 async function _calcHRVBaseline() {
   if (HS.id !== 'google' || !token) return;
@@ -12909,7 +12909,6 @@ async function _calcHRVBaseline() {
     const sdnn = Math.sqrt(vals.reduce((a,b)=>a+(b-mean)**2,0)/vals.length);
     const setEl=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
     setEl('hrv-base-val', Math.round(mean));
-    setEl('hrv-sdnn-val', Math.round(sdnn));
     window._hrvBaseline = {mean:Math.round(mean), sdnn:Math.round(sdnn), n:vals.length};
     // Calcular tendencia HRV: hoy vs media baseline
     const _todayHrv = parseFloat(document.getElementById('hrvv')?.textContent);
@@ -13094,7 +13093,7 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
            ??br?.dataPoints?.[0];
     console.log('[gh metrics raw]', {spo2:JSON.stringify(spo2?.dataPoints?.[0]),hrv:JSON.stringify(hrv?.dataPoints?.[0]),br:JSON.stringify(br?.dataPoints?.[0])});
     set('spo2v',    sp?.averagePercentage??sp?.avg??sp?.avgPercent??sp?.percentage??sp?.value);
-    set('hrvv',     hv?.averageHeartRateVariabilityMilliseconds??hv?.rmssd??hv?.dailyRmssd??hv?.rmssdMs??hv?.squareOfSuccessiveDifferencesMilliseconds??hv?.value);
+    set('hrvv',     hv?.deepSleepRootMeanSquareOfSuccessiveDifferencesMilliseconds??hv?.averageHeartRateVariabilityMilliseconds??hv?.rmssd??hv?.dailyRmssd??hv?.rmssdMs??hv?.squareOfSuccessiveDifferencesMilliseconds??hv?.value);
     set('resp-val', bv?.rate??bv?.breathingRate??bv?.breathsPerMinute??bv?.value);
     // SpO2 sub-metrics now available from Google Health API
     const _spLow=sp?.lowerBoundPercentage??sp?.minPercent??sp?.min;
@@ -13157,8 +13156,10 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
     const _sv=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null)e.textContent=v;};
     if (spv != null) { _sv('spo2-avg-val', Math.round(+spv)); }
     if (sp?.min != null) { _sv('spo2-low-val', Math.round(+sp.min)); }
-    const _sdnn = hv?.sdnn ?? hv?.sdnnHrv ?? hv?.sdnnValue ?? hv?.deepSleepRootMeanSquareOfSuccessiveDifferencesMilliseconds;
-    if (_sdnn != null) { _sv('hrv-sdnn-val', Math.round(+_sdnn)); }
+    // hrv-sdnn-val = promedio RMSSD diario (comparación vs deep sleep en el primario)
+    if (hvv != null) { _sv('hrv-sdnn-val', Math.round(+hvv)); }
+    // sv-hrv-val en NIVEL ESTRÉS usa promedio diario, no deep sleep
+    if (hvv != null) { _sv('sv-hrv-val', Math.round(+hvv)); }
     if (typeof syncTicker==='function') syncTicker();
   } catch(e) { console.warn('[gh loadHealthMetricsGoogle]',e); }
 }
