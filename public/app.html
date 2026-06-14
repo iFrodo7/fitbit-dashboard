@@ -12654,7 +12654,7 @@ async function loadRealGoogleData(silentRefresh) {
     const _elapsedMin = new Date().getHours()*60 + new Date().getMinutes() + 1;
     const _dps = hrD.dataPoints.length > _elapsedMin ? hrD.dataPoints.slice(0, _elapsedMin) : hrD.dataPoints;
     const _bpm=_dps.map(p=>parseInt(p.heartRate?.beatsPerMinute)||0).filter(v=>v>40);
-    const _hm=window._bioProfile?.hrMax || Math.max(Math.round(maxHR_v*1.15), 180);
+    const _hm=window._bioProfile?.hrMax || Math.round(maxHR_v*1.15);
     // Fat burn floor: the higher of 50% maxHR or restHR+15bpm, so resting/sleep
     // time doesn't inflate the fat-burn zone count (bug: previously showed 800m+).
     const _rhrBase = (rhr_v && rhr_v > 40) ? rhr_v : 65;
@@ -12762,6 +12762,12 @@ function _applyBioProfile(p) {
   const {age,weight,height,sex,activity} = p;
   const calcDiv   = document.getElementById('pv-bio-calc');
   const emptyProm = document.getElementById('bio-empty-prompt');
+  // hrMax se puede calcular con solo la edad — disponible aunque el perfil esté incompleto
+  if (age > 0) {
+    if (!window._bioProfile) window._bioProfile = {};
+    window._bioProfile.hrMax = Math.round(208 - 0.7 * age);
+    window._bioProfile.age   = age;
+  }
   if (!age || !weight || !height || !sex) {
     if(calcDiv)   calcDiv.style.display='none';
     if(emptyProm) emptyProm.style.display='block';
