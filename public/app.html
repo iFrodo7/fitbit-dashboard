@@ -5124,6 +5124,10 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           <option value="1.9">MUY ACTIVO (2×/día)</option>
         </select>
       </div>
+      <!-- Botón guardar + actualizar zonas -->
+      <div style="margin-top:16px;">
+        <button id="bio-save-btn" onclick="saveBioAndRefresh()" style="width:100%;padding:10px;background:var(--ta);color:var(--bg);border:none;border-radius:var(--r-md);font-family:inherit;font-size:10px;letter-spacing:2px;font-weight:700;cursor:pointer;transition:opacity var(--dur-base) var(--ease-std);">GUARDAR Y ACTUALIZAR</button>
+      </div>
       <!-- Resultados calculados — visible cuando todos los campos tienen valor -->
       <div class="pv-bio-calc" id="pv-bio-calc" style="display:none">
         <div class="pv-row">
@@ -12756,6 +12760,20 @@ function saveBioProfile() {
   const activity = parseFloat(document.getElementById('pv-activity')?.value) || null;
   try { localStorage.setItem('fb_bio', JSON.stringify({age,weight,height,sex,activity})); } catch {}
   _applyBioProfile({age,weight,height,sex,activity});
+}
+function saveBioAndRefresh() {
+  saveBioProfile();
+  // Re-fetch HR intraday para recalcular zonas con el nuevo hrMax
+  if (typeof pollFastGoogle === 'function' && token) pollFastGoogle();
+  // Feedback visual en el botón
+  const btn = document.getElementById('bio-save-btn');
+  if (btn) {
+    const orig = btn.textContent;
+    btn.textContent = '✓ GUARDADO';
+    btn.style.opacity = '0.6';
+    btn.disabled = true;
+    setTimeout(() => { btn.textContent = orig; btn.style.opacity = '1'; btn.disabled = false; }, 2000);
+  }
 }
 function _applyBioProfile(p) {
   p = p || getUserBioProfile();
