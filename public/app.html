@@ -10826,10 +10826,6 @@ function getDailyStreak() {
     localStorage.setItem('fb_streak',JSON.stringify({date:today,count:cnt}));
     // Fire-and-forget write to server so other devices pick up the latest value
     _writeAppStreakServer(today, cnt);
-    // Celebrate when streak genuinely increases (new day, not just a page reload)
-    if (cnt > 1 && cnt > (s.count||0)) {
-      setTimeout(function(){ if(typeof window._showStreakCelebration==='function') window._showStreakCelebration(cnt); }, 1800);
-    }
     return cnt;
   } catch(e){return 1;}
 }
@@ -12937,12 +12933,19 @@ async function loadRealGoogleData(silentRefresh) {
   if (typeof renderAiraInsights === 'function') renderAiraInsights();
   // Initialize 90-day steps streak from API (independent of app-open streak).
   await _initStreakFromGoogle().catch(function(){});
-  // Load app-open streak from server before computing it locally, so this
-  // device is seeded with the best value across all devices for this user.
+  // Sync streak — renderDailyRings() ran before data arrived so both the
+  // badge and the milestone panel may show stale values. Capture the count
+  // before and after server sync, re-render rings with the correct number,
+  // and celebrate if the streak genuinely increased.
+  var _stkBefore=0;
+  try{_stkBefore=JSON.parse(localStorage.getItem('fb_streak')||'{}').count||0;}catch(e){}
   await _loadAppStreakServer().catch(function(){});
-  // Sync streak badge — renderDailyRings() ran before data arrived so badge
-  // may show a stale value; update it now that we know the real streak.
-  { const el=document.getElementById('dr-stk'); if(el) el.textContent=getDailyStreak(); }
+  var _stkNow=getDailyStreak();
+  { const el=document.getElementById('dr-stk'); if(el) el.textContent=_stkNow; }
+  try { renderDailyRings(); } catch(e){}
+  if (_stkNow > 1 && _stkNow > _stkBefore) {
+    setTimeout(function(){ if(typeof window._showStreakCelebration==='function') window._showStreakCelebration(_stkNow); }, 1800);
+  }
   // Always apply bio profile at the end so home bio widget (FC Máx, Fitness Age, VO2)
   // shows up without requiring a Profile tab visit — _applyBioProfile reads localStorage,
   // so it works even when the Google Health API returned no VO2 data this call.
