@@ -12656,10 +12656,9 @@ async function loadRealGoogleData(silentRefresh) {
     // time doesn't inflate the fat-burn zone count (bug: previously showed 800m+).
     const _rhrBase = (rhr_v && rhr_v > 40) ? rhr_v : 65;
     const _z1=Math.max(_hm*0.50, _rhrBase+15), _z2=_hm*0.70, _z3=_hm*0.85;
-    const _mpp=Math.max(1,Math.round(1440/hrD.dataPoints.length)); // minutos por punto
     let _fat=0,_card=0,_peak=0,_sed=0;
     _bpm.forEach(bpm=>{ if(bpm>=_z3)_peak++; else if(bpm>=_z2)_card++; else if(bpm>=_z1)_fat++; else _sed++; });
-    _fat=Math.round(_fat*_mpp); _card=Math.round(_card*_mpp); _peak=Math.round(_peak*_mpp); _sed=Math.round(_sed*_mpp);
+    // Cada punto intraday = 1 minuto real — no multiplicar por factor de escala
     const _tot=_fat+_card+_peak;
     if(_tot>0||_bpm.length>10){
       azZones=[{name:'Out of Range',minutes:_sed},{name:'Fat Burn',minutes:_fat},{name:'Cardio',minutes:_card},{name:'Peak',minutes:_peak}];
