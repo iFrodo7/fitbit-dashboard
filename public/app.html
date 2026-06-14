@@ -13198,7 +13198,6 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
     }
 
     // ── VO2 máx ────────────────────────────────────────────────────────────
-    console.log('[gh vo2 raw]', JSON.stringify(vo2D));
     const vv=vo2D?.dataPoints?.[0]?.dailyVo2Max??vo2D?.dataPoints?.[0]?.vo2Max??vo2D?.dataPoints?.[0];
     const vo2Val=parseFloat(vv?.vo2MaxMillilitersPerMinutePerKilogram??vv?.value??vv?.ml) || null;
     if (vo2Val!=null) {
