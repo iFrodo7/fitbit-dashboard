@@ -10796,11 +10796,20 @@ function getDailyStreak() {
     // Unauthenticated demo visits don't count as active days.
     if (!token) return s.count||0;
     var _yd=new Date(); _yd.setDate(_yd.getDate()-1); var yest=_localDateStr(_yd);
-    var cnt=s.date===yest?(s.count||1)+1:1;
+    var cnt;
+    if (s.date===yest) {
+      cnt=(s.count||1)+1;
+    } else {
+      // Gap or new device — seed from steps streak which is API-derived and
+      // consistent across devices (set by _initStreakFromGoogle before this call).
+      try {
+        var _ss=JSON.parse(localStorage.getItem('fb_streak_steps')||'{}');
+        cnt=(_ss.count>0)?_ss.count:1;
+      } catch(e2){cnt=1;}
+    }
     // Detect loss: had a streak >1 that just got reset
     if (cnt===1 && (s.count||0)>1) window._streakLost = s.count;
     localStorage.setItem('fb_streak',JSON.stringify({date:today,count:cnt}));
-    // Keep Drive in sync so the streak survives a browser switch (Google users).
     try { _driveStreakWrite({date:today,count:cnt}); } catch(_dse) {}
     return cnt;
   } catch(e){return 1;}
@@ -12737,6 +12746,10 @@ async function loadRealGoogleData(silentRefresh) {
   renderRecentActivities(ghSessions);
   // Refresh AIRA insights with real (or empty) data — clears demo text from initial load
   if (typeof renderAiraInsights === 'function') renderAiraInsights();
+  // Initialize 90-day streak first — must run before getDailyStreak() so that
+  // fb_streak_steps is populated and getDailyStreak() can use it as a seed
+  // when running on a new device (gap detected → fallback to steps streak).
+  await _initStreakFromGoogle().catch(function(){});
   // Sync streak badge — renderDailyRings() ran before data arrived so badge
   // may show a stale value; update it now that we know the real streak.
   { const el=document.getElementById('dr-stk'); if(el) el.textContent=getDailyStreak(); }
@@ -12747,10 +12760,6 @@ async function loadRealGoogleData(silentRefresh) {
   // Snapshot today's DOM values so tapping today on the week bars always restores
   // real data (not demo _wkData values).  Must run after all DOM writes above.
   try { _wkSaveTodaySnap(); } catch(e) {}
-  // Initialize 90-day streak on first connect — awaited so fb_streak_steps is
-  // ready before loadWeekDataGoogle reads _persistedStreak from it.
-  // Returns immediately (no-op) on every subsequent load.
-  await _initStreakFromGoogle().catch(function(){});
   // Fetch 7-day history for week bar chart (best-effort, never blocks render).
   loadWeekDataGoogle().catch(function(){});
   // Guardar credenciales en IDB para que el SW verifique pasos en background
