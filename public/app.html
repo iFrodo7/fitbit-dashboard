@@ -10796,24 +10796,68 @@ function getDailyStreak() {
     // Unauthenticated demo visits don't count as active days.
     if (!token) return s.count||0;
     var _yd=new Date(); _yd.setDate(_yd.getDate()-1); var yest=_localDateStr(_yd);
-    var cnt;
-    if (s.date===yest) {
-      cnt=(s.count||1)+1;
-    } else {
-      // Gap or new device — seed from steps streak which is API-derived and
-      // consistent across devices (set by _initStreakFromGoogle before this call).
-      try {
-        var _ss=JSON.parse(localStorage.getItem('fb_streak_steps')||'{}');
-        cnt=(_ss.count>0)?_ss.count:1;
-      } catch(e2){cnt=1;}
-    }
+    var cnt=s.date===yest?(s.count||1)+1:1;
     // Detect loss: had a streak >1 that just got reset
     if (cnt===1 && (s.count||0)>1) window._streakLost = s.count;
     localStorage.setItem('fb_streak',JSON.stringify({date:today,count:cnt}));
-    try { _driveStreakWrite({date:today,count:cnt}); } catch(_dse) {}
+    // Fire-and-forget write to server so other devices pick up the latest value
+    _writeAppStreakServer(today, cnt);
     return cnt;
   } catch(e){return 1;}
 }
+
+// ── App-open streak server sync ────────────────────────────────────────────
+// Uses /api/streak (Supabase via Next.js) with Google email as cross-device key.
+// _loadAppStreakServer() is awaited before getDailyStreak() runs so localStorage
+// is seeded with the best known value before the local increment happens.
+function _writeAppStreakServer(date, count) {
+  var email=(localStorage.getItem('fb_email')||'').toLowerCase().trim();
+  if (!email) return;
+  fetch('/api/streak',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({email:email,date:date,count:count})
+  }).catch(function(){});
+}
+
+async function _loadAppStreakServer() {
+  try {
+    var email=(localStorage.getItem('fb_email')||'').toLowerCase().trim();
+    if (!email) return;
+    var resp=await fetch('/api/streak?email='+encodeURIComponent(email));
+    if (!resp.ok) return;
+    var data=await resp.json();
+    if (!data||!data.count||data.count<1) return;
+
+    var today=_localDateStr();
+    var _yd=new Date(); _yd.setDate(_yd.getDate()-1); var yest=_localDateStr(_yd);
+    var local={};
+    try{local=JSON.parse(localStorage.getItem('fb_streak')||'{}');}catch(e){}
+
+    var serverDate=data.date||'';
+    var serverCount=data.count||0;
+    var localDate=local.date||'';
+    var localCount=local.count||0;
+
+    // Server wins when it holds a more up-to-date or higher streak value.
+    // If server date was yesterday, advance by 1 (today is a new open).
+    var useServer=false;
+    if (!localDate) {
+      useServer=true;
+    } else if (serverDate===today && serverCount>localCount) {
+      useServer=true;
+    }
+
+    if (useServer) {
+      // If server's last date was yesterday, count today as a new consecutive day
+      var seedCount=serverCount;
+      var seedDate=serverDate;
+      if (serverDate===yest) { seedCount=serverCount+1; seedDate=today; }
+      localStorage.setItem('fb_streak',JSON.stringify({date:seedDate,count:seedCount}));
+    }
+  } catch(e){}
+}
+// ── END App-open streak server sync ───────────────────────────────────────
 
 // ── Drive App Data streak sync ─────────────────────────────────────────────
 // Persists fb_streak in the user's Google Drive App Data folder (hidden,
@@ -12746,10 +12790,11 @@ async function loadRealGoogleData(silentRefresh) {
   renderRecentActivities(ghSessions);
   // Refresh AIRA insights with real (or empty) data — clears demo text from initial load
   if (typeof renderAiraInsights === 'function') renderAiraInsights();
-  // Initialize 90-day streak first — must run before getDailyStreak() so that
-  // fb_streak_steps is populated and getDailyStreak() can use it as a seed
-  // when running on a new device (gap detected → fallback to steps streak).
+  // Initialize 90-day steps streak from API (independent of app-open streak).
   await _initStreakFromGoogle().catch(function(){});
+  // Load app-open streak from server before computing it locally, so this
+  // device is seeded with the best value across all devices for this user.
+  await _loadAppStreakServer().catch(function(){});
   // Sync streak badge — renderDailyRings() ran before data arrived so badge
   // may show a stale value; update it now that we know the real streak.
   { const el=document.getElementById('dr-stk'); if(el) el.textContent=getDailyStreak(); }
