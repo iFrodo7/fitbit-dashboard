@@ -10398,9 +10398,7 @@ function updateZoneDots({ hrv=48, spo2=98, temp=36.4 } = {}) {
   const setV = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
   setV('hrv-base-val', '—');
   setV('hrv-sdnn-val', '—');
-  // SpO2: mínimo y promedio nocturno requieren historial intraday — no disponible aquí.
-  setV('spo2-low-val', '—');
-  setV('spo2-avg-val', '—');
+  // SpO2 sub-metrics (low/avg) are now set from Google Health API — don't reset them here.
   // Temp delta — only when #tempv has a real number, not "—"
   const tText = document.getElementById('tempv')?.textContent?.trim();
   const tNum  = parseFloat(tText);
