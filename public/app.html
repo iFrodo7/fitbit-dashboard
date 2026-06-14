@@ -4175,9 +4175,16 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           <!-- sub-métricas -->
           <div class="cal-split cs-fill">
             <div class="cal-box">
-              <div class="cal-box-lbl" id="lbl-hrv-base">BASE PERSONAL</div>
+              <div class="cal-box-lbl" id="lbl-hrv-base" style="display:flex;align-items:center;gap:3px;">
+                <span id="hrv-base-lbl">BASE 7D</span>
+                <span style="display:inline-flex;gap:2px;">
+                  <button id="hrv-r-7d" onclick="window._setHRVBaseRange(7)" style="font-size:7px;letter-spacing:1px;padding:1px 4px;border:1px solid var(--ta);border-radius:3px;background:var(--ta);color:var(--bg);cursor:pointer;font-family:inherit;">7D</button>
+                  <button id="hrv-r-30d" onclick="window._setHRVBaseRange(30)" style="font-size:7px;letter-spacing:1px;padding:1px 4px;border:1px solid var(--bdr);border-radius:3px;background:transparent;color:var(--ta);cursor:pointer;font-family:inherit;">30D</button>
+                  <button id="hrv-r-1a" onclick="window._setHRVBaseRange(365)" style="font-size:7px;letter-spacing:1px;padding:1px 4px;border:1px solid var(--bdr);border-radius:3px;background:transparent;color:var(--ta);cursor:pointer;font-family:inherit;">1A</button>
+                </span>
+              </div>
               <div class="cal-box-val" id="hrv-base-val">—</div>
-              <div class="cal-box-unit">MS PROM.</div>
+              <div class="cal-box-unit" id="hrv-base-unit">MS PROM.</div>
             </div>
             <div class="cal-box">
               <div class="cal-box-lbl" id="lbl-hrv-sdnn">PROM. DÍA</div>
@@ -12701,7 +12708,7 @@ async function loadRealGoogleData(silentRefresh) {
   // Pass null rhr when not real so loadHealthMetricsGoogle skips hardcoded fallbacks
   loadHealthMetricsGoogle(td, _rhrReal?rhr_v:null);
   // HRV baseline personal + SpO2 avg + tendencia RHR + AFib (async, no bloquean el render principal)
-  _calcHRVBaseline();
+  _calcHRVBaseline(parseInt(localStorage.getItem('hrv_base_range'))||7);
   _calcSpo2Avg(parseInt(localStorage.getItem('spo2_avg_range'))||7);
   _calcRHRTrend();
   _loadAFibData();
@@ -12928,22 +12935,36 @@ function _loadBioProfileInputs() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════
-// ── HRV BASELINE PERSONAL (últimos 30 días) ────────────────────────────────
-// Llena hrv-base-val (media RMSSD de 30 días).
+// ── HRV BASELINE PERSONAL (7D / 30D / 1A) ─────────────────────────────────
+// Llena hrv-base-val con media RMSSD del rango seleccionado.
 // ══════════════════════════════════════════════════════════════════════════
-async function _calcHRVBaseline() {
+async function _calcHRVBaseline(days) {
   if (HS.id !== 'google' || !token) return;
+  days = days || parseInt(localStorage.getItem('hrv_base_range')) || 7;
   try {
-    const data = await _ghGet(`${GoogleHealthSource.base}/users/me/dataTypes/daily-heart-rate-variability/dataPoints?pageSize=30`);
+    const data = await _ghGet(`${GoogleHealthSource.base}/users/me/dataTypes/daily-heart-rate-variability/dataPoints?pageSize=${days}`);
     const vals = (data?.dataPoints||[])
       .map(dp=>{ const hv=dp.dailyHeartRateVariability??dp; return parseFloat(hv?.averageHeartRateVariabilityMilliseconds??hv?.rmssd??hv?.dailyRmssd??hv?.squareOfSuccessiveDifferencesMilliseconds??hv?.value)||null; })
       .filter(v=>v!=null&&v>0);
-    if (vals.length < 3) return;
+    const lbl  = document.getElementById('hrv-base-lbl');
+    const val  = document.getElementById('hrv-base-val');
+    const unit = document.getElementById('hrv-base-unit');
+    const rangeLabel = days === 365 ? '1A' : days + 'D';
+    if (lbl) lbl.textContent = 'BASE ' + rangeLabel;
+    // Highlight active button
+    [['hrv-r-7d',7],['hrv-r-30d',30],['hrv-r-1a',365]].forEach(([id,d]) => {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      if (d === days) { btn.style.background='var(--ta)'; btn.style.color='var(--bg)'; btn.style.borderColor='var(--ta)'; }
+      else            { btn.style.background='transparent'; btn.style.color='var(--ta)'; btn.style.borderColor='var(--bdr)'; }
+    });
+    if (vals.length < 1) { if (val) val.textContent='—'; if (unit) unit.textContent='MS PROM.'; return; }
     const mean = vals.reduce((a,b)=>a+b,0)/vals.length;
     const sdnn = Math.sqrt(vals.reduce((a,b)=>a+(b-mean)**2,0)/vals.length);
-    const setEl=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-    setEl('hrv-base-val', Math.round(mean));
+    if (val)  val.textContent  = Math.round(mean);
+    if (unit) unit.textContent = 'MS · ' + vals.length + 'd';
     window._hrvBaseline = {mean:Math.round(mean), sdnn:Math.round(sdnn), n:vals.length};
+    localStorage.setItem('hrv_base_range', days);
     // Calcular tendencia HRV: hoy vs media baseline
     const _todayHrv = parseFloat(document.getElementById('hrvv')?.textContent);
     if (!isNaN(_todayHrv) && _todayHrv > 0) {
@@ -12960,6 +12981,7 @@ async function _calcHRVBaseline() {
     console.log('[gh hrv-baseline]', window._hrvBaseline);
   } catch(e) { console.warn('[gh hrv-baseline]',e); }
 }
+window._setHRVBaseRange = d => _calcHRVBaseline(d);
 
 // ══════════════════════════════════════════════════════════════════════════
 // ── SpO2 PROMEDIO ROLLING (7D / 30D / 1A) ─────────────────────────────────
