@@ -16579,9 +16579,9 @@ function renderPulseCard() {
   var pvFn = document.getElementById('pv-frame-name');
   if (pvFi) pvFi.textContent = _frameIcons[frame] || '◦';
   if (pvFn) pvFn.textContent = _frameNames[frame] || frame.toUpperCase();
-  // Read streak from the step-goal chip (most up-to-date source)
-  var strEl = document.getElementById('steps-streak-val');
-  var str   = strEl ? (parseInt(strEl.textContent, 10) || 0) : 0;
+  // Read app-open streak (synced via Supabase across devices)
+  var str = 0;
+  try { str = getDailyStreak() || 0; } catch(e) {}
   var pvSv  = document.getElementById('pv-streak-val');
   if (pvSv) pvSv.textContent = str > 0 ? str + (es ? ' d' : ' d') : '';
   // Animate the big hero number
