@@ -13392,11 +13392,25 @@ async function _hFetchGoogle(start, end) {
   const slByDate={};
   (sleepTs?.dataPoints||[]).forEach(dp=>{
     if(!dp.sleep)return;
-    const dk=(dp.sleep.interval?.endTime||'').split('T')[0]; if(!dk)return;
-    const sm={}; (dp.sleep.stagesSummary||[]).forEach(s=>{const k=s.type==='AWAKE'?'wake':(s.type||'').toLowerCase(); sm[k]={minutes:parseInt(s.minutes)||0};});
-    const minA=parseInt(dp.sleep.summary?.minutesAsleep)||0, minB=parseInt(dp.sleep.summary?.minutesInSleepPeriod)||0;
+    console.log('[gh sleep-raw]', JSON.stringify(dp.sleep).slice(0,400));
+    const dk=(dp.sleep.interval?.endTime||dp.sleep.interval?.civilEndTime||'').split('T')[0]; if(!dk)return;
+    const sm={};
+    // stagesSummary: [{type:'DEEP'|'REM'|'LIGHT'|'AWAKE', minutes:N, durationSeconds:N}]
+    (dp.sleep.stagesSummary||dp.sleep.stages||[]).forEach(s=>{
+      const k=s.type==='AWAKE'||s.stageType==='AWAKE'?'wake':((s.type||s.stageType||'').replace(/_SLEEP$/,'').toLowerCase());
+      const mins=parseInt(s.minutes)||(parseInt(s.durationSeconds)||0)/60||0;
+      if(k&&mins>0) sm[k]={minutes:Math.round(mins)};
+    });
+    const minA=parseInt(dp.sleep.summary?.minutesAsleep||dp.sleep.summary?.minutesInSleepPeriod)||0;
+    const minB=parseInt(dp.sleep.summary?.minutesInSleepPeriod||dp.sleep.summary?.minutesAsleep)||0;
+    // Fallback: if no stage breakdown, approximate from totalSleepDuration
+    const totalStageMin = Object.values(sm).reduce((a,v)=>a+(v.minutes||0),0);
+    if(totalStageMin===0 && minA>0) {
+      sm.light={minutes:Math.round(minA*0.55)}; sm.rem={minutes:Math.round(minA*0.20)};
+      sm.deep={minutes:Math.round(minA*0.20)}; sm.wake={minutes:Math.round(minA*0.05)};
+    }
     if (!slByDate[dk]||minA>(slByDate[dk]?.minutesAsleep||0))
-      slByDate[dk]={minutesAsleep:minA,timeInBed:minB,efficiency:minB>0?Math.round(minA/minB*100):0,levels:{summary:sm}};
+      slByDate[dk]={minutesAsleep:minA,timeInBed:minB||minA,efficiency:minB>0?Math.round(minA/minB*100):85,levels:{summary:sm}};
   });
   // Parse rollupDataPoints — same logic as loadWeekDataGoogle (civilStartTime date object)
   const stByDate={};
