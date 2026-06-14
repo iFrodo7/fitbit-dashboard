@@ -4289,9 +4289,16 @@ body.t-synth::after{content:'';position:fixed;inset:0;
               <div class="cal-box-unit">% SpO2</div>
             </div>
             <div class="cal-box">
-              <div class="cal-box-lbl" id="lbl-spo2-avg">PROMEDIO</div>
+              <div class="cal-box-lbl" id="lbl-spo2-avg" style="display:flex;align-items:center;gap:3px;">
+                <span id="spo2-avg-lbl">PROM. 7D</span>
+                <span style="display:inline-flex;gap:2px;">
+                  <button id="spo2-r-7d" onclick="window._setSpo2AvgRange(7)" style="font-size:7px;letter-spacing:1px;padding:1px 4px;border:1px solid var(--ta);border-radius:3px;background:var(--ta);color:var(--bg);cursor:pointer;font-family:inherit;">7D</button>
+                  <button id="spo2-r-30d" onclick="window._setSpo2AvgRange(30)" style="font-size:7px;letter-spacing:1px;padding:1px 4px;border:1px solid var(--bdr);border-radius:3px;background:transparent;color:var(--ta);cursor:pointer;font-family:inherit;">30D</button>
+                  <button id="spo2-r-1a" onclick="window._setSpo2AvgRange(365)" style="font-size:7px;letter-spacing:1px;padding:1px 4px;border:1px solid var(--bdr);border-radius:3px;background:transparent;color:var(--ta);cursor:pointer;font-family:inherit;">1A</button>
+                </span>
+              </div>
               <div class="cal-box-val" id="spo2-avg-val">—</div>
-              <div class="cal-box-unit">% NOCTURNO</div>
+              <div class="cal-box-unit" id="spo2-avg-unit">% AVG</div>
             </div>
           </div>
         </div>
@@ -12687,8 +12694,9 @@ async function loadRealGoogleData(silentRefresh) {
   syncTicker();
   // Pass null rhr when not real so loadHealthMetricsGoogle skips hardcoded fallbacks
   loadHealthMetricsGoogle(td, _rhrReal?rhr_v:null);
-  // HRV baseline personal + tendencia RHR + AFib (async, no bloquean el render principal)
+  // HRV baseline personal + SpO2 avg + tendencia RHR + AFib (async, no bloquean el render principal)
   _calcHRVBaseline();
+  _calcSpo2Avg(parseInt(localStorage.getItem('spo2_avg_range'))||7);
   _calcRHRTrend();
   _loadAFibData();
   // Always call renderRecentActivities — even empty array shows "Sin entrenamientos"
@@ -12928,6 +12936,39 @@ async function _calcHRVBaseline() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════
+// ── SpO2 PROMEDIO ROLLING (7D / 30D / 1A) ─────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════
+async function _calcSpo2Avg(days) {
+  if (HS.id !== 'google' || !token) return;
+  try {
+    const data = await _ghGet(`${GoogleHealthSource.base}/users/me/dataTypes/daily-oxygen-saturation/dataPoints?pageSize=${days}`);
+    const vals = (data?.dataPoints||[]).map(dp => {
+      const sp = dp.dailyOxygenSaturation ?? dp.oxygenSaturation ?? dp;
+      return parseFloat(sp?.averagePercentage ?? sp?.avg ?? sp?.value) || null;
+    }).filter(v => v != null && v > 0);
+    const lbl  = document.getElementById('spo2-avg-lbl');
+    const val  = document.getElementById('spo2-avg-val');
+    const unit = document.getElementById('spo2-avg-unit');
+    const rangeLabel = days === 365 ? '1A' : days + 'D';
+    if (lbl) lbl.textContent = 'PROM. ' + rangeLabel;
+    // Highlight active button
+    [['spo2-r-7d',7],['spo2-r-30d',30],['spo2-r-1a',365]].forEach(([id,d]) => {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      if (d === days) { btn.style.background='var(--ta)'; btn.style.color='var(--bg)'; btn.style.borderColor='var(--ta)'; }
+      else            { btn.style.background='transparent'; btn.style.color='var(--ta)'; btn.style.borderColor='var(--bdr)'; }
+    });
+    if (vals.length === 0) { if (val) val.textContent='—'; if (unit) unit.textContent='% AVG'; return; }
+    const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
+    if (val)  val.textContent  = avg.toFixed(1);
+    if (unit) unit.textContent = '% · ' + vals.length + 'd';
+    localStorage.setItem('spo2_avg_range', days);
+    console.log('[spo2 avg]', { days, n: vals.length, avg: avg.toFixed(1) });
+  } catch(e) { console.warn('[spo2 avg]', e); }
+}
+window._setSpo2AvgRange = d => _calcSpo2Avg(d);
+
+// ══════════════════════════════════════════════════════════════════════════
 // ── RHR TREND (últimos 7 días) ─────────────────────────────────────────────
 // Muestra ↑↓→ en hr-rest-trd: mejora (↓ = baja FC = mejor fitness),
 // empeora (↑), o estable (→).
@@ -13097,9 +13138,7 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
     set('resp-val', bv?.rate??bv?.breathingRate??bv?.breathsPerMinute??bv?.value);
     // SpO2 sub-metrics now available from Google Health API
     const _spLow=sp?.lowerBoundPercentage??sp?.minPercent??sp?.min;
-    const _spAvg=sp?.averagePercentage??sp?.avg??sp?.avgPercent;
     { const e=document.getElementById('spo2-low-val'); if(e&&_spLow!=null) e.textContent=Math.round(_spLow); }
-    { const e=document.getElementById('spo2-avg-val'); if(e&&_spAvg!=null) e.textContent=Math.round(_spAvg); }
     const spv=sp?.averagePercentage??sp?.avg??sp?.avgPercent??sp?.value;
     const hvv=hv?.averageHeartRateVariabilityMilliseconds??hv?.rmssd??hv?.dailyRmssd??hv?.squareOfSuccessiveDifferencesMilliseconds??hv?.value;
     const bvv=bv?.rate??bv?.breathingRate??bv?.value;
@@ -13152,9 +13191,8 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
     updateZoneDots({ hrv:hrvNum??48, spo2:spo2Num??98, temp:tempNum??36.4 });
     // Fix: updateZoneDots uses default hrv=48 when no real data → label says "RMSSD — BUENO" incorrectly
     if (hrvNum == null) { const _u=document.getElementById('u-hrv'); if(_u) _u.textContent='—'; }
-    // Fix: populate SpO2 / HRV sub-values that updateZoneDots always resets to "—"
+    // Fix: populate HRV sub-values that updateZoneDots always resets to "—"
     const _sv=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null)e.textContent=v;};
-    if (spv != null) { _sv('spo2-avg-val', Math.round(+spv)); }
     if (sp?.min != null) { _sv('spo2-low-val', Math.round(+sp.min)); }
     // hrv-sdnn-val = promedio RMSSD diario (comparación vs deep sleep en el primario)
     if (hvv != null) { _sv('hrv-sdnn-val', Math.round(+hvv)); }
