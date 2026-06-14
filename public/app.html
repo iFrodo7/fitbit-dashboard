@@ -13095,10 +13095,15 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
            ??br?.dataPoints?.[0]?.respiratoryRate
            ??br?.dataPoints?.[0];
     console.log('[gh metrics raw]', {spo2:JSON.stringify(spo2?.dataPoints?.[0]),hrv:JSON.stringify(hrv?.dataPoints?.[0]),br:JSON.stringify(br?.dataPoints?.[0])});
-    set('spo2v',    sp?.avg??sp?.avgPercent??sp?.percentage??sp?.value);
+    set('spo2v',    sp?.averagePercentage??sp?.avg??sp?.avgPercent??sp?.percentage??sp?.value);
     set('hrvv',     hv?.averageHeartRateVariabilityMilliseconds??hv?.rmssd??hv?.dailyRmssd??hv?.rmssdMs??hv?.squareOfSuccessiveDifferencesMilliseconds??hv?.value);
     set('resp-val', bv?.rate??bv?.breathingRate??bv?.breathsPerMinute??bv?.value);
-    const spv=sp?.avg??sp?.avgPercent??sp?.value;
+    // SpO2 sub-metrics now available from Google Health API
+    const _spLow=sp?.lowerBoundPercentage??sp?.minPercent??sp?.min;
+    const _spAvg=sp?.averagePercentage??sp?.avg??sp?.avgPercent;
+    { const e=document.getElementById('spo2-low-val'); if(e&&_spLow!=null) e.textContent=Math.round(_spLow); }
+    { const e=document.getElementById('spo2-avg-val'); if(e&&_spAvg!=null) e.textContent=Math.round(_spAvg); }
+    const spv=sp?.averagePercentage??sp?.avg??sp?.avgPercent??sp?.value;
     const hvv=hv?.averageHeartRateVariabilityMilliseconds??hv?.rmssd??hv?.dailyRmssd??hv?.squareOfSuccessiveDifferencesMilliseconds??hv?.value;
     const bvv=bv?.rate??bv?.breathingRate??bv?.value;
     const hrvNum  = hvv!=null ? Math.round(+hvv)  : null;
