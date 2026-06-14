@@ -11851,8 +11851,7 @@ const GoogleHealthSource = {
       'https://www.googleapis.com/auth/googlehealth.sleep.readonly',
       'https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly',
       'https://www.googleapis.com/auth/googlehealth.profile.readonly',
-      // drive.appdata removed: requires Drive API enabled + registered in OAuth
-      // consent screen. Re-add once Drive API is enabled in Google Cloud Console.
+      'https://www.googleapis.com/auth/googlehealth.irregular_rhythm_notification.readonly',
     ].join(' '),
   },
   base: 'https://health.googleapis.com/v4',
@@ -13056,9 +13055,8 @@ async function _loadAFibData() {
   try {
     const data = await _ghGet(
       `${GoogleHealthSource.base}/users/me/dataTypes/irregular-rhythm-notification/dataPoints?pageSize=50`,
-      false /* log errors so we can diagnose */
+      true /* quiet: 403 = scope not yet granted */
     );
-    console.log('[gh afib-raw]', data);
     const points = data?.dataPoints || [];
     if (!points.length) { _setAFibUI({ status:'no-data' }); return; }
 
