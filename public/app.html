@@ -12763,8 +12763,8 @@ function saveBioProfile() {
 }
 function saveBioAndRefresh() {
   saveBioProfile();
-  // Re-fetch HR intraday para recalcular zonas con el nuevo hrMax
-  if (typeof pollFastGoogle === 'function' && token) pollFastGoogle();
+  // Recargar datos completos para que zonas HR se recalculen con el nuevo hrMax
+  if (typeof loadRealGoogleData === 'function' && token) loadRealGoogleData(true);
   // Feedback visual en el botón
   const btn = document.getElementById('bio-save-btn');
   if (btn) {
