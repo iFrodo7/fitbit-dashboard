@@ -10791,7 +10791,12 @@ function getDailyStreak() {
   try {
     var today=_localDateStr(); // local date — UTC would break streak for UTC+ users after midnight
     var s=JSON.parse(localStorage.getItem('fb_streak')||'{}');
-    if (s.date===today) return s.count||1;
+    if (s.date===today) {
+      // Sync to server on first call per page so other devices see the latest value
+      // even when the date hasn't changed (early-return path skips the write below).
+      if (!window._streakSyncedToday) { window._streakSyncedToday=true; _writeAppStreakServer(today, s.count||1); }
+      return s.count||1;
+    }
     // Only advance the streak when the user is authenticated.
     // Unauthenticated demo visits don't count as active days.
     if (!token) return s.count||0;
