@@ -10844,16 +10844,20 @@ async function _loadAppStreakServer() {
     var useServer=false;
     if (!localDate) {
       useServer=true;
+    } else if (serverDate > localDate) {
+      useServer=true;
     } else if (serverDate===today && serverCount>localCount) {
       useServer=true;
     }
 
     if (useServer) {
-      // If server's last date was yesterday, count today as a new consecutive day
       var seedCount=serverCount;
       var seedDate=serverDate;
-      if (serverDate===yest) { seedCount=serverCount+1; seedDate=today; }
+      if (serverDate===yest) { seedDate=today; }
       localStorage.setItem('fb_streak',JSON.stringify({date:seedDate,count:seedCount}));
+      // If we seeded today's date, getDailyStreak() will return early without
+      // writing to the server — update it here so tomorrow's devices see today.
+      if (seedDate===today) _writeAppStreakServer(today, seedCount);
     }
   } catch(e){}
 }
