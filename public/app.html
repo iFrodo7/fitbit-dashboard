@@ -13056,8 +13056,9 @@ async function _loadAFibData() {
   try {
     const data = await _ghGet(
       `${GoogleHealthSource.base}/users/me/dataTypes/irregular-rhythm-notification/dataPoints?pageSize=50`,
-      true /* quiet: 403 = scope not yet granted, handled below */
+      false /* log errors so we can diagnose */
     );
+    console.log('[gh afib-raw]', data);
     const points = data?.dataPoints || [];
     if (!points.length) { _setAFibUI({ status:'no-data' }); return; }
 
