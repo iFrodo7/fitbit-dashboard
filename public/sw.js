@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'fitbit-air-v95';
+const CACHE_VERSION = 'fitbit-air-v96';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 

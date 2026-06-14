@@ -12650,7 +12650,10 @@ async function loadRealGoogleData(silentRefresh) {
   // calcular zonas desde HR intraday como proxy.
   const azTotal=azZones.reduce((s,z)=>s+z.minutes,0);
   if ((!azZones.length || azTotal===0) && hrD?.dataPoints?.length) {
-    const _bpm=hrD.dataPoints.map(p=>parseInt(p.heartRate?.beatsPerMinute)||0).filter(v=>v>40);
+    // API devuelve 1440 puntos para el día completo; recortar a minutos transcurridos
+    const _elapsedMin = new Date().getHours()*60 + new Date().getMinutes() + 1;
+    const _dps = hrD.dataPoints.length > _elapsedMin ? hrD.dataPoints.slice(0, _elapsedMin) : hrD.dataPoints;
+    const _bpm=_dps.map(p=>parseInt(p.heartRate?.beatsPerMinute)||0).filter(v=>v>40);
     const _hm=window._bioProfile?.hrMax || Math.max(Math.round(maxHR_v*1.15), 180);
     // Fat burn floor: the higher of 50% maxHR or restHR+15bpm, so resting/sleep
     // time doesn't inflate the fat-burn zone count (bug: previously showed 800m+).
