@@ -12301,15 +12301,17 @@ function _ghSleepToFitbit(dp) {
 // daily-increment logic can maintain it from there on.
 async function _initStreakFromGoogle() {
   if (!token) return;
+  var td      = _localDateStr();
   var email   = (localStorage.getItem('fb_email') || '').toLowerCase();
-  var flagKey = 'fb_streak_init_v1' + (email ? '_' + email : '');
-  if (localStorage.getItem(flagKey)) return; // already initialized for this account
+  // Re-runs once per day per account — date in key ensures fresh API truth every day,
+  // which keeps all devices in sync (same API data → same streak on any device).
+  var flagKey = 'fb_streak_init_v2_' + td + (email ? '_' + email : '');
+  if (localStorage.getItem(flagKey)) return;
 
   try {
-    var td     = _localDateStr();
-    var startDt = new Date(); startDt.setDate(startDt.getDate() - 89); // 89 days back + today + tomorrow = 91 → API max is 90 days span
-    var d90    = _localDateStr(startDt);
-    var nd     = _ghNextDay(td);
+    var startDt = new Date(); startDt.setDate(startDt.getDate() - 89);
+    var d90 = _localDateStr(startDt);
+    var nd  = _ghNextDay(td);
 
     var body = { range: { start: _parseCivilDate(d90), end: _parseCivilDate(nd) }, windowSizeDays: 1 };
     var resp = await _ghPost(
@@ -12317,7 +12319,7 @@ async function _initStreakFromGoogle() {
     );
     if (!resp || !resp.rollupDataPoints) return;
 
-    // Build date → steps map using same rangeToDateStr logic as loadWeekDataGoogle
+    // Build date → steps map
     var stMap = {};
     resp.rollupDataPoints.forEach(function(rp) {
       var cs = rp.civilStartTime;
@@ -12339,35 +12341,38 @@ async function _initStreakFromGoogle() {
       var ds = _localDateStr(dt);
       if (stMap[ds] !== undefined && stMap[ds] >= goal) {
         streak++;
-        if (!lastDate) lastDate = ds; // most recent completed day in streak
+        if (!lastDate) lastDate = ds;
       } else { break; }
     }
-    // Add today if the goal is already met
+    // Include today if goal already met
     if ((stMap[td] || 0) >= goal) { streak++; lastDate = td; }
 
-    // Cap detection: if all 90 days were ✓ the real streak may be longer
     var capped = (streak >= 90);
 
-    // Only persist if this init found a longer streak than what's already stored
-    var existing = {};
-    try { existing = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}'); } catch(e2) {}
-    if (streak > (parseInt(existing.count) || 0)) {
-      localStorage.setItem('fb_streak_steps', JSON.stringify({ count: streak, lastDate: lastDate || td, capped: capped }));
-      window._wkTodayStreakReal = Math.max(window._wkTodayStreakReal || 0, streak);
-      var _sEl  = document.getElementById('steps-streak-val');
-      var _sUnit = document.getElementById('steps-streak-unit');
-      if (_sEl)  _sEl.textContent  = capped ? '90+' : (streak > 0 ? streak : '—');
-      if (_sUnit && capped) {
-        var _capNote = lang === 'es' ? 'DÍAS META · AIRA verifica hasta 90 días' : 'GOAL DAYS · AIRA verifies up to 90 days';
-        _sUnit.textContent = _capNote;
-        _sUnit.title = lang === 'es'
-          ? 'AIRA analiza hasta 90 días de historial. Tu racha real puede ser mayor.'
-          : 'AIRA checks up to 90 days of history. Your real streak may be longer.';
-      }
+    // API is always the source of truth — overwrite whatever localStorage had.
+    // This is what keeps every device consistent: same API data → same streak.
+    localStorage.setItem('fb_streak_steps', JSON.stringify({ count: streak, lastDate: lastDate || td, capped: capped }));
+    window._wkTodayStreakReal = streak;
+
+    var _sEl   = document.getElementById('steps-streak-val');
+    var _sUnit = document.getElementById('steps-streak-unit');
+    if (_sEl) _sEl.textContent = capped ? '90+' : (streak > 0 ? streak : '—');
+    if (_sUnit && capped) {
+      _sUnit.textContent = lang === 'es' ? 'DÍAS META · AIRA verifica hasta 90 días' : 'GOAL DAYS · AIRA verifies up to 90 days';
+      _sUnit.title = lang === 'es'
+        ? 'AIRA analiza hasta 90 días de historial. Tu racha real puede ser mayor.'
+        : 'AIRA checks up to 90 days of history. Your real streak may be longer.';
     }
 
+    // Update the main streak hero badge with the API-verified count
+    if (typeof _animateStreakHero === 'function') _animateStreakHero(streak);
+
     localStorage.setItem(flagKey, '1');
-    console.log('[gh streak init] streak=', streak, capped ? '(90-day cap reached)' : '', 'lastDate=', lastDate);
+    // Clean up old one-time flags so they don't accumulate
+    var _oldFlag = 'fb_streak_init_v1' + (email ? '_' + email : '');
+    localStorage.removeItem(_oldFlag);
+
+    console.log('[gh streak init] streak=', streak, capped ? '(90-day cap)' : '', 'lastDate=', lastDate);
   } catch(e) { console.warn('[gh streak init]', e); }
 }
 
