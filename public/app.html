@@ -1356,6 +1356,25 @@ html.owait-lock body{overflow:hidden!important;overscroll-behavior:none!importan
 .owait-sig-dot{width:6px;height:6px;border-radius:50%;background:var(--tneg);flex-shrink:0;animation:blink 1.1s infinite;}
 .lov{display:none;position:fixed;inset:0;background:var(--bg,#020810);z-index:900;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:30px 20px;}
 .lov.on{display:flex;}
+/* ── Streak celebration overlay ─────────────────────────────────────────── */
+#stk-cel{position:fixed;inset:0;z-index:99999;background:rgba(2,4,12,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,24px) env(safe-area-inset-left,0);opacity:0;pointer-events:none;transition:opacity .25s var(--ease-out);}
+#stk-cel.on{opacity:1;pointer-events:all;}
+#stk-cel canvas{position:absolute;inset:0;pointer-events:none;}
+.stk-cel-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:0;}
+.stk-cel-eye{font-size:11px;letter-spacing:.2em;color:var(--sub,#555);font-family:monospace;margin-bottom:28px;}
+.stk-cel-fire{font-size:88px;display:block;animation:stkFireIn .55s var(--ease-spring) forwards;transform:scale(0);}
+@keyframes stkFireIn{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0)}}
+.stk-cel-num{font-size:min(28vw,140px);font-weight:900;color:var(--ta,#f97316);line-height:1;font-family:monospace;letter-spacing:-.04em;opacity:0;animation:stkNumIn .45s var(--ease-spring) .25s forwards;}
+@keyframes stkNumIn{from{transform:scale(.3) translateY(16px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.stk-cel-unit{font-size:13px;letter-spacing:.28em;color:var(--sub,#555);font-family:monospace;margin-top:6px;opacity:0;animation:stkFadeUp .4s var(--ease-out) .45s forwards;}
+.stk-cel-title{font-size:clamp(20px,5vw,32px);font-weight:700;color:var(--txt,#fff);font-family:monospace;margin-top:22px;opacity:0;animation:stkFadeUp .4s var(--ease-out) .55s forwards;text-align:center;padding:0 20px;}
+.stk-cel-sub{font-size:13px;color:var(--sub,#555);font-family:monospace;margin-top:10px;opacity:0;animation:stkFadeUp .4s var(--ease-out) .65s forwards;text-align:center;padding:0 24px;line-height:1.6;}
+.stk-cel-dots{display:flex;gap:7px;margin-top:28px;opacity:0;animation:stkFadeUp .4s var(--ease-out) .72s forwards;flex-wrap:wrap;justify-content:center;max-width:240px;}
+.stk-cel-dot{width:9px;height:9px;border-radius:50%;background:var(--bdr,#1a1a2a);}
+.stk-cel-dot.done{background:var(--ta,#f97316);}
+.stk-cel-btn{margin-top:44px;background:var(--ta,#f97316);color:var(--bg,#000);border:none;padding:16px 56px;border-radius:var(--r-lg,16px);font-size:13px;font-family:monospace;letter-spacing:.14em;cursor:pointer;font-weight:700;opacity:0;animation:stkFadeUp .35s var(--ease-out) .9s forwards;-webkit-tap-highlight-color:transparent;}
+.stk-cel-btn:active{transform:scale(.96);}
+@keyframes stkFadeUp{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
 /* Early-boot: loader visible before JS runs, on top of everything.
    #lov is placed OUTSIDE #dash so this rule works without a display:none parent.
    #sel hides immediately for returning users (theme already chosen). */
@@ -10807,6 +10826,10 @@ function getDailyStreak() {
     localStorage.setItem('fb_streak',JSON.stringify({date:today,count:cnt}));
     // Fire-and-forget write to server so other devices pick up the latest value
     _writeAppStreakServer(today, cnt);
+    // Celebrate when streak genuinely increases (new day, not just a page reload)
+    if (cnt > 1 && cnt > (s.count||0)) {
+      setTimeout(function(){ if(typeof window._showStreakCelebration==='function') window._showStreakCelebration(cnt); }, 1800);
+    }
     return cnt;
   } catch(e){return 1;}
 }
@@ -10867,6 +10890,119 @@ async function _loadAppStreakServer() {
   } catch(e){}
 }
 // ── END App-open streak server sync ───────────────────────────────────────
+
+// ── Streak celebration full-screen overlay ─────────────────────────────────
+(function(){
+  var _cel=null;
+  function _ensureCel(){
+    if(_cel) return _cel;
+    _cel=document.createElement('div');
+    _cel.id='stk-cel';
+    _cel.innerHTML='<canvas id="stk-cel-cv"></canvas>'
+      +'<div class="stk-cel-inner">'
+      +'<div class="stk-cel-eye">// PROGRESO DIARIO</div>'
+      +'<span class="stk-cel-fire">🔥</span>'
+      +'<div class="stk-cel-num" id="stk-cel-num">0</div>'
+      +'<div class="stk-cel-unit" id="stk-cel-unit">DÍAS SEGUIDOS</div>'
+      +'<div class="stk-cel-title" id="stk-cel-title"></div>'
+      +'<div class="stk-cel-sub" id="stk-cel-sub"></div>'
+      +'<div class="stk-cel-dots" id="stk-cel-dots"></div>'
+      +'<button class="stk-cel-btn" onclick="window._dismissStreakCel()">CONTINUAR →</button>'
+      +'</div>';
+    document.body.appendChild(_cel);
+    return _cel;
+  }
+
+  var _celTimer=null, _confTimer=null, _confRaf=null;
+
+  window._showStreakCelebration=function(n){
+    var today=typeof _localDateStr==='function'?_localDateStr():(new Date()).toISOString().split('T')[0];
+    var key='fb_stk_cel_'+today+'_'+n;
+    if(localStorage.getItem(key)) return;
+    localStorage.setItem(key,'1');
+
+    var el=_ensureCel();
+    // Reset animations by cloning inner
+    var inner=el.querySelector('.stk-cel-inner');
+    var clone=inner.cloneNode(true);
+    el.replaceChild(clone,inner);
+
+    el.querySelector('#stk-cel-num').textContent=n;
+
+    var titles_es=['¡SIGUE ASÍ!','¡EN RACHA!','¡IMPARABLE!','¡LEYENDA!'];
+    var titles_en=['KEEP GOING!','ON A ROLL!','UNSTOPPABLE!','LEGENDARY!'];
+    var subs_es=['Un día más en AIRA.','Llevas '+n+' días seguidos.','¡'+n+' días sin rendirte!','Racha épica de '+n+' días.'];
+    var subs_en=['One more day in AIRA.',''+n+' days in a row.',''+n+' days without quitting!','Epic '+n+'-day streak.'];
+    var ti=(n>=30?3:n>=15?2:n>=7?1:0);
+    var isEs=(typeof lang!=='undefined'&&lang==='es')||document.documentElement.lang!=='en';
+    el.querySelector('#stk-cel-title').textContent=(isEs?titles_es:titles_en)[ti];
+    el.querySelector('#stk-cel-sub').textContent=(isEs?subs_es:subs_en)[ti];
+    el.querySelector('#stk-cel-unit').textContent=isEs?'DÍAS SEGUIDOS':'DAYS IN A ROW';
+
+    var dots=el.querySelector('#stk-cel-dots');
+    dots.innerHTML='';
+    var show=Math.min(n,10);
+    for(var i=0;i<show;i++){var d=document.createElement('div');d.className='stk-cel-dot done';dots.appendChild(d);}
+
+    el.classList.add('on');
+    _launchConfetti(el.querySelector('#stk-cel-cv'));
+    if(_celTimer) clearTimeout(_celTimer);
+    _celTimer=setTimeout(function(){window._dismissStreakCel();},9000);
+  };
+
+  window._dismissStreakCel=function(){
+    var el=document.getElementById('stk-cel');
+    if(!el) return;
+    el.classList.remove('on');
+    if(_celTimer) clearTimeout(_celTimer);
+    if(_confTimer) clearTimeout(_confTimer);
+    if(_confRaf) cancelAnimationFrame(_confRaf);
+  };
+
+  function _launchConfetti(cv){
+    if(!cv) return;
+    cv.width=window.innerWidth; cv.height=window.innerHeight;
+    var ctx=cv.getContext('2d');
+    var ta=getComputedStyle(document.documentElement).getPropertyValue('--ta').trim()||'#f97316';
+    var ta2=getComputedStyle(document.documentElement).getPropertyValue('--ta2').trim()||'#a78bfa';
+    var colors=[ta,ta2,'#fff','#fbbf24',ta,ta2];
+    var parts=[];
+    for(var i=0;i<140;i++){
+      parts.push({
+        x:window.innerWidth/2+(Math.random()-.5)*80,
+        y:window.innerHeight*.38,
+        vx:(Math.random()-.5)*16,
+        vy:-(Math.random()*20+8),
+        rot:Math.random()*360,rv:(Math.random()-.5)*14,
+        w:Math.random()*9+4,h:Math.random()*5+3,
+        color:colors[i%colors.length],
+        shape:Math.random()<.4?'circle':'rect'
+      });
+    }
+    if(_confRaf) cancelAnimationFrame(_confRaf);
+    function draw(){
+      ctx.clearRect(0,0,cv.width,cv.height);
+      var alive=false;
+      parts.forEach(function(p){
+        p.vy+=.5; p.vx*=.98; p.x+=p.vx; p.y+=p.vy; p.rot+=p.rv;
+        if(p.y>cv.height+20) return;
+        alive=true;
+        var alpha=Math.max(0,1-(p.y/(cv.height*.9)));
+        ctx.save();ctx.globalAlpha=alpha;
+        ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+        ctx.fillStyle=p.color;
+        if(p.shape==='circle'){ctx.beginPath();ctx.arc(0,0,p.w/2,0,Math.PI*2);ctx.fill();}
+        else{ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);}
+        ctx.restore();
+      });
+      if(alive) _confRaf=requestAnimationFrame(draw);
+    }
+    draw();
+    if(_confTimer) clearTimeout(_confTimer);
+    _confTimer=setTimeout(function(){if(_confRaf) cancelAnimationFrame(_confRaf);},4000);
+  }
+})();
+// ── END Streak celebration ─────────────────────────────────────────────────
 
 // ── Drive App Data streak sync ─────────────────────────────────────────────
 // Persists fb_streak in the user's Google Drive App Data folder (hidden,
