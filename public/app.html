@@ -12918,22 +12918,7 @@ async function loadRealGoogleData(silentRefresh) {
   _loadAFibData();
   // Always call renderRecentActivities — even empty array shows "Sin entrenamientos"
   // instead of leaving the HTML demo activities (Carrera/Meditación/Ciclismo) on screen
-  const ghSessions = (exD?.dataPoints||[]).map(p => {
-    const ex = p.exerciseSession || p;
-    const start = ex.startTime || (p.interval?.civilStartTime) || '';
-    const end = ex.endTime || (p.interval?.civilEndTime) || '';
-    return {
-      activityTypeId: null,
-      activityName: ex.exerciseType || ex.activityType || '',
-      startTime: start,
-      duration: start && end ? new Date(end)-new Date(start) : (ex.durationMs||0),
-      calories: Math.round(ex.calories?.kilocalories||ex.calories?.value||0),
-      distance: ex.distance?.meters ? ex.distance.meters/1000 : (ex.distance?.kilometers||null),
-      averageHeartRate: ex.averageHeartRate?.beatsPerMinute||null,
-      steps: ex.steps?.countSum||null,
-      heartRateZones: ex.heartRateZones||null,
-    };
-  });
+  const ghSessions = _parseGhExerciseSessions(exD?.dataPoints||[]);
   renderRecentActivities(ghSessions);
   // Refresh AIRA insights with real (or empty) data — clears demo text from initial load
   if (typeof renderAiraInsights === 'function') renderAiraInsights();
@@ -14862,6 +14847,43 @@ function renderWorkoutHistory(sessions) {
   }).join('');
 }
 
+// Shared parser for Google Health exercise dataPoints — used by home screen and history tab
+function _parseGhExerciseSessions(dataPoints) {
+  const NAMES = {es:{WALKING:'Caminata',RUNNING:'Carrera',CYCLING:'Ciclismo',SWIMMING:'Natación',HIKING:'Senderismo',YOGA:'Yoga',STRENGTH_TRAINING:'Pesas',WORKOUT:'Entrenamiento',ELLIPTICAL:'Elíptica',ROWING:'Remo',DANCE:'Baile',PILATES:'Pilates',MARTIAL_ARTS:'Artes Marciales',TENNIS:'Tenis',SOCCER:'Fútbol',BASKETBALL:'Basquetbol'},en:{WALKING:'Walk',RUNNING:'Run',CYCLING:'Cycling',SWIMMING:'Swimming',HIKING:'Hiking',YOGA:'Yoga',STRENGTH_TRAINING:'Strength',WORKOUT:'Workout',ELLIPTICAL:'Elliptical',ROWING:'Rowing',DANCE:'Dance',PILATES:'Pilates',MARTIAL_ARTS:'Martial Arts',TENNIS:'Tennis',SOCCER:'Soccer',BASKETBALL:'Basketball'}};
+  const names = NAMES[typeof lang!=='undefined'?lang:'es'] || NAMES.es;
+  return dataPoints.map(p => {
+    const ex = p.exercise || p.exerciseSession || p;
+    const iv = ex.interval || {};
+    const startT = iv.startTime || ex.startTime || '';
+    const endT   = iv.endTime   || ex.endTime   || '';
+    const dur = startT && endT ? Math.max(0, new Date(endT) - new Date(startT)) : 0;
+    // Aggregate splits
+    const splits = ex.splits || [];
+    const ms = ex.metricsSummary || {};
+    const splitDistMm = splits.reduce((s,sp)=>s+(sp.metricsSummary?.distanceMillimeters||0),0);
+    const splitCal    = splits.reduce((s,sp)=>s+(
+      sp.metricsSummary?.calories?.kilocalories ||
+      sp.metricsSummary?.caloriesKilocalories   ||
+      sp.metricsSummary?.activeCaloriesKilocalories ||
+      sp.metricsSummary?.totalCaloriesKilocalories  ||
+      sp.metricsSummary?.energyKilocalories || 0), 0);
+    const splitSteps  = splits.reduce((s,sp)=>s+(sp.metricsSummary?.stepsSum||sp.metricsSummary?.steps||0),0);
+    const splitHRVals = splits.map(sp=>sp.metricsSummary?.averageHeartRateBpm||0).filter(v=>v>0);
+    // Top-level metrics take priority over split aggregates
+    const distKm = ((ms.distanceMillimeters||splitDistMm)/1e6)||null;
+    const cal = Math.round(
+      ms.calories?.kilocalories || ms.caloriesKilocalories ||
+      ms.activeCaloriesKilocalories || ms.totalCaloriesKilocalories ||
+      ms.energyKilocalories || splitCal || 0);
+    const steps = ms.stepsSum||ms.steps||splitSteps||null;
+    const hr    = ms.averageHeartRateBpm||(splitHRVals.length?Math.round(splitHRVals.reduce((a,b)=>a+b,0)/splitHRVals.length):null);
+    const typeKey = (ex.exerciseType||'').toUpperCase();
+    const activityName = ex.title||ex.label||names[typeKey]||ex.exerciseType||'Workout';
+    if(!cal) console.log('[gh wkt-cal dbg]', JSON.stringify(ms).slice(0,200), 'splits[0] ms:', JSON.stringify(splits[0]?.metricsSummary).slice(0,200));
+    return { activityTypeId:null, activityName, startTime:startT, duration:dur, calories:cal, distance:distKm&&distKm>0?distKm:null, averageHeartRate:hr, steps:steps||null, heartRateZones:ex.heartRateZones||null };
+  });
+}
+
 async function fetchAndRenderWorkoutHistory(range) {
   const skel = document.getElementById('hv-wkt-skel');
   const body = document.getElementById('hv-wkt-body');
@@ -14883,41 +14905,7 @@ async function fetchAndRenderWorkoutHistory(range) {
       const url = HS.ep.exerciseSessions(afterDate, nd);
       const d = await _ghGet(url);
       if (!d?.dataPoints?.length) { renderWorkoutHistory([]); return; }
-      const _WKT_NAMES = {es:{WALKING:'Caminata',RUNNING:'Carrera',CYCLING:'Ciclismo',SWIMMING:'Natación',HIKING:'Senderismo',YOGA:'Yoga',STRENGTH_TRAINING:'Pesas',WORKOUT:'Entrenamiento',ELLIPTICAL:'Elíptica',ROWING:'Remo',DANCE:'Baile',PILATES:'Pilates',MARTIAL_ARTS:'Artes Marciales',TENNIS:'Tenis',SOCCER:'Fútbol',BASKETBALL:'Basquetbol',VOLLEYBALL:'Voleibol',GOLF:'Golf'},en:{WALKING:'Walk',RUNNING:'Run',CYCLING:'Cycling',SWIMMING:'Swimming',HIKING:'Hiking',YOGA:'Yoga',STRENGTH_TRAINING:'Strength',WORKOUT:'Workout',ELLIPTICAL:'Elliptical',ROWING:'Rowing',DANCE:'Dance',PILATES:'Pilates',MARTIAL_ARTS:'Martial Arts',TENNIS:'Tennis',SOCCER:'Soccer',BASKETBALL:'Basketball',VOLLEYBALL:'Volleyball',GOLF:'Golf'}};
-      const sessions = d.dataPoints.map(p => {
-        const ex = p.exercise || p.exerciseSession || p;
-        const iv = ex.interval || {};
-        const startT = iv.startTime || ex.startTime || '';
-        const endT   = iv.endTime   || ex.endTime   || '';
-        const dur = startT && endT ? Math.max(0, new Date(endT) - new Date(startT)) : 0;
-        // Aggregate splits for distance, calories, HR, steps
-        const splits = ex.splits || [];
-        const ms = ex.metricsSummary || {};
-        const splitDistMm  = splits.reduce((s,sp)=>s+(sp.metricsSummary?.distanceMillimeters||0),0);
-        const splitCal     = splits.reduce((s,sp)=>s+(sp.metricsSummary?.calories?.kilocalories||sp.metricsSummary?.caloriesKilocalories||0),0);
-        const splitSteps   = splits.reduce((s,sp)=>s+(sp.metricsSummary?.stepsSum||sp.metricsSummary?.steps||0),0);
-        const splitHRSum   = splits.reduce((s,sp)=>s+(sp.metricsSummary?.averageHeartRateBpm||0),0);
-        const splitHRN     = splits.filter(sp=>sp.metricsSummary?.averageHeartRateBpm>0).length;
-        const distKm = (ms.distanceMillimeters||splitDistMm) / 1e6 || null;
-        const cal    = Math.round(ms.calories?.kilocalories||ms.caloriesKilocalories||splitCal||0);
-        const steps  = ms.stepsSum||ms.steps||splitSteps||null;
-        const hr     = ms.averageHeartRateBpm||(splitHRN>0?Math.round(splitHRSum/splitHRN):null);
-        const typeKey = (ex.exerciseType||'').toUpperCase();
-        const names = _WKT_NAMES[lang]||_WKT_NAMES.es;
-        const activityName = ex.title||ex.label||names[typeKey]||ex.exerciseType||'Workout';
-        return {
-          activityTypeId: null,
-          activityName,
-          startTime: startT,
-          duration: dur,
-          calories: cal,
-          distance: distKm && distKm > 0 ? distKm : null,
-          averageHeartRate: hr,
-          steps: steps||null,
-          heartRateZones: ex.heartRateZones||null,
-        };
-      });
-      renderWorkoutHistory(sessions);
+      renderWorkoutHistory(_parseGhExerciseSessions(d.dataPoints));
     }
   } catch (e) { renderWorkoutHistory([]); }
 }
