@@ -14812,7 +14812,7 @@ function renderRecentActivities(sessions) {
     const rightUnit = (lowInt && s.averageHeartRate) ? (t.wkt_bpm || 'bpm') : (t.wkt_kcal || 'kcal');
     // Fixed 5-slot detail panel — always same fields, "—" when no data
     const paceStr = _fmtPace(s.pace);
-    const activeZoneMin = s.heartRateZones ? s.heartRateZones.slice(1).reduce((sum,z)=>sum+(z.minutes||0),0) : 0;
+    const activeZoneMin = s.activeZoneMin || (s.heartRateZones ? s.heartRateZones.slice(1).reduce((sum,z)=>sum+(z.minutes||0),0) : 0);
     const stats = [
       { val: dur,                                                        lbl: t.wkt_dur      || 'DURACIÓN'  },
       { val: s.averageHeartRate ? s.averageHeartRate + ' bpm' : '—',    lbl: t.wkt_avg_hr   || 'FC PROM.'  },
@@ -14885,7 +14885,6 @@ function _parseGhExerciseSessions(dataPoints) {
   const NAMES = {es:{WALKING:'Caminata',RUNNING:'Carrera',CYCLING:'Ciclismo',SWIMMING:'Natación',HIKING:'Senderismo',YOGA:'Yoga',STRENGTH_TRAINING:'Pesas',WORKOUT:'Entrenamiento',ELLIPTICAL:'Elíptica',ROWING:'Remo',DANCE:'Baile',PILATES:'Pilates',MARTIAL_ARTS:'Artes Marciales',TENNIS:'Tenis',SOCCER:'Fútbol',BASKETBALL:'Basquetbol'},en:{WALKING:'Walk',RUNNING:'Run',CYCLING:'Cycling',SWIMMING:'Swimming',HIKING:'Hiking',YOGA:'Yoga',STRENGTH_TRAINING:'Strength',WORKOUT:'Workout',ELLIPTICAL:'Elliptical',ROWING:'Rowing',DANCE:'Dance',PILATES:'Pilates',MARTIAL_ARTS:'Martial Arts',TENNIS:'Tennis',SOCCER:'Soccer',BASKETBALL:'Basketball'}};
   const names = NAMES[typeof lang!=='undefined'?lang:'es'] || NAMES.es;
   return dataPoints.map(p => {
-    console.log('[gh ex-raw]', JSON.stringify(p));
     const ex = p.exercise || p.exerciseSession || p;
     const iv = ex.interval || {};
     const _utc = s => s && !/Z|[+-]\d{2}:\d{2}$/.test(s) ? s+'Z' : (s||'');
@@ -14903,7 +14902,7 @@ function _parseGhExerciseSessions(dataPoints) {
       sp.metricsSummary?.totalCaloriesKilocalories  ||
       sp.metricsSummary?.energyKilocalories || 0), 0);
     const splitSteps  = splits.reduce((s,sp)=>s+(sp.metricsSummary?.stepsSum||sp.metricsSummary?.steps||0),0);
-    const splitHRVals = splits.map(sp=>sp.metricsSummary?.averageHeartRateBpm||0).filter(v=>v>0);
+    const splitHRVals = splits.map(sp=>sp.metricsSummary?.averageHeartRateBeatsPerMinute||sp.metricsSummary?.averageHeartRateBpm||0).filter(v=>v>0);
     // Top-level metrics take priority over split aggregates
     const distKm = ((ms.distanceMillimeters||splitDistMm)/1e6)||null;
     const cal = Math.round(
@@ -14911,16 +14910,26 @@ function _parseGhExerciseSessions(dataPoints) {
       ms.activeCaloriesKilocalories || ms.totalCaloriesKilocalories ||
       ms.energyKilocalories || splitCal || 0);
     const steps = parseInt(ms.steps||ms.stepsSum||splitSteps)||null;
-    const hr    = parseInt(ms.averageHeartRateBeatPerMinute||ms.averageHeartRateBpm)||(splitHRVals.length?Math.round(splitHRVals.reduce((a,b)=>a+b,0)/splitHRVals.length):null)||null;
-    const maxHR = parseInt(ms.maxHeartRateBeatPerMinute||ms.maxHeartRateBpm)||null;
-    const pace  = parseFloat(ms.averagePaceSecondPerKilometer)||null;
+    // Field names confirmed from real API log (2026-06-15):
+    // HR: averageHeartRateBeatsPerMinute (plural), Pace: averagePaceSecondsPerMeter (×1000 → sec/km)
+    // Zones: heartRateZoneDurations.{lightTime,moderateTime,vigorousTime,peakTime} as "Ns" strings
+    // ActiveZone: activeZoneMinutes as string, Elevation: elevationGainMillimeters
+    const hr   = parseInt(ms.averageHeartRateBeatsPerMinute||ms.averageHeartRateBeatPerMinute||ms.averageHeartRateBpm)||(splitHRVals.length?Math.round(splitHRVals.reduce((a,b)=>a+b,0)/splitHRVals.length):null)||null;
+    const maxHR = parseInt(ms.maxHeartRateBeatsPerMinute||ms.maxHeartRateBeatPerMinute||ms.maxHeartRateBpm)||null;
+    const paceM = parseFloat(ms.averagePaceSecondsPerMeter||0);
+    const pace  = paceM>0 ? Math.round(paceM*1000) : (parseFloat(ms.averagePaceSecondPerKilometer||ms.averagePaceSecondsPerKilometer)||null);
     const speed = ms.averageSpeedMetersPerSecond ? Math.round(parseFloat(ms.averageSpeedMetersPerSecond)*36)/10 : null;
-    const elev  = ms.totalElevationGainMeters ? Math.round(parseFloat(ms.totalElevationGainMeters)) : null;
-    const effort = parseFloat(ex.effortScore||ex.perceivedExertionRating||ms.effortScore||ex.effort?.score||0)||null;
-    const cardioLoad = parseFloat(ex.cardioLoad||ex.cardioLoadScore||ms.cardioLoad||0)||null;
+    const elevMm = parseFloat(ms.elevationGainMillimeters||ms.totalElevationGainMeters*1000||0);
+    const elev  = elevMm>0 ? Math.round(elevMm/1000) : null;
+    const activeZoneMin = parseInt(ms.activeZoneMinutes)||0;
+    const hrzd  = ms.heartRateZoneDurations||{};
+    const _s2m  = v => v ? Math.round(parseInt(v)/60) : 0;
+    const heartRateZones = hrzd.lightTime
+      ? [{name:'Leve',minutes:_s2m(hrzd.lightTime)},{name:'Moderada',minutes:_s2m(hrzd.moderateTime)},{name:'Vigorosa',minutes:_s2m(hrzd.vigorousTime)},{name:'Máxima',minutes:_s2m(hrzd.peakTime)}]
+      : (ex.heartRateZones||null);
     const typeKey = (ex.exerciseType||'').toUpperCase();
-    const activityName = ex.title||ex.label||names[typeKey]||ex.exerciseType||'Workout';
-    return { activityTypeId:null, activityName, startTime:startT, duration:dur, calories:cal, distance:distKm&&distKm>0?distKm:null, averageHeartRate:hr, maxHeartRate:maxHR, pace:pace&&pace>0?pace:null, speed:speed&&speed>0?speed:null, elevation:elev&&elev>0?elev:null, steps:steps||null, heartRateZones:ex.heartRateZones||null, effortScore:effort&&effort>0?Math.round(effort):null, cardioLoad:cardioLoad&&cardioLoad>0?Math.round(cardioLoad):null };
+    const activityName = ex.displayName||ex.title||ex.label||names[typeKey]||ex.exerciseType||'Workout';
+    return { activityTypeId:null, activityName, startTime:startT, duration:dur, calories:cal, distance:distKm&&distKm>0?distKm:null, averageHeartRate:hr, maxHeartRate:maxHR, pace:pace&&pace>0?pace:null, speed:speed&&speed>0?speed:null, elevation:elev&&elev>0?elev:null, steps:steps||null, heartRateZones, activeZoneMin };
   });
 }
 
