@@ -1639,7 +1639,7 @@ body.is-offline .dstrip, body.is-unstable .dstrip{display:none;}
 ═══════════════════════════════════════ */
 .bnav{
   display:flex;position:fixed;bottom:0;left:0;right:0;z-index:200;
-  background:rgba(2,8,16,0.95);backdrop-filter:blur(18px);
+  background:rgba(2,8,16,0.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border-top:1px solid var(--bdr,rgba(0,245,255,0.15));
   padding:6px 0 calc(6px + env(safe-area-inset-bottom));
   justify-content:space-around;align-items:center;
@@ -2486,14 +2486,16 @@ body.t-synth::after{content:'';position:fixed;inset:0;
   animation:jiggle 0.36s ease-in-out infinite;
   animation-delay:calc(var(--ji,0) * -47ms);
   overflow:visible;cursor:grab;user-select:none;-webkit-user-select:none;
-  transition:none;
+  transition:none;will-change:transform;
 }
 .jiggle-mode .vc.wm-span2{grid-column:span 2;}
 /* In jiggle mode the X badge (top:-17px) and resize badge (bottom:-17px) of
    adjacent rows collide in the 12px gap (17+17-12 = 22px of overlap), making
    the layout look crowded and "cut" on mobile. 36px gap gives each badge a
-   19px clearance: 36 - 17 = 19px between badge edge and neighbouring widget. */
-.jiggle-mode .vg{row-gap:36px;}
+   19px clearance: 36 - 17 = 19px between badge edge and neighbouring widget.
+   column-gap:36px is equally required — without it the sz-btn of the left column
+   and the x-btn of the right column overlap by 22px in the 12px column gap. */
+.jiggle-mode .vg{gap:36px;padding-top:20px;}
 /* During an active drag we pause the jiggle so the transform channel is free
    for the FLIP spring that flows siblings out of the way (iOS behaviour). */
 .jiggle-mode.wm-reordering .vc:not(.wm-dragging){animation:none;}
@@ -2580,13 +2582,15 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .wm-add-lbl{font-size:9px;letter-spacing:2px;color:var(--txt);opacity:0.6;}
 /* floating done button */
 #jiggle-done{
-  position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 70px);left:50%;
+  position:fixed;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);left:50%;
   transform:translateX(-50%) translateY(120px);
   z-index:7000;background:var(--ta);color:#000;
   border:none;font-family:inherit;font-size:10px;letter-spacing:3px;font-weight:700;
-  padding:10px 32px;cursor:pointer;
+  padding:0 32px;min-height:44px;border-radius:var(--r-full);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
   transition:transform var(--dur-slow) var(--ease-spring),opacity var(--dur-slow) var(--ease-std);
   opacity:0;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,0.4);
+  -webkit-tap-highlight-color:transparent;
 }
 #jiggle-done.jd-visible{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto;}
 /* ── Drag-to-reorder ── */
@@ -9858,8 +9862,11 @@ function _clampJiggleBadges() {
     // mid-FLIP rects are transform-shifted — prefer the cached destination rect
     var r = c._flipFinalRect || c.getBoundingClientRect();
     var x = c.querySelector('.wm-x-btn'), s = c.querySelector('.wm-sz-btn');
-    if (x) x.style.left  = Math.max(-17, -6 - Math.round(r.left)) + 'px';
-    if (s) s.style.right = Math.max(-17, Math.round(r.right - vw - 6)) + 'px';
+    // Keep the 20px visible disc ≥4px inside the viewport on both sides.
+    // Old formula used -6px as clamp floor which still let the disc go off-screen
+    // when db-main padding (14px) < badge overhang (17px).
+    if (x) x.style.left  = Math.max(-Math.round(r.left)  + 4, -17) + 'px';
+    if (s) s.style.right = Math.max(-Math.round(vw - r.right) + 4, -17) + 'px';
   });
 }
 
