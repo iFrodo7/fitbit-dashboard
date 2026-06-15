@@ -14872,14 +14872,13 @@ function _parseGhExerciseSessions(dataPoints) {
     // Top-level metrics take priority over split aggregates
     const distKm = ((ms.distanceMillimeters||splitDistMm)/1e6)||null;
     const cal = Math.round(
-      ms.calories?.kilocalories || ms.caloriesKilocalories ||
+      ms.caloriesKcal || ms.calories?.kilocalories || ms.caloriesKilocalories ||
       ms.activeCaloriesKilocalories || ms.totalCaloriesKilocalories ||
       ms.energyKilocalories || splitCal || 0);
-    const steps = ms.stepsSum||ms.steps||splitSteps||null;
-    const hr    = ms.averageHeartRateBpm||(splitHRVals.length?Math.round(splitHRVals.reduce((a,b)=>a+b,0)/splitHRVals.length):null);
+    const steps = parseInt(ms.steps||ms.stepsSum||splitSteps)||null;
+    const hr    = parseInt(ms.averageHeartRateBeatPerMinute||ms.averageHeartRateBpm)||(splitHRVals.length?Math.round(splitHRVals.reduce((a,b)=>a+b,0)/splitHRVals.length):null)||null;
     const typeKey = (ex.exerciseType||'').toUpperCase();
     const activityName = ex.title||ex.label||names[typeKey]||ex.exerciseType||'Workout';
-    if(!cal) console.log('[gh wkt-cal dbg]', JSON.stringify(ms).slice(0,200), 'splits[0] ms:', JSON.stringify(splits[0]?.metricsSummary).slice(0,200));
     return { activityTypeId:null, activityName, startTime:startT, duration:dur, calories:cal, distance:distKm&&distKm>0?distKm:null, averageHeartRate:hr, steps:steps||null, heartRateZones:ex.heartRateZones||null };
   });
 }
