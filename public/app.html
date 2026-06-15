@@ -14846,7 +14846,6 @@ function renderWorkoutHistory(sessions) {
     return;
   }
   if (stat) stat.textContent = sessions.length + ' ' + (t.wkt_sessions || 'SESIONES');
-  const ZONE_COLORS = ['rgba(128,128,128,0.35)', 'var(--ta)', 'var(--ta2)', 'var(--tneg)'];
   body.innerHTML = sessions.map(s => {
     const { emoji, label } = _wktTypeInfo(s.activityTypeId, s.activityName);
     const dur = _wktFmtDuration(s.duration);
@@ -14855,27 +14854,23 @@ function renderWorkoutHistory(sessions) {
     const lowInt = _wktIsLowIntensity(s.activityTypeId, s.activityName);
     const rightVal = (lowInt && s.averageHeartRate) ? s.averageHeartRate : (s.calories || 0);
     const rightUnit = (lowInt && s.averageHeartRate) ? (t.wkt_bpm || 'bpm') : (t.wkt_kcal || 'kcal');
-    let zonesHtml = '';
-    if (s.heartRateZones && s.heartRateZones.length) {
-      const total = s.heartRateZones.reduce((a, z) => a + (z.minutes || 0), 0) || 1;
-      zonesHtml = '<div class="wkt-zones">' +
-        s.heartRateZones.map((z, i) =>
-          `<div class="wkt-zone" style="flex:${((z.minutes||0)/total)*100};background:${ZONE_COLORS[i]}" title="${z.name}: ${z.minutes||0}min"></div>`
-        ).join('') + '</div>';
-    }
-    const subs = [
-      s.averageHeartRate ? s.averageHeartRate + ' bpm ' + (t.wkt_avg || 'prom.') : '',
-      s.steps ? (s.steps).toLocaleString() + ' ' + (t.wkt_steps || 'pasos') : '',
-    ].filter(Boolean).join(' · ');
-    return `<div class="wkt-item">
+    const paceStr = _fmtPace(s.pace);
+    const activeZoneMin = s.activeZoneMin || (s.heartRateZones ? s.heartRateZones.slice(1).reduce((sum,z)=>sum+(z.minutes||0),0) : 0);
+    const detailHtml = '<div class="act-detail" style="padding-left:42px">' + [
+      { val: dur,                                                         lbl: t.wkt_dur      || 'DURACIÓN'  },
+      { val: s.averageHeartRate ? s.averageHeartRate + ' bpm' : '—',     lbl: t.wkt_avg_hr   || 'FC PROM.'  },
+      { val: paceStr ? paceStr + '/km' : (s.speed ? s.speed+' km/h':'—'),lbl: t.wkt_pace     || 'RITMO'     },
+      { val: s.steps ? s.steps.toLocaleString() : '—',                   lbl: t.wkt_steps    || 'PASOS'     },
+      { val: activeZoneMin > 0 ? activeZoneMin + ' min' : '—',           lbl: t.wkt_zone_min || 'ZONA ACT.' },
+    ].map(st=>`<div class="act-stat"><div class="act-stat-val">${st.val}</div><div class="act-stat-lbl">${st.lbl}</div></div>`).join('') + '</div>';
+    return `<div class="wkt-item" onclick="_toggleActDetail(this)" style="flex-wrap:wrap;cursor:pointer;">
       <div class="wkt-ico">${emoji}</div>
       <div class="wkt-body">
         <div class="wkt-name">${label}</div>
         <div class="wkt-meta">${meta}</div>
-        ${zonesHtml}
-        ${subs ? '<div class="wkt-sub">' + subs + '</div>' : ''}
       </div>
       <div class="wkt-right"><div class="wkt-val">${rightVal}</div><div class="wkt-unit">${rightUnit}</div></div>
+      ${detailHtml}
     </div>`;
   }).join('');
 }
