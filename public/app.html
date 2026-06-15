@@ -1078,11 +1078,17 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .sltm{font-size:11px;opacity:0.6;width:36px;text-align:right;flex-shrink:0;}
 
 /* Activity */
-.acit{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--sub);transition:transform var(--dur-base) var(--ease-std),filter var(--dur-base) var(--ease-std);}
+.acit{display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:12px 0;border-bottom:1px solid var(--sub);cursor:pointer;transition:background var(--dur-base) var(--ease-std),filter var(--dur-base) var(--ease-std);}
 .acit:last-child{border:none;}
-.acit:hover{transform:translateX(4px);filter:brightness(1.1);}
+.acit:hover{filter:brightness(1.1);}
+.acit:active{background:rgba(255,255,255,0.03);}
 .acio{width:40px;height:40px;border:1px solid var(--sub);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border-radius:4px;transition:border-color var(--dur-base) var(--ease-std),background var(--dur-base) var(--ease-std);background:rgba(0,0,0,0.1);}
 .acit:hover .acio{border-color:var(--ta);background:rgba(0,0,0,0.2);}
+.act-detail{display:none;width:100%;padding:10px 0 4px 52px;gap:16px 20px;flex-wrap:wrap;border-top:1px solid var(--sub);margin-top:4px;}
+.acit.expanded .act-detail{display:flex;}
+.act-stat{display:flex;flex-direction:column;gap:2px;min-width:48px;}
+.act-stat-val{font-size:11px;font-weight:700;color:var(--ta);letter-spacing:0.5px;}
+.act-stat-lbl{font-size:9px;opacity:0.45;letter-spacing:0.8px;}
 /* Workout history items (History tab) */
 .wkt-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--sub);}
 .wkt-item:last-child{border:none;}
@@ -5490,6 +5496,7 @@ const T = {
     hv_wkt_lbl: '// ENTRENAMIENTOS', hv_wkt_empty: 'SIN ENTRENAMIENTOS EN ESTE PERÍODO',
     wkt_today: 'HOY', wkt_yesterday: 'AYER', wkt_kcal: 'kcal', wkt_bpm: 'bpm', wkt_km: 'km',
     wkt_sessions: 'SESIONES', wkt_steps: 'pasos', wkt_avg: 'prom.',
+    wkt_dur: 'DURACIÓN', wkt_avg_hr: 'FC PROM.', wkt_max_hr: 'FC MÁX.', wkt_pace: 'RITMO', wkt_speed: 'VELOCIDAD', wkt_elev: 'ELEVACIÓN',
     user_demo: 'USUARIO',
     u_hrv: 'ms — BUENO', u_temp: '°C PIEL',
     nav_home: 'Inicio', nav_stats: 'Stats', nav_history: 'Historial', nav_profile: 'Perfil',
@@ -5763,6 +5770,7 @@ const T = {
     hv_wkt_lbl: '// WORKOUTS', hv_wkt_empty: 'NO WORKOUTS IN THIS PERIOD',
     wkt_today: 'TODAY', wkt_yesterday: 'YESTERDAY', wkt_kcal: 'kcal', wkt_bpm: 'bpm', wkt_km: 'km',
     wkt_sessions: 'SESSIONS', wkt_steps: 'steps', wkt_avg: 'avg.',
+    wkt_dur: 'DURATION', wkt_avg_hr: 'AVG HR', wkt_max_hr: 'MAX HR', wkt_pace: 'PACE', wkt_speed: 'SPEED', wkt_elev: 'ELEVATION',
     user_demo: 'USER',
     u_hrv: 'ms — GOOD', u_temp: '°C SKIN',
     nav_home: 'Home', nav_stats: 'Stats', nav_history: 'History', nav_profile: 'Profile',
@@ -14776,6 +14784,16 @@ function renderDemoActivities() {
   ]);
 }
 
+function _fmtPace(secPerKm) {
+  if (!secPerKm || secPerKm <= 0) return null;
+  const m = Math.floor(secPerKm / 60);
+  const s = Math.round(secPerKm % 60);
+  return m + ':' + String(s).padStart(2, '0');
+}
+function _toggleActDetail(el) {
+  el.classList.toggle('expanded');
+}
+
 function renderRecentActivities(sessions) {
   const el = document.getElementById('act-list');
   if (!el) return;
@@ -14792,7 +14810,25 @@ function renderRecentActivities(sessions) {
     const lowInt = _wktIsLowIntensity(s.activityTypeId, s.activityName);
     const rightVal = (lowInt && s.averageHeartRate) ? s.averageHeartRate : (s.calories || 0);
     const rightUnit = (lowInt && s.averageHeartRate) ? (t.wkt_bpm || 'bpm') : (t.wkt_kcal || 'kcal');
-    return `<div class="acit"><div class="acio">${emoji}</div><div><div class="acnm">${label}</div><div class="acmt">${meta}</div></div><div class="acvl">${rightVal} ${rightUnit}</div></div>`;
+    // Build expandable detail stats
+    const stats = [];
+    if (s.duration > 0) stats.push({ val: dur, lbl: t.wkt_dur || 'DURACIÓN' });
+    if (s.averageHeartRate) stats.push({ val: s.averageHeartRate + ' bpm', lbl: t.wkt_avg_hr || 'FC PROM.' });
+    if (s.maxHeartRate) stats.push({ val: s.maxHeartRate + ' bpm', lbl: t.wkt_max_hr || 'FC MÁX.' });
+    const paceStr = _fmtPace(s.pace);
+    if (paceStr) stats.push({ val: paceStr + '/km', lbl: t.wkt_pace || 'RITMO' });
+    else if (s.speed) stats.push({ val: s.speed + ' km/h', lbl: t.wkt_speed || 'VELOCIDAD' });
+    if (s.steps) stats.push({ val: s.steps.toLocaleString(), lbl: t.wkt_steps || 'PASOS' });
+    if (s.elevation) stats.push({ val: s.elevation + 'm ↑', lbl: t.wkt_elev || 'ELEVACIÓN' });
+    const detailHtml = stats.length
+      ? '<div class="act-detail">' + stats.map(st => `<div class="act-stat"><div class="act-stat-val">${st.val}</div><div class="act-stat-lbl">${st.lbl}</div></div>`).join('') + '</div>'
+      : '';
+    return `<div class="acit" onclick="_toggleActDetail(this)">
+      <div class="acio">${emoji}</div>
+      <div style="flex:1;min-width:0"><div class="acnm">${label}</div><div class="acmt">${meta}</div></div>
+      <div class="acvl">${rightVal} ${rightUnit}</div>
+      ${detailHtml}
+    </div>`;
   }).join('');
 }
 
@@ -14875,9 +14911,13 @@ function _parseGhExerciseSessions(dataPoints) {
       ms.energyKilocalories || splitCal || 0);
     const steps = parseInt(ms.steps||ms.stepsSum||splitSteps)||null;
     const hr    = parseInt(ms.averageHeartRateBeatPerMinute||ms.averageHeartRateBpm)||(splitHRVals.length?Math.round(splitHRVals.reduce((a,b)=>a+b,0)/splitHRVals.length):null)||null;
+    const maxHR = parseInt(ms.maxHeartRateBeatPerMinute||ms.maxHeartRateBpm)||null;
+    const pace  = parseFloat(ms.averagePaceSecondPerKilometer)||null;
+    const speed = ms.averageSpeedMetersPerSecond ? Math.round(parseFloat(ms.averageSpeedMetersPerSecond)*36)/10 : null;
+    const elev  = ms.totalElevationGainMeters ? Math.round(parseFloat(ms.totalElevationGainMeters)) : null;
     const typeKey = (ex.exerciseType||'').toUpperCase();
     const activityName = ex.title||ex.label||names[typeKey]||ex.exerciseType||'Workout';
-    return { activityTypeId:null, activityName, startTime:startT, duration:dur, calories:cal, distance:distKm&&distKm>0?distKm:null, averageHeartRate:hr, steps:steps||null, heartRateZones:ex.heartRateZones||null };
+    return { activityTypeId:null, activityName, startTime:startT, duration:dur, calories:cal, distance:distKm&&distKm>0?distKm:null, averageHeartRate:hr, maxHeartRate:maxHR, pace:pace&&pace>0?pace:null, speed:speed&&speed>0?speed:null, elevation:elev&&elev>0?elev:null, steps:steps||null, heartRateZones:ex.heartRateZones||null };
   });
 }
 
