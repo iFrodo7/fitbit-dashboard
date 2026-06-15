@@ -1530,6 +1530,21 @@ body.t-fut .db-hdr{padding-top:14px;}
   .wsrow{width:100%;}
   .scard-inner{grid-template-columns:1fr;}
   .dstrip{right:12px;left:12px;justify-content:center;}
+  /* header: collapse to single row — lang toggle lives in Profile, status dot alone conveys the state */
+  .db-hdr .hlang{display:none;}
+  #logo-s{display:none;}
+  #stxt{display:none;}
+  .cbtn{font-size:11px;padding:7px 14px;letter-spacing:1px;}
+  /* widget cards: tighter padding + letter-spacing gives labels room to breathe */
+  .vc{padding:10px;}
+  .clbl,.vlbl{letter-spacing:0.5px;}
+  /* vc-head labels: flex:1 + min-width:0 lets ellipsis kick in instead of wrapping */
+  .vc-head .vlbl,.vc-head .clbl{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  /* cal-split in narrow 2-col cards: 1 column so period tabs + labels never clip */
+  .cal-split.cs-fill{grid-template-columns:1fr;gap:4px;}
+  .cal-split.cs-fill .cal-box{padding:6px 8px;}
+  .cal-split.cs-fill .cal-box-val{font-size:20px;}
+  .cal-box-lbl{letter-spacing:0.5px;}
 }
 
 /* Landscape: respect left/right safe-area-insets (iPhone notch, Dynamic Island) */
