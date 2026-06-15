@@ -2479,6 +2479,11 @@ body.t-synth::after{content:'';position:fixed;inset:0;
   transition:none;
 }
 .jiggle-mode .vc.wm-span2{grid-column:span 2;}
+/* In jiggle mode the X badge (top:-17px) and resize badge (bottom:-17px) of
+   adjacent rows collide in the 12px gap (17+17-12 = 22px of overlap), making
+   the layout look crowded and "cut" on mobile. 36px gap gives each badge a
+   19px clearance: 36 - 17 = 19px between badge edge and neighbouring widget. */
+.jiggle-mode .vg{row-gap:36px;}
 /* During an active drag we pause the jiggle so the transform channel is free
    for the FLIP spring that flows siblings out of the way (iOS behaviour). */
 .jiggle-mode.wm-reordering .vc:not(.wm-dragging){animation:none;}
