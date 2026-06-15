@@ -14885,6 +14885,7 @@ function _parseGhExerciseSessions(dataPoints) {
   const NAMES = {es:{WALKING:'Caminata',RUNNING:'Carrera',CYCLING:'Ciclismo',SWIMMING:'Natación',HIKING:'Senderismo',YOGA:'Yoga',STRENGTH_TRAINING:'Pesas',WORKOUT:'Entrenamiento',ELLIPTICAL:'Elíptica',ROWING:'Remo',DANCE:'Baile',PILATES:'Pilates',MARTIAL_ARTS:'Artes Marciales',TENNIS:'Tenis',SOCCER:'Fútbol',BASKETBALL:'Basquetbol'},en:{WALKING:'Walk',RUNNING:'Run',CYCLING:'Cycling',SWIMMING:'Swimming',HIKING:'Hiking',YOGA:'Yoga',STRENGTH_TRAINING:'Strength',WORKOUT:'Workout',ELLIPTICAL:'Elliptical',ROWING:'Rowing',DANCE:'Dance',PILATES:'Pilates',MARTIAL_ARTS:'Martial Arts',TENNIS:'Tennis',SOCCER:'Soccer',BASKETBALL:'Basketball'}};
   const names = NAMES[typeof lang!=='undefined'?lang:'es'] || NAMES.es;
   return dataPoints.map(p => {
+    console.log('[gh ex-raw]', JSON.stringify(p));
     const ex = p.exercise || p.exerciseSession || p;
     const iv = ex.interval || {};
     const _utc = s => s && !/Z|[+-]\d{2}:\d{2}$/.test(s) ? s+'Z' : (s||'');
