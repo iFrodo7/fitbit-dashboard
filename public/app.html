@@ -14883,6 +14883,7 @@ async function fetchAndRenderWorkoutHistory(range) {
       const url = HS.ep.exerciseSessions(afterDate, nd);
       const d = await _ghGet(url);
       if (!d?.dataPoints?.length) { renderWorkoutHistory([]); return; }
+      console.log('[gh workout-raw]', JSON.stringify(d.dataPoints[0]).slice(0, 600));
       const sessions = d.dataPoints.map(p => {
         const ex = p.exerciseSession || p;
         return {
