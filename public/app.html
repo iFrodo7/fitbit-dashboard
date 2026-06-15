@@ -14754,18 +14754,15 @@ function _wktFmtDate(startTime) {
   const today = _localDateStr();
   var _wktYd = new Date(); _wktYd.setDate(_wktYd.getDate()-1);
   const yesterday = _localDateStr(_wktYd);
-  let date = '', time = '';
-  if (startTime && startTime.includes('T')) {
-    date = startTime.split('T')[0];
-    time = startTime.split('T')[1].slice(0, 5);
-  } else if (startTime) {
-    date = today;
-    time = (startTime + '').slice(0, 5);
-  }
-  const prefix = date === today ? (t.wkt_today || 'HOY') :
-    date === yesterday ? (t.wkt_yesterday || 'AYER') :
-    date ? date.slice(5).replace('-', '/') : '—';
-  return (prefix + ' ' + time).trim();
+  if (!startTime) return '—';
+  const dt = new Date(startTime);
+  if (isNaN(dt)) return '—';
+  const localDate = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+  const time = `${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+  const prefix = localDate === today ? (t.wkt_today || 'HOY') :
+    localDate === yesterday ? (t.wkt_yesterday || 'AYER') :
+    localDate.slice(5).replace('-', '/');
+  return `${prefix} ${time}`.trim();
 }
 
 function renderDemoActivities() {
@@ -14854,8 +14851,9 @@ function _parseGhExerciseSessions(dataPoints) {
   return dataPoints.map(p => {
     const ex = p.exercise || p.exerciseSession || p;
     const iv = ex.interval || {};
-    const startT = iv.startTime || ex.startTime || '';
-    const endT   = iv.endTime   || ex.endTime   || '';
+    const _utc = s => s && !/Z|[+-]\d{2}:\d{2}$/.test(s) ? s+'Z' : (s||'');
+    const startT = _utc(iv.startTime || ex.startTime || '');
+    const endT   = _utc(iv.endTime   || ex.endTime   || '');
     const dur = startT && endT ? Math.max(0, new Date(endT) - new Date(startT)) : 0;
     // Aggregate splits
     const splits = ex.splits || [];
