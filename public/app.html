@@ -15456,7 +15456,7 @@ async function avShareCard() {
   var lblSpec    = thm==='mc'?'VT323,monospace':thm==='bloom'?'Nunito,sans-serif':'"IBM Plex Mono",monospace';
 
   var numStr = String(Math.max(0, parseInt(document.getElementById('streak-hero-num')?.textContent||'0')||0));
-  var numSz  = numStr.length<=1 ? (thm==='mc'?460:400) : numStr.length<=2 ? (thm==='mc'?390:320) : (thm==='mc'?330:256);
+  var numSz  = numStr.length<=1 ? (thm==='mc'?460:320) : numStr.length<=2 ? (thm==='mc'?390:260) : (thm==='mc'?330:200);
 
   // Load fonts
   try { await document.fonts.load(numWeight+' '+numSz+'px "'+numFont+'"'); } catch(e){}
@@ -15466,7 +15466,10 @@ async function avShareCard() {
   if (thm==='mc')    { try { await document.fonts.load('400 32px VT323'); }  catch(e){} }
 
   // ── Theme colors ──────────────────────────────────────────────────────────
-  var cs = getComputedStyle(document.documentElement);
+  // Read from body (not documentElement) — boot script sets --ta/--bg on html as
+  // inline style for the initial theme; after a theme change body.t-* holds the
+  // correct values but documentElement's inline style stays stale.
+  var cs = getComputedStyle(document.body);
   var bgC  = cs.getPropertyValue('--bg').trim()  || '#0a0a0f';
   var taC  = cs.getPropertyValue('--ta').trim()  || '#00f5ff';
   var ta2C = cs.getPropertyValue('--ta2').trim() || '#7b2fff';
@@ -15638,31 +15641,31 @@ async function avShareCard() {
 
   // ── Ghost watermark ───────────────────────────────────────────────────────
   ctx.save(); ctx.globalAlpha = 0.04; ctx.fillStyle = taC;
-  ctx.font = numWeight+' '+(numSz+180)+'px "'+numFont+'",sans-serif';
+  ctx.font = numWeight+' '+(numSz+80)+'px "'+numFont+'",sans-serif';
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(numStr, W/2, 948); ctx.restore();
+  ctx.fillText(numStr, W/2, 910); ctx.restore();
 
   // ── Hero number with per-theme glow ───────────────────────────────────────
   var heroGlow = thm==='naruto'?36 : thm==='bloom'?60 : thm==='halo'?140 : thm==='mc'?30 : 100;
   ctx.save(); ctx.shadowColor = taC; ctx.shadowBlur = heroGlow;
   ctx.fillStyle = taC; ctx.font = numWeight+' '+numSz+'px "'+numFont+'",sans-serif';
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(numStr, W/2, 928); ctx.restore();
+  ctx.fillText(numStr, W/2, 910); ctx.restore();
   ctx.textBaseline = 'alphabetic';
 
-  // Unit label + tagline
+  // Unit label + tagline — positioned well below the hero number's descender
   ctx.fillStyle = _sc(taC, 0.74); ctx.font = '700 36px '+lblSpec; ctx.textAlign = 'center';
   var unitLbl = es ? 'DÍAS SEGUIDOS' : 'DAY STREAK';
   if (thm === 'mc') unitLbl = '>>> '+(es?'DIAS SEGUIDOS':'DAY STREAK')+' <<<';
-  ctx.fillText(unitLbl, W/2, 1080);
+  ctx.fillText(unitLbl, W/2, 1140);
   var tagline = typeof _streakTagline==='function' ? _streakTagline(parseInt(numStr)||0, es) : '';
   if (tagline) {
     ctx.fillStyle = 'rgba(255,255,255,0.28)'; ctx.font = '600 24px '+lblSpec;
-    ctx.fillText(tagline, W/2, 1124);
+    ctx.fillText(tagline, W/2, 1184);
   }
 
   // Tier progress bar (chunky for mc)
-  var tfW=320, tfH=(thm==='mc'?8:5), tfX=(W-tfW)/2, tfY=1158;
+  var tfW=320, tfH=(thm==='mc'?8:5), tfX=(W-tfW)/2, tfY=1218;
   ctx.fillStyle='rgba(255,255,255,0.09)'; ctx.fillRect(tfX,tfY,tfW,tfH);
   var progPct=0; try{progPct=parseFloat(document.getElementById('pulse-tier-fill')?.style?.width)||0;}catch(e){}
   if(progPct>0){ctx.fillStyle=taC;ctx.fillRect(tfX,tfY,Math.round(tfW*progPct/100),tfH);}
@@ -15687,7 +15690,7 @@ async function avShareCard() {
     ctx.restore();
   }
 
-  _divider(1212);
+  _divider(1262);
 
   // ── Stats: Recovery / HRV / Sleep ─────────────────────────────────────────
   var rec     = window._lastRec;
