@@ -14810,20 +14810,16 @@ function renderRecentActivities(sessions) {
     const lowInt = _wktIsLowIntensity(s.activityTypeId, s.activityName);
     const rightVal = (lowInt && s.averageHeartRate) ? s.averageHeartRate : (s.calories || 0);
     const rightUnit = (lowInt && s.averageHeartRate) ? (t.wkt_bpm || 'bpm') : (t.wkt_kcal || 'kcal');
-    // Build expandable detail stats
-    const stats = [];
-    if (s.duration > 0) stats.push({ val: dur, lbl: t.wkt_dur || 'DURACIÓN' });
-    if (s.averageHeartRate) stats.push({ val: s.averageHeartRate + ' bpm', lbl: t.wkt_avg_hr || 'FC PROM.' });
-    if (s.maxHeartRate) stats.push({ val: s.maxHeartRate + ' bpm', lbl: t.wkt_max_hr || 'FC MÁX.' });
+    // Fixed 5-slot detail panel — always same fields, "—" when no data
     const paceStr = _fmtPace(s.pace);
-    if (paceStr) stats.push({ val: paceStr + '/km', lbl: t.wkt_pace || 'RITMO' });
-    else if (s.speed) stats.push({ val: s.speed + ' km/h', lbl: t.wkt_speed || 'VELOCIDAD' });
-    if (s.steps) stats.push({ val: s.steps.toLocaleString(), lbl: t.wkt_steps || 'PASOS' });
-    if (s.elevation) stats.push({ val: s.elevation + 'm ↑', lbl: t.wkt_elev || 'ELEVACIÓN' });
     const activeZoneMin = s.heartRateZones ? s.heartRateZones.slice(1).reduce((sum,z)=>sum+(z.minutes||0),0) : 0;
-    if (activeZoneMin > 0) stats.push({ val: activeZoneMin + ' min', lbl: t.wkt_zone_min || 'ZONA ACT.' });
-    if (s.effortScore) stats.push({ val: s.effortScore + '/10', lbl: t.wkt_effort || 'ESFUERZO' });
-    if (s.cardioLoad) stats.push({ val: s.cardioLoad, lbl: t.wkt_cardio_load || 'CARGA CARD.' });
+    const stats = [
+      { val: dur,                                                        lbl: t.wkt_dur      || 'DURACIÓN'  },
+      { val: s.averageHeartRate ? s.averageHeartRate + ' bpm' : '—',    lbl: t.wkt_avg_hr   || 'FC PROM.'  },
+      { val: paceStr ? paceStr + '/km' : (s.speed ? s.speed + ' km/h' : '—'), lbl: t.wkt_pace || 'RITMO'  },
+      { val: s.steps ? s.steps.toLocaleString() : '—',                  lbl: t.wkt_steps    || 'PASOS'     },
+      { val: activeZoneMin > 0 ? activeZoneMin + ' min' : '—',          lbl: t.wkt_zone_min || 'ZONA ACT.' },
+    ];
     const detailHtml = stats.length
       ? '<div class="act-detail">' + stats.map(st => `<div class="act-stat"><div class="act-stat-val">${st.val}</div><div class="act-stat-lbl">${st.lbl}</div></div>`).join('') + '</div>'
       : '';
