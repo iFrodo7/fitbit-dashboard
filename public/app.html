@@ -5496,7 +5496,7 @@ const T = {
     hv_wkt_lbl: '// ENTRENAMIENTOS', hv_wkt_empty: 'SIN ENTRENAMIENTOS EN ESTE PERÍODO',
     wkt_today: 'HOY', wkt_yesterday: 'AYER', wkt_kcal: 'kcal', wkt_bpm: 'bpm', wkt_km: 'km',
     wkt_sessions: 'SESIONES', wkt_steps: 'pasos', wkt_avg: 'prom.',
-    wkt_dur: 'DURACIÓN', wkt_avg_hr: 'FC PROM.', wkt_max_hr: 'FC MÁX.', wkt_pace: 'RITMO', wkt_speed: 'VELOCIDAD', wkt_elev: 'ELEVACIÓN',
+    wkt_dur: 'DURACIÓN', wkt_avg_hr: 'FC PROM.', wkt_max_hr: 'FC MÁX.', wkt_pace: 'RITMO', wkt_speed: 'VELOCIDAD', wkt_elev: 'ELEVACIÓN', wkt_zone_min: 'ZONA ACT.', wkt_effort: 'ESFUERZO', wkt_cardio_load: 'CARGA CARD.',
     user_demo: 'USUARIO',
     u_hrv: 'ms — BUENO', u_temp: '°C PIEL',
     nav_home: 'Inicio', nav_stats: 'Stats', nav_history: 'Historial', nav_profile: 'Perfil',
@@ -5770,7 +5770,7 @@ const T = {
     hv_wkt_lbl: '// WORKOUTS', hv_wkt_empty: 'NO WORKOUTS IN THIS PERIOD',
     wkt_today: 'TODAY', wkt_yesterday: 'YESTERDAY', wkt_kcal: 'kcal', wkt_bpm: 'bpm', wkt_km: 'km',
     wkt_sessions: 'SESSIONS', wkt_steps: 'steps', wkt_avg: 'avg.',
-    wkt_dur: 'DURATION', wkt_avg_hr: 'AVG HR', wkt_max_hr: 'MAX HR', wkt_pace: 'PACE', wkt_speed: 'SPEED', wkt_elev: 'ELEVATION',
+    wkt_dur: 'DURATION', wkt_avg_hr: 'AVG HR', wkt_max_hr: 'MAX HR', wkt_pace: 'PACE', wkt_speed: 'SPEED', wkt_elev: 'ELEVATION', wkt_zone_min: 'ACTIVE ZONE', wkt_effort: 'EFFORT', wkt_cardio_load: 'CARDIO LOAD',
     user_demo: 'USER',
     u_hrv: 'ms — GOOD', u_temp: '°C SKIN',
     nav_home: 'Home', nav_stats: 'Stats', nav_history: 'History', nav_profile: 'Profile',
@@ -14820,6 +14820,10 @@ function renderRecentActivities(sessions) {
     else if (s.speed) stats.push({ val: s.speed + ' km/h', lbl: t.wkt_speed || 'VELOCIDAD' });
     if (s.steps) stats.push({ val: s.steps.toLocaleString(), lbl: t.wkt_steps || 'PASOS' });
     if (s.elevation) stats.push({ val: s.elevation + 'm ↑', lbl: t.wkt_elev || 'ELEVACIÓN' });
+    const activeZoneMin = s.heartRateZones ? s.heartRateZones.slice(1).reduce((sum,z)=>sum+(z.minutes||0),0) : 0;
+    if (activeZoneMin > 0) stats.push({ val: activeZoneMin + ' min', lbl: t.wkt_zone_min || 'ZONA ACT.' });
+    if (s.effortScore) stats.push({ val: s.effortScore + '/10', lbl: t.wkt_effort || 'ESFUERZO' });
+    if (s.cardioLoad) stats.push({ val: s.cardioLoad, lbl: t.wkt_cardio_load || 'CARGA CARD.' });
     const detailHtml = stats.length
       ? '<div class="act-detail">' + stats.map(st => `<div class="act-stat"><div class="act-stat-val">${st.val}</div><div class="act-stat-lbl">${st.lbl}</div></div>`).join('') + '</div>'
       : '';
@@ -14915,9 +14919,11 @@ function _parseGhExerciseSessions(dataPoints) {
     const pace  = parseFloat(ms.averagePaceSecondPerKilometer)||null;
     const speed = ms.averageSpeedMetersPerSecond ? Math.round(parseFloat(ms.averageSpeedMetersPerSecond)*36)/10 : null;
     const elev  = ms.totalElevationGainMeters ? Math.round(parseFloat(ms.totalElevationGainMeters)) : null;
+    const effort = parseFloat(ex.effortScore||ex.perceivedExertionRating||ms.effortScore||ex.effort?.score||0)||null;
+    const cardioLoad = parseFloat(ex.cardioLoad||ex.cardioLoadScore||ms.cardioLoad||0)||null;
     const typeKey = (ex.exerciseType||'').toUpperCase();
     const activityName = ex.title||ex.label||names[typeKey]||ex.exerciseType||'Workout';
-    return { activityTypeId:null, activityName, startTime:startT, duration:dur, calories:cal, distance:distKm&&distKm>0?distKm:null, averageHeartRate:hr, maxHeartRate:maxHR, pace:pace&&pace>0?pace:null, speed:speed&&speed>0?speed:null, elevation:elev&&elev>0?elev:null, steps:steps||null, heartRateZones:ex.heartRateZones||null };
+    return { activityTypeId:null, activityName, startTime:startT, duration:dur, calories:cal, distance:distKm&&distKm>0?distKm:null, averageHeartRate:hr, maxHeartRate:maxHR, pace:pace&&pace>0?pace:null, speed:speed&&speed>0?speed:null, elevation:elev&&elev>0?elev:null, steps:steps||null, heartRateZones:ex.heartRateZones||null, effortScore:effort&&effort>0?Math.round(effort):null, cardioLoad:cardioLoad&&cardioLoad>0?Math.round(cardioLoad):null };
   });
 }
 
