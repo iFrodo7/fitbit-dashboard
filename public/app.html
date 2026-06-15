@@ -1085,20 +1085,24 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .acio{width:40px;height:40px;border:1px solid var(--sub);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border-radius:4px;transition:border-color var(--dur-base) var(--ease-std),background var(--dur-base) var(--ease-std);background:rgba(0,0,0,0.1);}
 .acit:hover .acio{border-color:var(--ta);background:rgba(0,0,0,0.2);}
 .act-detail{display:none;width:100%;padding:10px 0 4px 52px;gap:16px 20px;flex-wrap:wrap;border-top:1px solid var(--sub);margin-top:4px;}
-.acit.expanded .act-detail{display:flex;}
+.acit.expanded .act-detail,.wkt-item.expanded .act-detail{display:flex;}
 .act-stat{display:flex;flex-direction:column;gap:2px;min-width:48px;}
 .act-stat-val{font-size:11px;font-weight:700;color:var(--ta);letter-spacing:0.5px;}
 .act-stat-lbl{font-size:9px;opacity:0.45;letter-spacing:0.8px;}
 /* Workout history items (History tab) */
-.wkt-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--sub);}
+.wkt-item{display:flex;flex-wrap:wrap;gap:10px;padding:10px 0;border-bottom:1px solid var(--sub);cursor:pointer;}
 .wkt-item:last-child{border:none;}
+.wkt-item:active{background:rgba(255,255,255,0.02);}
 .wkt-ico{width:32px;height:32px;border:1px solid var(--sub);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border-radius:var(--r-xs);background:rgba(0,0,0,0.1);}
 .wkt-body{flex:1;min-width:0;}
 .wkt-name{font-size:11px;font-weight:700;letter-spacing:1.5px;}
 .wkt-meta{font-size:10px;opacity:0.5;letter-spacing:0.5px;margin-top:2px;}
-.wkt-zones{display:flex;gap:3px;margin-top:6px;height:3px;border-radius:2px;overflow:hidden;}
-.wkt-zone{min-width:2px;}
-.wkt-sub{font-size:9px;letter-spacing:1px;opacity:0.5;margin-top:4px;}
+.wkt-zones-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.wkt-zone-chip{font-size:9px;letter-spacing:0.8px;padding:2px 7px;border-radius:var(--r-full);border:1px solid;}
+.wkt-zone-chip.z-light{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.35);}
+.wkt-zone-chip.z-moderate{border-color:var(--ta);color:var(--ta);}
+.wkt-zone-chip.z-vigorous{border-color:#f59e0b;color:#f59e0b;}
+.wkt-zone-chip.z-peak{border-color:var(--tneg,#ff4444);color:var(--tneg,#ff4444);}
 .wkt-right{text-align:right;flex-shrink:0;}
 .wkt-val{font-size:13px;font-weight:700;color:var(--ta);}
 .wkt-unit{font-size:9px;letter-spacing:1px;opacity:0.5;margin-top:1px;}
@@ -14856,6 +14860,14 @@ function renderWorkoutHistory(sessions) {
     const rightUnit = (lowInt && s.averageHeartRate) ? (t.wkt_bpm || 'bpm') : (t.wkt_kcal || 'kcal');
     const paceStr = _fmtPace(s.pace);
     const activeZoneMin = s.activeZoneMin || (s.heartRateZones ? s.heartRateZones.slice(1).reduce((sum,z)=>sum+(z.minutes||0),0) : 0);
+    // Zones chips — always visible, only show zones with time > 0
+    const zoneDefs = lg==='es'
+      ? [{cls:'z-light',lbl:'LEVE'},{cls:'z-moderate',lbl:'MOD.'},{cls:'z-vigorous',lbl:'VIGOR.'},{cls:'z-peak',lbl:'MÁX.'}]
+      : [{cls:'z-light',lbl:'LIGHT'},{cls:'z-moderate',lbl:'MOD.'},{cls:'z-vigorous',lbl:'VIG.'},{cls:'z-peak',lbl:'PEAK'}];
+    const zoneChips = s.heartRateZones
+      ? s.heartRateZones.map((z,i)=>z.minutes>0?`<span class="wkt-zone-chip ${zoneDefs[i].cls}">${zoneDefs[i].lbl} ${z.minutes}min</span>`:'').filter(Boolean).join('')
+      : (activeZoneMin>0?`<span class="wkt-zone-chip z-moderate">${activeZoneMin} min zona act.</span>`:'');
+    const zonesHtml = zoneChips ? `<div class="wkt-zones-row">${zoneChips}</div>` : '';
     const detailHtml = '<div class="act-detail" style="padding-left:42px">' + [
       { val: dur,                                                         lbl: t.wkt_dur      || 'DURACIÓN'  },
       { val: s.averageHeartRate ? s.averageHeartRate + ' bpm' : '—',     lbl: t.wkt_avg_hr   || 'FC PROM.'  },
@@ -14863,11 +14875,12 @@ function renderWorkoutHistory(sessions) {
       { val: s.steps ? s.steps.toLocaleString() : '—',                   lbl: t.wkt_steps    || 'PASOS'     },
       { val: activeZoneMin > 0 ? activeZoneMin + ' min' : '—',           lbl: t.wkt_zone_min || 'ZONA ACT.' },
     ].map(st=>`<div class="act-stat"><div class="act-stat-val">${st.val}</div><div class="act-stat-lbl">${st.lbl}</div></div>`).join('') + '</div>';
-    return `<div class="wkt-item" onclick="_toggleActDetail(this)" style="flex-wrap:wrap;cursor:pointer;">
+    return `<div class="wkt-item" onclick="_toggleActDetail(this)">
       <div class="wkt-ico">${emoji}</div>
       <div class="wkt-body">
         <div class="wkt-name">${label}</div>
         <div class="wkt-meta">${meta}</div>
+        ${zonesHtml}
       </div>
       <div class="wkt-right"><div class="wkt-val">${rightVal}</div><div class="wkt-unit">${rightUnit}</div></div>
       ${detailHtml}
