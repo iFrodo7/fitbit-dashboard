@@ -8927,6 +8927,7 @@ function _wkSaveTodaySnap() {
     steps:      gv('stepsv'),
     prog:       pg ? pg.style.width : null,
     pct:        gv('stepspct'),
+    goalLbl:    gv('goal-lbl'),
     dist:       gv('steps-dist-val'),
     distUnit:   gv('steps-dist-unit'),
     floors:     gv('steps-floors-val'),
@@ -8966,7 +8967,7 @@ function buildWeeks(days) {
   });
   window._wkData = data;
   var mx = Math.max.apply(null, data.map(function(d){return d.steps||0;})); if (mx < 1) mx = 1;
-  var goal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+  var goal = _loadDRGoals().stp;
   var c = document.getElementById('wbrs'); if (!c) return;
   // FIX #4: preserve the user's selected bar across async rebuilds.
   // _wkSelIdx starts as null (global init), default to 6 only on first build.
@@ -9033,6 +9034,7 @@ function wkBarSel(idx) {
     sv = document.getElementById('stepsv');       if(sv && snap.steps)      sv.textContent = snap.steps;
     sv = document.getElementById('stepsprog');    if(sv && snap.prog!=null)  sv.style.width = snap.prog;
     sv = document.getElementById('stepspct');     if(sv && snap.pct)        sv.textContent = snap.pct;
+    sv = document.getElementById('goal-lbl');     if(sv && snap.goalLbl)    sv.textContent = snap.goalLbl;
     sv = document.getElementById('steps-dist-val');   if(sv && snap.dist)       sv.textContent = snap.dist;
     sv = document.getElementById('steps-dist-unit');  if(sv && snap.distUnit)   sv.textContent = snap.distUnit;
     sv = document.getElementById('steps-floors-val'); if(sv && snap.floors)     sv.textContent = snap.floors;
@@ -9045,7 +9047,7 @@ function wkBarSel(idx) {
     if (sv) {
       var _todayStreak = window._wkTodayStreakReal || 0;
       if (!_todayStreak) {
-        var _todayGoal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+        var _todayGoal = _loadDRGoals().stp;
         for (var _tsi = _wkTdIdx; _tsi >= 0; _tsi--) { // FIX #13: start from real today bar
           if ((data[_tsi].steps || 0) >= _todayGoal) _todayStreak++;
           else break;
@@ -9123,12 +9125,12 @@ function wkBarSel(idx) {
         // FIX #15 path: active streak — anchor on most-recent goal-met day
         var _m = -1;
         for (var _mi = _wkTdIdx; _mi >= 0; _mi--) {
-          if ((data[_mi].steps || 0) >= _goal) { _m = _mi; break; }
+          if ((data[_mi].steps || 0) >= goal) { _m = _mi; break; }
         }
         if (_m >= sel) {
           var _contig = true;
           for (var _ci = sel; _ci <= _m; _ci++) {
-            if ((data[_ci].steps || 0) < _goal) { _contig = false; break; }
+            if ((data[_ci].steps || 0) < goal) { _contig = false; break; }
           }
           if (_contig) { _streak = Math.max(_streak, _realStr17 - (_m - sel)); _bridged17 = true; }
         }
@@ -9147,7 +9149,7 @@ function wkBarSel(idx) {
           for (var _pci17 = sel; _pci17 <= _wkTdIdx; _pci17++) {
             var _pcd17 = data[_pci17];
             if (!_pcd17 || _pcd17.date > window._wkPrevStreakEndDate) break;
-            if ((_pcd17.steps || 0) < _goal) { _pContig17 = false; break; }
+            if ((_pcd17.steps || 0) < goal) { _pContig17 = false; break; }
           }
           if (_pContig17) _streak = Math.max(_streak, window._wkPrevStreakCount - _daysToEnd17);
         }
@@ -9156,7 +9158,7 @@ function wkBarSel(idx) {
     e.textContent = _streak > 0 ? _streak : '×';
   } else if (e && isToday) {
     // FIX #16: show '-' when today's goal not yet reached (undecided — not a miss yet)
-    var _tdGoalBar = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+    var _tdGoalBar = _loadDRGoals().stp;
     var _tdStepsBar = (data[_wkTdIdx] && data[_wkTdIdx].steps) || 0;
     if (_tdStepsBar < _tdGoalBar) {
       e.textContent = '-';
@@ -13184,7 +13186,7 @@ async function loadRealGoogleData(silentRefresh) {
     const _sdp=stD.rollupDataPoints[0];
     stepsToday=parseInt(_sdp?.steps?.countSum??_sdp?.steps?.count_sum??_sdp?.steps?.count??0)||0;
     document.getElementById('stepsv').textContent=stepsToday.toLocaleString('en-US');
-    const pct=Math.min((stepsToday/10000)*100,100);
+    const pct=Math.min((stepsToday/_loadDRGoals().stp)*100,100);
     document.getElementById('stepsprog').style.width=pct+'%';
     document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY');
     // Don't call renderAiraInsights here — window._lastRec not set yet at this
@@ -13971,7 +13973,7 @@ async function pollFastGoogle() {
       const _prev=parseInt(document.getElementById('stepsv').textContent.replace(/\D/g,''))||0;
       if (tot!==_prev) { // update whenever value changes, including reset to 0 (new day)
         document.getElementById('stepsv').textContent=tot.toLocaleString('en-US');
-        const pct=Math.min((tot/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%';
+        const pct=Math.min((tot/_loadDRGoals().stp)*100,100); document.getElementById('stepsprog').style.width=pct+'%';
         document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY');
         if (tot>0) flash('stepsv');
       }
@@ -14156,7 +14158,7 @@ async function pollFast() {
     }
     if (ad?.summary) {
       const s=ad.summary, ns=s.steps||0;
-      if (String(ns)!==document.getElementById('stepsv').textContent.replace(/\D/g,'')) { document.getElementById('stepsv').textContent=ns.toLocaleString('en-US'); const pct=Math.min((ns/10000)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); flash('stepsv'); }
+      if (String(ns)!==document.getElementById('stepsv').textContent.replace(/\D/g,'')) { document.getElementById('stepsv').textContent=ns.toLocaleString('en-US'); const pct=Math.min((ns/_loadDRGoals().stp)*100,100); document.getElementById('stepsprog').style.width=pct+'%'; document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY'); flash('stepsv'); }
       const nc=s.activityCalories||0; if(String(nc)!==document.getElementById('calv').textContent){document.getElementById('calv').textContent=nc;flash('calv');}
     }
     syncTicker();
@@ -14208,7 +14210,7 @@ async function loadReal(silentRefresh) {
       const s=ac.summary;
       document.getElementById('stepsv').textContent=(s.steps||0).toLocaleString('en-US');
       document.getElementById('calv').textContent=s.activityCalories||0;
-      const pct=Math.min((s.steps/10000)*100,100);
+      const pct=Math.min((s.steps/_loadDRGoals().stp)*100,100);
       document.getElementById('stepsprog').style.width=pct+'%';
       document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY');
       document.getElementById('cal-bmr').textContent=(s.caloriesBMR||0).toLocaleString();
