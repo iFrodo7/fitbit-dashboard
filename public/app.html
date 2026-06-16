@@ -13440,13 +13440,15 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
       if (base!=null) {
         const el=document.getElementById('temp-avg-val'); if(el) el.textContent=base.toFixed(1);
       }
-      // Flecha de tendencia y etiqueta de estado
+      // Flecha de tendencia y etiqueta de estado — umbral dinámico según la
+      // variabilidad noche a noche propia del usuario, no un valor fijo igual para todos.
       const d=delta??0;
+      const sd=parseFloat(tv.relativeNightlyStddevDCelsius)||0.5;
       const trd=document.getElementById('temp-trd');
-      if (trd) { trd.textContent=d>0.3?'↑':d<-0.3?'↓':'→'; trd.style.color=d>0.5?'var(--tneg)':d<-0.5?'#4ab8ff':'var(--tpos)'; }
+      if (trd) { trd.textContent=d>sd*0.5?'↑':d<-sd*0.5?'↓':'→'; trd.style.color=d>sd?'var(--tneg)':d<-sd?'#4ab8ff':'var(--tpos)'; }
       const el_u=document.getElementById('u-temp');
-      if (el_u) el_u.textContent=d>0.5?'PIEL — ELEVADA':d<-0.5?'PIEL — BAJA':'PIEL — NORMAL';
-      console.log('[gh temp]', {nightly, base, delta});
+      if (el_u) el_u.textContent=d>sd?'PIEL — ELEVADA':d<-sd?'PIEL — BAJA':'PIEL — NORMAL';
+      console.log('[gh temp]', {nightly, base, delta, sd});
     }
 
     // ── VO2 máx ────────────────────────────────────────────────────────────
