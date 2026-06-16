@@ -14972,9 +14972,14 @@ function _hRenderStepsBar(svg, rows) {
   const { w, h, pad, innerW, innerH } = _hGeo();
   const stRows = rows.filter(r => r.steps != null);
   if (!stRows.length) { svg.style.display='none'; return; }
-  const GOAL = parseInt(localStorage.getItem('fb_steps_goal')) || 10000;
-  const GOAL_LABEL = GOAL >= 1000 ? (GOAL/1000).toFixed(GOAL%1000===0?0:1)+'k' : String(GOAL);
-  const maxSteps = Math.max(...stRows.map(r => r.steps), GOAL);
+  const pro = typeof isPro === 'function' && isPro();
+  const GOAL_DEFAULT = _loadDRGoals().stp;
+  // Per-day goal from fb_activity_history (has goalUsed with anti-cheat max baked in)
+  var _actHist = []; try { _actHist = JSON.parse(localStorage.getItem('fb_activity_history')||'[]'); } catch(e) {}
+  var _goalByDate = {};
+  _actHist.forEach(function(e) { if (e.date && e.goalUsed) _goalByDate[e.date] = e.goalUsed; });
+  const dayGoal = d => _goalByDate[d] || GOAL_DEFAULT;
+  const maxSteps = Math.max(...stRows.map(r => r.steps), ...rows.map(r => dayGoal(r.date)));
   const hi = Math.ceil(maxSteps / 2000) * 2000;
   const n  = rows.length;
   const slot = innerW / n;
@@ -14990,15 +14995,39 @@ function _hRenderStepsBar(svg, rows) {
     + `<line x1="0" y1="0" x2="0" y2="5" style="stroke:var(--tneg,#ef4444);stroke-width:2;stroke-opacity:0.55"/>`
     + `</pattern></defs>`;
   let gridSvg = '';
+  // Grid lines — include 5k and round value above max
   [0, 5000, 10000].filter(v => v <= hi).forEach(v => {
     const y = pad.t + (1 - v/hi) * innerH;
     gridSvg += `<line class="grid" x1="${pad.l}" x2="${w-pad.r}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
     gridSvg += `<text class="axlbl" x="${(pad.l-6).toFixed(1)}" y="${(y+3.5).toFixed(1)}" text-anchor="end">${v>=1000?v/1000+'k':v}</text>`;
   });
-  const yGoal = pad.t + (1 - GOAL/hi) * innerH;
-  // Goal line: accent color + dashed, stands out from the generic grid lines
-  gridSvg += `<line x1="${pad.l}" x2="${w-pad.r}" y1="${yGoal.toFixed(1)}" y2="${yGoal.toFixed(1)}" style="stroke:${col};stroke-width:1.5;stroke-dasharray:4 4;opacity:0.65"/>`;
-  gridSvg += `<text class="ref-lbl" x="${(w-pad.r+3).toFixed(1)}" y="${(yGoal+3.5).toFixed(1)}" text-anchor="start" style="fill:${col};opacity:0.85">${GOAL_LABEL}</text>`;
+  // Variable goal line: stepped segments per bar showing each day's real goal.
+  // FREE: reflects user's manually-set goal (with anti-cheat max baked in via goalUsed).
+  // PRO: shows adaptive goal per day — visually demonstrates AIRA is adjusting the target.
+  let goalLineSvg = '';
+  const goalSegments = rows.map((r, i) => {
+    const g = dayGoal(r.date);
+    const cx = pad.l + (i + 0.5) * slot;
+    const x0 = pad.l + i * slot;
+    const x1 = pad.l + (i + 1) * slot;
+    return { g, cx, x0, x1, y: pad.t + (1 - g/hi) * innerH };
+  });
+  // Draw as connected horizontal segments (stepped polyline)
+  goalSegments.forEach((seg, i) => {
+    const next = goalSegments[i+1];
+    // Horizontal segment across this bar's column
+    goalLineSvg += `<line x1="${seg.x0.toFixed(1)}" x2="${seg.x1.toFixed(1)}" y1="${seg.y.toFixed(1)}" y2="${seg.y.toFixed(1)}" style="stroke:${col};stroke-width:1.5;stroke-dasharray:4 4;opacity:0.65"/>`;
+    // Vertical connector to next segment if goal changes
+    if (next && Math.abs(next.g - seg.g) > 50) {
+      goalLineSvg += `<line x1="${seg.x1.toFixed(1)}" x2="${seg.x1.toFixed(1)}" y1="${seg.y.toFixed(1)}" y2="${next.y.toFixed(1)}" style="stroke:${col};stroke-width:1;stroke-dasharray:2 3;opacity:0.35"/>`;
+    }
+  });
+  // Label: show goal value on the last (rightmost) segment
+  const lastSeg = goalSegments[goalSegments.length - 1];
+  if (lastSeg) {
+    const lbl = lastSeg.g >= 1000 ? (lastSeg.g/1000).toFixed(lastSeg.g%1000===0?0:1)+'k' : String(lastSeg.g);
+    goalLineSvg += `<text class="ref-lbl" x="${(w-pad.r+3).toFixed(1)}" y="${(lastSeg.y+3.5).toFixed(1)}" text-anchor="start" style="fill:${col};opacity:0.85">${lbl}</text>`;
+  }
   let bars = '';
   rows.forEach((r,i) => {
     if (r.steps == null) return;
@@ -15006,15 +15035,14 @@ function _hRenderStepsBar(svg, rows) {
     const pct  = Math.min(r.steps / hi, 1);
     const barH = Math.max(pct * innerH, r.steps > 0 ? 2 : 0);
     const y    = pad.t + innerH - barH;
-    const met  = r.steps >= GOAL;
+    const dg   = dayGoal(r.date);
+    const met  = r.steps >= dg;
     if (met) {
       bars += `<path class="bar-anim bar-steps" style="animation-delay:${(i*0.035).toFixed(2)}s;fill:url(#hg-steps)" d="${_hRoundTop(x, y, barW, barH, radius)}"/>`;
     } else {
-      // Diagonal stripe fill (--tneg) for missed days
       bars += `<path class="bar-anim bar-steps-miss" style="animation-delay:${(i*0.035).toFixed(2)}s;fill:url(#hg-miss)" d="${_hRoundTop(x, y, barW, barH, radius)}"/>`;
-      // Deficit indicator above bar (wide bars: amount, narrow: ×)
       if (r.steps > 0) {
-        const deficit = GOAL - r.steps;
+        const deficit = dg - r.steps;
         if (barW >= 18) {
           const defStr = deficit >= 1000 ? '−'+(deficit/1000).toFixed(1)+'k' : '−'+deficit;
           bars += `<text text-anchor="middle" x="${(x+barW/2).toFixed(1)}" y="${(y-4).toFixed(1)}" style="font-size:7px;font-weight:700;fill:var(--tneg,#ef4444);opacity:0.85;font-family:var(--mono,'IBM Plex Mono',monospace)">${defStr}</text>`;
@@ -15023,13 +15051,13 @@ function _hRenderStepsBar(svg, rows) {
         }
       }
     }
-    bars += `<rect class="bar-hit" x="${x.toFixed(1)}" y="${pad.t.toFixed(1)}" width="${barW.toFixed(1)}" height="${innerH.toFixed(1)}" fill="transparent" data-v="${r.steps}" data-d="${r.date}" style="cursor:pointer"/>`;
+    bars += `<rect class="bar-hit" x="${x.toFixed(1)}" y="${pad.t.toFixed(1)}" width="${barW.toFixed(1)}" height="${innerH.toFixed(1)}" fill="transparent" data-v="${r.steps}" data-d="${r.date}" data-g="${dg}" style="cursor:pointer"/>`;
   });
   const idx = _hTickIdx(n, 4);
   let xax = '';
   idx.forEach(i => { const r=rows[i]; if(!r) return; const x=pad.l+(i+0.5)*slot; xax+=`<text class="axlbl" x="${x.toFixed(1)}" y="${(h-8).toFixed(1)}" text-anchor="middle">${_hFmtTick(r.date)}</text>`; });
   svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-  svg.innerHTML = `${defs}${gridSvg}${bars}${xax}`;
+  svg.innerHTML = `${defs}${gridSvg}${goalLineSvg}${bars}${xax}`;
   svg.style.display = 'block';
 }
 
@@ -15109,12 +15137,40 @@ function _hCoachAnalysis(rows) {
   }
   if (avgStp != null) {
     const k = (Math.round(avgStp/100)/10).toFixed(1);
-    const daysGoal = stpVals.filter(v=>v>=10000).length;
-    let text = avgStp >= 10000 ? fill(t.hv_ca_stp_peak, k) : avgStp >= 7000 ? fill(t.hv_ca_stp_good, k) : fill(t.hv_ca_stp_low, k);
+    const pro = typeof isPro === 'function' && isPro();
+    // Per-day goal from history (adaptive PRO / anti-cheat FREE)
+    var _caActH = []; try { _caActH = JSON.parse(localStorage.getItem('fb_activity_history')||'[]'); } catch(e) {}
+    var _caGoalByDate = {}; _caActH.forEach(function(e){ if(e.date&&e.goalUsed) _caGoalByDate[e.date]=e.goalUsed; });
+    const _caDefGoal = _loadDRGoals().stp;
+    const stpRowsAll = rows.filter(r=>r.steps!=null);
+    const daysGoal = stpRowsAll.filter(r => r.steps >= (_caGoalByDate[r.date]||_caDefGoal)).length;
+    let text = avgStp >= _caDefGoal ? fill(t.hv_ca_stp_peak, k) : avgStp >= _caDefGoal*0.7 ? fill(t.hv_ca_stp_good, k) : fill(t.hv_ca_stp_low, k);
     text += rangeSuffix + '.';
-    if (daysGoal > 0) text += fill(t.hv_ca_stp_days, daysGoal);
+    if (daysGoal > 0) {
+      const goalMentionStr = pro
+        ? (lang==='es' ? ` Cumpliste tu meta adaptativa <strong>${daysGoal}</strong> de ${stpRowsAll.length} días.`
+                       : ` You hit your adaptive goal <strong>${daysGoal}</strong> of ${stpRowsAll.length} days.`)
+        : fill(t.hv_ca_stp_days, daysGoal);
+      text += goalMentionStr;
+    }
     if (stpTrend > 600) text += t.hv_ca_stp_up;
     else if (stpTrend < -600) text += t.hv_ca_stp_dn;
+    // Day-of-week pattern: find the weekday with consistently best step counts
+    if (stpRowsAll.length >= 7) {
+      const dowSums = [0,0,0,0,0,0,0], dowCnt = [0,0,0,0,0,0,0];
+      stpRowsAll.forEach(r => { const dow = new Date(r.date+'T12:00:00').getDay(); dowSums[dow]+=r.steps||0; dowCnt[dow]++; });
+      const dowAvg = dowSums.map((s,i)=>dowCnt[i]>=2?s/dowCnt[i]:null);
+      let bestDow=-1, bestVal=0;
+      dowAvg.forEach((v,i)=>{ if(v!=null&&v>bestVal){bestVal=v;bestDow=i;} });
+      const dowNames = lang==='es'
+        ? ['domingos','lunes','martes','miércoles','jueves','viernes','sábados']
+        : ['Sundays','Mondays','Tuesdays','Wednesdays','Thursdays','Fridays','Saturdays'];
+      if (bestDow>=0) {
+        text += lang==='es'
+          ? ` Tu mejor día suele ser los <strong>${dowNames[bestDow]}</strong>.`
+          : ` Your best day tends to be <strong>${dowNames[bestDow]}</strong>.`;
+      }
+    }
     insights.push({ icon: '◉', label: t.hv_ca_stp_lbl, text });
   }
   // Cycle insight — only for users with cycle tracking enabled (female profile)
@@ -15621,7 +15677,18 @@ async function renderHistory() {
   document.getElementById('hv-rhr-stat').innerHTML   = rhrStat ? rhrStat+_hTrend(rows,'rhr',true)  : '';
   document.getElementById('hv-sleep-stat').innerHTML = slpStat ? slpStat+_hTrend(rows,'minutesAsleep',false) : '';
   const stpStatEl = document.getElementById('hv-steps-stat');
-  if (stpStatEl) stpStatEl.innerHTML = stpStat ? stpStat+_hTrend(rows,'steps',false) : '';
+  if (stpStatEl) {
+    var _stpBase = stpStat ? stpStat + _hTrend(rows,'steps',false) : '';
+    // Stat C: META CUMPLIDA X/N — uses per-day goalUsed (adaptive PRO / anti-cheat FREE)
+    var _stpActH = []; try { _stpActH = JSON.parse(localStorage.getItem('fb_activity_history')||'[]'); } catch(e2) {}
+    var _stpGoalByDate = {}; _stpActH.forEach(function(e){ if(e.date&&e.goalUsed) _stpGoalByDate[e.date]=e.goalUsed; });
+    var _stpDefaultGoal = _loadDRGoals().stp;
+    var _stpDays = rows.filter(r=>r.steps!=null);
+    var _stpMet = _stpDays.filter(r => r.steps >= (_stpGoalByDate[r.date] || _stpDefaultGoal)).length;
+    var _stpMetLbl = lang==='es' ? 'META: ' : 'GOAL: ';
+    var _stpMetStr = _stpMet > 0 ? ` <span style="opacity:0.55;margin-left:6px">${_stpMetLbl}<strong>${_stpMet}/${_stpDays.length}</strong></span>` : '';
+    stpStatEl.innerHTML = _stpBase + _stpMetStr;
+  }
   // Clean up stale empty-state divs from a previous render
   [recSvg, rhrSvg, slpSvg, stpSvg].forEach(svg => {
     if (svg && svg.parentElement) svg.parentElement.querySelectorAll('.hv-empty').forEach(e => e.remove());
