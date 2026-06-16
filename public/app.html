@@ -10837,24 +10837,31 @@ function _saveDRGoals(g){try{localStorage.setItem('fb_dr_goals',JSON.stringify(g
 function _fmtGoal(key,v){if(key==='stp')return v>=1000?(v/1000).toFixed(v%1000===0?0:1)+'k':v+'';return v+'';}
 
 // ── Activity history: aprende tu baseline real (últimos 7 días) ───────────
-// Almacena hasta 14 días crudos — el baseline sigue promediando solo los
-// últimos 7 (sin cambiar su comportamiento previo); los 7 extra existen
-// únicamente para que _consecutiveActiveDays() pueda detectar rachas de
-// hasta 8 días (issue #62, Fase 1.4).
+// Almacena hasta 30 días crudos (issue #62, Fase 2.5) — el baseline sigue
+// promediando solo los últimos 7 (sin cambiar su comportamiento previo);
+// los días extra alimentan _consecutiveActiveDays(), el baseline por día
+// de semana y la auto-calibración, que necesitan más historia.
 // vigMin = minutos en zona Cardio+Peak únicamente (sin Fat Burn). Caminar
 // puede acumular cientos de minutos en Fat Burn sin ser realmente fatigante
 // — usar actMin completo para detectar fatiga marcaría caminatas largas
 // como "entrenamiento", así que la racha de días activos se basa solo en
 // minutos de intensidad real.
-function _recordActivityDay(steps, cal, actMin, vigMin) {
+// dow/goalMet/readiness/phase se agregan vacíos en entradas viejas (ya
+// guardadas antes de este cambio) — todo el código que los lee debe tratar
+// su ausencia como "sin dato", nunca asumir que siempre existen.
+function _recordActivityDay(steps, cal, actMin, vigMin, goalMet, readiness, phase) {
   if (!steps && !cal && !actMin) return;
   try {
     var today=_localDateStr(); // local date, not UTC — avoids timezone-break at 11pm UTC-X
     var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
     hist=hist.filter(function(e){return e.date!==today;});
-    hist.push({date:today,steps:steps||0,cal:cal||0,actMin:actMin||0,vigMin:vigMin||0});
+    hist.push({
+      date:today, dow:new Date().getDay(),
+      steps:steps||0, cal:cal||0, actMin:actMin||0, vigMin:vigMin||0,
+      goalMet:!!goalMet, readiness:readiness||0, phase:phase||null
+    });
     hist.sort(function(a,b){return a.date<b.date?-1:1;});
-    if(hist.length>14) hist=hist.slice(-14);
+    if(hist.length>30) hist=hist.slice(-30);
     localStorage.setItem('fb_activity_history',JSON.stringify(hist));
   } catch(e){}
 }
@@ -10873,23 +10880,85 @@ function _consecutiveActiveDays() {
     return streak;
   } catch(e) { return 0; }
 }
+// Auto-calibración gradual (issue #62, Fase 2.7): si cumples tu meta >85%
+// de los días en las últimas 2 semanas, el baseline sube 5%; si cumples
+// <50%, baja 5%. Se recalcula como máximo una vez al día (no en cada
+// render) y queda clampeado a [0.7x, 1.3x] para que no se desboque con
+// los meses. El ajuste vive en el baseline, nunca en la meta del día.
+function _updateBaselineCalibration() {
+  try {
+    var today=_localDateStr();
+    var cal=JSON.parse(localStorage.getItem('fb_baseline_cal')||'null')||{factor:1,lastDate:''};
+    if (cal.lastDate===today) return cal.factor;
+    var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
+    if (hist.length>=14) {
+      var last14=hist.slice(-14);
+      var rate=last14.filter(function(e){return e.goalMet;}).length/14;
+      if (rate>0.85) cal.factor=Math.min(1.3, cal.factor*1.05);
+      else if (rate<0.50) cal.factor=Math.max(0.7, cal.factor*0.95);
+    }
+    cal.lastDate=today;
+    localStorage.setItem('fb_baseline_cal', JSON.stringify(cal));
+    return cal.factor;
+  } catch(e) { return 1; }
+}
 function _getActivityBaseline() {
   try {
-    var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]').slice(-7);
+    var allHist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
     var override=JSON.parse(localStorage.getItem('fb_dr_goals')||'{}');
-    if(!hist.length) return Object.assign({},_DR_GOALS_DEFAULT,override);
+    if(!allHist.length) return Object.assign({},_DR_GOALS_DEFAULT,override);
+    // Baseline por día de semana (issue #62, Fase 2.6): entre semana y fin
+    // de semana suelen tener patrones de actividad muy distintos. Usa solo
+    // días del mismo tipo si hay al menos 2 muestras; si no (entradas
+    // viejas sin `dow`, o muy poca historia), cae al promedio general.
+    var todayDow=new Date().getDay();
+    var isWeekend=(todayDow===0||todayDow===6);
+    var sameType=allHist.filter(function(e){
+      if (e.dow==null) return false;
+      var we=(e.dow===0||e.dow===6);
+      return we===isWeekend;
+    });
+    var hist=(sameType.length>=2?sameType:allHist).slice(-7);
     var stpS=0,calS=0,actS=0,stpN=0,calN=0,actN=0;
     hist.forEach(function(e){
       if(e.steps>100){stpS+=e.steps;stpN++;}
       if(e.cal>10){calS+=e.cal;calN++;}
       if(e.actMin>0){actS+=e.actMin;actN++;}
     });
+    var factor=_updateBaselineCalibration();
     return {
-      stp: override.stp || (stpN>0?Math.round(stpS/stpN):_DR_GOALS_DEFAULT.stp),
-      cal: override.cal || (calN>0?Math.round(calS/calN):_DR_GOALS_DEFAULT.cal),
-      act: override.act || (actN>0?Math.round(actS/actN):_DR_GOALS_DEFAULT.act)
+      stp: override.stp || Math.round((stpN>0?stpS/stpN:_DR_GOALS_DEFAULT.stp)*factor),
+      cal: override.cal || Math.round((calN>0?calS/calN:_DR_GOALS_DEFAULT.cal)*factor),
+      act: override.act || Math.round((actN>0?actS/actN:_DR_GOALS_DEFAULT.act)*factor)
     };
   } catch(e){return Object.assign({},_DR_GOALS_DEFAULT);}
+}
+// Límite de progresión ±20% día a día (issue #62, Fase 2.8): la meta final
+// (ya con multiplicador aplicado) no puede saltar más de eso respecto a la
+// meta final de AYER. La referencia se congela una sola vez por transición
+// de día (fb_prev_day_goal) para que no se mueva sola dentro del mismo día.
+// Reseteada por _saveDRGoalFromSheet() cuando el usuario edita a mano.
+function _antiSpikeClamp(ag) {
+  try {
+    var today=_localDateStr();
+    var track=JSON.parse(localStorage.getItem('fb_today_goal_track')||'null');
+    var prevDay=JSON.parse(localStorage.getItem('fb_prev_day_goal')||'null');
+    if (track && track.date!==today) {
+      localStorage.setItem('fb_prev_day_goal', JSON.stringify(track));
+      prevDay=track;
+    }
+    var clamped=ag;
+    if (prevDay) {
+      var clampKey=function(key){
+        var prev=prevDay[key]; if(!prev) return ag[key];
+        var max=Math.round(prev*1.20), min=Math.round(prev*0.80);
+        return Math.max(min, Math.min(max, ag[key]));
+      };
+      clamped={stp:clampKey('stp'), cal:clampKey('cal'), act:clampKey('act')};
+    }
+    localStorage.setItem('fb_today_goal_track', JSON.stringify(Object.assign({date:today}, clamped)));
+    return clamped;
+  } catch(e) { return ag; }
 }
 function _drItemMD(el, e){
   // prevent blur when tapping a ring that already has an open input
@@ -10964,7 +11033,12 @@ function _saveDRGoalFromSheet(){
   if(inp&&key){
     var step=key==='stp'?500:key==='cal'?50:5;
     var v=parseInt(inp.value);
-    if(!isNaN(v)&&v>=step){var g=_loadDRGoals();g[key]=v;_saveDRGoals(g);}
+    if(!isNaN(v)&&v>=step){
+      var g=_loadDRGoals();g[key]=v;_saveDRGoals(g);
+      // Edición manual = nueva base. El límite ±20% día a día (anti-spike)
+      // no debe pelear contra un cambio que el usuario pidió a propósito.
+      try { localStorage.removeItem('fb_prev_day_goal'); localStorage.removeItem('fb_today_goal_track'); } catch(e2) {}
+    }
   }
   updateDailyRings();
   var sh=document.getElementById('dr-goal-sheet'); if(sh) sh.remove();
@@ -11665,9 +11739,11 @@ function updateDailyRings() {
   if(pro&&consecActive>=8) mult=Math.min(mult,0.55);
   else if(pro&&consecActive>=6) mult=Math.min(mult,0.70);
   var ag=pro?{stp:Math.round(goals.stp*mult),cal:Math.round(goals.cal*mult),act:Math.round(goals.act*mult)}:goals;
+  if(pro) ag=_antiSpikeClamp(ag);
   // Registra actividad (ambos planes — útil si el usuario hace upgrade)
   if(isReal&&(steps||cal||actMin)){
-    _recordActivityDay(steps,cal,actMin,vigMin);
+    var _phaseToday=(pro&&typeof cycleEnabled==='function'&&cycleEnabled())?(computeCycle()?.phase||null):null;
+    _recordActivityDay(steps,cal,actMin,vigMin,steps>=ag.stp,rec,_phaseToday);
     // Prefer _wkTodayStreakReal (set by loadWeekDataGoogle) — it accounts for
     // fb_streak_steps (persisted counter) and streaks longer than 7 days.
     // Falls back to _getStepGoalStreak() only before the first weekly load.
