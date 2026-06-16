@@ -11898,18 +11898,33 @@ function updateDailyRings() {
   if(isReal&&(steps||cal||actMin)){
     var _phaseToday=(pro&&typeof cycleEnabled==='function'&&cycleEnabled())?(computeCycle()?.phase||null):null;
     _recordActivityDay(steps,cal,actMin,vigMin,steps>=ag.stp,rec,_phaseToday,ag.stp);
-    // Always recalculate from fb_activity_history so the streak updates live
-    // when the goal is met mid-day — _wkTodayStreakReal is set at page load
-    // (0 steps) and won't refresh until tomorrow unless we take the max here.
+    // Streak live update: take the best of three sources.
+    // 1. _getStepGoalStreak() — reads fb_activity_history (may be sparse on first days)
+    // 2. fb_streak_steps persisted count — if lastDate was yesterday and today is met,
+    //    the real streak is count+1 (buildWeeks won't re-run until tomorrow)
+    // 3. _wkTodayStreakReal — set by buildWeeks at page load
     var _freshStr = (typeof _getStepGoalStreak === 'function' ? _getStepGoalStreak() : 0) || 0;
     var _ss = Math.max(window._wkTodayStreakReal || 0, _freshStr);
-    if (_freshStr > (window._wkTodayStreakReal || 0)) window._wkTodayStreakReal = _freshStr;
+    var _strStored = {}; try { _strStored = JSON.parse(localStorage.getItem('fb_streak_steps')||'{}'); } catch(e2) {}
+    var _ssTodayMet = steps >= ag.stp;
+    if (_ssTodayMet) {
+      var _psCount = parseInt(_strStored.count, 10) || 0;
+      var _psDate  = _strStored.lastDate || '';
+      var _todayStr = _localDateStr();
+      var _yestD = new Date(); _yestD.setDate(_yestD.getDate() - 1);
+      var _yestStr = _localDateStr(_yestD);
+      if (_psCount > 0 && _psDate === _yestStr) {
+        // Persisted streak ends at yesterday — today extends it
+        _ss = Math.max(_ss, _psCount + 1);
+      } else if (_psCount > 0 && _psDate === _todayStr) {
+        // Already counted today (buildWeeks already ran today) — use as-is
+        _ss = Math.max(_ss, _psCount);
+      }
+    }
+    if (_ss > (window._wkTodayStreakReal || 0)) window._wkTodayStreakReal = _ss;
     var _sse=document.getElementById('steps-streak-val');
     // Show "90+" with disclaimer if streak hit the 90-day init cap and hasn't grown past it yet
-    var _strStored = {}; try { _strStored = JSON.parse(localStorage.getItem('fb_streak_steps')||'{}'); } catch(e2) {}
     var _isCapped = _strStored.capped && _ss <= 90;
-    // FIX #16: show '-' when today's goal not yet reached (undecided) — uses real adaptive goal
-    var _ssTodayMet = steps >= ag.stp;
     if(_sse) _sse.textContent = !_ssTodayMet ? '-' : (_isCapped ? '90+' : (_ss>0?_ss:'—'));
     var _sUnit = document.getElementById('steps-streak-unit');
     if (_sUnit) {
