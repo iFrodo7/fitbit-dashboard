@@ -9676,7 +9676,7 @@ async function _backfillActivityHistory() {
       if (!stp && !cal && !az.actMin) continue; // sin dato real ese día, no inventar una entrada en cero
       seeded.push({
         date:ds, dow:dt.getDay(), steps:stp, cal:cal, actMin:az.actMin, vigMin:az.vigMin,
-        goalMet: stp>=defGoal.stp, readiness:0, phase:null
+        goalMet: stp>=defGoal.stp, goalUsed: defGoal.stp, readiness:0, phase:null
       });
     }
     seeded.sort(function(a,b){ return a.date<b.date?-1:1; });
@@ -10960,16 +10960,22 @@ function _fmtGoal(key,v){if(key==='stp')return v>=1000?(v/1000).toFixed(v%1000==
 // dow/goalMet/readiness/phase se agregan vacíos en entradas viejas (ya
 // guardadas antes de este cambio) — todo el código que los lee debe tratar
 // su ausencia como "sin dato", nunca asumir que siempre existen.
-function _recordActivityDay(steps, cal, actMin, vigMin, goalMet, readiness, phase) {
+function _recordActivityDay(steps, cal, actMin, vigMin, goalMet, readiness, phase, goalUsed) {
   if (!steps && !cal && !actMin) return;
   try {
     var today=_localDateStr(); // local date, not UTC — avoids timezone-break at 11pm UTC-X
     var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
+    // Anti-trampa: si ya hay una entrada de hoy con meta más alta, conservar esa
+    // meta como piso — bajar la meta a mitad del día no reescribe goalMet.
+    var existing=hist.find(function(e){return e.date===today;});
+    var effectiveGoal=Math.max(goalUsed||0, existing&&existing.goalUsed||0);
     hist=hist.filter(function(e){return e.date!==today;});
     hist.push({
       date:today, dow:new Date().getDay(),
       steps:steps||0, cal:cal||0, actMin:actMin||0, vigMin:vigMin||0,
-      goalMet:!!goalMet, readiness:readiness||0, phase:phase||null
+      goalMet: effectiveGoal>0 ? (steps||0)>=effectiveGoal : !!goalMet,
+      goalUsed: effectiveGoal||undefined,
+      readiness:readiness||0, phase:phase||null
     });
     hist.sort(function(a,b){return a.date<b.date?-1:1;});
     if(hist.length>30) hist=hist.slice(-30);
@@ -11882,7 +11888,7 @@ function updateDailyRings() {
   // Registra actividad (ambos planes — útil si el usuario hace upgrade)
   if(isReal&&(steps||cal||actMin)){
     var _phaseToday=(pro&&typeof cycleEnabled==='function'&&cycleEnabled())?(computeCycle()?.phase||null):null;
-    _recordActivityDay(steps,cal,actMin,vigMin,steps>=ag.stp,rec,_phaseToday);
+    _recordActivityDay(steps,cal,actMin,vigMin,steps>=ag.stp,rec,_phaseToday,ag.stp);
     // Prefer _wkTodayStreakReal (set by loadWeekDataGoogle) — it accounts for
     // fb_streak_steps (persisted counter) and streaks longer than 7 days.
     // Falls back to _getStepGoalStreak() only before the first weekly load.
