@@ -5488,7 +5488,7 @@ const T = {
     hv_ca_stp_up:' Tendencia <strong>al alza</strong> — sigue así.',
     hv_ca_stp_dn:' Tendencia <strong>a la baja</strong> — recupera el ritmo.',
     onb: {
-      recovery: { ttl:'Recovery Score', bd:'<p>Indica qué tan <strong>recuperado</strong> está tu cuerpo hoy, en una escala de <strong>0 a 100</strong>.</p><p>Combina cuatro factores: duración del sueño, eficiencia, % de sueño profundo+REM, y tu frecuencia cardíaca en reposo.</p><p><strong>67+</strong> en forma · <strong>50-66</strong> buena · <strong>34-49</strong> moderada · <strong>0-33</strong> descansa.</p>' },
+      recovery: { ttl:'Recovery Score', bd:'<p>Indica qué tan <strong>recuperado</strong> está tu cuerpo hoy, en una escala de <strong>0 a 100</strong>.</p><p>Combina tu <strong>HRV</strong> vs tu base personal (la señal más confiable), la tendencia de tu <strong>FC en reposo</strong> vs tu promedio de 7 días, duración y eficiencia del sueño, y tu check-in matutino si lo completaste.</p><p><strong>67+</strong> en forma · <strong>50-66</strong> buena · <strong>34-49</strong> moderada · <strong>0-33</strong> descansa.</p>' },
       strain:   { ttl:'Esfuerzo (Strain)', bd:'<p>Mide la carga cardiovascular acumulada en el día, escala <strong>0 a 21</strong>.</p><p>Pondera los minutos en zonas de frecuencia cardíaca: <code>Fat Burn ×0.6</code>, <code>Cardio ×2.0</code>, <code>Peak ×4.5</code>.</p><p>Un día de descanso debería estar en 0-3, un entrenamiento intenso 14+.</p>' },
       cal:      { ttl:'Calorías & Balance', bd:'<p><strong>KCAL ACTIVAS</strong> — calorías quemadas por movimiento y ejercicio, por encima del gasto basal.</p><p><strong>BASAL (BMR)</strong> — lo que tu cuerpo quema en reposo para mantener órganos y funciones vitales. Junto con las activas, forman tu gasto total del día.</p><p><strong>META DIARIA (TDEE)</strong> — tu gasto calórico total estimado según tu nivel de actividad (BMR × multiplicador). La barra muestra qué porcentaje de esa meta has completado hoy. Configura tu nivel en <em>Perfil → Datos Biométricos</em>.</p><p>✓ <em>Meta alcanzada</em> = quemaste tanto como esperabas. Para perder peso busca un déficit; para ganar masa, un superávit.</p>' },
       sleep:    { ttl:'Sueño & Deuda', bd:'<p>Sleep performance = <strong>minutos dormidos / 480</strong> (8h ideales).</p><p>El hipnograma muestra las etapas reales: profundo (recuperación física), REM (memoria/sueños), ligero, despierto.</p><p>Ideal: ~45% del sueño en <strong>deep + REM</strong>.</p><p><strong>Deuda de sueño</strong> — diferencia acumulada entre las 8h recomendadas y lo que realmente dormiste los últimos 7 días. Una deuda alta deteriora la recuperación, la cognición y el metabolismo. Se "paga" durmiendo más en los días siguientes; el cuerpo prioriza el sueño profundo para recuperarse.</p>' },
@@ -5762,7 +5762,7 @@ const T = {
     hv_ca_stp_up:' Trending <strong>up</strong> — keep it going.',
     hv_ca_stp_dn:' Trending <strong>down</strong> — pick the pace back up.',
     onb: {
-      recovery: { ttl:'Recovery Score', bd:'<p>Shows how <strong>recovered</strong> your body is today, on a <strong>0 to 100</strong> scale.</p><p>It blends four factors: sleep duration, efficiency, % of deep+REM, and resting heart rate.</p><p><strong>67+</strong> peak · <strong>50-66</strong> good · <strong>34-49</strong> moderate · <strong>0-33</strong> rest.</p>' },
+      recovery: { ttl:'Recovery Score', bd:'<p>Shows how <strong>recovered</strong> your body is today, on a <strong>0 to 100</strong> scale.</p><p>It blends your <strong>HRV</strong> vs your personal baseline (the most reliable signal), your <strong>resting HR</strong> trend vs your 7-day average, sleep duration and efficiency, and your morning check-in if you completed it.</p><p><strong>67+</strong> peak · <strong>50-66</strong> good · <strong>34-49</strong> moderate · <strong>0-33</strong> rest.</p>' },
       strain:   { ttl:'Strain', bd:'<p>Measures cardio load accumulated today, scale <strong>0 to 21</strong>.</p><p>Weights minutes in heart-rate zones: <code>Fat Burn ×0.6</code>, <code>Cardio ×2.0</code>, <code>Peak ×4.5</code>.</p><p>A rest day should sit at 0-3, an intense workout 14+.</p>' },
       cal:      { ttl:'Calories & Balance', bd:'<p><strong>ACTIVE KCAL</strong> — calories burned through movement and exercise, on top of your basal burn.</p><p><strong>BASAL (BMR)</strong> — what your body burns at rest to keep organs and vital functions running. Together with active calories, they make up your total daily burn.</p><p><strong>DAILY GOAL (TDEE)</strong> — your estimated total caloric expenditure based on your activity level (BMR × multiplier). The bar shows what percentage of that goal you\'ve completed today. Set your level in <em>Profile → Biometric Data</em>.</p><p>✓ <em>Goal reached</em> = you burned as much as expected. For weight loss aim for a deficit; for muscle gain, a surplus.</p>' },
       sleep:    { ttl:'Sleep & Debt', bd:'<p>Sleep performance = <strong>minutes asleep / 480</strong> (ideal 8h).</p><p>The hypnogram shows real stages: deep (physical recovery), REM (memory/dreams), light, awake.</p><p>Ideal: ~45% of sleep in <strong>deep + REM</strong>.</p><p><strong>Sleep debt</strong> — the accumulated gap between the recommended 8h and your actual sleep over the last 7 days. High debt degrades recovery, cognition, and metabolism. It\'s repaid by sleeping longer on subsequent nights; the body prioritizes deep sleep to catch up.</p>' },
@@ -10539,14 +10539,31 @@ function setCalbars({ sed=0, lig=0, mod=0, int=0 }) {
 
 // ══════ WHOOP-STYLE SCORES ══════
 function calcScores(opts) {
-  const { sleepMin=432, sleepEff=94, deep=85, rem=108, rhr=68, zones=[] } = opts;
-  // Recovery (0–100)
-  const rec = Math.min(100, Math.round(
-    Math.min(sleepMin/480,1)*30 +
-    (sleepEff/100)*25 +
-    (sleepMin>0 ? Math.min((deep+rem)/sleepMin/0.45,1) : 0)*20 +
-    Math.max(0,Math.min((80-rhr)/40,1))*25
-  ));
+  const {
+    sleepMin=432, sleepEff=94, deep=85, rem=108, rhr=68, zones=[],
+    hrvToday=null, hrvBaselineMean=null, rhrMean7=null, checkin=0
+  } = opts;
+  // ── Recovery Score rebalanceado (issue #62, Fase 1.1) ──────────────────────
+  // Antes: sueño pesaba 75% (duración+eficiencia+calidad) y HRV no se usaba.
+  // Un error de lectura de sleep stages en una sola noche hundía el score sin
+  // que el usuario estuviera realmente fatigado. Ahora HRV y RHR (las señales
+  // más confiables de recuperación del sistema nervioso) llevan el peso.
+  //
+  // HRV vs baseline personal (30 pts) — si no hay HRV disponible, ese
+  // componente vale 0 y el sueño absorbe +15 pts extra para no colapsar
+  // el score solo por falta de datos (primer uso, device sin sensor, etc).
+  const hrvRatio = (hrvToday && hrvBaselineMean) ? Math.min(hrvToday / hrvBaselineMean, 1.4) : null;
+  const hv = hrvRatio != null ? Math.round(Math.min(hrvRatio / 1.4, 1) * 30) : 0;
+  const hvMissing = hrvRatio == null;
+  // RHR: delta vs promedio 7d, no valor absoluto (25 pts).
+  const rhrDelta = rhr - (rhrMean7 || rhr);
+  const hs = Math.round(Math.max(0, Math.min(1 - (rhrDelta / 10), 1)) * 25);
+  // Sueño: señal secundaria — solo duración (10 pts) y eficiencia (5 pts).
+  const sd = Math.round(Math.min((sleepMin||0)/480, 1) * 10);
+  const se = Math.round(Math.min(Math.max((sleepEff/100 - 0.7)/0.25, 0), 1) * 5);
+  // Check-in subjetivo del usuario: 0-10 pts directos, solo ayuda, nunca penaliza.
+  const ci = Math.max(0, Math.min(checkin||0, 10));
+  const rec = Math.min(100, Math.round(hv + hs + sd + se + ci + (hvMissing ? 15 : 0)));
   // Strain (0–21)
   const fb=zones.find(z=>z.name==='Fat Burn')?.minutes||0;
   const ca=zones.find(z=>z.name==='Cardio')?.minutes||0;
@@ -11981,8 +11998,8 @@ function recTextFor(rec) {
 }
 
 function animVals() {
-  // Scores demo: rhr=68, sueño 7h12m efic.94%, profundo 85m, REM 108m
-  updateScores(calcScores({ sleepMin:432, sleepEff:94, deep:85, rem:108, rhr:68, zones:[] }));
+  // Scores demo: rhr=68, sueño 7h12m efic.94%, profundo 85m, REM 108m, HRV demo en línea con baseline
+  updateScores(calcScores({ sleepMin:432, sleepEff:94, deep:85, rem:108, rhr:68, zones:[], hrvToday:52, hrvBaselineMean:48, rhrMean7:70 }));
   // Calorías demo
   document.getElementById('cal-bmr').textContent = '1,620';
   document.getElementById('cal-act').textContent = '564';
@@ -12934,8 +12951,18 @@ async function loadRealGoogleData(silentRefresh) {
   // and gives ~9% recovery even when Google returned zero data.
   const _rhrReal = !!rhrRaw || !!(window._rhrFallback); // rhrRaw already covers all field-name fallbacks
   const _hasRealData = _rhrReal || sleepMin > 0 || azZones.length > 0 || !!(hrD?.dataPoints?.length);
+  // Recovery Score inputs that depend on async calls below (HRV baseline, RHR
+  // trend) — build from whatever's cached from a previous poll on this first
+  // pass; recomputed with fresh data once those promises resolve.
+  const _recoveryInputs = () => ({
+    sleepMin, sleepEff, deep:deepMin, rem:remMin, rhr:rhr_v, zones:azZones,
+    hrvToday: parseFloat(document.getElementById('hrvv')?.textContent) || null,
+    hrvBaselineMean: window._hrvBaseline?.mean || null,
+    rhrMean7: window._rhrTrend?.mean7 || null,
+    checkin: window._morningCheckin || 0
+  });
   if (_hasRealData) {
-    updateScores(calcScores({sleepMin,sleepEff,deep:deepMin,rem:remMin,rhr:rhr_v,zones:azZones}));
+    updateScores(calcScores(_recoveryInputs()));
   } else {
     // No biometric data yet — trigger ring animation so they sit at 0/— cleanly
     updateDailyRings();
@@ -12946,12 +12973,19 @@ async function loadRealGoogleData(silentRefresh) {
   setHRZones({zones:azZones, restHR:_rhrReal?rhr_v:null, maxHR:maxHR_v>0?maxHR_v:null});
   syncTicker();
   // Pass null rhr when not real so loadHealthMetricsGoogle skips hardcoded fallbacks
-  loadHealthMetricsGoogle(td, _rhrReal?rhr_v:null);
-  // HRV baseline personal + SpO2 avg + tendencia RHR + AFib (async, no bloquean el render principal)
-  _calcHRVBaseline(parseInt(localStorage.getItem('hrv_base_range'))||7);
+  // HRV baseline personal + SpO2 avg + tendencia RHR + AFib (async, no bloquean el render principal).
+  // loadHealthMetricsGoogle/_calcHRVBaseline/_calcRHRTrend feed the Recovery Score —
+  // una vez que resuelven, se recalcula con datos completos en vez de los parciales de arriba.
+  const _pHealth   = loadHealthMetricsGoogle(td, _rhrReal?rhr_v:null);
+  const _pHrvBase  = _calcHRVBaseline(parseInt(localStorage.getItem('hrv_base_range'))||7);
   _calcSpo2Avg(parseInt(localStorage.getItem('spo2_avg_range'))||7);
-  _calcRHRTrend();
+  const _pRhrTrend = _calcRHRTrend();
   _loadAFibData();
+  if (_hasRealData) {
+    Promise.all([_pHealth, _pHrvBase, _pRhrTrend]).then(() => {
+      updateScores(calcScores(_recoveryInputs()));
+    }).catch(() => {});
+  }
   // Always call renderRecentActivities — even empty array shows "Sin entrenamientos"
   // instead of leaving the HTML demo activities (Carrera/Meditación/Ciclismo) on screen
   const ghSessions = _parseGhExerciseSessions(exD?.dataPoints||[]);
