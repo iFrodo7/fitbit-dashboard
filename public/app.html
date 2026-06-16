@@ -9337,7 +9337,11 @@ async function loadWeekDataGoogle() {
 
     // ── _wkTodayStreakReal: persistent streak that survives app restarts ─────
     // Sources (highest wins): window backward count | fb_activity_history | fb_streak_steps
-    var _strGoal7 = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+    // Anti-trampa: el piso de meta (goal en fb_streak_steps) evita que bajar la meta
+    // cuente retroactivamente días que no cumplieron la meta original de la racha.
+    var _strGoal7Cur = _loadDRGoals().stp;
+    var _strGoal7Floor = 0; try { _strGoal7Floor = parseInt(JSON.parse(localStorage.getItem('fb_streak_steps')||'{}').goal||0)||0; } catch(e){}
+    var _strGoal7 = Math.max(_strGoal7Cur, _strGoal7Floor);
 
     // 1. Window backward count — uses patched days[6].steps (FIX #2 above)
     // Uses the rolling days[] array directly (not window._wkData which is set
@@ -9469,7 +9473,9 @@ async function loadWeekDataGoogle() {
         // Persist updated counter (skip only on clock-jump case)
         if (_gap >= 0) {
           _pNew = Math.max(_pNew || 0, 0);
-          var _saveStrObj = { count: _pNew, lastDate: _pNew > 0 ? _pdNew : '' };
+          // goal: piso de meta para anti-trampa. Se conserva mientras la racha siga activa;
+          // se borra (0) al resetear para que la siguiente racha parta de la meta actual.
+          var _saveStrObj = { count: _pNew, lastDate: _pNew > 0 ? _pdNew : '', goal: _pNew > 0 ? _strGoal7 : 0 };
           // FIX #17: when streak resets downward preserve the old peak so past
           // bars in wkBarSel can show their correct historical count.
           if (_pc > _pNew && _pd) {
@@ -11867,6 +11873,12 @@ function updateDailyRings() {
   if(pro&&illness) mult=Math.min(mult,0.6);
   var ag=pro?{stp:Math.round(goals.stp*mult),cal:Math.round(goals.cal*mult),act:Math.round(goals.act*mult)}:goals;
   if(pro) ag=_antiSpikeClamp(ag);
+  // Sync goal label, progress bar and % to real goal (adaptive PRO / user-set FREE)
+  var _glEl=document.getElementById('goal-lbl');
+  if(_glEl) _glEl.textContent='/ '+ag.stp.toLocaleString('en-US')+' '+(lang==='es'?'OBJETIVO':'GOAL');
+  var _pctGoal=Math.min((steps/ag.stp)*100,100);
+  var _spEl=document.getElementById('stepsprog'); if(_spEl) _spEl.style.width=_pctGoal.toFixed(1)+'%';
+  var _spctEl=document.getElementById('stepspct'); if(_spctEl) _spctEl.textContent=_pctGoal.toFixed(1)+'% '+(lang==='es'?'COMPLETADO HOY':'COMPLETED TODAY');
   // Registra actividad (ambos planes — útil si el usuario hace upgrade)
   if(isReal&&(steps||cal||actMin)){
     var _phaseToday=(pro&&typeof cycleEnabled==='function'&&cycleEnabled())?(computeCycle()?.phase||null):null;
@@ -11879,9 +11891,8 @@ function updateDailyRings() {
     // Show "90+" with disclaimer if streak hit the 90-day init cap and hasn't grown past it yet
     var _strStored = {}; try { _strStored = JSON.parse(localStorage.getItem('fb_streak_steps')||'{}'); } catch(e2) {}
     var _isCapped = _strStored.capped && _ss <= 90;
-    // FIX #16: show '-' when today's goal not yet reached (undecided)
-    var _ssGoal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
-    var _ssTodayMet = steps >= _ssGoal;
+    // FIX #16: show '-' when today's goal not yet reached (undecided) — uses real adaptive goal
+    var _ssTodayMet = steps >= ag.stp;
     if(_sse) _sse.textContent = !_ssTodayMet ? '-' : (_isCapped ? '90+' : (_ss>0?_ss:'—'));
     var _sUnit = document.getElementById('steps-streak-unit');
     if (_sUnit) {
@@ -12959,7 +12970,10 @@ async function _initStreakFromGoogle() {
       if (ds) stMap[ds] = parseInt(rp.steps?.countSum ?? rp.steps?.count_sum ?? rp.steps?.count ?? 0) || 0;
     });
 
-    var goal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+    // Anti-trampa: si había una racha activa con meta más alta, respetar ese piso
+    // para que bajar la meta no cuente retroactivamente días que antes no cumplieron.
+    var _psInit = {}; try { _psInit = JSON.parse(localStorage.getItem('fb_streak_steps')||'{}'); } catch(e){}
+    var goal = Math.max(_loadDRGoals().stp, parseInt(_psInit.goal||0)||0);
     var streak = 0, lastDate = '';
 
     // Count consecutive days from yesterday backwards (up to 90)
@@ -12978,7 +12992,8 @@ async function _initStreakFromGoogle() {
 
     // API is always the source of truth — overwrite whatever localStorage had.
     // This is what keeps every device consistent: same API data → same streak.
-    localStorage.setItem('fb_streak_steps', JSON.stringify({ count: streak, lastDate: lastDate || td, capped: capped }));
+    // goal guardado: piso anti-trampa. Se borra (0) si la racha es 0 (nueva racha = meta actual).
+    localStorage.setItem('fb_streak_steps', JSON.stringify({ count: streak, lastDate: lastDate || td, capped: capped, goal: streak > 0 ? goal : 0 }));
     window._wkTodayStreakReal = streak;
 
     var _sEl   = document.getElementById('steps-streak-val');
