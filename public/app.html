@@ -2411,7 +2411,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .dr-ring-wrap.dr-editing svg{opacity:0.25;}
 @keyframes dr-pop{0%,100%{transform:scale(1)}45%{transform:scale(1.18)}}
 .dr-ring-wrap.dr-pulse svg{animation:dr-pop 0.36s var(--ease-spring);}
-#dr-goal-sheet{position:fixed;inset:0;z-index:8000;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);animation:achOvIn 0.2s ease both;}
+#dr-goal-sheet,#checkin-sheet{position:fixed;inset:0;z-index:8000;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);animation:achOvIn 0.2s ease both;}
 .drgs-card{background:var(--bg2,#0d1117);border-top:1px solid rgba(255,255,255,0.08);border-radius:20px 20px 0 0;padding:16px 24px max(40px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:14px;}
 .drgs-handle{width:36px;height:4px;background:rgba(255,255,255,0.12);border-radius:2px;margin-bottom:4px;}
 .drgs-lbl{font-size:11px;font-weight:700;letter-spacing:4px;font-family:'IBM Plex Mono',monospace;text-align:center;}
@@ -2423,6 +2423,12 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .drgs-inp::-webkit-outer-spin-button,.drgs-inp::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
 .drgs-save{width:100%;padding:16px;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:2px;cursor:pointer;margin-top:4px;}
 .drgs-cancel{font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);cursor:pointer;padding:8px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;}
+.ci-options{display:flex;gap:10px;width:100%;}
+.ci-opt{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border:1px solid var(--bdr);border-radius:var(--r-md);background:transparent;color:var(--txt);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:0.5px;transition:background var(--dur-fast) var(--ease-std),border-color var(--dur-fast) var(--ease-std);-webkit-tap-highlight-color:transparent;}
+.ci-opt:active{background:rgba(255,255,255,0.06);border-color:var(--ta);}
+.ci-emoji{font-size:26px;}
+.ci-trigger{margin-top:6px;font-size:10px;letter-spacing:0.5px;opacity:0.4;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:opacity var(--dur-fast) var(--ease-std);}
+.ci-trigger:active{opacity:0.75;}
 @keyframes wsload{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
 .wsitem{flex:1;display:flex;flex-direction:column;gap:5px;padding:0 14px;transition:filter var(--dur-base) var(--ease-std);}
 .wsitem:hover{filter:brightness(1.15);}
@@ -4164,6 +4170,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           </div>
         </div>
         <div class="wrec" id="wrec">Listo para entrenar al máximo</div>
+        <div class="ci-trigger" id="ci-trigger" onclick="_openCheckinSheet()">💬 <span id="ci-trigger-lbl">¿Cómo te sientes?</span></div>
       </div>
 
       <div class="vg">
@@ -5436,6 +5443,7 @@ const T = {
     u_hr: 'BPM — REPOSO',
     lbl_spo2: '// SATURACIÓN O₂',
     lbl_temp: '// TEMP. CUTÁNEA',
+    ci_trigger_lbl: '¿Cómo te sientes?',
     lbl_stress: '// NIVEL ESTRÉS',
     u_stress: '/ 100 — BAJO',
     lbl_cal: '// CALORÍAS',
@@ -5710,6 +5718,7 @@ const T = {
     u_hr: 'BPM — RESTING',
     lbl_spo2: '// O₂ SATURATION',
     lbl_temp: '// SKIN TEMP.',
+    ci_trigger_lbl: 'How do you feel?',
     lbl_stress: '// STRESS LEVEL',
     u_stress: '/ 100 — LOW',
     lbl_cal: '// CALORIES',
@@ -6022,6 +6031,7 @@ function setLang(l) {
   if (!isReal) { setText('stepspct', t.pct_lbl); setText('uname', t.user_demo); renderDemoActivities(); }
   // Re-render piezas dependientes del idioma que se calculan en runtime
   if (window._lastRec != null) setText('wrec', recTextFor(window._lastRec));
+  setText('ci-trigger-lbl', t.ci_trigger_lbl);
   setText('lbl-coach', t.lbl_coach);
   { const ci = document.getElementById('cchat-input'); if (ci) ci.placeholder = t.cchat_ph; }
   setText('cchat-hint', t.cchat_hint);
@@ -10574,6 +10584,84 @@ function calcScores(opts) {
   return { rec, strain, sleepPct };
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// ── MORNING CHECK-IN (issue #62, Fase 1.2) ──────────────────────────────────
+// No es una tarea diaria obligatoria: AIRA solo lo pide cuando su propia
+// confianza en los datos automáticos es baja (falta HRV/RHR de hoy, o las
+// dos señales se contradicen). El resto de los días no aparece nada — el
+// valor de PRO es que AIRA decide sola. Queda además un acceso manual
+// opcional junto al Recovery Score para el caso en que el usuario sepa algo
+// que el sensor todavía no refleja (ej. "siento que me enfermo").
+// ══════════════════════════════════════════════════════════════════════════
+function _todayCheckin() {
+  try {
+    var v = localStorage.getItem('fb_checkin_' + _localDateStr());
+    return v != null ? parseInt(v) : null;
+  } catch(e) { return null; }
+}
+function _buildRecoveryInputs() {
+  var base = window._lastScoreOpts || {};
+  var ci = _todayCheckin();
+  return Object.assign({}, base, {
+    hrvToday: parseFloat(document.getElementById('hrvv')?.textContent) || null,
+    hrvBaselineMean: window._hrvBaseline?.mean || null,
+    rhrMean7: window._rhrTrend?.mean7 || null,
+    checkin: ci != null ? ci : 0
+  });
+}
+// Confianza baja = falta HRV o RHR de hoy, o ambas señales se contradicen
+// fuerte (una dice "bien", la otra dice "mal"). Solo entonces vale la pena
+// interrumpir al usuario con una pregunta de 2 segundos.
+function _recoveryConfidenceLow() {
+  var hrvToday = parseFloat(document.getElementById('hrvv')?.textContent);
+  var hrvBase  = window._hrvBaseline?.mean;
+  var rhrTrend = window._rhrTrend;
+  var hrvOk = !isNaN(hrvToday) && hrvToday > 0 && hrvBase > 0;
+  var rhrOk = !!(rhrTrend && rhrTrend.mean7 != null);
+  if (!hrvOk || !rhrOk) return true;
+  var hrvRatio = hrvToday / hrvBase;
+  var rhrDelta = rhrTrend.diff;
+  var hrvGood = hrvRatio >= 1.05, hrvBad = hrvRatio <= 0.92;
+  var rhrGood = rhrDelta <= -2,  rhrBad  = rhrDelta >= 4;
+  return (hrvGood && rhrBad) || (hrvBad && rhrGood);
+}
+function _maybeShowCheckin() {
+  if (_todayCheckin() != null) return; // ya respondió hoy
+  var today = _localDateStr();
+  if (localStorage.getItem('fb_checkin_prompted_' + today)) return; // ya se mostró/descartó hoy
+  if (!_recoveryConfidenceLow()) return; // datos automáticos confiables — no hace falta preguntar
+  try { localStorage.setItem('fb_checkin_prompted_' + today, '1'); } catch(e) {}
+  setTimeout(_openCheckinSheet, 600);
+}
+function _openCheckinSheet() {
+  if (document.getElementById('checkin-sheet')) return;
+  var es = lang === 'es';
+  var sh = document.createElement('div');
+  sh.id = 'checkin-sheet';
+  sh.innerHTML = '<div class="drgs-card">' +
+    '<div class="drgs-handle"></div>' +
+    '<div class="drgs-lbl" style="color:var(--ta)">' + (es ? '¿Cómo te sientes hoy?' : 'How do you feel today?') + '</div>' +
+    '<div class="ci-options">' +
+      '<button class="ci-opt" onclick="_answerCheckin(0)"><span class="ci-emoji">😴</span><span>' + (es?'Cansado/a':'Tired') + '</span></button>' +
+      '<button class="ci-opt" onclick="_answerCheckin(5)"><span class="ci-emoji">⚡</span><span>' + (es?'Normal':'Normal') + '</span></button>' +
+      '<button class="ci-opt" onclick="_answerCheckin(10)"><span class="ci-emoji">🔥</span><span>' + (es?'Con energía':'Energized') + '</span></button>' +
+    '</div>' +
+    '<div class="drgs-cancel" onclick="_dismissCheckinSheet()">' + (es?'AHORA NO':'NOT NOW') + '</div>' +
+  '</div>';
+  sh.addEventListener('click', function(e){ if (e.target===sh) _dismissCheckinSheet(); });
+  document.body.appendChild(sh);
+}
+function _dismissCheckinSheet() {
+  var sh = document.getElementById('checkin-sheet'); if (sh) sh.remove();
+}
+function _answerCheckin(val) {
+  try { localStorage.setItem('fb_checkin_' + _localDateStr(), String(val)); } catch(e) {}
+  try { localStorage.setItem('fb_checkin_prompted_' + _localDateStr(), '1'); } catch(e) {}
+  _dismissCheckinSheet();
+  showToast(lang==='es' ? 'AIRA ajustó tus metas para hoy' : 'AIRA adjusted your goals for today', 'success');
+  updateScores(calcScores(_buildRecoveryInputs()));
+}
+
 // rec, activity, sleep — cada uno 0-100 correspondiendo al ring %
 function updateSynthEQ(rec, activity, sleep) {
   const g = document.getElementById('synth-eq-bars');
@@ -12951,18 +13039,12 @@ async function loadRealGoogleData(silentRefresh) {
   // and gives ~9% recovery even when Google returned zero data.
   const _rhrReal = !!rhrRaw || !!(window._rhrFallback); // rhrRaw already covers all field-name fallbacks
   const _hasRealData = _rhrReal || sleepMin > 0 || azZones.length > 0 || !!(hrD?.dataPoints?.length);
-  // Recovery Score inputs that depend on async calls below (HRV baseline, RHR
-  // trend) — build from whatever's cached from a previous poll on this first
-  // pass; recomputed with fresh data once those promises resolve.
-  const _recoveryInputs = () => ({
-    sleepMin, sleepEff, deep:deepMin, rem:remMin, rhr:rhr_v, zones:azZones,
-    hrvToday: parseFloat(document.getElementById('hrvv')?.textContent) || null,
-    hrvBaselineMean: window._hrvBaseline?.mean || null,
-    rhrMean7: window._rhrTrend?.mean7 || null,
-    checkin: window._morningCheckin || 0
-  });
+  // Base inputs for the Recovery Score — saved on window so _buildRecoveryInputs()
+  // (used globally by the check-in sheet) can recompute without needing closures
+  // over this function's locals.
+  window._lastScoreOpts = {sleepMin, sleepEff, deep:deepMin, rem:remMin, rhr:rhr_v, zones:azZones};
   if (_hasRealData) {
-    updateScores(calcScores(_recoveryInputs()));
+    updateScores(calcScores(_buildRecoveryInputs()));
   } else {
     // No biometric data yet — trigger ring animation so they sit at 0/— cleanly
     updateDailyRings();
@@ -12983,7 +13065,10 @@ async function loadRealGoogleData(silentRefresh) {
   _loadAFibData();
   if (_hasRealData) {
     Promise.all([_pHealth, _pHrvBase, _pRhrTrend]).then(() => {
-      updateScores(calcScores(_recoveryInputs()));
+      updateScores(calcScores(_buildRecoveryInputs()));
+      // Solo pregunta si AIRA no confía en la señal automática (HRV/RHR
+      // faltante o contradictoria) — nunca como tarea diaria obligatoria.
+      _maybeShowCheckin();
     }).catch(() => {});
   }
   // Always call renderRecentActivities — even empty array shows "Sin entrenamientos"
