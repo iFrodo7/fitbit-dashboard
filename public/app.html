@@ -4370,10 +4370,10 @@ body.t-synth::after{content:'';position:fixed;inset:0;
             <span style="font-size:11px;opacity:0.45;letter-spacing:1px;">°C</span>
           </div>
           <span class="vunit" id="u-temp">PIEL — NORMAL</span>
-          <!-- barra 35–38°C -->
+          <!-- barra centrada en la base personal de piel (no core 35–38°) -->
           <div style="margin-top:10px;">
             <div style="display:flex;justify-content:space-between;font-size:8px;letter-spacing:1.5px;opacity:0.35;margin-bottom:4px;">
-              <span>35°</span><span>36.5°</span><span>38°</span>
+              <span id="temp-scale-lo">—</span><span id="temp-scale-mid">—</span><span id="temp-scale-hi">—</span>
             </div>
             <div style="position:relative;height:4px;border-radius:2px;background:linear-gradient(90deg,#4ab8ff 0%,var(--ta) 45%,#f59e0b 75%,var(--tneg) 100%);overflow:visible;">
               <div id="temp-zone-dot" style="position:absolute;top:50%;width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 6px rgba(0,0,0,0.5);transform:translate(-50%,-50%);transition:left 1s var(--ease-std);left:47%;"></div>
@@ -10459,11 +10459,18 @@ function updateZoneDots({ hrv=48, spo2=98, temp=36.4 } = {}) {
   const spo2Pct = Math.max(2, Math.min(((spo2 - 90) / 10) * 100, 98));
   const dot2 = document.getElementById('spo2-zone-dot');
   if (dot2) dot2.style.left = spo2Pct.toFixed(1) + '%';
-  // Temp dot: escala 35–38°C → 0–100%
+  // Temp dot: escala dinámica centrada en la base personal de piel (no un rango core fijo)
   const tempVal = parseFloat(document.getElementById('tempv')?.textContent) || temp;
-  const tempPct = Math.max(2, Math.min(((tempVal - 35) / 3) * 100, 98));
+  const baseTxt = document.getElementById('temp-avg-val')?.textContent?.trim();
+  const baseVal = (baseTxt && baseTxt !== '—') ? parseFloat(baseTxt) : tempVal;
+  const tempLo = baseVal - 1.5, tempHi = baseVal + 1.5;
+  const tempPct = Math.max(2, Math.min(((tempVal - tempLo) / (tempHi - tempLo)) * 100, 98));
   const dot3 = document.getElementById('temp-zone-dot');
   if (dot3) dot3.style.left = tempPct.toFixed(1) + '%';
+  const setScaleLbl = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v.toFixed(1) + '°'; };
+  setScaleLbl('temp-scale-lo', tempLo);
+  setScaleLbl('temp-scale-mid', baseVal);
+  setScaleLbl('temp-scale-hi', tempHi);
   // HRV status label
   const u = document.getElementById('u-hrv');
   if (u) {
