@@ -10805,6 +10805,18 @@ var _CYCLE_PHASE_LABEL = {
         peak:'Fertility peak', ovulation:'Ovulation', luteal:'Luteal phase', late:'Cycle delayed' }
 };
 
+// ── Detector de enfermedad / estrés severo (issue #62, Fase 3.9) ───────────
+// RHR elevado +7bpm sobre tu promedio de 7d en 2 de los últimos 3 días suele
+// indicar enfermedad incipiente, estrés fuerte o sobreentrenamiento. Usa los
+// mismos datos que ya trae _calcRHRTrend() en cada sync (8 días de Google
+// Health) — no hace falta guardar historial propio aparte.
+function _illnessFlag() {
+  var rt = window._rhrTrend;
+  if (!rt || rt.mean7==null || !rt.recent || rt.recent.length<2) return false;
+  var elevated = rt.recent.filter(function(v){ return v > rt.mean7 + 7; });
+  return elevated.length >= 2;
+}
+
 function _getNextAchievement(t) {
   var s=_loadAchStats(), u=_loadAchUnlocked(), un=u[t]||[], es=lang==='es';
   // For step achievements use today's real steps (DOM) when authenticated,
@@ -11735,9 +11747,14 @@ function updateDailyRings() {
   // Días consecutivos de entrenamiento real (excluye hoy, que aún no se registró) —
   // tope de seguridad independiente del Recovery Score (issue #62, Fase 1.4).
   var consecActive=pro?_consecutiveActiveDays():0;
+  // RHR elevado 2+ de los últimos 3 días — posible enfermedad/estrés severo
+  // (issue #62, Fase 3.9). Tope más estricto que la fatiga por días activos,
+  // y manda sobre ella en el aviso de UI (es la señal más seria de las dos).
+  var illness=pro?_illnessFlag():false;
   var mult=pro?Math.max(0.4,Math.min(1.4,dt.mult+cycAdj)):1.0;
   if(pro&&consecActive>=8) mult=Math.min(mult,0.55);
   else if(pro&&consecActive>=6) mult=Math.min(mult,0.70);
+  if(pro&&illness) mult=Math.min(mult,0.6);
   var ag=pro?{stp:Math.round(goals.stp*mult),cal:Math.round(goals.cal*mult),act:Math.round(goals.act*mult)}:goals;
   if(pro) ag=_antiSpikeClamp(ag);
   // Registra actividad (ambos planes — útil si el usuario hace upgrade)
@@ -11796,10 +11813,15 @@ function updateDailyRings() {
       cycEl.classList.remove('show');
     }
   }
-  // Aviso de fatiga acumulada — solo cuando el tope realmente está actuando
+  // Aviso de fatiga/enfermedad — un solo slot, prioriza enfermedad si ambas aplican
   var fatEl=document.getElementById('dr-fatigue-warn');
   if(fatEl){
-    if(pro&&consecActive>=6){
+    if(pro&&illness){
+      fatEl.textContent=lang==='es'
+        ? '⚠ FC en reposo elevada 2+ días — posible estrés o enfermedad. Metas reducidas.'
+        : '⚠ Resting HR elevated 2+ days — possible stress or illness. Goals reduced.';
+      fatEl.classList.add('show');
+    } else if(pro&&consecActive>=6){
       fatEl.textContent='⚠ '+consecActive+(lang==='es'?' días activos seguidos — AIRA recomienda recuperación':' active days in a row — AIRA recommends recovery');
       fatEl.classList.add('show');
     } else {
@@ -13545,7 +13567,10 @@ async function _calcRHRTrend() {
       else if (diff <= -2) { trd.textContent='↓'; trd.style.color='var(--tpos)'; trd.title=`${Math.round(diff)} bpm vs. media ${rest.length}d`; }
       else                 { trd.textContent='→'; trd.style.color='rgba(255,255,255,0.3)'; trd.title='Estable vs. media 7d'; }
     }
-    window._rhrTrend = {today, mean7:Math.round(mean7), diff:Math.round(diff), n:rest.length};
+    // recent = últimos 3 días (hoy primero) — usado por _illnessFlag() para
+    // detectar RHR elevado sostenido sin necesitar guardar historial aparte,
+    // ya esta misma respuesta trae varios días (issue #62, Fase 3.9).
+    window._rhrTrend = {today, mean7:Math.round(mean7), diff:Math.round(diff), n:rest.length, recent:vals.slice(0,3)};
     console.log('[gh rhr-trend]', window._rhrTrend);
   } catch(e) { console.warn('[gh rhr-trend]',e); }
 }
