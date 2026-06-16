@@ -4364,7 +4364,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           </div>
         </div>
         <div class="vc" id="temp-card" data-onb="temp">
-          <div class="vc-head"><span class="vlbl" id="lbl-temp">// TEMP. CORPORAL</span><div style="display:flex;align-items:center;gap:6px;"><span id="temp-trd" style="font-size:11px;color:var(--tpos);font-weight:700;">→</span><button class="onb-q" onclick="showOnb('temp')" aria-label="info">?</button></div></div>
+          <div class="vc-head"><span class="vlbl" id="lbl-temp">// TEMP. CUTÁNEA</span><div style="display:flex;align-items:center;gap:6px;"><span id="temp-trd" style="font-size:11px;color:var(--tpos);font-weight:700;">→</span><button class="onb-q" onclick="showOnb('temp')" aria-label="info">?</button></div></div>
           <div style="display:flex;align-items:baseline;gap:6px;margin-top:4px;">
             <div class="vval" id="tempv">36.4</div>
             <span style="font-size:11px;opacity:0.45;letter-spacing:1px;">°C</span>
@@ -5435,7 +5435,7 @@ const T = {
     lbl_hr: '// FREC. CARDÍACA',
     u_hr: 'BPM — REPOSO',
     lbl_spo2: '// SATURACIÓN O₂',
-    lbl_temp: '// TEMP. CORPORAL',
+    lbl_temp: '// TEMP. CUTÁNEA',
     lbl_stress: '// NIVEL ESTRÉS',
     u_stress: '/ 100 — BAJO',
     lbl_cal: '// CALORÍAS',
@@ -5495,7 +5495,7 @@ const T = {
       hrv:      { ttl:'HRV — Variabilidad Cardíaca', bd:'<p>La <strong>HRV</strong> mide la variación de tiempo entre latidos. Más alta = mejor recuperación del sistema nervioso.</p><p>Se mide mejor durante el sueño profundo. Tu base personal es lo que importa, no comparar con otros.</p><p>Caídas marcadas pueden indicar fatiga, estrés o enfermedad incipiente.</p>' },
       rhr:      { ttl:'FC en Reposo', bd:'<p>Tu frecuencia cardíaca en reposo (<strong>RHR</strong>) es el menor número de latidos por minuto medido en el día.</p><p>Más baja = mejor estado cardiovascular. Atletas <strong>40-60 bpm</strong>, persona promedio <strong>60-80 bpm</strong>.</p><p>Una subida sostenida de 5+ bpm sobre tu base puede indicar sobreentrenamiento o estrés.</p>' },
       spo2:     { ttl:'Saturación de Oxígeno (SpO2)', bd:'<p>Mide el porcentaje de hemoglobina en sangre que lleva oxígeno.</p><p><strong>95-100%</strong> — normal · <strong>90-94%</strong> — atención · <strong>&lt;90%</strong> — busca atención médica.</p><p>Valores bajos durante el sueño pueden indicar apnea. El Fitbit la mide durante el sueño con un sensor óptico infrarrojo.</p>' },
-      temp:     { ttl:'Temperatura Corporal', bd:'<p>Fitbit mide la temperatura de la <strong>piel</strong> de la muñeca, que refleja la temperatura core con un pequeño desfase.</p><p>El valor mostrado es tu temperatura estimada en °C. Una variación <strong>+0.3°C sostenida</strong> puede indicar enfermedad incipiente o, en mujeres, la ovulación.</p><p>Lo más útil es la tendencia: ¿sube o baja respecto a tu base personal?</p>' },
+      temp:     { ttl:'Temperatura Cutánea', bd:'<p>Fitbit mide la temperatura de la <strong>piel</strong> de la muñeca, que refleja la temperatura core con un pequeño desfase.</p><p>El valor mostrado es tu temperatura estimada en °C. Una variación <strong>+0.3°C sostenida</strong> puede indicar enfermedad incipiente o, en mujeres, la ovulación.</p><p>Lo más útil es la tendencia: ¿sube o baja respecto a tu base personal?</p>' },
       bio:      { ttl:'Fitness Personal', bd:'<p><strong>Fitness Age</strong> estima tu edad biológica cardiovascular comparando tu VO2 máx con los percentiles de tu grupo de edad y sexo (normas Cooper Institute / ACSM).</p><p><strong>Metabolismo basal (BMR)</strong> — calorías mínimas que tu cuerpo necesita en reposo. Calculado con la fórmula <em>Mifflin-St Jeor</em> a partir de peso, altura, edad y sexo.</p><p><strong>FC Máx estimada</strong> — umbral superior para tus zonas de entrenamiento. Fórmula Tanaka: <code>208 − 0.7 × edad</code>. Configura tus datos en <em>Perfil → Datos Biométricos</em>.</p>' },
       afib:     { ttl:'Ritmo Cardíaco (AFib)', bd:'<p>El Fitbit Air monitorea tu ritmo cardíaco durante el día y detecta posibles <strong>ritmos irregulares</strong> (fibrilación auricular, AFib) usando el sensor óptico de la muñeca.</p><p><strong>SINUSAL</strong> — ritmo normal. <strong>IRREGULAR</strong> — se detectó una posible anomalía; se recomienda consultar a un médico.</p><p>El contador muestra cuántas veces se registró un ritmo irregular en los últimos 30 días.</p><p style="opacity:0.6;font-size:0.9em;">⚠ <strong>Aviso médico:</strong> Esta función es informativa y no constituye un diagnóstico médico. No reemplaza la evaluación de un cardiólogo ni ningún dispositivo médico certificado. Si tienes síntomas cardíacos, consulta a un profesional de salud.</p>' },
       steps:    { ttl:'Pasos', bd:'<p>Meta diaria estándar: <strong>10,000 pasos</strong> (~7-8km).</p><p>El indicador muestra el porcentaje cumplido. Constancia &gt; volumen — mejor 7,000 todos los días que 15,000 un día y 2,000 los demás.</p>' },
@@ -5709,7 +5709,7 @@ const T = {
     lbl_hr: '// HEART RATE',
     u_hr: 'BPM — RESTING',
     lbl_spo2: '// O₂ SATURATION',
-    lbl_temp: '// BODY TEMP.',
+    lbl_temp: '// SKIN TEMP.',
     lbl_stress: '// STRESS LEVEL',
     u_stress: '/ 100 — LOW',
     lbl_cal: '// CALORIES',
@@ -5769,7 +5769,7 @@ const T = {
       hrv:      { ttl:'HRV — Heart Rate Variability', bd:'<p><strong>HRV</strong> measures the variation in time between heartbeats. Higher = better nervous system recovery.</p><p>Best measured during deep sleep. Your personal baseline is what matters — don\\u2019t compare across people.</p><p>Sharp drops can signal fatigue, stress, or incipient illness.</p>' },
       rhr:      { ttl:'Resting Heart Rate', bd:'<p>Your <strong>RHR</strong> is the lowest BPM measured during the day.</p><p>Lower = better cardiovascular shape. Athletes <strong>40-60 bpm</strong>, average person <strong>60-80 bpm</strong>.</p><p>A sustained rise of 5+ bpm above your baseline may indicate overtraining or stress.</p>' },
       spo2:     { ttl:'Blood Oxygen (SpO2)', bd:'<p>The percentage of hemoglobin in your blood carrying oxygen.</p><p><strong>95-100%</strong> — normal · <strong>90-94%</strong> — monitor closely · <strong>&lt;90%</strong> — seek medical attention.</p><p>Low values during sleep may indicate sleep apnea. Fitbit measures it overnight with an infrared optical sensor.</p>' },
-      temp:     { ttl:'Body Temperature', bd:'<p>Fitbit measures <strong>wrist skin temperature</strong>, which reflects core temperature with a slight offset.</p><p>A sustained rise of <strong>+0.3°C</strong> above your baseline may signal illness or, in women, ovulation.</p><p>The trend matters more than the absolute value — watch how it changes from your personal baseline.</p>' },
+      temp:     { ttl:'Skin Temperature', bd:'<p>Fitbit measures <strong>wrist skin temperature</strong>, which reflects core temperature with a slight offset.</p><p>A sustained rise of <strong>+0.3°C</strong> above your baseline may signal illness or, in women, ovulation.</p><p>The trend matters more than the absolute value — watch how it changes from your personal baseline.</p>' },
       bio:      { ttl:'Personal Fitness', bd:'<p><strong>Fitness Age</strong> estimates your cardiovascular biological age by comparing your VO2 max to age/sex percentiles (Cooper Institute / ACSM norms).</p><p><strong>Basal Metabolic Rate (BMR)</strong> — minimum calories your body needs at rest. Calculated using the <em>Mifflin-St Jeor</em> formula from your weight, height, age, and sex.</p><p><strong>Estimated Max HR</strong> — upper threshold for your training zones. Tanaka formula: <code>208 − 0.7 × age</code>. Set your data in <em>Profile → Biometric Data</em>.</p>' },
       afib:     { ttl:'Heart Rhythm (AFib)', bd:'<p>The Fitbit Air monitors your heart rhythm throughout the day and detects potential <strong>irregular rhythms</strong> (atrial fibrillation, AFib) using the wrist optical sensor.</p><p><strong>SINUS</strong> — normal rhythm. <strong>IRREGULAR</strong> — a possible anomaly was detected; consult a doctor.</p><p>The counter shows how many times an irregular rhythm was recorded in the past 30 days.</p><p style="opacity:0.6;font-size:0.9em;">⚠ <strong>Medical notice:</strong> This feature is informational and does not constitute a medical diagnosis. It does not replace evaluation by a cardiologist or any certified medical device. If you have cardiac symptoms, consult a healthcare professional.</p>' },
       steps:    { ttl:'Steps', bd:'<p>Standard daily target: <strong>10,000 steps</strong> (~7-8km).</p><p>The bar shows percent achieved. Consistency &gt; volume — 7,000 every day beats 15,000 once + 2,000 the rest.</p>' },
@@ -9632,7 +9632,7 @@ var WM_WIDGETS = [
   { id:'stress-card',   on:true,  label:'Nivel de Estrés',     labelEn:'Stress Level',      desc:'Carga · HRV · Respiración',     descEn:'Load · HRV · Breathing',         icon:'⚡' },
   { id:'cal-card',      on:true,  label:'Calorías',            labelEn:'Calories',          desc:'Activas · Basal · Intensidad',  descEn:'Active · Basal · Intensity',     icon:'◆' },
   { id:'spo2-card',     on:true,  label:'Saturación O₂',      labelEn:'O₂ Saturation',     desc:'SpO2 · Oxígeno en sangre',      descEn:'SpO2 · Blood oxygen',            icon:'○' },
-  { id:'temp-card',     on:true,  label:'Temperatura',         labelEn:'Temperature',       desc:'Temperatura corporal',          descEn:'Body temperature',               icon:'◈' },
+  { id:'temp-card',     on:true,  label:'Temp. Cutánea',       labelEn:'Skin Temp.',        desc:'Temperatura cutánea',           descEn:'Skin temperature',                icon:'◈' },
   { id:'hr-chart-card', on:false, label:'Gráfica FC 24H',      labelEn:'HR Chart 24H',      desc:'Historial FC del día completo', descEn:'Full-day heart rate history',    icon:'〰' },
   { id:'sleep-card',    on:true,  label:'Análisis de Sueño',   labelEn:'Sleep Analysis',    desc:'Etapas · Duración · Score',     descEn:'Stages · Duration · Score',      icon:'◑' },
   { id:'scard',         on:true,  label:'Pasos',               labelEn:'Steps',             desc:'Actividad diaria · Objetivo',   descEn:'Daily activity · Goal',          icon:'▶' },
