@@ -13426,6 +13426,7 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
     const spo2Num = spv!=null ? parseFloat(spv)   : null;
 
     // ── Temperatura corporal (Fitbit Air — sensor de piel nocturno) ────────
+    console.log('[gh temp-raw]', JSON.stringify(tempD?.dataPoints?.[0]));
     const tv=tempD?.dataPoints?.[0]?.dailySleepTemperatureDerivations
            ?? tempD?.dataPoints?.[0]?.sleepTemperatureDerivations
            ?? tempD?.dataPoints?.[0];
