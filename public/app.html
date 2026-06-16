@@ -13426,7 +13426,6 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
            ?? tempD?.dataPoints?.[0];
     let tempNum=null;
     if (tv) {
-      console.log('[gh temp-keys]', Object.keys(tv), 'stddev raw:', tv.relativeNightlyStddevDCelsius);
       const nightly = parseFloat(tv.nightlyTemperatureCelsius??tv.value) || null;
       const base    = parseFloat(tv.baselineTemperatureCelsius??tv.baseline??tv.baselineCelsius) || null;
       const delta   = (nightly!=null && base!=null) ? (nightly-base) : null;
@@ -13444,7 +13443,7 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
       // Flecha de tendencia y etiqueta de estado — umbral dinámico según la
       // variabilidad noche a noche propia del usuario, no un valor fijo igual para todos.
       const d=delta??0;
-      const sd=parseFloat(tv.relativeNightlyStddevDCelsius)||0.5;
+      const sd=parseFloat(tv.relativeNightlyStddev30dCelsius)||0.5;
       const trd=document.getElementById('temp-trd');
       if (trd) { trd.textContent=d>sd*0.5?'↑':d<-sd*0.5?'↓':'→'; trd.style.color=d>sd?'var(--tneg)':d<-sd?'#4ab8ff':'var(--tpos)'; }
       const el_u=document.getElementById('u-temp');
