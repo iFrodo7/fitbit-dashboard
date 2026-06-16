@@ -2298,6 +2298,8 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .dr-daytype{display:flex;align-items:center;gap:5px;margin-bottom:10px;font-size:8.5px;letter-spacing:1.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;opacity:0;transition:opacity 0.4s ease;}
 .dr-daytype.live{opacity:1;}
 .dr-daytype-mult{opacity:0.4;font-size:7.5px;margin-left:4px;}
+.dr-cycle-adj{display:none;font-size:7.5px;letter-spacing:1px;font-family:'IBM Plex Mono',monospace;opacity:0.5;margin:-6px 0 10px;}
+.dr-cycle-adj.show{display:block;}
 /* Standard mode: rings son editables con tap */
 .dr-item.std-editable{cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .dr-item.std-editable:active{opacity:0.78;}
@@ -2411,7 +2413,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .dr-ring-wrap.dr-editing svg{opacity:0.25;}
 @keyframes dr-pop{0%,100%{transform:scale(1)}45%{transform:scale(1.18)}}
 .dr-ring-wrap.dr-pulse svg{animation:dr-pop 0.36s var(--ease-spring);}
-#dr-goal-sheet{position:fixed;inset:0;z-index:8000;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);animation:achOvIn 0.2s ease both;}
+#dr-goal-sheet,#checkin-sheet{position:fixed;inset:0;z-index:8000;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);animation:achOvIn 0.2s ease both;}
 .drgs-card{background:var(--bg2,#0d1117);border-top:1px solid rgba(255,255,255,0.08);border-radius:20px 20px 0 0;padding:16px 24px max(40px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:14px;}
 .drgs-handle{width:36px;height:4px;background:rgba(255,255,255,0.12);border-radius:2px;margin-bottom:4px;}
 .drgs-lbl{font-size:11px;font-weight:700;letter-spacing:4px;font-family:'IBM Plex Mono',monospace;text-align:center;}
@@ -2423,6 +2425,12 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .drgs-inp::-webkit-outer-spin-button,.drgs-inp::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
 .drgs-save{width:100%;padding:16px;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:2px;cursor:pointer;margin-top:4px;}
 .drgs-cancel{font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);cursor:pointer;padding:8px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;}
+.ci-options{display:flex;gap:10px;width:100%;}
+.ci-opt{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border:1px solid var(--bdr);border-radius:var(--r-md);background:transparent;color:var(--txt);cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:0.5px;transition:background var(--dur-fast) var(--ease-std),border-color var(--dur-fast) var(--ease-std);-webkit-tap-highlight-color:transparent;}
+.ci-opt:active{background:rgba(255,255,255,0.06);border-color:var(--ta);}
+.ci-emoji{font-size:26px;}
+.ci-trigger{margin-top:6px;font-size:10px;letter-spacing:0.5px;opacity:0.4;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:opacity var(--dur-fast) var(--ease-std);}
+.ci-trigger:active{opacity:0.75;}
 @keyframes wsload{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
 .wsitem{flex:1;display:flex;flex-direction:column;gap:5px;padding:0 14px;transition:filter var(--dur-base) var(--ease-std);}
 .wsitem:hover{filter:brightness(1.15);}
@@ -4164,6 +4172,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           </div>
         </div>
         <div class="wrec" id="wrec">Listo para entrenar al máximo</div>
+        <div class="ci-trigger" id="ci-trigger" onclick="_openCheckinSheet()">💬 <span id="ci-trigger-lbl">¿Cómo te sientes?</span></div>
       </div>
 
       <div class="vg">
@@ -5436,6 +5445,7 @@ const T = {
     u_hr: 'BPM — REPOSO',
     lbl_spo2: '// SATURACIÓN O₂',
     lbl_temp: '// TEMP. CUTÁNEA',
+    ci_trigger_lbl: '¿Cómo te sientes?',
     lbl_stress: '// NIVEL ESTRÉS',
     u_stress: '/ 100 — BAJO',
     lbl_cal: '// CALORÍAS',
@@ -5488,7 +5498,7 @@ const T = {
     hv_ca_stp_up:' Tendencia <strong>al alza</strong> — sigue así.',
     hv_ca_stp_dn:' Tendencia <strong>a la baja</strong> — recupera el ritmo.',
     onb: {
-      recovery: { ttl:'Recovery Score', bd:'<p>Indica qué tan <strong>recuperado</strong> está tu cuerpo hoy, en una escala de <strong>0 a 100</strong>.</p><p>Combina cuatro factores: duración del sueño, eficiencia, % de sueño profundo+REM, y tu frecuencia cardíaca en reposo.</p><p><strong>67+</strong> en forma · <strong>50-66</strong> buena · <strong>34-49</strong> moderada · <strong>0-33</strong> descansa.</p>' },
+      recovery: { ttl:'Recovery Score', bd:'<p>Indica qué tan <strong>recuperado</strong> está tu cuerpo hoy, en una escala de <strong>0 a 100</strong>.</p><p>Combina tu <strong>HRV</strong> vs tu base personal (la señal más confiable), la tendencia de tu <strong>FC en reposo</strong> vs tu promedio de 7 días, duración y eficiencia del sueño, y tu check-in matutino si lo completaste.</p><p><strong>67+</strong> en forma · <strong>50-66</strong> buena · <strong>34-49</strong> moderada · <strong>0-33</strong> descansa.</p>' },
       strain:   { ttl:'Esfuerzo (Strain)', bd:'<p>Mide la carga cardiovascular acumulada en el día, escala <strong>0 a 21</strong>.</p><p>Pondera los minutos en zonas de frecuencia cardíaca: <code>Fat Burn ×0.6</code>, <code>Cardio ×2.0</code>, <code>Peak ×4.5</code>.</p><p>Un día de descanso debería estar en 0-3, un entrenamiento intenso 14+.</p>' },
       cal:      { ttl:'Calorías & Balance', bd:'<p><strong>KCAL ACTIVAS</strong> — calorías quemadas por movimiento y ejercicio, por encima del gasto basal.</p><p><strong>BASAL (BMR)</strong> — lo que tu cuerpo quema en reposo para mantener órganos y funciones vitales. Junto con las activas, forman tu gasto total del día.</p><p><strong>META DIARIA (TDEE)</strong> — tu gasto calórico total estimado según tu nivel de actividad (BMR × multiplicador). La barra muestra qué porcentaje de esa meta has completado hoy. Configura tu nivel en <em>Perfil → Datos Biométricos</em>.</p><p>✓ <em>Meta alcanzada</em> = quemaste tanto como esperabas. Para perder peso busca un déficit; para ganar masa, un superávit.</p>' },
       sleep:    { ttl:'Sueño & Deuda', bd:'<p>Sleep performance = <strong>minutos dormidos / 480</strong> (8h ideales).</p><p>El hipnograma muestra las etapas reales: profundo (recuperación física), REM (memoria/sueños), ligero, despierto.</p><p>Ideal: ~45% del sueño en <strong>deep + REM</strong>.</p><p><strong>Deuda de sueño</strong> — diferencia acumulada entre las 8h recomendadas y lo que realmente dormiste los últimos 7 días. Una deuda alta deteriora la recuperación, la cognición y el metabolismo. Se "paga" durmiendo más en los días siguientes; el cuerpo prioriza el sueño profundo para recuperarse.</p>' },
@@ -5710,6 +5720,7 @@ const T = {
     u_hr: 'BPM — RESTING',
     lbl_spo2: '// O₂ SATURATION',
     lbl_temp: '// SKIN TEMP.',
+    ci_trigger_lbl: 'How do you feel?',
     lbl_stress: '// STRESS LEVEL',
     u_stress: '/ 100 — LOW',
     lbl_cal: '// CALORIES',
@@ -5762,7 +5773,7 @@ const T = {
     hv_ca_stp_up:' Trending <strong>up</strong> — keep it going.',
     hv_ca_stp_dn:' Trending <strong>down</strong> — pick the pace back up.',
     onb: {
-      recovery: { ttl:'Recovery Score', bd:'<p>Shows how <strong>recovered</strong> your body is today, on a <strong>0 to 100</strong> scale.</p><p>It blends four factors: sleep duration, efficiency, % of deep+REM, and resting heart rate.</p><p><strong>67+</strong> peak · <strong>50-66</strong> good · <strong>34-49</strong> moderate · <strong>0-33</strong> rest.</p>' },
+      recovery: { ttl:'Recovery Score', bd:'<p>Shows how <strong>recovered</strong> your body is today, on a <strong>0 to 100</strong> scale.</p><p>It blends your <strong>HRV</strong> vs your personal baseline (the most reliable signal), your <strong>resting HR</strong> trend vs your 7-day average, sleep duration and efficiency, and your morning check-in if you completed it.</p><p><strong>67+</strong> peak · <strong>50-66</strong> good · <strong>34-49</strong> moderate · <strong>0-33</strong> rest.</p>' },
       strain:   { ttl:'Strain', bd:'<p>Measures cardio load accumulated today, scale <strong>0 to 21</strong>.</p><p>Weights minutes in heart-rate zones: <code>Fat Burn ×0.6</code>, <code>Cardio ×2.0</code>, <code>Peak ×4.5</code>.</p><p>A rest day should sit at 0-3, an intense workout 14+.</p>' },
       cal:      { ttl:'Calories & Balance', bd:'<p><strong>ACTIVE KCAL</strong> — calories burned through movement and exercise, on top of your basal burn.</p><p><strong>BASAL (BMR)</strong> — what your body burns at rest to keep organs and vital functions running. Together with active calories, they make up your total daily burn.</p><p><strong>DAILY GOAL (TDEE)</strong> — your estimated total caloric expenditure based on your activity level (BMR × multiplier). The bar shows what percentage of that goal you\'ve completed today. Set your level in <em>Profile → Biometric Data</em>.</p><p>✓ <em>Goal reached</em> = you burned as much as expected. For weight loss aim for a deficit; for muscle gain, a surplus.</p>' },
       sleep:    { ttl:'Sleep & Debt', bd:'<p>Sleep performance = <strong>minutes asleep / 480</strong> (ideal 8h).</p><p>The hypnogram shows real stages: deep (physical recovery), REM (memory/dreams), light, awake.</p><p>Ideal: ~45% of sleep in <strong>deep + REM</strong>.</p><p><strong>Sleep debt</strong> — the accumulated gap between the recommended 8h and your actual sleep over the last 7 days. High debt degrades recovery, cognition, and metabolism. It\'s repaid by sleeping longer on subsequent nights; the body prioritizes deep sleep to catch up.</p>' },
@@ -6022,6 +6033,7 @@ function setLang(l) {
   if (!isReal) { setText('stepspct', t.pct_lbl); setText('uname', t.user_demo); renderDemoActivities(); }
   // Re-render piezas dependientes del idioma que se calculan en runtime
   if (window._lastRec != null) setText('wrec', recTextFor(window._lastRec));
+  setText('ci-trigger-lbl', t.ci_trigger_lbl);
   setText('lbl-coach', t.lbl_coach);
   { const ci = document.getElementById('cchat-input'); if (ci) ci.placeholder = t.cchat_ph; }
   setText('cchat-hint', t.cchat_hint);
@@ -9050,7 +9062,11 @@ function wkBarSel(idx) {
 
   // ── Steps + progress (past day or today without snap yet) ──
   var steps = d.steps || 0;
-  var goal  = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+  // Per-day goal from fb_activity_history.goalUsed (anti-cheat + adaptive PRO).
+  // Falls back to current user goal — same source as rings and goal-lbl.
+  var _wkActH = []; try { _wkActH = JSON.parse(localStorage.getItem('fb_activity_history')||'[]'); } catch(e9) {}
+  var _wkActDay = _wkActH.find(function(e){return e.date===d.date;});
+  var goal  = (_wkActDay && _wkActDay.goalUsed) || _loadDRGoals().stp;
   var pct   = Math.min((steps / goal) * 100, 100);
 
   var stepsEl = document.getElementById('stepsv');
@@ -9058,6 +9074,8 @@ function wkBarSel(idx) {
 
   var progEl = document.getElementById('stepsprog');
   if (progEl) progEl.style.width = pct + '%';
+  var glEl = document.getElementById('goal-lbl');
+  if (glEl) glEl.textContent = '/ ' + goal.toLocaleString('en-US') + ' ' + (es ? 'OBJETIVO' : 'GOAL');
 
   var pctEl = document.getElementById('stepspct');
   if (pctEl) {
@@ -9086,10 +9104,11 @@ function wkBarSel(idx) {
   // consecutive days ending on `sel` that met the step goal.
   e = document.getElementById('steps-streak-val');
   if (e && !isToday) {
-    var _goal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
     var _streak = 0;
     for (var _si = sel; _si >= 0; _si--) {
-      if ((data[_si].steps || 0) >= _goal) _streak++;
+      var _siDay = _wkActH.find(function(e){return e.date===data[_si].date;});
+      var _siGoal = (_siDay && _siDay.goalUsed) || _loadDRGoals().stp;
+      if ((data[_si].steps || 0) >= _siGoal) _streak++;
       else break;
     }
     // Cross-window extension: the run reaches the window's left edge (idx 0), so the
@@ -9325,14 +9344,22 @@ async function loadWeekDataGoogle() {
 
     // ── _wkTodayStreakReal: persistent streak that survives app restarts ─────
     // Sources (highest wins): window backward count | fb_activity_history | fb_streak_steps
-    var _strGoal7 = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+    // Anti-trampa: el piso de meta (goal en fb_streak_steps) evita que bajar la meta
+    // cuente retroactivamente días que no cumplieron la meta original de la racha.
+    var _strGoal7Cur = _loadDRGoals().stp;
+    var _strGoal7Floor = 0; try { _strGoal7Floor = parseInt(JSON.parse(localStorage.getItem('fb_streak_steps')||'{}').goal||0)||0; } catch(e){}
+    var _strGoal7 = Math.max(_strGoal7Cur, _strGoal7Floor);
 
     // 1. Window backward count — uses patched days[6].steps (FIX #2 above)
     // Uses the rolling days[] array directly (not window._wkData which is set
     // after buildWeeks; FIX #14: calendar-week display is built at the end).
+    // _goalMetForDate prefers the goalMet already recorded for that date (the
+    // REAL goal that day — adaptive in PRO, fixed in FREE) over the flat
+    // fb_steps_goal comparison, so the streak matches what AIRA actually asked for.
     var _wkStr7 = 0;
     for (var _si7 = 6; _si7 >= 0; _si7--) {
-      if (((days[_si7] && days[_si7].steps) || 0) >= _strGoal7) _wkStr7++;
+      var _d7=days[_si7];
+      if (_d7 && _goalMetForDate(_d7.date, _d7.steps, _strGoal7)) _wkStr7++;
       else break;
     }
 
@@ -9344,8 +9371,9 @@ async function loadWeekDataGoogle() {
       var _ps    = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}');
       var _pc    = parseInt(_ps.count, 10) || 0;   // parseInt guard: rejects corrupted strings
       var _pd    = _ps.lastDate || '';
-      // _tmMet now reads the patched value (FIX #2): primary endpoint steps > dailyRollUp steps
-      var _tmMet = ((days[6] && days[6].steps) || 0) >= _strGoal7;
+      // _tmMet now reads the patched value (FIX #2): primary endpoint steps > dailyRollUp steps.
+      // Prefers today's recorded goalMet (real goal for today) over the flat fb_steps_goal.
+      var _tmMet = _goalMetForDate(_t7, (days[6] && days[6].steps) || 0, _strGoal7);
       var _pNew  = 0;
       var _pdNew = '';
 
@@ -9452,7 +9480,9 @@ async function loadWeekDataGoogle() {
         // Persist updated counter (skip only on clock-jump case)
         if (_gap >= 0) {
           _pNew = Math.max(_pNew || 0, 0);
-          var _saveStrObj = { count: _pNew, lastDate: _pNew > 0 ? _pdNew : '' };
+          // goal: piso de meta para anti-trampa. Se conserva mientras la racha siga activa;
+          // se borra (0) al resetear para que la siguiente racha parta de la meta actual.
+          var _saveStrObj = { count: _pNew, lastDate: _pNew > 0 ? _pdNew : '', goal: _pNew > 0 ? _strGoal7 : 0 };
           // FIX #17: when streak resets downward preserve the old peak so past
           // bars in wkBarSel can show their correct historical count.
           if (_pc > _pNew && _pd) {
@@ -9592,6 +9622,76 @@ async function loadWeekDataGoogle() {
     // Re-save snap with corrected streak so clicking today's bar also shows real value
     try { _wkSaveTodaySnap(); } catch(e2) {}
   } catch(e) { /* best-effort — leave chart with existing/demo data */ }
+}
+
+// ── Siembra inicial de fb_activity_history desde Google Health ────────────
+// Sin esto, un usuario que ya tenía meses de datos en su reloj (solo nunca
+// había usado AIRA) arrancaba con el baseline/fatiga/calibración en cero,
+// como si nunca hubiera caminado. fb_activity_history es un historial
+// propio de AIRA — nunca se llenaba con lo que Google Health ya tenía.
+// Corre una sola vez (fb_activity_backfilled) y nunca pisa un día que AIRA
+// ya haya registrado por su cuenta. Mismo patrón dailyRollUp que
+// loadWeekDataGoogle() / loadRealGoogleData(), solo que pidiendo también
+// calorías y zonas de FC (cardio+peak = vigMin) además de pasos.
+async function _backfillActivityHistory() {
+  try {
+    if (typeof HS === 'undefined' || HS.id !== 'google' || !token) return;
+    if (localStorage.getItem('fb_activity_backfilled')) return;
+    var existing = JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
+    if (existing.length >= 3) { localStorage.setItem('fb_activity_backfilled','1'); return; }
+    var B  = HS.base;
+    var td = _localDateStr();
+    var nd = _ghNextDay(td);
+    var d7 = (function(){ var dt=new Date(); dt.setDate(dt.getDate()-6); return _localDateStr(dt); })();
+    var rb = { range: { start: _parseCivilDate(d7), end: _parseCivilDate(nd) }, windowSizeDays: 1 };
+    var [stW, calW, azW] = await Promise.all([
+      _ghPost(B + '/users/me/dataTypes/steps/dataPoints:dailyRollUp', rb),
+      _ghPost(B + '/users/me/dataTypes/total-calories/dataPoints:dailyRollUp', rb),
+      _ghPost(B + '/users/me/dataTypes/active-zone-minutes/dataPoints:dailyRollUp', rb),
+    ]);
+    var rangeToDateStr = function(rp) {
+      var rs = rp && (rp.civilStartTime || (rp.range && rp.range.start));
+      if (!rs) return null;
+      var D = rs.date || rs;
+      if (typeof D === 'string') return D;
+      if (D.year && D.month && D.day) return D.year+'-'+String(D.month).padStart(2,'0')+'-'+String(D.day).padStart(2,'0');
+      return null;
+    };
+    var byDate = function(resp, extract) {
+      var m = {};
+      ((resp && resp.rollupDataPoints) || []).forEach(function(rp){ var ds=rangeToDateStr(rp); if(ds) m[ds]=extract(rp); });
+      return m;
+    };
+    var stMap  = byDate(stW,  function(rp){ return parseInt(rp.steps?.countSum ?? rp.steps?.count_sum ?? rp.steps?.count ?? 0)||0; });
+    var calMap = byDate(calW, function(rp){ return parseInt(rp.totalCalories?.kilocaloriesSum ?? rp.totalCalories?.kilocalories ?? rp.calories?.kilocaloriesSum ?? 0)||0; });
+    var azMap  = byDate(azW,  function(rp){
+      var az = rp.activeZoneMinutes || rp.activeZones || {};
+      var n=function(keys){ return parseInt(keys.reduce(function(v,k){return v??az[k];},null) ?? 0)||0; };
+      var fat=n(['fatBurnActiveZoneMinutesSum','fatBurnActiveZoneMinutes']);
+      var cardio=n(['cardioActiveZoneMinutesSum','cardioActiveZoneMinutes']);
+      var peak=n(['peakActiveZoneMinutesSum','peakActiveZoneMinutes']);
+      return { actMin: fat+cardio+peak, vigMin: cardio+peak };
+    });
+    var seeded=existing.slice();
+    var existingDates={}; seeded.forEach(function(e){ existingDates[e.date]=true; });
+    var defGoal=_bioInformedDefaults();
+    for (var i=0;i<7;i++) {
+      var dt=new Date(); dt.setDate(dt.getDate()-(6-i));
+      var ds=_localDateStr(dt);
+      if (existingDates[ds]) continue; // no pisar un día que AIRA ya registró por su cuenta
+      var stp=stMap[ds]||0, cal=calMap[ds]||0, az=azMap[ds]||{actMin:0,vigMin:0};
+      if (!stp && !cal && !az.actMin) continue; // sin dato real ese día, no inventar una entrada en cero
+      seeded.push({
+        date:ds, dow:dt.getDay(), steps:stp, cal:cal, actMin:az.actMin, vigMin:az.vigMin,
+        goalMet: stp>=defGoal.stp, goalUsed: defGoal.stp, readiness:0, phase:null
+      });
+    }
+    seeded.sort(function(a,b){ return a.date<b.date?-1:1; });
+    if (seeded.length>30) seeded=seeded.slice(-30);
+    localStorage.setItem('fb_activity_history', JSON.stringify(seeded));
+    localStorage.setItem('fb_activity_backfilled','1');
+    console.log('[backfill] fb_activity_history sembrado con', seeded.length-existing.length, 'días de Google Health');
+  } catch(e) { console.warn('[backfill]', e); }
 }
 
 function buildHRC(hrs) {
@@ -10539,14 +10639,31 @@ function setCalbars({ sed=0, lig=0, mod=0, int=0 }) {
 
 // ══════ WHOOP-STYLE SCORES ══════
 function calcScores(opts) {
-  const { sleepMin=432, sleepEff=94, deep=85, rem=108, rhr=68, zones=[] } = opts;
-  // Recovery (0–100)
-  const rec = Math.min(100, Math.round(
-    Math.min(sleepMin/480,1)*30 +
-    (sleepEff/100)*25 +
-    (sleepMin>0 ? Math.min((deep+rem)/sleepMin/0.45,1) : 0)*20 +
-    Math.max(0,Math.min((80-rhr)/40,1))*25
-  ));
+  const {
+    sleepMin=432, sleepEff=94, deep=85, rem=108, rhr=68, zones=[],
+    hrvToday=null, hrvBaselineMean=null, rhrMean7=null, checkin=0
+  } = opts;
+  // ── Recovery Score rebalanceado (issue #62, Fase 1.1) ──────────────────────
+  // Antes: sueño pesaba 75% (duración+eficiencia+calidad) y HRV no se usaba.
+  // Un error de lectura de sleep stages en una sola noche hundía el score sin
+  // que el usuario estuviera realmente fatigado. Ahora HRV y RHR (las señales
+  // más confiables de recuperación del sistema nervioso) llevan el peso.
+  //
+  // HRV vs baseline personal (30 pts) — si no hay HRV disponible, ese
+  // componente vale 0 y el sueño absorbe +15 pts extra para no colapsar
+  // el score solo por falta de datos (primer uso, device sin sensor, etc).
+  const hrvRatio = (hrvToday && hrvBaselineMean) ? Math.min(hrvToday / hrvBaselineMean, 1.4) : null;
+  const hv = hrvRatio != null ? Math.round(Math.min(hrvRatio / 1.4, 1) * 30) : 0;
+  const hvMissing = hrvRatio == null;
+  // RHR: delta vs promedio 7d, no valor absoluto (25 pts).
+  const rhrDelta = rhr - (rhrMean7 || rhr);
+  const hs = Math.round(Math.max(0, Math.min(1 - (rhrDelta / 10), 1)) * 25);
+  // Sueño: señal secundaria — solo duración (10 pts) y eficiencia (5 pts).
+  const sd = Math.round(Math.min((sleepMin||0)/480, 1) * 10);
+  const se = Math.round(Math.min(Math.max((sleepEff/100 - 0.7)/0.25, 0), 1) * 5);
+  // Check-in subjetivo del usuario: 0-10 pts directos, solo ayuda, nunca penaliza.
+  const ci = Math.max(0, Math.min(checkin||0, 10));
+  const rec = Math.min(100, Math.round(hv + hs + sd + se + ci + (hvMissing ? 15 : 0)));
   // Strain (0–21)
   const fb=zones.find(z=>z.name==='Fat Burn')?.minutes||0;
   const ca=zones.find(z=>z.name==='Cardio')?.minutes||0;
@@ -10555,6 +10672,84 @@ function calcScores(opts) {
   // Sleep %
   const sleepPct = Math.min(Math.round(sleepMin/480*100), 100);
   return { rec, strain, sleepPct };
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// ── MORNING CHECK-IN (issue #62, Fase 1.2) ──────────────────────────────────
+// No es una tarea diaria obligatoria: AIRA solo lo pide cuando su propia
+// confianza en los datos automáticos es baja (falta HRV/RHR de hoy, o las
+// dos señales se contradicen). El resto de los días no aparece nada — el
+// valor de PRO es que AIRA decide sola. Queda además un acceso manual
+// opcional junto al Recovery Score para el caso en que el usuario sepa algo
+// que el sensor todavía no refleja (ej. "siento que me enfermo").
+// ══════════════════════════════════════════════════════════════════════════
+function _todayCheckin() {
+  try {
+    var v = localStorage.getItem('fb_checkin_' + _localDateStr());
+    return v != null ? parseInt(v) : null;
+  } catch(e) { return null; }
+}
+function _buildRecoveryInputs() {
+  var base = window._lastScoreOpts || {};
+  var ci = _todayCheckin();
+  return Object.assign({}, base, {
+    hrvToday: parseFloat(document.getElementById('hrvv')?.textContent) || null,
+    hrvBaselineMean: window._hrvBaseline?.mean || null,
+    rhrMean7: window._rhrTrend?.mean7 || null,
+    checkin: ci != null ? ci : 0
+  });
+}
+// Confianza baja = falta HRV o RHR de hoy, o ambas señales se contradicen
+// fuerte (una dice "bien", la otra dice "mal"). Solo entonces vale la pena
+// interrumpir al usuario con una pregunta de 2 segundos.
+function _recoveryConfidenceLow() {
+  var hrvToday = parseFloat(document.getElementById('hrvv')?.textContent);
+  var hrvBase  = window._hrvBaseline?.mean;
+  var rhrTrend = window._rhrTrend;
+  var hrvOk = !isNaN(hrvToday) && hrvToday > 0 && hrvBase > 0;
+  var rhrOk = !!(rhrTrend && rhrTrend.mean7 != null);
+  if (!hrvOk || !rhrOk) return true;
+  var hrvRatio = hrvToday / hrvBase;
+  var rhrDelta = rhrTrend.diff;
+  var hrvGood = hrvRatio >= 1.05, hrvBad = hrvRatio <= 0.92;
+  var rhrGood = rhrDelta <= -2,  rhrBad  = rhrDelta >= 4;
+  return (hrvGood && rhrBad) || (hrvBad && rhrGood);
+}
+function _maybeShowCheckin() {
+  if (_todayCheckin() != null) return; // ya respondió hoy
+  var today = _localDateStr();
+  if (localStorage.getItem('fb_checkin_prompted_' + today)) return; // ya se mostró/descartó hoy
+  if (!_recoveryConfidenceLow()) return; // datos automáticos confiables — no hace falta preguntar
+  try { localStorage.setItem('fb_checkin_prompted_' + today, '1'); } catch(e) {}
+  setTimeout(_openCheckinSheet, 600);
+}
+function _openCheckinSheet() {
+  if (document.getElementById('checkin-sheet')) return;
+  var es = lang === 'es';
+  var sh = document.createElement('div');
+  sh.id = 'checkin-sheet';
+  sh.innerHTML = '<div class="drgs-card">' +
+    '<div class="drgs-handle"></div>' +
+    '<div class="drgs-lbl" style="color:var(--ta)">' + (es ? '¿Cómo te sientes hoy?' : 'How do you feel today?') + '</div>' +
+    '<div class="ci-options">' +
+      '<button class="ci-opt" onclick="_answerCheckin(0)"><span class="ci-emoji">😴</span><span>' + (es?'Cansado/a':'Tired') + '</span></button>' +
+      '<button class="ci-opt" onclick="_answerCheckin(5)"><span class="ci-emoji">⚡</span><span>' + (es?'Normal':'Normal') + '</span></button>' +
+      '<button class="ci-opt" onclick="_answerCheckin(10)"><span class="ci-emoji">🔥</span><span>' + (es?'Con energía':'Energized') + '</span></button>' +
+    '</div>' +
+    '<div class="drgs-cancel" onclick="_dismissCheckinSheet()">' + (es?'AHORA NO':'NOT NOW') + '</div>' +
+  '</div>';
+  sh.addEventListener('click', function(e){ if (e.target===sh) _dismissCheckinSheet(); });
+  document.body.appendChild(sh);
+}
+function _dismissCheckinSheet() {
+  var sh = document.getElementById('checkin-sheet'); if (sh) sh.remove();
+}
+function _answerCheckin(val) {
+  try { localStorage.setItem('fb_checkin_' + _localDateStr(), String(val)); } catch(e) {}
+  try { localStorage.setItem('fb_checkin_prompted_' + _localDateStr(), '1'); } catch(e) {}
+  _dismissCheckinSheet();
+  showToast(lang==='es' ? 'AIRA ajustó tus metas para hoy' : 'AIRA adjusted your goals for today', 'success');
+  updateScores(calcScores(_buildRecoveryInputs()));
 }
 
 // rec, activity, sleep — cada uno 0-100 correspondiendo al ring %
@@ -10667,7 +10862,25 @@ function updateScores({ rec, strain, sleepPct }) {
 // ── Daily Progress Rings ──────────────────────────────────────────────────
 var _DR_R=24, _DR_SW=5.5, _DR_C=2*Math.PI*24, _DR_DIM=24*2+5.5*2+2, _DR_CX=(_DR_DIM/2), _DR_CY=(_DR_DIM/2);
 var _DR_GOALS_DEFAULT={stp:10000,cal:500,act:30};
-function _loadDRGoals(){try{return Object.assign({},_DR_GOALS_DEFAULT,JSON.parse(localStorage.getItem('fb_dr_goals')||'{}'));}catch(e){return Object.assign({},_DR_GOALS_DEFAULT);}}
+// Pasos de Harris-Benedict (mismos valores del <select id="pv-activity">) → meta
+// de pasos por defecto. Solo importa antes de tener historial real — en cuanto
+// hay 7+ días de datos, _getActivityBaseline() usa el promedio real del usuario.
+var _ACTIVITY_STEP_GOAL = { 1.2:6000, 1.375:8000, 1.55:10000, 1.725:12000, 1.9:14000 };
+// Defaults informados por el perfil biométrico (issue #62 — el "no haremos
+// peso corporal" del issue asumía que no estaba disponible, pero ya se
+// captura a mano en el perfil para BMR/TDEE/Fitness Age). Reemplaza el
+// default plano de _DR_GOALS_DEFAULT solo para usuarios sin historial
+// suficiente; con datos reales, el historial siempre gana.
+function _bioInformedDefaults() {
+  var p = window._bioProfile;
+  if (!p || !p.bmr || !p.tdee) return _DR_GOALS_DEFAULT;
+  // Calorías activas ≈ TDEE − BMR (la porción del gasto diario que el modelo
+  // Harris-Benedict atribuye a actividad, no a metabolismo basal).
+  var cal = Math.max(150, Math.round((p.tdee - p.bmr) / 10) * 10);
+  var stp = _ACTIVITY_STEP_GOAL[p.activity] || _DR_GOALS_DEFAULT.stp;
+  return { stp: stp, cal: cal, act: _DR_GOALS_DEFAULT.act };
+}
+function _loadDRGoals(){try{return Object.assign({},_bioInformedDefaults(),JSON.parse(localStorage.getItem('fb_dr_goals')||'{}'));}catch(e){return Object.assign({},_bioInformedDefaults());}}
 
 function _getDayType(rec) {
   var es=lang==='es';
@@ -10676,6 +10889,38 @@ function _getDayType(rec) {
   if(rec>=55)return{label:es?'DÍA MODERADO':'MODERATE',     color:'#f59e0b',icon:'⚡',mult:0.8};
   if(rec>=35)return{label:es?'DÍA SUAVE':'EASY DAY',        color:'#a855f7',icon:'🧘',mult:0.6};
   return            {label:es?'DÍA DE REPOSO':'REST DAY',   color:'rgba(255,255,255,0.3)',icon:'😴',mult:0.5};
+}
+
+// ── Ajuste de metas por fase del ciclo menstrual (issue #62, Fase 1.3) ──────
+// computeCycle() ya existía (usado por la card de ciclo) pero nunca estaba
+// conectado al sistema de metas — esto era una función PRO ya construida al
+// 90% que solo necesitaba el puente. Ajuste fisiológico (Sung 2014, McNulty
+// 2020): más tolerancia al esfuerzo en fase fértil/pico, menos en menstrual/lútea.
+var _CYCLE_MULT_ADJ = { menstrual:-0.10, follicular:+0.05, fertile:+0.10, peak:+0.10,
+                         ovulation:+0.10, luteal:-0.05, late:-0.10 };
+function _getCycleMultAdjust() {
+  if (typeof cycleEnabled !== 'function' || !cycleEnabled()) return 0;
+  var cyc = typeof computeCycle === 'function' ? computeCycle() : null;
+  if (!cyc) return 0;
+  return _CYCLE_MULT_ADJ[cyc.phase] || 0;
+}
+var _CYCLE_PHASE_LABEL = {
+  es: { menstrual:'Fase menstrual', follicular:'Fase folicular', fertile:'Ventana fértil',
+        peak:'Pico de fertilidad', ovulation:'Ovulación', luteal:'Fase lútea', late:'Ciclo retrasado' },
+  en: { menstrual:'Menstrual phase', follicular:'Follicular phase', fertile:'Fertile window',
+        peak:'Fertility peak', ovulation:'Ovulation', luteal:'Luteal phase', late:'Cycle delayed' }
+};
+
+// ── Detector de enfermedad / estrés severo (issue #62, Fase 3.9) ───────────
+// RHR elevado +7bpm sobre tu promedio de 7d en 2 de los últimos 3 días suele
+// indicar enfermedad incipiente, estrés fuerte o sobreentrenamiento. Usa los
+// mismos datos que ya trae _calcRHRTrend() en cada sync (8 días de Google
+// Health) — no hace falta guardar historial propio aparte.
+function _illnessFlag() {
+  var rt = window._rhrTrend;
+  if (!rt || rt.mean7==null || !rt.recent || rt.recent.length<2) return false;
+  var elevated = rt.recent.filter(function(v){ return v > rt.mean7 + 7; });
+  return elevated.length >= 2;
 }
 
 function _getNextAchievement(t) {
@@ -10710,35 +10955,149 @@ function _saveDRGoals(g){try{localStorage.setItem('fb_dr_goals',JSON.stringify(g
 function _fmtGoal(key,v){if(key==='stp')return v>=1000?(v/1000).toFixed(v%1000===0?0:1)+'k':v+'';return v+'';}
 
 // ── Activity history: aprende tu baseline real (últimos 7 días) ───────────
-function _recordActivityDay(steps, cal, actMin) {
+// Almacena hasta 30 días crudos (issue #62, Fase 2.5) — el baseline sigue
+// promediando solo los últimos 7 (sin cambiar su comportamiento previo);
+// los días extra alimentan _consecutiveActiveDays(), el baseline por día
+// de semana y la auto-calibración, que necesitan más historia.
+// vigMin = minutos en zona Cardio+Peak únicamente (sin Fat Burn). Caminar
+// puede acumular cientos de minutos en Fat Burn sin ser realmente fatigante
+// — usar actMin completo para detectar fatiga marcaría caminatas largas
+// como "entrenamiento", así que la racha de días activos se basa solo en
+// minutos de intensidad real.
+// dow/goalMet/readiness/phase se agregan vacíos en entradas viejas (ya
+// guardadas antes de este cambio) — todo el código que los lee debe tratar
+// su ausencia como "sin dato", nunca asumir que siempre existen.
+function _recordActivityDay(steps, cal, actMin, vigMin, goalMet, readiness, phase, goalUsed) {
   if (!steps && !cal && !actMin) return;
   try {
     var today=_localDateStr(); // local date, not UTC — avoids timezone-break at 11pm UTC-X
     var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
+    // Anti-trampa: si ya hay una entrada de hoy con meta más alta, conservar esa
+    // meta como piso — bajar la meta a mitad del día no reescribe goalMet.
+    var existing=hist.find(function(e){return e.date===today;});
+    var effectiveGoal=Math.max(goalUsed||0, existing&&existing.goalUsed||0);
     hist=hist.filter(function(e){return e.date!==today;});
-    hist.push({date:today,steps:steps||0,cal:cal||0,actMin:actMin||0});
+    hist.push({
+      date:today, dow:new Date().getDay(),
+      steps:steps||0, cal:cal||0, actMin:actMin||0, vigMin:vigMin||0,
+      goalMet: effectiveGoal>0 ? (steps||0)>=effectiveGoal : !!goalMet,
+      goalUsed: effectiveGoal||undefined,
+      readiness:readiness||0, phase:phase||null
+    });
     hist.sort(function(a,b){return a.date<b.date?-1:1;});
-    if(hist.length>7) hist=hist.slice(-7);
+    if(hist.length>30) hist=hist.slice(-30);
     localStorage.setItem('fb_activity_history',JSON.stringify(hist));
   } catch(e){}
 }
-function _getActivityBaseline() {
+// Días consecutivos con entrenamiento real (>10 min de Cardio+Peak),
+// contando desde el más reciente hacia atrás. Usado para forzar un tope de
+// multiplicador cuando hay fatiga acumulada, sin importar qué tan bien se
+// vea el Recovery Score — ni cuánto hayas caminado.
+function _consecutiveActiveDays() {
   try {
     var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
+    var streak=0;
+    for (var i=hist.length-1; i>=0; i--) {
+      if ((hist[i].vigMin||0) > 10) streak++;
+      else break;
+    }
+    return streak;
+  } catch(e) { return 0; }
+}
+// ¿Se cumplió la meta de pasos ese día? Usa goalMet ya grabado en
+// fb_activity_history cuando existe — eso refleja la meta REAL de ese día
+// (adaptativa en PRO, fija en FREE), no un número fijo aparte. Solo cae al
+// chequeo simple para entradas de antes de la Fase 2 (sin el campo).
+// Usado por las 3 fuentes que alimentan la racha de pasos mostrada en la
+// card de pasos (RACHA · DÍAS META), para que las tres sean consistentes.
+function _goalMetForDate(dateStr, stepsVal, fallbackGoal) {
+  try {
+    var hist = JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
+    var day = hist.find(function(e){ return e.date===dateStr; });
+    if (day && day.goalMet!=null) return !!day.goalMet;
+  } catch(e) {}
+  return (stepsVal||0) >= fallbackGoal;
+}
+// Auto-calibración gradual (issue #62, Fase 2.7): si cumples tu meta >85%
+// de los días en las últimas 2 semanas, el baseline sube 5%; si cumples
+// <50%, baja 5%. Se recalcula como máximo una vez al día (no en cada
+// render) y queda clampeado a [0.7x, 1.3x] para que no se desboque con
+// los meses. El ajuste vive en el baseline, nunca en la meta del día.
+function _updateBaselineCalibration() {
+  try {
+    var today=_localDateStr();
+    var cal=JSON.parse(localStorage.getItem('fb_baseline_cal')||'null')||{factor:1,lastDate:''};
+    if (cal.lastDate===today) return cal.factor;
+    var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
+    if (hist.length>=14) {
+      var last14=hist.slice(-14);
+      var rate=last14.filter(function(e){return e.goalMet;}).length/14;
+      if (rate>0.85) cal.factor=Math.min(1.3, cal.factor*1.05);
+      else if (rate<0.50) cal.factor=Math.max(0.7, cal.factor*0.95);
+    }
+    cal.lastDate=today;
+    localStorage.setItem('fb_baseline_cal', JSON.stringify(cal));
+    return cal.factor;
+  } catch(e) { return 1; }
+}
+function _getActivityBaseline() {
+  try {
+    var allHist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
     var override=JSON.parse(localStorage.getItem('fb_dr_goals')||'{}');
-    if(!hist.length) return Object.assign({},_DR_GOALS_DEFAULT,override);
+    var bioDefaults=_bioInformedDefaults();
+    if(!allHist.length) return Object.assign({},bioDefaults,override);
+    // Baseline por día de semana (issue #62, Fase 2.6): entre semana y fin
+    // de semana suelen tener patrones de actividad muy distintos. Usa solo
+    // días del mismo tipo si hay al menos 2 muestras; si no (entradas
+    // viejas sin `dow`, o muy poca historia), cae al promedio general.
+    var todayDow=new Date().getDay();
+    var isWeekend=(todayDow===0||todayDow===6);
+    var sameType=allHist.filter(function(e){
+      if (e.dow==null) return false;
+      var we=(e.dow===0||e.dow===6);
+      return we===isWeekend;
+    });
+    var hist=(sameType.length>=2?sameType:allHist).slice(-7);
     var stpS=0,calS=0,actS=0,stpN=0,calN=0,actN=0;
     hist.forEach(function(e){
       if(e.steps>100){stpS+=e.steps;stpN++;}
       if(e.cal>10){calS+=e.cal;calN++;}
       if(e.actMin>0){actS+=e.actMin;actN++;}
     });
+    var factor=_updateBaselineCalibration();
     return {
-      stp: override.stp || (stpN>0?Math.round(stpS/stpN):_DR_GOALS_DEFAULT.stp),
-      cal: override.cal || (calN>0?Math.round(calS/calN):_DR_GOALS_DEFAULT.cal),
-      act: override.act || (actN>0?Math.round(actS/actN):_DR_GOALS_DEFAULT.act)
+      stp: override.stp || Math.round((stpN>0?stpS/stpN:bioDefaults.stp)*factor),
+      cal: override.cal || Math.round((calN>0?calS/calN:bioDefaults.cal)*factor),
+      act: override.act || Math.round((actN>0?actS/actN:bioDefaults.act)*factor)
     };
-  } catch(e){return Object.assign({},_DR_GOALS_DEFAULT);}
+  } catch(e){return Object.assign({},_bioInformedDefaults());}
+}
+// Límite de progresión ±20% día a día (issue #62, Fase 2.8): la meta final
+// (ya con multiplicador aplicado) no puede saltar más de eso respecto a la
+// meta final de AYER. La referencia se congela una sola vez por transición
+// de día (fb_prev_day_goal) para que no se mueva sola dentro del mismo día.
+// Reseteada por _saveDRGoalFromSheet() cuando el usuario edita a mano.
+function _antiSpikeClamp(ag) {
+  try {
+    var today=_localDateStr();
+    var track=JSON.parse(localStorage.getItem('fb_today_goal_track')||'null');
+    var prevDay=JSON.parse(localStorage.getItem('fb_prev_day_goal')||'null');
+    if (track && track.date!==today) {
+      localStorage.setItem('fb_prev_day_goal', JSON.stringify(track));
+      prevDay=track;
+    }
+    var clamped=ag;
+    if (prevDay) {
+      var clampKey=function(key){
+        var prev=prevDay[key]; if(!prev) return ag[key];
+        var max=Math.round(prev*1.20), min=Math.round(prev*0.80);
+        return Math.max(min, Math.min(max, ag[key]));
+      };
+      clamped={stp:clampKey('stp'), cal:clampKey('cal'), act:clampKey('act')};
+    }
+    localStorage.setItem('fb_today_goal_track', JSON.stringify(Object.assign({date:today}, clamped)));
+    return clamped;
+  } catch(e) { return ag; }
 }
 function _drItemMD(el, e){
   // prevent blur when tapping a ring that already has an open input
@@ -10813,7 +11172,12 @@ function _saveDRGoalFromSheet(){
   if(inp&&key){
     var step=key==='stp'?500:key==='cal'?50:5;
     var v=parseInt(inp.value);
-    if(!isNaN(v)&&v>=step){var g=_loadDRGoals();g[key]=v;_saveDRGoals(g);}
+    if(!isNaN(v)&&v>=step){
+      var g=_loadDRGoals();g[key]=v;_saveDRGoals(g);
+      // Edición manual = nueva base. El límite ±20% día a día (anti-spike)
+      // no debe pelear contra un cambio que el usuario pidió a propósito.
+      try { localStorage.removeItem('fb_prev_day_goal'); localStorage.removeItem('fb_today_goal_track'); } catch(e2) {}
+    }
   }
   updateDailyRings();
   var sh=document.getElementById('dr-goal-sheet'); if(sh) sh.remove();
@@ -10826,21 +11190,23 @@ var _DR_DEFS=[
 
 // Consecutive days the step goal was met, reading from fb_activity_history.
 // Starts counting from yesterday so "today not yet done" doesn't break the streak.
+// Prefers each day's recorded goalMet (the real goal for that day — adaptive
+// in PRO, fixed in FREE) over the current fixed goal, via _goalMetForDate().
 function _getStepGoalStreak() {
   try {
     var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
     if(!hist.length) return 0;
-    var goal=(_loadDRGoals().stp)||10000;
+    var goal=(_loadDRGoals().stp)||10000; // fallback solo para entradas sin goalMet
     // Check if today's goal is already met (to add it on top of the base streak)
     var todayUTC=_localDateStr(); // local date — prevents UTC offset mismatch
     var todayDay=hist.find(function(e){return e.date===todayUTC;});
-    var todayMet=!!(todayDay&&todayDay.steps>=goal);
+    var todayMet=_goalMetForDate(todayUTC, todayDay&&todayDay.steps, goal);
     // Count consecutive completed days starting from yesterday
     var streak=0;
     for(var i=1;i<=7;i++){
       var _di=new Date(); _di.setDate(_di.getDate()-i); var d=_localDateStr(_di);
       var day=hist.find(function(e){return e.date===d;});
-      if(day&&day.steps>=goal) streak++;
+      if(day&&_goalMetForDate(d, day.steps, goal)) streak++;
       else break;
     }
     if(todayMet) streak++;
@@ -11468,6 +11834,8 @@ function renderDailyRings() {
       +'</div>'
     +'</div>'
     +'<div id="dr-daytype" class="dr-daytype"></div>'
+    +'<div id="dr-cycle-adj" class="dr-cycle-adj"></div>'
+    +'<div id="dr-fatigue-warn" class="dr-cycle-adj"></div>'
     +'<div class="drw-row">'+_DR_DEFS.map(makeRing).join('')+'</div>'
     +'<div class="drw-motivation">'
       +'<div class="drw-next-ach" id="drw-next-ach" onclick="openAch()">'
@@ -11501,13 +11869,33 @@ function updateDailyRings() {
   var goals=pro?_getActivityBaseline():_loadDRGoals();
   var cal=nv('calv')||nv('cal-act'), steps=nv('stepsv');
   var actMin=nv('hrmin-fat')+nv('hrmin-cardio')+nv('hrmin-peak');
+  var vigMin=nv('hrmin-cardio')+nv('hrmin-peak'); // sin Fat Burn — para detectar fatiga, no caminatas
   var rec=window._lastRec||0;
   var dt=_getDayType(rec);
-  var mult=pro?dt.mult:1.0;
+  var cycAdj=pro?_getCycleMultAdjust():0;
+  // Días consecutivos de entrenamiento real (excluye hoy, que aún no se registró) —
+  // tope de seguridad independiente del Recovery Score (issue #62, Fase 1.4).
+  var consecActive=pro?_consecutiveActiveDays():0;
+  // RHR elevado 2+ de los últimos 3 días — posible enfermedad/estrés severo
+  // (issue #62, Fase 3.9). Tope más estricto que la fatiga por días activos,
+  // y manda sobre ella en el aviso de UI (es la señal más seria de las dos).
+  var illness=pro?_illnessFlag():false;
+  var mult=pro?Math.max(0.4,Math.min(1.4,dt.mult+cycAdj)):1.0;
+  if(pro&&consecActive>=8) mult=Math.min(mult,0.55);
+  else if(pro&&consecActive>=6) mult=Math.min(mult,0.70);
+  if(pro&&illness) mult=Math.min(mult,0.6);
   var ag=pro?{stp:Math.round(goals.stp*mult),cal:Math.round(goals.cal*mult),act:Math.round(goals.act*mult)}:goals;
+  if(pro) ag=_antiSpikeClamp(ag);
+  // Sync goal label, progress bar and % to real goal (adaptive PRO / user-set FREE)
+  var _glEl=document.getElementById('goal-lbl');
+  if(_glEl) _glEl.textContent='/ '+ag.stp.toLocaleString('en-US')+' '+(lang==='es'?'OBJETIVO':'GOAL');
+  var _pctGoal=Math.min((steps/ag.stp)*100,100);
+  var _spEl=document.getElementById('stepsprog'); if(_spEl) _spEl.style.width=_pctGoal.toFixed(1)+'%';
+  var _spctEl=document.getElementById('stepspct'); if(_spctEl) _spctEl.textContent=_pctGoal.toFixed(1)+'% '+(lang==='es'?'COMPLETADO HOY':'COMPLETED TODAY');
   // Registra actividad (ambos planes — útil si el usuario hace upgrade)
   if(isReal&&(steps||cal||actMin)){
-    _recordActivityDay(steps,cal,actMin);
+    var _phaseToday=(pro&&typeof cycleEnabled==='function'&&cycleEnabled())?(computeCycle()?.phase||null):null;
+    _recordActivityDay(steps,cal,actMin,vigMin,steps>=ag.stp,rec,_phaseToday,ag.stp);
     // Prefer _wkTodayStreakReal (set by loadWeekDataGoogle) — it accounts for
     // fb_streak_steps (persisted counter) and streaks longer than 7 days.
     // Falls back to _getStepGoalStreak() only before the first weekly load.
@@ -11516,9 +11904,8 @@ function updateDailyRings() {
     // Show "90+" with disclaimer if streak hit the 90-day init cap and hasn't grown past it yet
     var _strStored = {}; try { _strStored = JSON.parse(localStorage.getItem('fb_streak_steps')||'{}'); } catch(e2) {}
     var _isCapped = _strStored.capped && _ss <= 90;
-    // FIX #16: show '-' when today's goal not yet reached (undecided)
-    var _ssGoal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
-    var _ssTodayMet = steps >= _ssGoal;
+    // FIX #16: show '-' when today's goal not yet reached (undecided) — uses real adaptive goal
+    var _ssTodayMet = steps >= ag.stp;
     if(_sse) _sse.textContent = !_ssTodayMet ? '-' : (_isCapped ? '90+' : (_ss>0?_ss:'—'));
     var _sUnit = document.getElementById('steps-streak-unit');
     if (_sUnit) {
@@ -11538,7 +11925,7 @@ function updateDailyRings() {
       var isAdj=Math.abs(mult-1)>0.05;
       dtEl.innerHTML='<span style="font-size:12px">'+dt.icon+'</span>'
         +'<span style="color:'+dt.color+'">'+dt.label+'</span>'
-        +(isAdj?'<span class="dr-daytype-mult">· META ×'+mult+'</span>':'');
+        +(isAdj?'<span class="dr-daytype-mult">· META ×'+mult.toFixed(2)+'</span>':'');
       dtEl.style.color=''; dtEl.onclick=null; dtEl.classList.remove('pro-lock');
     } else {
       dtEl.innerHTML='<span style="font-size:11px">🔒</span>'
@@ -11546,6 +11933,34 @@ function updateDailyRings() {
       dtEl.style.color=''; dtEl.onclick=_showProRingUpsell; dtEl.classList.add('pro-lock');
     }
     dtEl.classList.add('live');
+  }
+  // Ajuste por fase del ciclo — solo visible cuando realmente mueve la meta
+  var cycEl=document.getElementById('dr-cycle-adj');
+  if(cycEl){
+    if(pro&&cycAdj){
+      var _cyc=computeCycle();
+      var _lbl=_CYCLE_PHASE_LABEL[lang==='es'?'es':'en'][_cyc?_cyc.phase:'']||'';
+      var _sign=cycAdj>0?'+':'';
+      cycEl.textContent=_lbl+' · '+_sign+Math.round(cycAdj*100)+'% '+(lang==='es'?'energía':'energy');
+      cycEl.classList.add('show');
+    } else {
+      cycEl.classList.remove('show');
+    }
+  }
+  // Aviso de fatiga/enfermedad — un solo slot, prioriza enfermedad si ambas aplican
+  var fatEl=document.getElementById('dr-fatigue-warn');
+  if(fatEl){
+    if(pro&&illness){
+      fatEl.textContent=lang==='es'
+        ? '⚠ FC en reposo elevada 2+ días — posible estrés o enfermedad. Metas reducidas.'
+        : '⚠ Resting HR elevated 2+ days — possible stress or illness. Goals reduced.';
+      fatEl.classList.add('show');
+    } else if(pro&&consecActive>=6){
+      fatEl.textContent='⚠ '+consecActive+(lang==='es'?' días activos seguidos — AIRA recomienda recuperación':' active days in a row — AIRA recommends recovery');
+      fatEl.classList.add('show');
+    } else {
+      fatEl.classList.remove('show');
+    }
   }
   if(!window._drPrevRaw) window._drPrevRaw={};
   var rawPcts={stp:steps>0?steps/ag.stp*100:0, cal:cal>0?cal/ag.cal*100:0, act:actMin>0?actMin/ag.act*100:0};
@@ -11981,8 +12396,8 @@ function recTextFor(rec) {
 }
 
 function animVals() {
-  // Scores demo: rhr=68, sueño 7h12m efic.94%, profundo 85m, REM 108m
-  updateScores(calcScores({ sleepMin:432, sleepEff:94, deep:85, rem:108, rhr:68, zones:[] }));
+  // Scores demo: rhr=68, sueño 7h12m efic.94%, profundo 85m, REM 108m, HRV demo en línea con baseline
+  updateScores(calcScores({ sleepMin:432, sleepEff:94, deep:85, rem:108, rhr:68, zones:[], hrvToday:52, hrvBaselineMean:48, rhrMean7:70 }));
   // Calorías demo
   document.getElementById('cal-bmr').textContent = '1,620';
   document.getElementById('cal-act').textContent = '564';
@@ -12568,7 +12983,10 @@ async function _initStreakFromGoogle() {
       if (ds) stMap[ds] = parseInt(rp.steps?.countSum ?? rp.steps?.count_sum ?? rp.steps?.count ?? 0) || 0;
     });
 
-    var goal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+    // Anti-trampa: si había una racha activa con meta más alta, respetar ese piso
+    // para que bajar la meta no cuente retroactivamente días que antes no cumplieron.
+    var _psInit = {}; try { _psInit = JSON.parse(localStorage.getItem('fb_streak_steps')||'{}'); } catch(e){}
+    var goal = Math.max(_loadDRGoals().stp, parseInt(_psInit.goal||0)||0);
     var streak = 0, lastDate = '';
 
     // Count consecutive days from yesterday backwards (up to 90)
@@ -12587,7 +13005,8 @@ async function _initStreakFromGoogle() {
 
     // API is always the source of truth — overwrite whatever localStorage had.
     // This is what keeps every device consistent: same API data → same streak.
-    localStorage.setItem('fb_streak_steps', JSON.stringify({ count: streak, lastDate: lastDate || td, capped: capped }));
+    // goal guardado: piso anti-trampa. Se borra (0) si la racha es 0 (nueva racha = meta actual).
+    localStorage.setItem('fb_streak_steps', JSON.stringify({ count: streak, lastDate: lastDate || td, capped: capped, goal: streak > 0 ? goal : 0 }));
     window._wkTodayStreakReal = streak;
 
     var _sEl   = document.getElementById('steps-streak-val');
@@ -12934,8 +13353,12 @@ async function loadRealGoogleData(silentRefresh) {
   // and gives ~9% recovery even when Google returned zero data.
   const _rhrReal = !!rhrRaw || !!(window._rhrFallback); // rhrRaw already covers all field-name fallbacks
   const _hasRealData = _rhrReal || sleepMin > 0 || azZones.length > 0 || !!(hrD?.dataPoints?.length);
+  // Base inputs for the Recovery Score — saved on window so _buildRecoveryInputs()
+  // (used globally by the check-in sheet) can recompute without needing closures
+  // over this function's locals.
+  window._lastScoreOpts = {sleepMin, sleepEff, deep:deepMin, rem:remMin, rhr:rhr_v, zones:azZones};
   if (_hasRealData) {
-    updateScores(calcScores({sleepMin,sleepEff,deep:deepMin,rem:remMin,rhr:rhr_v,zones:azZones}));
+    updateScores(calcScores(_buildRecoveryInputs()));
   } else {
     // No biometric data yet — trigger ring animation so they sit at 0/— cleanly
     updateDailyRings();
@@ -12946,12 +13369,26 @@ async function loadRealGoogleData(silentRefresh) {
   setHRZones({zones:azZones, restHR:_rhrReal?rhr_v:null, maxHR:maxHR_v>0?maxHR_v:null});
   syncTicker();
   // Pass null rhr when not real so loadHealthMetricsGoogle skips hardcoded fallbacks
-  loadHealthMetricsGoogle(td, _rhrReal?rhr_v:null);
-  // HRV baseline personal + SpO2 avg + tendencia RHR + AFib (async, no bloquean el render principal)
-  _calcHRVBaseline(parseInt(localStorage.getItem('hrv_base_range'))||7);
+  // HRV baseline personal + SpO2 avg + tendencia RHR + AFib (async, no bloquean el render principal).
+  // loadHealthMetricsGoogle/_calcHRVBaseline/_calcRHRTrend feed the Recovery Score —
+  // una vez que resuelven, se recalcula con datos completos en vez de los parciales de arriba.
+  const _pHealth   = loadHealthMetricsGoogle(td, _rhrReal?rhr_v:null);
+  const _pHrvBase  = _calcHRVBaseline(parseInt(localStorage.getItem('hrv_base_range'))||7);
   _calcSpo2Avg(parseInt(localStorage.getItem('spo2_avg_range'))||7);
-  _calcRHRTrend();
+  const _pRhrTrend = _calcRHRTrend();
+  const _pBackfill = _backfillActivityHistory();
   _loadAFibData();
+  if (_hasRealData) {
+    Promise.all([_pHealth, _pHrvBase, _pRhrTrend, _pBackfill]).then(() => {
+      // updateScores() llama updateDailyRings() internamente, que lee
+      // fb_activity_history fresco — para entonces _pBackfill ya resolvió,
+      // así que el baseline de metas ya refleja los días recién sembrados.
+      updateScores(calcScores(_buildRecoveryInputs()));
+      // Solo pregunta si AIRA no confía en la señal automática (HRV/RHR
+      // faltante o contradictoria) — nunca como tarea diaria obligatoria.
+      _maybeShowCheckin();
+    }).catch(() => {});
+  }
   // Always call renderRecentActivities — even empty array shows "Sin entrenamientos"
   // instead of leaving the HTML demo activities (Carrera/Meditación/Ciclismo) on screen
   const ghSessions = _parseGhExerciseSessions(exD?.dataPoints||[]);
@@ -13089,6 +13526,10 @@ function _applyBioProfile(p) {
   }
   window._bioProfile = {age,weight,height,sex,activity,bmr,tdee,hrMax,fitAge};
   _updateCalBalance();
+  // Refresca metas ahora que hay BMR/TDEE — sin esto, el default informado por
+  // el perfil no se ve hasta el siguiente poll (_applyBioProfile corre después
+  // de la primera pasada de updateDailyRings en loadRealGoogleData).
+  if (typeof updateDailyRings === 'function') updateDailyRings();
 }
 function _updateCalBalance() {
   const profile = window._bioProfile;
@@ -13272,7 +13713,10 @@ async function _calcRHRTrend() {
       else if (diff <= -2) { trd.textContent='↓'; trd.style.color='var(--tpos)'; trd.title=`${Math.round(diff)} bpm vs. media ${rest.length}d`; }
       else                 { trd.textContent='→'; trd.style.color='rgba(255,255,255,0.3)'; trd.title='Estable vs. media 7d'; }
     }
-    window._rhrTrend = {today, mean7:Math.round(mean7), diff:Math.round(diff), n:rest.length};
+    // recent = últimos 3 días (hoy primero) — usado por _illnessFlag() para
+    // detectar RHR elevado sostenido sin necesitar guardar historial aparte,
+    // ya esta misma respuesta trae varios días (issue #62, Fase 3.9).
+    window._rhrTrend = {today, mean7:Math.round(mean7), diff:Math.round(diff), n:rest.length, recent:vals.slice(0,3)};
     console.log('[gh rhr-trend]', window._rhrTrend);
   } catch(e) { console.warn('[gh rhr-trend]',e); }
 }
@@ -14535,9 +14979,14 @@ function _hRenderStepsBar(svg, rows) {
   const { w, h, pad, innerW, innerH } = _hGeo();
   const stRows = rows.filter(r => r.steps != null);
   if (!stRows.length) { svg.style.display='none'; return; }
-  const GOAL = parseInt(localStorage.getItem('fb_steps_goal')) || 10000;
-  const GOAL_LABEL = GOAL >= 1000 ? (GOAL/1000).toFixed(GOAL%1000===0?0:1)+'k' : String(GOAL);
-  const maxSteps = Math.max(...stRows.map(r => r.steps), GOAL);
+  const pro = typeof isPro === 'function' && isPro();
+  const GOAL_DEFAULT = _loadDRGoals().stp;
+  // Per-day goal from fb_activity_history (has goalUsed with anti-cheat max baked in)
+  var _actHist = []; try { _actHist = JSON.parse(localStorage.getItem('fb_activity_history')||'[]'); } catch(e) {}
+  var _goalByDate = {};
+  _actHist.forEach(function(e) { if (e.date && e.goalUsed) _goalByDate[e.date] = e.goalUsed; });
+  const dayGoal = d => _goalByDate[d] || GOAL_DEFAULT;
+  const maxSteps = Math.max(...stRows.map(r => r.steps), ...rows.map(r => dayGoal(r.date)));
   const hi = Math.ceil(maxSteps / 2000) * 2000;
   const n  = rows.length;
   const slot = innerW / n;
@@ -14553,15 +15002,39 @@ function _hRenderStepsBar(svg, rows) {
     + `<line x1="0" y1="0" x2="0" y2="5" style="stroke:var(--tneg,#ef4444);stroke-width:2;stroke-opacity:0.55"/>`
     + `</pattern></defs>`;
   let gridSvg = '';
+  // Grid lines — include 5k and round value above max
   [0, 5000, 10000].filter(v => v <= hi).forEach(v => {
     const y = pad.t + (1 - v/hi) * innerH;
     gridSvg += `<line class="grid" x1="${pad.l}" x2="${w-pad.r}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
     gridSvg += `<text class="axlbl" x="${(pad.l-6).toFixed(1)}" y="${(y+3.5).toFixed(1)}" text-anchor="end">${v>=1000?v/1000+'k':v}</text>`;
   });
-  const yGoal = pad.t + (1 - GOAL/hi) * innerH;
-  // Goal line: accent color + dashed, stands out from the generic grid lines
-  gridSvg += `<line x1="${pad.l}" x2="${w-pad.r}" y1="${yGoal.toFixed(1)}" y2="${yGoal.toFixed(1)}" style="stroke:${col};stroke-width:1.5;stroke-dasharray:4 4;opacity:0.65"/>`;
-  gridSvg += `<text class="ref-lbl" x="${(w-pad.r+3).toFixed(1)}" y="${(yGoal+3.5).toFixed(1)}" text-anchor="start" style="fill:${col};opacity:0.85">${GOAL_LABEL}</text>`;
+  // Variable goal line: stepped segments per bar showing each day's real goal.
+  // FREE: reflects user's manually-set goal (with anti-cheat max baked in via goalUsed).
+  // PRO: shows adaptive goal per day — visually demonstrates AIRA is adjusting the target.
+  let goalLineSvg = '';
+  const goalSegments = rows.map((r, i) => {
+    const g = dayGoal(r.date);
+    const cx = pad.l + (i + 0.5) * slot;
+    const x0 = pad.l + i * slot;
+    const x1 = pad.l + (i + 1) * slot;
+    return { g, cx, x0, x1, y: pad.t + (1 - g/hi) * innerH };
+  });
+  // Draw as connected horizontal segments (stepped polyline)
+  goalSegments.forEach((seg, i) => {
+    const next = goalSegments[i+1];
+    // Horizontal segment across this bar's column
+    goalLineSvg += `<line x1="${seg.x0.toFixed(1)}" x2="${seg.x1.toFixed(1)}" y1="${seg.y.toFixed(1)}" y2="${seg.y.toFixed(1)}" style="stroke:${col};stroke-width:1.5;stroke-dasharray:4 4;opacity:0.65"/>`;
+    // Vertical connector to next segment if goal changes
+    if (next && Math.abs(next.g - seg.g) > 50) {
+      goalLineSvg += `<line x1="${seg.x1.toFixed(1)}" x2="${seg.x1.toFixed(1)}" y1="${seg.y.toFixed(1)}" y2="${next.y.toFixed(1)}" style="stroke:${col};stroke-width:1;stroke-dasharray:2 3;opacity:0.35"/>`;
+    }
+  });
+  // Label: show goal value on the last (rightmost) segment
+  const lastSeg = goalSegments[goalSegments.length - 1];
+  if (lastSeg) {
+    const lbl = lastSeg.g >= 1000 ? (lastSeg.g/1000).toFixed(lastSeg.g%1000===0?0:1)+'k' : String(lastSeg.g);
+    goalLineSvg += `<text class="ref-lbl" x="${(w-pad.r+3).toFixed(1)}" y="${(lastSeg.y+3.5).toFixed(1)}" text-anchor="start" style="fill:${col};opacity:0.85">${lbl}</text>`;
+  }
   let bars = '';
   rows.forEach((r,i) => {
     if (r.steps == null) return;
@@ -14569,15 +15042,14 @@ function _hRenderStepsBar(svg, rows) {
     const pct  = Math.min(r.steps / hi, 1);
     const barH = Math.max(pct * innerH, r.steps > 0 ? 2 : 0);
     const y    = pad.t + innerH - barH;
-    const met  = r.steps >= GOAL;
+    const dg   = dayGoal(r.date);
+    const met  = r.steps >= dg;
     if (met) {
       bars += `<path class="bar-anim bar-steps" style="animation-delay:${(i*0.035).toFixed(2)}s;fill:url(#hg-steps)" d="${_hRoundTop(x, y, barW, barH, radius)}"/>`;
     } else {
-      // Diagonal stripe fill (--tneg) for missed days
       bars += `<path class="bar-anim bar-steps-miss" style="animation-delay:${(i*0.035).toFixed(2)}s;fill:url(#hg-miss)" d="${_hRoundTop(x, y, barW, barH, radius)}"/>`;
-      // Deficit indicator above bar (wide bars: amount, narrow: ×)
       if (r.steps > 0) {
-        const deficit = GOAL - r.steps;
+        const deficit = dg - r.steps;
         if (barW >= 18) {
           const defStr = deficit >= 1000 ? '−'+(deficit/1000).toFixed(1)+'k' : '−'+deficit;
           bars += `<text text-anchor="middle" x="${(x+barW/2).toFixed(1)}" y="${(y-4).toFixed(1)}" style="font-size:7px;font-weight:700;fill:var(--tneg,#ef4444);opacity:0.85;font-family:var(--mono,'IBM Plex Mono',monospace)">${defStr}</text>`;
@@ -14586,13 +15058,13 @@ function _hRenderStepsBar(svg, rows) {
         }
       }
     }
-    bars += `<rect class="bar-hit" x="${x.toFixed(1)}" y="${pad.t.toFixed(1)}" width="${barW.toFixed(1)}" height="${innerH.toFixed(1)}" fill="transparent" data-v="${r.steps}" data-d="${r.date}" style="cursor:pointer"/>`;
+    bars += `<rect class="bar-hit" x="${x.toFixed(1)}" y="${pad.t.toFixed(1)}" width="${barW.toFixed(1)}" height="${innerH.toFixed(1)}" fill="transparent" data-v="${r.steps}" data-d="${r.date}" data-g="${dg}" style="cursor:pointer"/>`;
   });
   const idx = _hTickIdx(n, 4);
   let xax = '';
   idx.forEach(i => { const r=rows[i]; if(!r) return; const x=pad.l+(i+0.5)*slot; xax+=`<text class="axlbl" x="${x.toFixed(1)}" y="${(h-8).toFixed(1)}" text-anchor="middle">${_hFmtTick(r.date)}</text>`; });
   svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-  svg.innerHTML = `${defs}${gridSvg}${bars}${xax}`;
+  svg.innerHTML = `${defs}${gridSvg}${goalLineSvg}${bars}${xax}`;
   svg.style.display = 'block';
 }
 
@@ -14672,12 +15144,40 @@ function _hCoachAnalysis(rows) {
   }
   if (avgStp != null) {
     const k = (Math.round(avgStp/100)/10).toFixed(1);
-    const daysGoal = stpVals.filter(v=>v>=10000).length;
-    let text = avgStp >= 10000 ? fill(t.hv_ca_stp_peak, k) : avgStp >= 7000 ? fill(t.hv_ca_stp_good, k) : fill(t.hv_ca_stp_low, k);
+    const pro = typeof isPro === 'function' && isPro();
+    // Per-day goal from history (adaptive PRO / anti-cheat FREE)
+    var _caActH = []; try { _caActH = JSON.parse(localStorage.getItem('fb_activity_history')||'[]'); } catch(e) {}
+    var _caGoalByDate = {}; _caActH.forEach(function(e){ if(e.date&&e.goalUsed) _caGoalByDate[e.date]=e.goalUsed; });
+    const _caDefGoal = _loadDRGoals().stp;
+    const stpRowsAll = rows.filter(r=>r.steps!=null);
+    const daysGoal = stpRowsAll.filter(r => r.steps >= (_caGoalByDate[r.date]||_caDefGoal)).length;
+    let text = avgStp >= _caDefGoal ? fill(t.hv_ca_stp_peak, k) : avgStp >= _caDefGoal*0.7 ? fill(t.hv_ca_stp_good, k) : fill(t.hv_ca_stp_low, k);
     text += rangeSuffix + '.';
-    if (daysGoal > 0) text += fill(t.hv_ca_stp_days, daysGoal);
+    if (daysGoal > 0) {
+      const goalMentionStr = pro
+        ? (lang==='es' ? ` Cumpliste tu meta adaptativa <strong>${daysGoal}</strong> de ${stpRowsAll.length} días.`
+                       : ` You hit your adaptive goal <strong>${daysGoal}</strong> of ${stpRowsAll.length} days.`)
+        : fill(t.hv_ca_stp_days, daysGoal);
+      text += goalMentionStr;
+    }
     if (stpTrend > 600) text += t.hv_ca_stp_up;
     else if (stpTrend < -600) text += t.hv_ca_stp_dn;
+    // Day-of-week pattern: find the weekday with consistently best step counts
+    if (stpRowsAll.length >= 7) {
+      const dowSums = [0,0,0,0,0,0,0], dowCnt = [0,0,0,0,0,0,0];
+      stpRowsAll.forEach(r => { const dow = new Date(r.date+'T12:00:00').getDay(); dowSums[dow]+=r.steps||0; dowCnt[dow]++; });
+      const dowAvg = dowSums.map((s,i)=>dowCnt[i]>=2?s/dowCnt[i]:null);
+      let bestDow=-1, bestVal=0;
+      dowAvg.forEach((v,i)=>{ if(v!=null&&v>bestVal){bestVal=v;bestDow=i;} });
+      const dowNames = lang==='es'
+        ? ['domingos','lunes','martes','miércoles','jueves','viernes','sábados']
+        : ['Sundays','Mondays','Tuesdays','Wednesdays','Thursdays','Fridays','Saturdays'];
+      if (bestDow>=0) {
+        text += lang==='es'
+          ? ` Tu mejor día suele ser los <strong>${dowNames[bestDow]}</strong>.`
+          : ` Your best day tends to be <strong>${dowNames[bestDow]}</strong>.`;
+      }
+    }
     insights.push({ icon: '◉', label: t.hv_ca_stp_lbl, text });
   }
   // Cycle insight — only for users with cycle tracking enabled (female profile)
@@ -15184,7 +15684,18 @@ async function renderHistory() {
   document.getElementById('hv-rhr-stat').innerHTML   = rhrStat ? rhrStat+_hTrend(rows,'rhr',true)  : '';
   document.getElementById('hv-sleep-stat').innerHTML = slpStat ? slpStat+_hTrend(rows,'minutesAsleep',false) : '';
   const stpStatEl = document.getElementById('hv-steps-stat');
-  if (stpStatEl) stpStatEl.innerHTML = stpStat ? stpStat+_hTrend(rows,'steps',false) : '';
+  if (stpStatEl) {
+    var _stpBase = stpStat ? stpStat + _hTrend(rows,'steps',false) : '';
+    // Stat C: META CUMPLIDA X/N — uses per-day goalUsed (adaptive PRO / anti-cheat FREE)
+    var _stpActH = []; try { _stpActH = JSON.parse(localStorage.getItem('fb_activity_history')||'[]'); } catch(e2) {}
+    var _stpGoalByDate = {}; _stpActH.forEach(function(e){ if(e.date&&e.goalUsed) _stpGoalByDate[e.date]=e.goalUsed; });
+    var _stpDefaultGoal = _loadDRGoals().stp;
+    var _stpDays = rows.filter(r=>r.steps!=null);
+    var _stpMet = _stpDays.filter(r => r.steps >= (_stpGoalByDate[r.date] || _stpDefaultGoal)).length;
+    var _stpMetLbl = lang==='es' ? 'META: ' : 'GOAL: ';
+    var _stpMetStr = _stpMet > 0 ? ` <span style="opacity:0.55;margin-left:6px">${_stpMetLbl}<strong>${_stpMet}/${_stpDays.length}</strong></span>` : '';
+    stpStatEl.innerHTML = _stpBase + _stpMetStr;
+  }
   // Clean up stale empty-state divs from a previous render
   [recSvg, rhrSvg, slpSvg, stpSvg].forEach(svg => {
     if (svg && svg.parentElement) svg.parentElement.querySelectorAll('.hv-empty').forEach(e => e.remove());
