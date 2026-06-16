@@ -2298,6 +2298,8 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .dr-daytype{display:flex;align-items:center;gap:5px;margin-bottom:10px;font-size:8.5px;letter-spacing:1.5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;opacity:0;transition:opacity 0.4s ease;}
 .dr-daytype.live{opacity:1;}
 .dr-daytype-mult{opacity:0.4;font-size:7.5px;margin-left:4px;}
+.dr-cycle-adj{display:none;font-size:7.5px;letter-spacing:1px;font-family:'IBM Plex Mono',monospace;opacity:0.5;margin:-6px 0 10px;}
+.dr-cycle-adj.show{display:block;}
 /* Standard mode: rings son editables con tap */
 .dr-item.std-editable{cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .dr-item.std-editable:active{opacity:0.78;}
@@ -10783,6 +10785,26 @@ function _getDayType(rec) {
   return            {label:es?'DÍA DE REPOSO':'REST DAY',   color:'rgba(255,255,255,0.3)',icon:'😴',mult:0.5};
 }
 
+// ── Ajuste de metas por fase del ciclo menstrual (issue #62, Fase 1.3) ──────
+// computeCycle() ya existía (usado por la card de ciclo) pero nunca estaba
+// conectado al sistema de metas — esto era una función PRO ya construida al
+// 90% que solo necesitaba el puente. Ajuste fisiológico (Sung 2014, McNulty
+// 2020): más tolerancia al esfuerzo en fase fértil/pico, menos en menstrual/lútea.
+var _CYCLE_MULT_ADJ = { menstrual:-0.10, follicular:+0.05, fertile:+0.10, peak:+0.10,
+                         ovulation:+0.10, luteal:-0.05, late:-0.10 };
+function _getCycleMultAdjust() {
+  if (typeof cycleEnabled !== 'function' || !cycleEnabled()) return 0;
+  var cyc = typeof computeCycle === 'function' ? computeCycle() : null;
+  if (!cyc) return 0;
+  return _CYCLE_MULT_ADJ[cyc.phase] || 0;
+}
+var _CYCLE_PHASE_LABEL = {
+  es: { menstrual:'Fase menstrual', follicular:'Fase folicular', fertile:'Ventana fértil',
+        peak:'Pico de fertilidad', ovulation:'Ovulación', luteal:'Fase lútea', late:'Ciclo retrasado' },
+  en: { menstrual:'Menstrual phase', follicular:'Follicular phase', fertile:'Fertile window',
+        peak:'Fertility peak', ovulation:'Ovulation', luteal:'Luteal phase', late:'Cycle delayed' }
+};
+
 function _getNextAchievement(t) {
   var s=_loadAchStats(), u=_loadAchUnlocked(), un=u[t]||[], es=lang==='es';
   // For step achievements use today's real steps (DOM) when authenticated,
@@ -11573,6 +11595,7 @@ function renderDailyRings() {
       +'</div>'
     +'</div>'
     +'<div id="dr-daytype" class="dr-daytype"></div>'
+    +'<div id="dr-cycle-adj" class="dr-cycle-adj"></div>'
     +'<div class="drw-row">'+_DR_DEFS.map(makeRing).join('')+'</div>'
     +'<div class="drw-motivation">'
       +'<div class="drw-next-ach" id="drw-next-ach" onclick="openAch()">'
@@ -11608,7 +11631,8 @@ function updateDailyRings() {
   var actMin=nv('hrmin-fat')+nv('hrmin-cardio')+nv('hrmin-peak');
   var rec=window._lastRec||0;
   var dt=_getDayType(rec);
-  var mult=pro?dt.mult:1.0;
+  var cycAdj=pro?_getCycleMultAdjust():0;
+  var mult=pro?Math.max(0.4,Math.min(1.4,dt.mult+cycAdj)):1.0;
   var ag=pro?{stp:Math.round(goals.stp*mult),cal:Math.round(goals.cal*mult),act:Math.round(goals.act*mult)}:goals;
   // Registra actividad (ambos planes — útil si el usuario hace upgrade)
   if(isReal&&(steps||cal||actMin)){
@@ -11643,7 +11667,7 @@ function updateDailyRings() {
       var isAdj=Math.abs(mult-1)>0.05;
       dtEl.innerHTML='<span style="font-size:12px">'+dt.icon+'</span>'
         +'<span style="color:'+dt.color+'">'+dt.label+'</span>'
-        +(isAdj?'<span class="dr-daytype-mult">· META ×'+mult+'</span>':'');
+        +(isAdj?'<span class="dr-daytype-mult">· META ×'+mult.toFixed(2)+'</span>':'');
       dtEl.style.color=''; dtEl.onclick=null; dtEl.classList.remove('pro-lock');
     } else {
       dtEl.innerHTML='<span style="font-size:11px">🔒</span>'
@@ -11651,6 +11675,19 @@ function updateDailyRings() {
       dtEl.style.color=''; dtEl.onclick=_showProRingUpsell; dtEl.classList.add('pro-lock');
     }
     dtEl.classList.add('live');
+  }
+  // Ajuste por fase del ciclo — solo visible cuando realmente mueve la meta
+  var cycEl=document.getElementById('dr-cycle-adj');
+  if(cycEl){
+    if(pro&&cycAdj){
+      var _cyc=computeCycle();
+      var _lbl=_CYCLE_PHASE_LABEL[lang==='es'?'es':'en'][_cyc?_cyc.phase:'']||'';
+      var _sign=cycAdj>0?'+':'';
+      cycEl.textContent=_lbl+' · '+_sign+Math.round(cycAdj*100)+'% '+(lang==='es'?'energía':'energy');
+      cycEl.classList.add('show');
+    } else {
+      cycEl.classList.remove('show');
+    }
   }
   if(!window._drPrevRaw) window._drPrevRaw={};
   var rawPcts={stp:steps>0?steps/ag.stp*100:0, cal:cal>0?cal/ag.cal*100:0, act:actMin>0?actMin/ag.act*100:0};
