@@ -10837,21 +10837,45 @@ function _saveDRGoals(g){try{localStorage.setItem('fb_dr_goals',JSON.stringify(g
 function _fmtGoal(key,v){if(key==='stp')return v>=1000?(v/1000).toFixed(v%1000===0?0:1)+'k':v+'';return v+'';}
 
 // ── Activity history: aprende tu baseline real (últimos 7 días) ───────────
-function _recordActivityDay(steps, cal, actMin) {
+// Almacena hasta 14 días crudos — el baseline sigue promediando solo los
+// últimos 7 (sin cambiar su comportamiento previo); los 7 extra existen
+// únicamente para que _consecutiveActiveDays() pueda detectar rachas de
+// hasta 8 días (issue #62, Fase 1.4).
+// vigMin = minutos en zona Cardio+Peak únicamente (sin Fat Burn). Caminar
+// puede acumular cientos de minutos en Fat Burn sin ser realmente fatigante
+// — usar actMin completo para detectar fatiga marcaría caminatas largas
+// como "entrenamiento", así que la racha de días activos se basa solo en
+// minutos de intensidad real.
+function _recordActivityDay(steps, cal, actMin, vigMin) {
   if (!steps && !cal && !actMin) return;
   try {
     var today=_localDateStr(); // local date, not UTC — avoids timezone-break at 11pm UTC-X
     var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
     hist=hist.filter(function(e){return e.date!==today;});
-    hist.push({date:today,steps:steps||0,cal:cal||0,actMin:actMin||0});
+    hist.push({date:today,steps:steps||0,cal:cal||0,actMin:actMin||0,vigMin:vigMin||0});
     hist.sort(function(a,b){return a.date<b.date?-1:1;});
-    if(hist.length>7) hist=hist.slice(-7);
+    if(hist.length>14) hist=hist.slice(-14);
     localStorage.setItem('fb_activity_history',JSON.stringify(hist));
   } catch(e){}
 }
-function _getActivityBaseline() {
+// Días consecutivos con entrenamiento real (>10 min de Cardio+Peak),
+// contando desde el más reciente hacia atrás. Usado para forzar un tope de
+// multiplicador cuando hay fatiga acumulada, sin importar qué tan bien se
+// vea el Recovery Score — ni cuánto hayas caminado.
+function _consecutiveActiveDays() {
   try {
     var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
+    var streak=0;
+    for (var i=hist.length-1; i>=0; i--) {
+      if ((hist[i].vigMin||0) > 10) streak++;
+      else break;
+    }
+    return streak;
+  } catch(e) { return 0; }
+}
+function _getActivityBaseline() {
+  try {
+    var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]').slice(-7);
     var override=JSON.parse(localStorage.getItem('fb_dr_goals')||'{}');
     if(!hist.length) return Object.assign({},_DR_GOALS_DEFAULT,override);
     var stpS=0,calS=0,actS=0,stpN=0,calN=0,actN=0;
@@ -11596,6 +11620,7 @@ function renderDailyRings() {
     +'</div>'
     +'<div id="dr-daytype" class="dr-daytype"></div>'
     +'<div id="dr-cycle-adj" class="dr-cycle-adj"></div>'
+    +'<div id="dr-fatigue-warn" class="dr-cycle-adj"></div>'
     +'<div class="drw-row">'+_DR_DEFS.map(makeRing).join('')+'</div>'
     +'<div class="drw-motivation">'
       +'<div class="drw-next-ach" id="drw-next-ach" onclick="openAch()">'
@@ -11629,14 +11654,20 @@ function updateDailyRings() {
   var goals=pro?_getActivityBaseline():_loadDRGoals();
   var cal=nv('calv')||nv('cal-act'), steps=nv('stepsv');
   var actMin=nv('hrmin-fat')+nv('hrmin-cardio')+nv('hrmin-peak');
+  var vigMin=nv('hrmin-cardio')+nv('hrmin-peak'); // sin Fat Burn — para detectar fatiga, no caminatas
   var rec=window._lastRec||0;
   var dt=_getDayType(rec);
   var cycAdj=pro?_getCycleMultAdjust():0;
+  // Días consecutivos de entrenamiento real (excluye hoy, que aún no se registró) —
+  // tope de seguridad independiente del Recovery Score (issue #62, Fase 1.4).
+  var consecActive=pro?_consecutiveActiveDays():0;
   var mult=pro?Math.max(0.4,Math.min(1.4,dt.mult+cycAdj)):1.0;
+  if(pro&&consecActive>=8) mult=Math.min(mult,0.55);
+  else if(pro&&consecActive>=6) mult=Math.min(mult,0.70);
   var ag=pro?{stp:Math.round(goals.stp*mult),cal:Math.round(goals.cal*mult),act:Math.round(goals.act*mult)}:goals;
   // Registra actividad (ambos planes — útil si el usuario hace upgrade)
   if(isReal&&(steps||cal||actMin)){
-    _recordActivityDay(steps,cal,actMin);
+    _recordActivityDay(steps,cal,actMin,vigMin);
     // Prefer _wkTodayStreakReal (set by loadWeekDataGoogle) — it accounts for
     // fb_streak_steps (persisted counter) and streaks longer than 7 days.
     // Falls back to _getStepGoalStreak() only before the first weekly load.
@@ -11687,6 +11718,16 @@ function updateDailyRings() {
       cycEl.classList.add('show');
     } else {
       cycEl.classList.remove('show');
+    }
+  }
+  // Aviso de fatiga acumulada — solo cuando el tope realmente está actuando
+  var fatEl=document.getElementById('dr-fatigue-warn');
+  if(fatEl){
+    if(pro&&consecActive>=6){
+      fatEl.textContent='⚠ '+consecActive+(lang==='es'?' días activos seguidos — AIRA recomienda recuperación':' active days in a row — AIRA recommends recovery');
+      fatEl.classList.add('show');
+    } else {
+      fatEl.classList.remove('show');
     }
   }
   if(!window._drPrevRaw) window._drPrevRaw={};
