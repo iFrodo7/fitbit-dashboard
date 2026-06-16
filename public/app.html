@@ -9606,6 +9606,76 @@ async function loadWeekDataGoogle() {
   } catch(e) { /* best-effort — leave chart with existing/demo data */ }
 }
 
+// ── Siembra inicial de fb_activity_history desde Google Health ────────────
+// Sin esto, un usuario que ya tenía meses de datos en su reloj (solo nunca
+// había usado AIRA) arrancaba con el baseline/fatiga/calibración en cero,
+// como si nunca hubiera caminado. fb_activity_history es un historial
+// propio de AIRA — nunca se llenaba con lo que Google Health ya tenía.
+// Corre una sola vez (fb_activity_backfilled) y nunca pisa un día que AIRA
+// ya haya registrado por su cuenta. Mismo patrón dailyRollUp que
+// loadWeekDataGoogle() / loadRealGoogleData(), solo que pidiendo también
+// calorías y zonas de FC (cardio+peak = vigMin) además de pasos.
+async function _backfillActivityHistory() {
+  try {
+    if (typeof HS === 'undefined' || HS.id !== 'google' || !token) return;
+    if (localStorage.getItem('fb_activity_backfilled')) return;
+    var existing = JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
+    if (existing.length >= 3) { localStorage.setItem('fb_activity_backfilled','1'); return; }
+    var B  = HS.base;
+    var td = _localDateStr();
+    var nd = _ghNextDay(td);
+    var d7 = (function(){ var dt=new Date(); dt.setDate(dt.getDate()-6); return _localDateStr(dt); })();
+    var rb = { range: { start: _parseCivilDate(d7), end: _parseCivilDate(nd) }, windowSizeDays: 1 };
+    var [stW, calW, azW] = await Promise.all([
+      _ghPost(B + '/users/me/dataTypes/steps/dataPoints:dailyRollUp', rb),
+      _ghPost(B + '/users/me/dataTypes/total-calories/dataPoints:dailyRollUp', rb),
+      _ghPost(B + '/users/me/dataTypes/active-zone-minutes/dataPoints:dailyRollUp', rb),
+    ]);
+    var rangeToDateStr = function(rp) {
+      var rs = rp && (rp.civilStartTime || (rp.range && rp.range.start));
+      if (!rs) return null;
+      var D = rs.date || rs;
+      if (typeof D === 'string') return D;
+      if (D.year && D.month && D.day) return D.year+'-'+String(D.month).padStart(2,'0')+'-'+String(D.day).padStart(2,'0');
+      return null;
+    };
+    var byDate = function(resp, extract) {
+      var m = {};
+      ((resp && resp.rollupDataPoints) || []).forEach(function(rp){ var ds=rangeToDateStr(rp); if(ds) m[ds]=extract(rp); });
+      return m;
+    };
+    var stMap  = byDate(stW,  function(rp){ return parseInt(rp.steps?.countSum ?? rp.steps?.count_sum ?? rp.steps?.count ?? 0)||0; });
+    var calMap = byDate(calW, function(rp){ return parseInt(rp.totalCalories?.kilocaloriesSum ?? rp.totalCalories?.kilocalories ?? rp.calories?.kilocaloriesSum ?? 0)||0; });
+    var azMap  = byDate(azW,  function(rp){
+      var az = rp.activeZoneMinutes || rp.activeZones || {};
+      var n=function(keys){ return parseInt(keys.reduce(function(v,k){return v??az[k];},null) ?? 0)||0; };
+      var fat=n(['fatBurnActiveZoneMinutesSum','fatBurnActiveZoneMinutes']);
+      var cardio=n(['cardioActiveZoneMinutesSum','cardioActiveZoneMinutes']);
+      var peak=n(['peakActiveZoneMinutesSum','peakActiveZoneMinutes']);
+      return { actMin: fat+cardio+peak, vigMin: cardio+peak };
+    });
+    var seeded=existing.slice();
+    var existingDates={}; seeded.forEach(function(e){ existingDates[e.date]=true; });
+    var defGoal=_bioInformedDefaults();
+    for (var i=0;i<7;i++) {
+      var dt=new Date(); dt.setDate(dt.getDate()-(6-i));
+      var ds=_localDateStr(dt);
+      if (existingDates[ds]) continue; // no pisar un día que AIRA ya registró por su cuenta
+      var stp=stMap[ds]||0, cal=calMap[ds]||0, az=azMap[ds]||{actMin:0,vigMin:0};
+      if (!stp && !cal && !az.actMin) continue; // sin dato real ese día, no inventar una entrada en cero
+      seeded.push({
+        date:ds, dow:dt.getDay(), steps:stp, cal:cal, actMin:az.actMin, vigMin:az.vigMin,
+        goalMet: stp>=defGoal.stp, readiness:0, phase:null
+      });
+    }
+    seeded.sort(function(a,b){ return a.date<b.date?-1:1; });
+    if (seeded.length>30) seeded=seeded.slice(-30);
+    localStorage.setItem('fb_activity_history', JSON.stringify(seeded));
+    localStorage.setItem('fb_activity_backfilled','1');
+    console.log('[backfill] fb_activity_history sembrado con', seeded.length-existing.length, 'días de Google Health');
+  } catch(e) { console.warn('[backfill]', e); }
+}
+
 function buildHRC(hrs) {
   const svg = document.getElementById('hrchart'); if (!svg||!hrs.length) return;
   const w=300,h=72,mn=Math.min(...hrs)-5,mx=Math.max(...hrs)+5;
@@ -13257,9 +13327,13 @@ async function loadRealGoogleData(silentRefresh) {
   const _pHrvBase  = _calcHRVBaseline(parseInt(localStorage.getItem('hrv_base_range'))||7);
   _calcSpo2Avg(parseInt(localStorage.getItem('spo2_avg_range'))||7);
   const _pRhrTrend = _calcRHRTrend();
+  const _pBackfill = _backfillActivityHistory();
   _loadAFibData();
   if (_hasRealData) {
-    Promise.all([_pHealth, _pHrvBase, _pRhrTrend]).then(() => {
+    Promise.all([_pHealth, _pHrvBase, _pRhrTrend, _pBackfill]).then(() => {
+      // updateScores() llama updateDailyRings() internamente, que lee
+      // fb_activity_history fresco — para entonces _pBackfill ya resolvió,
+      // así que el baseline de metas ya refleja los días recién sembrados.
       updateScores(calcScores(_buildRecoveryInputs()));
       // Solo pregunta si AIRA no confía en la señal automática (HRV/RHR
       // faltante o contradictoria) — nunca como tarea diaria obligatoria.
