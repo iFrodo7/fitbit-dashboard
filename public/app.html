@@ -10774,7 +10774,25 @@ function updateScores({ rec, strain, sleepPct }) {
 // ── Daily Progress Rings ──────────────────────────────────────────────────
 var _DR_R=24, _DR_SW=5.5, _DR_C=2*Math.PI*24, _DR_DIM=24*2+5.5*2+2, _DR_CX=(_DR_DIM/2), _DR_CY=(_DR_DIM/2);
 var _DR_GOALS_DEFAULT={stp:10000,cal:500,act:30};
-function _loadDRGoals(){try{return Object.assign({},_DR_GOALS_DEFAULT,JSON.parse(localStorage.getItem('fb_dr_goals')||'{}'));}catch(e){return Object.assign({},_DR_GOALS_DEFAULT);}}
+// Pasos de Harris-Benedict (mismos valores del <select id="pv-activity">) → meta
+// de pasos por defecto. Solo importa antes de tener historial real — en cuanto
+// hay 7+ días de datos, _getActivityBaseline() usa el promedio real del usuario.
+var _ACTIVITY_STEP_GOAL = { 1.2:6000, 1.375:8000, 1.55:10000, 1.725:12000, 1.9:14000 };
+// Defaults informados por el perfil biométrico (issue #62 — el "no haremos
+// peso corporal" del issue asumía que no estaba disponible, pero ya se
+// captura a mano en el perfil para BMR/TDEE/Fitness Age). Reemplaza el
+// default plano de _DR_GOALS_DEFAULT solo para usuarios sin historial
+// suficiente; con datos reales, el historial siempre gana.
+function _bioInformedDefaults() {
+  var p = window._bioProfile;
+  if (!p || !p.bmr || !p.tdee) return _DR_GOALS_DEFAULT;
+  // Calorías activas ≈ TDEE − BMR (la porción del gasto diario que el modelo
+  // Harris-Benedict atribuye a actividad, no a metabolismo basal).
+  var cal = Math.max(150, Math.round((p.tdee - p.bmr) / 10) * 10);
+  var stp = _ACTIVITY_STEP_GOAL[p.activity] || _DR_GOALS_DEFAULT.stp;
+  return { stp: stp, cal: cal, act: _DR_GOALS_DEFAULT.act };
+}
+function _loadDRGoals(){try{return Object.assign({},_bioInformedDefaults(),JSON.parse(localStorage.getItem('fb_dr_goals')||'{}'));}catch(e){return Object.assign({},_bioInformedDefaults());}}
 
 function _getDayType(rec) {
   var es=lang==='es';
@@ -10918,7 +10936,8 @@ function _getActivityBaseline() {
   try {
     var allHist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
     var override=JSON.parse(localStorage.getItem('fb_dr_goals')||'{}');
-    if(!allHist.length) return Object.assign({},_DR_GOALS_DEFAULT,override);
+    var bioDefaults=_bioInformedDefaults();
+    if(!allHist.length) return Object.assign({},bioDefaults,override);
     // Baseline por día de semana (issue #62, Fase 2.6): entre semana y fin
     // de semana suelen tener patrones de actividad muy distintos. Usa solo
     // días del mismo tipo si hay al menos 2 muestras; si no (entradas
@@ -10939,11 +10958,11 @@ function _getActivityBaseline() {
     });
     var factor=_updateBaselineCalibration();
     return {
-      stp: override.stp || Math.round((stpN>0?stpS/stpN:_DR_GOALS_DEFAULT.stp)*factor),
-      cal: override.cal || Math.round((calN>0?calS/calN:_DR_GOALS_DEFAULT.cal)*factor),
-      act: override.act || Math.round((actN>0?actS/actN:_DR_GOALS_DEFAULT.act)*factor)
+      stp: override.stp || Math.round((stpN>0?stpS/stpN:bioDefaults.stp)*factor),
+      cal: override.cal || Math.round((calN>0?calS/calN:bioDefaults.cal)*factor),
+      act: override.act || Math.round((actN>0?actS/actN:bioDefaults.act)*factor)
     };
-  } catch(e){return Object.assign({},_DR_GOALS_DEFAULT);}
+  } catch(e){return Object.assign({},_bioInformedDefaults());}
 }
 // Límite de progresión ±20% día a día (issue #62, Fase 2.8): la meta final
 // (ya con multiplicador aplicado) no puede saltar más de eso respecto a la
@@ -13384,6 +13403,10 @@ function _applyBioProfile(p) {
   }
   window._bioProfile = {age,weight,height,sex,activity,bmr,tdee,hrMax,fitAge};
   _updateCalBalance();
+  // Refresca metas ahora que hay BMR/TDEE — sin esto, el default informado por
+  // el perfil no se ve hasta el siguiente poll (_applyBioProfile corre después
+  // de la primera pasada de updateDailyRings en loadRealGoogleData).
+  if (typeof updateDailyRings === 'function') updateDailyRings();
 }
 function _updateCalBalance() {
   const profile = window._bioProfile;
