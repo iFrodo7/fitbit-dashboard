@@ -9062,7 +9062,11 @@ function wkBarSel(idx) {
 
   // ── Steps + progress (past day or today without snap yet) ──
   var steps = d.steps || 0;
-  var goal  = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
+  // Per-day goal from fb_activity_history.goalUsed (anti-cheat + adaptive PRO).
+  // Falls back to current user goal — same source as rings and goal-lbl.
+  var _wkActH = []; try { _wkActH = JSON.parse(localStorage.getItem('fb_activity_history')||'[]'); } catch(e9) {}
+  var _wkActDay = _wkActH.find(function(e){return e.date===d.date;});
+  var goal  = (_wkActDay && _wkActDay.goalUsed) || _loadDRGoals().stp;
   var pct   = Math.min((steps / goal) * 100, 100);
 
   var stepsEl = document.getElementById('stepsv');
@@ -9070,6 +9074,8 @@ function wkBarSel(idx) {
 
   var progEl = document.getElementById('stepsprog');
   if (progEl) progEl.style.width = pct + '%';
+  var glEl = document.getElementById('goal-lbl');
+  if (glEl) glEl.textContent = '/ ' + goal.toLocaleString('en-US') + ' ' + (es ? 'OBJETIVO' : 'GOAL');
 
   var pctEl = document.getElementById('stepspct');
   if (pctEl) {
@@ -9098,10 +9104,11 @@ function wkBarSel(idx) {
   // consecutive days ending on `sel` that met the step goal.
   e = document.getElementById('steps-streak-val');
   if (e && !isToday) {
-    var _goal = parseInt(localStorage.getItem('fb_steps_goal') || '10000');
     var _streak = 0;
     for (var _si = sel; _si >= 0; _si--) {
-      if ((data[_si].steps || 0) >= _goal) _streak++;
+      var _siDay = _wkActH.find(function(e){return e.date===data[_si].date;});
+      var _siGoal = (_siDay && _siDay.goalUsed) || _loadDRGoals().stp;
+      if ((data[_si].steps || 0) >= _siGoal) _streak++;
       else break;
     }
     // Cross-window extension: the run reaches the window's left edge (idx 0), so the
