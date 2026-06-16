@@ -10969,6 +10969,41 @@ function _fmtGoal(key,v){if(key==='stp')return v>=1000?(v/1000).toFixed(v%1000==
 // dow/goalMet/readiness/phase se agregan vacíos en entradas viejas (ya
 // guardadas antes de este cambio) — todo el código que los lee debe tratar
 // su ausencia como "sin dato", nunca asumir que siempre existen.
+function _migrateStreakGoalData() {
+  // One-time fix: the pre-v142 bug always read fb_steps_goal (nonexistent key)
+  // defaulting to 10000, so fb_streak_steps.goal and fb_activity_history[].goalUsed
+  // were permanently written as 10000 even for users whose real goal (fb_dr_goals.stp)
+  // was much lower. The anti-cheat floor then blocked today from counting because
+  // e.g. 6589 < 10000. Reset those 10000 values to the real goal so they stop blocking.
+  var MIG_KEY = 'fb_mig_goal_v1';
+  if (localStorage.getItem(MIG_KEY)) return;
+  try {
+    var realGoal = _loadDRGoals().stp;
+    if (!realGoal || realGoal === 10000) { localStorage.setItem(MIG_KEY, '1'); return; }
+    var ssRaw = localStorage.getItem('fb_streak_steps');
+    if (ssRaw) {
+      var ssObj = JSON.parse(ssRaw);
+      if (parseInt(ssObj.goal, 10) === 10000) {
+        ssObj.goal = 0; // reset floor — real goal takes over in Math.max
+        localStorage.setItem('fb_streak_steps', JSON.stringify(ssObj));
+      }
+    }
+    var histRaw = localStorage.getItem('fb_activity_history');
+    if (histRaw) {
+      var hist = JSON.parse(histRaw);
+      var changed = false;
+      hist.forEach(function(e) {
+        if (parseInt(e.goalUsed, 10) === 10000) {
+          e.goalUsed = realGoal;
+          e.goalMet = (e.steps || 0) >= realGoal;
+          changed = true;
+        }
+      });
+      if (changed) localStorage.setItem('fb_activity_history', JSON.stringify(hist));
+    }
+    localStorage.setItem(MIG_KEY, '1');
+  } catch(e) {}
+}
 function _recordActivityDay(steps, cal, actMin, vigMin, goalMet, readiness, phase, goalUsed) {
   if (!steps && !cal && !actMin) return;
   try {
@@ -13052,6 +13087,10 @@ async function _initStreakFromGoogle() {
 
 // ── Initial full load ─────────────────────────────────────────────────────
 async function loadRealGoogleData(silentRefresh) {
+  // Migrate any fb_streak_steps.goal / fb_activity_history goalUsed that were
+  // incorrectly set to 10000 by the pre-v142 fb_steps_goal bug. Must run before
+  // updateDailyRings() and _initStreakFromGoogle() read those values.
+  _migrateStreakGoalData();
   // Wipe every HTML demo value up front so hardcoded HTML defaults (8.4 strain,
   // 90% sleep, 24 stress, etc.) never leak to authenticated users.
   // Then, if silentRefresh=true, _restoreSnap() is called immediately after the
