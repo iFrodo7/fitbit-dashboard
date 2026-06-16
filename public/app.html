@@ -10475,12 +10475,7 @@ function updateZoneDots({ hrv=48, spo2=98, temp=36.4 } = {}) {
   const setV = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
   setV('hrv-base-val', '—');
   setV('hrv-sdnn-val', '—');
-  // SpO2 sub-metrics (low/avg) are now set from Google Health API — don't reset them here.
-  // Temp delta — only when #tempv has a real number, not "—"
-  const tText = document.getElementById('tempv')?.textContent?.trim();
-  const tNum  = parseFloat(tText);
-  setV('temp-delta-val', !isNaN(tNum) ? ((tNum-36.6>=0?'+':'')+(tNum-36.6).toFixed(1)) : '—');
-  setV('temp-avg-val', '—');
+  // SpO2 sub-metrics (low/avg) and temp delta/avg are now set from Google Health API — don't reset them here.
 }
 
 function setStressBars({ hrv=68, rhr=61, br=14 }) {
@@ -13426,21 +13421,24 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
     const spo2Num = spv!=null ? parseFloat(spv)   : null;
 
     // ── Temperatura corporal (Fitbit Air — sensor de piel nocturno) ────────
-    console.log('[gh temp-raw]', JSON.stringify(tempD?.dataPoints?.[0]));
     const tv=tempD?.dataPoints?.[0]?.dailySleepTemperatureDerivations
            ?? tempD?.dataPoints?.[0]?.sleepTemperatureDerivations
            ?? tempD?.dataPoints?.[0];
     let tempNum=null;
     if (tv) {
-      const base  = parseFloat(tv.baselineSkinTemperatureCelsius??tv.baseline??tv.baselineCelsius??tv.value) || null;
-      const delta = parseFloat(tv.sleepTemperatureDerivationCelsius??tv.derivationCelsius??tv.delta??tv.deviation) || null;
-      if (base!=null) {
-        tempNum=base;
-        setF('tempv', base, 1);
+      const nightly = parseFloat(tv.nightlyTemperatureCelsius??tv.value) || null;
+      const base    = parseFloat(tv.baselineTemperatureCelsius??tv.baseline??tv.baselineCelsius) || null;
+      const delta   = (nightly!=null && base!=null) ? (nightly-base) : null;
+      if (nightly!=null) {
+        tempNum=nightly;
+        setF('tempv', nightly, 1);
       }
       if (delta!=null) {
         const sign=delta>=0?'+':'';
         const el=document.getElementById('temp-delta-val'); if(el) el.textContent=sign+delta.toFixed(1);
+      }
+      if (base!=null) {
+        const el=document.getElementById('temp-avg-val'); if(el) el.textContent=base.toFixed(1);
       }
       // Flecha de tendencia y etiqueta de estado
       const d=delta??0;
@@ -13448,7 +13446,7 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
       if (trd) { trd.textContent=d>0.3?'↑':d<-0.3?'↓':'→'; trd.style.color=d>0.5?'var(--tneg)':d<-0.5?'#4ab8ff':'var(--tpos)'; }
       const el_u=document.getElementById('u-temp');
       if (el_u) el_u.textContent=d>0.5?'PIEL — ELEVADA':d<-0.5?'PIEL — BAJA':'PIEL — NORMAL';
-      console.log('[gh temp]', {base, delta});
+      console.log('[gh temp]', {nightly, base, delta});
     }
 
     // ── VO2 máx ────────────────────────────────────────────────────────────
