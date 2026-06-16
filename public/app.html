@@ -11898,10 +11898,12 @@ function updateDailyRings() {
   if(isReal&&(steps||cal||actMin)){
     var _phaseToday=(pro&&typeof cycleEnabled==='function'&&cycleEnabled())?(computeCycle()?.phase||null):null;
     _recordActivityDay(steps,cal,actMin,vigMin,steps>=ag.stp,rec,_phaseToday,ag.stp);
-    // Prefer _wkTodayStreakReal (set by loadWeekDataGoogle) — it accounts for
-    // fb_streak_steps (persisted counter) and streaks longer than 7 days.
-    // Falls back to _getStepGoalStreak() only before the first weekly load.
-    var _ss = window._wkTodayStreakReal || _getStepGoalStreak();
+    // Always recalculate from fb_activity_history so the streak updates live
+    // when the goal is met mid-day — _wkTodayStreakReal is set at page load
+    // (0 steps) and won't refresh until tomorrow unless we take the max here.
+    var _freshStr = (typeof _getStepGoalStreak === 'function' ? _getStepGoalStreak() : 0) || 0;
+    var _ss = Math.max(window._wkTodayStreakReal || 0, _freshStr);
+    if (_freshStr > (window._wkTodayStreakReal || 0)) window._wkTodayStreakReal = _freshStr;
     var _sse=document.getElementById('steps-streak-val');
     // Show "90+" with disclaimer if streak hit the 90-day init cap and hasn't grown past it yet
     var _strStored = {}; try { _strStored = JSON.parse(localStorage.getItem('fb_streak_steps')||'{}'); } catch(e2) {}
