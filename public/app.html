@@ -9342,9 +9342,13 @@ async function loadWeekDataGoogle() {
     // 1. Window backward count — uses patched days[6].steps (FIX #2 above)
     // Uses the rolling days[] array directly (not window._wkData which is set
     // after buildWeeks; FIX #14: calendar-week display is built at the end).
+    // _goalMetForDate prefers the goalMet already recorded for that date (the
+    // REAL goal that day — adaptive in PRO, fixed in FREE) over the flat
+    // fb_steps_goal comparison, so the streak matches what AIRA actually asked for.
     var _wkStr7 = 0;
     for (var _si7 = 6; _si7 >= 0; _si7--) {
-      if (((days[_si7] && days[_si7].steps) || 0) >= _strGoal7) _wkStr7++;
+      var _d7=days[_si7];
+      if (_d7 && _goalMetForDate(_d7.date, _d7.steps, _strGoal7)) _wkStr7++;
       else break;
     }
 
@@ -9356,8 +9360,9 @@ async function loadWeekDataGoogle() {
       var _ps    = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}');
       var _pc    = parseInt(_ps.count, 10) || 0;   // parseInt guard: rejects corrupted strings
       var _pd    = _ps.lastDate || '';
-      // _tmMet now reads the patched value (FIX #2): primary endpoint steps > dailyRollUp steps
-      var _tmMet = ((days[6] && days[6].steps) || 0) >= _strGoal7;
+      // _tmMet now reads the patched value (FIX #2): primary endpoint steps > dailyRollUp steps.
+      // Prefers today's recorded goalMet (real goal for today) over the flat fb_steps_goal.
+      var _tmMet = _goalMetForDate(_t7, (days[6] && days[6].steps) || 0, _strGoal7);
       var _pNew  = 0;
       var _pdNew = '';
 
@@ -10980,6 +10985,20 @@ function _consecutiveActiveDays() {
     return streak;
   } catch(e) { return 0; }
 }
+// ¿Se cumplió la meta de pasos ese día? Usa goalMet ya grabado en
+// fb_activity_history cuando existe — eso refleja la meta REAL de ese día
+// (adaptativa en PRO, fija en FREE), no un número fijo aparte. Solo cae al
+// chequeo simple para entradas de antes de la Fase 2 (sin el campo).
+// Usado por las 3 fuentes que alimentan la racha de pasos mostrada en la
+// card de pasos (RACHA · DÍAS META), para que las tres sean consistentes.
+function _goalMetForDate(dateStr, stepsVal, fallbackGoal) {
+  try {
+    var hist = JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
+    var day = hist.find(function(e){ return e.date===dateStr; });
+    if (day && day.goalMet!=null) return !!day.goalMet;
+  } catch(e) {}
+  return (stepsVal||0) >= fallbackGoal;
+}
 // Auto-calibración gradual (issue #62, Fase 2.7): si cumples tu meta >85%
 // de los días en las últimas 2 semanas, el baseline sube 5%; si cumples
 // <50%, baja 5%. Se recalcula como máximo una vez al día (no en cada
@@ -11152,21 +11171,23 @@ var _DR_DEFS=[
 
 // Consecutive days the step goal was met, reading from fb_activity_history.
 // Starts counting from yesterday so "today not yet done" doesn't break the streak.
+// Prefers each day's recorded goalMet (the real goal for that day — adaptive
+// in PRO, fixed in FREE) over the current fixed goal, via _goalMetForDate().
 function _getStepGoalStreak() {
   try {
     var hist=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
     if(!hist.length) return 0;
-    var goal=(_loadDRGoals().stp)||10000;
+    var goal=(_loadDRGoals().stp)||10000; // fallback solo para entradas sin goalMet
     // Check if today's goal is already met (to add it on top of the base streak)
     var todayUTC=_localDateStr(); // local date — prevents UTC offset mismatch
     var todayDay=hist.find(function(e){return e.date===todayUTC;});
-    var todayMet=!!(todayDay&&todayDay.steps>=goal);
+    var todayMet=_goalMetForDate(todayUTC, todayDay&&todayDay.steps, goal);
     // Count consecutive completed days starting from yesterday
     var streak=0;
     for(var i=1;i<=7;i++){
       var _di=new Date(); _di.setDate(_di.getDate()-i); var d=_localDateStr(_di);
       var day=hist.find(function(e){return e.date===d;});
-      if(day&&day.steps>=goal) streak++;
+      if(day&&_goalMetForDate(d, day.steps, goal)) streak++;
       else break;
     }
     if(todayMet) streak++;
