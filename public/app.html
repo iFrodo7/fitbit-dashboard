@@ -10953,19 +10953,7 @@ function _getNextAchievement(t) {
   var lbl=(_ACH_LABELS[t]||_ACH_LABELS.naruto).list[best.idx];
   return{icon:def.icon,name:lbl?lbl.name:'',cur:best.cur,total:best.total,label:best.label};
 }
-function _saveDRGoals(g, syncNow){
-  try{
-    localStorage.setItem('fb_dr_goals',JSON.stringify(g));
-    // syncNow=true only on confirmed manual saves (_saveDRGoalFromSheet).
-    // Live-preview and cancel calls omit it to avoid writing transient
-    // adaptive values to Drive while the user is dragging the slider.
-    if(syncNow){
-      localStorage.setItem('fb_dr_goals_ts',String(Date.now()));
-      var _cStr={}; try{_cStr=JSON.parse(localStorage.getItem('fb_streak')||'{}');}catch(e2){}
-      if(_cStr.date&&typeof _driveStreakWrite==='function') _driveStreakWrite(_cStr).catch(function(){});
-    }
-  }catch(e){}
-}
+function _saveDRGoals(g){try{localStorage.setItem('fb_dr_goals',JSON.stringify(g));}catch(e){}}
 function _fmtGoal(key,v){if(key==='stp')return v>=1000?(v/1000).toFixed(v%1000===0?0:1)+'k':v+'';return v+'';}
 
 // ── Activity history: aprende tu baseline real (últimos 7 días) ───────────
@@ -11222,7 +11210,7 @@ function _saveDRGoalFromSheet(){
     var step=key==='stp'?500:key==='cal'?50:5;
     var v=parseInt(inp.value);
     if(!isNaN(v)&&v>=step){
-      var g=_loadDRGoals();g[key]=v;_saveDRGoals(g, true);
+      var g=_loadDRGoals();g[key]=v;_saveDRGoals(g);
       // Edición manual = nueva base. El límite ±20% día a día (anti-spike)
       // no debe pelear contra un cambio que el usuario pidió a propósito.
       try { localStorage.removeItem('fb_prev_day_goal'); localStorage.removeItem('fb_today_goal_track'); } catch(e2) {}
@@ -11480,13 +11468,6 @@ async function _driveStreakWrite(data) {
     var _ss = {}; try { _ss = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}'); } catch(e) {}
     var payload = Object.assign({}, data);
     if (_ss && _ss.count > 0) payload.ss = { count: _ss.count, lastDate: _ss.lastDate || '' };
-    // Bundle goals for cross-device sync — timestamp decides which device wins on conflict
-    var _gl = {}; try { _gl = JSON.parse(localStorage.getItem('fb_dr_goals') || '{}'); } catch(e2) {}
-    var _glTs = parseInt(localStorage.getItem('fb_dr_goals_ts') || '0') || 0;
-    if (_gl.stp || _gl.cal || _gl.act) {
-      payload.goals    = { stp: _gl.stp || 0, cal: _gl.cal || 0, act: _gl.act || 0 };
-      payload.goals_ts = _glTs || Date.now();
-    }
     var body = JSON.stringify(payload);
     var fileId = window._driveStreakFileId;
     if (fileId) {
@@ -11569,16 +11550,6 @@ async function _driveStreakRead() {
         if (_heroEl && (parseInt(_heroEl.textContent, 10) || 0) < driveData.ss.count) {
           if (typeof _animateStreakHero === 'function') _animateStreakHero(driveData.ss.count);
         }
-        _needDriveWrite = true;
-      }
-    }
-
-    // Sync goals: Drive wins when its timestamp is newer than local
-    if (driveData.goals && driveData.goals_ts) {
-      var _localGoalsTs = parseInt(localStorage.getItem('fb_dr_goals_ts') || '0') || 0;
-      if (driveData.goals_ts > _localGoalsTs) {
-        localStorage.setItem('fb_dr_goals', JSON.stringify(driveData.goals));
-        localStorage.setItem('fb_dr_goals_ts', String(driveData.goals_ts));
         _needDriveWrite = true;
       }
     }
