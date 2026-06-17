@@ -11214,6 +11214,14 @@ function _saveDRGoalFromSheet(){
       // Edición manual = nueva base. El límite ±20% día a día (anti-spike)
       // no debe pelear contra un cambio que el usuario pidió a propósito.
       try { localStorage.removeItem('fb_prev_day_goal'); localStorage.removeItem('fb_today_goal_track'); } catch(e2) {}
+      // Sync to Drive so the other device picks it up on next open.
+      // ONLY this confirmed-save path sets the timestamp — the adaptive
+      // algorithm and live-preview never reach here, so they never sync.
+      localStorage.setItem('fb_dr_goals_ts', String(Date.now()));
+      try {
+        var _gStr={}; try{_gStr=JSON.parse(localStorage.getItem('fb_streak')||'{}');}catch(e3){}
+        if(_gStr.date&&typeof _driveStreakWrite==='function') _driveStreakWrite(_gStr).catch(function(){});
+      } catch(e4) {}
     }
   }
   updateDailyRings();
@@ -11468,6 +11476,12 @@ async function _driveStreakWrite(data) {
     var _ss = {}; try { _ss = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}'); } catch(e) {}
     var payload = Object.assign({}, data);
     if (_ss && _ss.count > 0) payload.ss = { count: _ss.count, lastDate: _ss.lastDate || '' };
+    var _gl = {}; try { _gl = JSON.parse(localStorage.getItem('fb_dr_goals') || '{}'); } catch(e2) {}
+    var _glTs = parseInt(localStorage.getItem('fb_dr_goals_ts') || '0') || 0;
+    if (_glTs > 0 && (_gl.stp || _gl.cal || _gl.act)) {
+      payload.goals    = { stp: _gl.stp || 0, cal: _gl.cal || 0, act: _gl.act || 0 };
+      payload.goals_ts = _glTs;
+    }
     var body = JSON.stringify(payload);
     var fileId = window._driveStreakFileId;
     if (fileId) {
@@ -11550,6 +11564,18 @@ async function _driveStreakRead() {
         if (_heroEl && (parseInt(_heroEl.textContent, 10) || 0) < driveData.ss.count) {
           if (typeof _animateStreakHero === 'function') _animateStreakHero(driveData.ss.count);
         }
+        _needDriveWrite = true;
+      }
+    }
+
+    // Sync goals: apply from Drive only when its timestamp is newer than local.
+    // fb_dr_goals_ts is set exclusively by _saveDRGoalFromSheet (user confirm),
+    // so the adaptive algorithm and live-preview never overwrite via this path.
+    if (driveData.goals && driveData.goals_ts) {
+      var _lGoalTs = parseInt(localStorage.getItem('fb_dr_goals_ts') || '0') || 0;
+      if (driveData.goals_ts > _lGoalTs) {
+        localStorage.setItem('fb_dr_goals', JSON.stringify(driveData.goals));
+        localStorage.setItem('fb_dr_goals_ts', String(driveData.goals_ts));
         _needDriveWrite = true;
       }
     }
