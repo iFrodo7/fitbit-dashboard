@@ -5966,7 +5966,7 @@ const T = {
 };
 
 // ══════ LANGUAGE ══════
-function setLang(l) {
+function setLang(l, _skipSync) {
   lang = l; localStorage.setItem('fb_lang', l);
   // selector buttons
   document.getElementById('lang-es').classList.toggle('active', l === 'es');
@@ -6077,6 +6077,10 @@ function setLang(l) {
   // Re-render cycle chip with new language
   if (typeof renderCycleHomeChip === 'function') renderCycleHomeChip();
   genAiraMsg();
+  if (!_skipSync && typeof _supabasePrefsWrite === 'function') {
+    var _lts = Date.now(); localStorage.setItem('fb_prefs_ts', String(_lts));
+    _supabasePrefsWrite({ lang: l, prefs_ts: _lts }).catch(function(){});
+  }
 }
 
 function setText(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
@@ -6741,8 +6745,9 @@ function mcApplyTimeOfDay() {
 }
 
 // ══════ SELECT THEME ══════
-function selectTheme(t) {
+function selectTheme(t, _skipSync) {
   theme = t; localStorage.setItem('fb_t', t);
+  window._selectThemeSkipSync = !!_skipSync;
   // Run boot intro only when entering directly from the selector (confirmTheme sets _fromSelector)
   if (window._fromSelector && THEME_BOOT_CONFIG[t]) {
     window._fromSelector = false;
@@ -6786,6 +6791,12 @@ function _finishSelectTheme(t) {
   _recordThemeDay(t);
   checkAchievements(t, true);
   _updateAchBadges(t);
+  // Sync a Supabase solo en cambios iniciados por el usuario (no boot ni read-sync)
+  if (!window._selectThemeSkipSync && typeof _supabasePrefsWrite === 'function') {
+    var _tts = Date.now(); localStorage.setItem('fb_prefs_ts', String(_tts));
+    _supabasePrefsWrite({ theme: t, prefs_ts: _tts }).catch(function(){});
+  }
+  window._selectThemeSkipSync = false;
 }
 
 function markActiveTheme() {
@@ -7601,6 +7612,11 @@ function saveSymModal() {
   if (!entry.flow && !entry.sex && !entry.sx) delete log[d];
   else log[d] = entry;
   localStorage.setItem('fb_cyc_log', JSON.stringify(log));
+  if (typeof _supabasePrefsWrite === 'function') {
+    var _cycMeta = null; try { _cycMeta = JSON.parse(localStorage.getItem('fb_cycle')||'null'); } catch(_ce){}
+    var _clTs = Date.now(); localStorage.setItem('fb_prefs_ts', String(_clTs));
+    _supabasePrefsWrite({ cycle_data: { meta: _cycMeta, log: log }, prefs_ts: _clTs }).catch(function(){});
+  }
   closeSymModal();
   renderCycle();
   // Refresh history calendar if the history view is currently open
@@ -7932,6 +7948,11 @@ function saveCycModal() {
     data.last = dv;
   }
   localStorage.setItem('fb_cycle', JSON.stringify(data));
+  if (typeof _supabasePrefsWrite === 'function') {
+    var _cmLog = null; try { _cmLog = JSON.parse(localStorage.getItem('fb_cyc_log')||'null'); } catch(_cme){}
+    var _cmTs = Date.now(); localStorage.setItem('fb_prefs_ts', String(_cmTs));
+    _supabasePrefsWrite({ cycle_data: { meta: data, log: _cmLog }, prefs_ts: _cmTs }).catch(function(){});
+  }
   closeCycModal();
   // Force-refresh stats view. If already there, renderStats() directly (navigate has an
   // early-return guard when the view is already active and skips renderStats). If not
@@ -7944,7 +7965,12 @@ function saveCycModal() {
   showToast(mode === 'settings' ? t.cyc_modal_saved_set : t.cyc_modal_saved_log, 'success');
 }
 function toggleCycle() {
-  localStorage.setItem('fb_cycle_on', cycleEnabled() ? '0' : '1');
+  var _cycNew = cycleEnabled() ? '0' : '1';
+  localStorage.setItem('fb_cycle_on', _cycNew);
+  if (typeof _supabasePrefsWrite === 'function') {
+    var _ctTs = Date.now(); localStorage.setItem('fb_prefs_ts', String(_ctTs));
+    _supabasePrefsWrite({ cycle_on: _cycNew === '1', prefs_ts: _ctTs }).catch(function(){});
+  }
   renderProfile();
   renderCycleHomeChip();
 }
@@ -8265,6 +8291,7 @@ function getAiraUid() {
   if (!uid) {
     uid = crypto.randomUUID ? crypto.randomUUID() : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
     localStorage.setItem('aira_uid', uid);
+    if (typeof _supabasePrefsWrite === 'function') _supabasePrefsWrite({ aira_uid: uid }).catch(function(){});
   }
   return uid;
 }
@@ -8801,6 +8828,7 @@ function initDash() {
     setTimeout(() => {
       showToast(lang === 'es' ? '👋 Bienvenido a AIRA' : '👋 Welcome to AIRA', 'info');
       localStorage.setItem('fb_welcomed', '1');
+      if (typeof _supabasePrefsWrite === 'function') _supabasePrefsWrite({ welcomed: true }).catch(function(){});
     }, 1200);
     setTimeout(() => {
       showToast(lang === 'es' ? 'Desliza hacia abajo para refrescar' : 'Pull down to refresh', 'info');
@@ -9503,6 +9531,10 @@ async function loadWeekDataGoogle() {
               var _dsd = JSON.parse(localStorage.getItem('fb_streak') || '{}');
               if (_dsd.date && _dsd.count) _driveStreakWrite(_dsd);
             } catch(_dse) {}
+            // Sync steps streak to Supabase (universal — funciona para todos los auth providers)
+            if (typeof _supabasePrefsWrite === 'function') {
+              _supabasePrefsWrite({ steps_streak: _saveStrObj }).catch(function(){});
+            }
           }
         }
       }
@@ -11218,6 +11250,10 @@ function _saveDRGoalFromSheet(){
       // ONLY this confirmed-save path sets the timestamp — the adaptive
       // algorithm and live-preview never reach here, so they never sync.
       localStorage.setItem('fb_dr_goals_ts', String(Date.now()));
+      if (typeof _supabasePrefsWrite === 'function') {
+        var _gTs = parseInt(localStorage.getItem('fb_dr_goals_ts') || '0') || 0;
+        _supabasePrefsWrite({ goals: g, goals_ts: _gTs }).catch(function(){});
+      }
       try {
         var _gStr={}; try{_gStr=JSON.parse(localStorage.getItem('fb_streak')||'{}');}catch(e3){}
         if(_gStr.date&&typeof _driveStreakWrite==='function') _driveStreakWrite(_gStr).catch(function(){});
@@ -11617,6 +11653,157 @@ async function _driveStreakRead() {
   } catch (_dre) {}
 }
 // ── END Drive App Data streak sync ──────────────────────────────────────────
+
+// ── Supabase prefs sync ──────────────────────────────────────────────────────
+// _supabasePrefsRead  — awaited at startup junto con _driveStreakRead().
+//                      Aplica merge de todos los campos a localStorage y UI.
+//                      También flushea la cola offline antes de leer.
+// _supabasePrefsWrite — fire-and-forget desde cualquier acción confirmada
+//                      del usuario. Si falla (offline) encola en fb_sync_queue.
+// Cola offline: fb_sync_queue — array JSON en localStorage, máx 10 items.
+// ────────────────────────────────────────────────────────────────────────────
+async function _supabasePrefsRead() {
+  var email = localStorage.getItem('fb_email');
+  if (!email) return;
+
+  // Flush cola offline antes de leer (evita que Supabase tenga datos viejos)
+  try {
+    var _q = JSON.parse(localStorage.getItem('fb_sync_queue') || '[]');
+    if (_q.length) {
+      var _qMerged = _q.reduce(function(acc, item) { return Object.assign(acc, item); }, {});
+      _qMerged.email = email;
+      var _qRes = await fetch('/api/user/prefs', { method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(_qMerged) });
+      if (_qRes.ok) localStorage.removeItem('fb_sync_queue');
+    }
+  } catch(_qe) {}
+
+  try {
+    var _r = await fetch('/api/user/prefs?email=' + encodeURIComponent(email));
+    if (!_r.ok) return;
+    var d = await _r.json();
+    if (!d || !d.email) return;
+
+    // T1: Goals — aplica si Drive tiene timestamp más alto
+    var _lGoalsTs = parseInt(localStorage.getItem('fb_dr_goals_ts') || '0') || 0;
+    if (d.goals_ts && d.goals_ts > _lGoalsTs && d.goals) {
+      localStorage.setItem('fb_dr_goals', JSON.stringify(d.goals));
+      localStorage.setItem('fb_dr_goals_ts', String(d.goals_ts));
+    }
+
+    // T1: Steps streak — aplica si Supabase tiene count mayor
+    if (d.steps_streak) {
+      var _lSS = {}; try { _lSS = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}'); } catch(_e1) {}
+      if ((d.steps_streak.count || 0) > (parseInt(_lSS.count, 10) || 0)) {
+        localStorage.setItem('fb_streak_steps', JSON.stringify(d.steps_streak));
+        window._wkTodayStreakReal = Math.max(window._wkTodayStreakReal || 0, d.steps_streak.count);
+      }
+    }
+
+    // T2: AURA ID — restaurar si se perdió (primer write gana)
+    if (d.aira_uid && !localStorage.getItem('aira_uid')) {
+      localStorage.setItem('aira_uid', d.aira_uid);
+    }
+
+    // T2: Prefs — aplica si Supabase es más reciente
+    var _lPrefsTs = parseInt(localStorage.getItem('fb_prefs_ts') || '0') || 0;
+    if (d.prefs_ts && d.prefs_ts > _lPrefsTs) {
+      if (d.display_name) localStorage.setItem('fb_display_name', d.display_name);
+      if (d.bio) localStorage.setItem('fb_bio', JSON.stringify(d.bio));
+      if (d.notif_pref !== undefined) localStorage.setItem('fb_notif', d.notif_pref ? '1' : '0');
+      if (d.avatar_frame) localStorage.setItem('fb_avatar_frame', d.avatar_frame);
+      if (d.cycle_on !== undefined) localStorage.setItem('fb_cycle_on', d.cycle_on ? '1' : '0');
+      if (d.cycle_data) {
+        if (d.cycle_data.meta) localStorage.setItem('fb_cycle', JSON.stringify(d.cycle_data.meta));
+        if (d.cycle_data.log)  localStorage.setItem('fb_cyc_log', JSON.stringify(d.cycle_data.log));
+      }
+      // Aplicar lang y theme con _skipSync=true para no rebotar a Supabase
+      if (d.lang && d.lang !== lang) setLang(d.lang, true);
+      if (d.theme && d.theme !== theme) selectTheme(d.theme, true);
+      localStorage.setItem('fb_prefs_ts', String(d.prefs_ts));
+    }
+
+    // T2: Achievements — unión (nunca se pierde un logro)
+    if (d.achievements) {
+      var _lAch = {}; try { _lAch = JSON.parse(localStorage.getItem('fb_ach') || '{}'); } catch(_e2) {}
+      localStorage.setItem('fb_ach', JSON.stringify(Object.assign({}, _lAch, d.achievements)));
+    }
+
+    // T2: Ach stats — max por campo numérico
+    if (d.ach_stats) {
+      var _lAS = {}; try { _lAS = JSON.parse(localStorage.getItem('fb_ach_stats') || '{}'); } catch(_e3) {}
+      var _mAS = Object.assign({}, _lAS);
+      Object.keys(d.ach_stats).forEach(function(k) {
+        if (typeof d.ach_stats[k] === 'number') _mAS[k] = Math.max(_mAS[k] || 0, d.ach_stats[k]);
+      });
+      localStorage.setItem('fb_ach_stats', JSON.stringify(_mAS));
+    }
+
+    // T2: Avatar unlocked — unión
+    if (d.avatar_unlocked) {
+      var _lAU = {}; try { _lAU = JSON.parse(localStorage.getItem('fb_avatar_unlocked') || '{}'); } catch(_e4) {}
+      localStorage.setItem('fb_avatar_unlocked', JSON.stringify(Object.assign({}, _lAU, d.avatar_unlocked)));
+    }
+
+    // T2: Nebula days — unión de arrays
+    if (d.nebula_days && d.nebula_days.length) {
+      var _lND = []; try { _lND = JSON.parse(localStorage.getItem('fb_nebula_days') || '[]'); } catch(_e5) {}
+      localStorage.setItem('fb_nebula_days', JSON.stringify(
+        Array.from(new Set(_lND.concat(d.nebula_days))).sort()
+      ));
+    }
+
+    // T2: Atlas points — max
+    if (typeof d.atlas_pts === 'number') {
+      var _lPts = parseInt(localStorage.getItem('fb_atlas_pts') || '0') || 0;
+      if (d.atlas_pts > _lPts) {
+        localStorage.setItem('fb_atlas_pts', String(d.atlas_pts));
+        if (d.atlas_last_award) localStorage.setItem('fb_atlas_last_award', d.atlas_last_award);
+      }
+    }
+
+    // T2: Records — max por campo
+    if (d.records) {
+      var _lRec = {}; try { _lRec = JSON.parse(localStorage.getItem('fb_records') || '{}'); } catch(_e6) {}
+      ['maxSteps','bestStreak','peakRecovery','totalActiveDays'].forEach(function(k) {
+        if (typeof d.records[k] === 'number' && d.records[k] > (_lRec[k] || 0)) {
+          _lRec[k] = d.records[k];
+          if (d.records[k + 'Date']) _lRec[k + 'Date'] = d.records[k + 'Date'];
+        }
+      });
+      localStorage.setItem('fb_records', JSON.stringify(_lRec));
+    }
+
+    // T2: Booleans OR
+    if (d.seen_tour) try { localStorage.setItem('fb_seen_tour', '1'); } catch(_e7) {}
+    if (d.welcomed)  try { localStorage.setItem('fb_welcomed', '1'); } catch(_e8) {}
+
+  } catch(_re) {}
+}
+
+async function _supabasePrefsWrite(data) {
+  var email = localStorage.getItem('fb_email');
+  if (!email) return;
+  var payload = Object.assign({ email: email }, data);
+  try {
+    var res = await fetch('/api/user/prefs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+  } catch(_we) {
+    // Offline: encolar para el próximo arranque
+    try {
+      var _wq = JSON.parse(localStorage.getItem('fb_sync_queue') || '[]');
+      _wq.push(data);
+      if (_wq.length > 10) _wq = _wq.slice(-10);
+      localStorage.setItem('fb_sync_queue', JSON.stringify(_wq));
+    } catch(_wqe) {}
+  }
+}
+// ── END Supabase prefs sync ──────────────────────────────────────────────────
 
 function _stkMotivMsg(strk, stkMile) {
   var es = lang === 'es';
@@ -13142,7 +13329,10 @@ async function loadRealGoogleData(silentRefresh) {
   // Sync app-open streak from Drive App Data before getDailyStreak() is called
   // below. Waits up to the Drive round-trip so the badge shows the correct count.
   // Falls back silently when drive.appdata scope is missing (tokens pre-upgrade).
-  await _driveStreakRead().catch(function(){});
+  await Promise.all([
+    _driveStreakRead().catch(function(){}),
+    (typeof _supabasePrefsRead === 'function' ? _supabasePrefsRead().catch(function(){}) : Promise.resolve())
+  ]);
   // Always wipe HTML demo defaults so nothing leaks if the API returns no data.
   // Numeric displays with HTML demo defaults
   _clr('stressv','—'); _clr('steps-active-val','0');
@@ -13524,6 +13714,12 @@ function saveBioProfile() {
 }
 function saveBioAndRefresh() {
   saveBioProfile();
+  if (typeof _supabasePrefsWrite === 'function') {
+    var _bioD = null; try { _bioD = JSON.parse(localStorage.getItem('fb_bio') || 'null'); } catch(_bE) {}
+    var _dnD = localStorage.getItem('fb_display_name') || '';
+    var _bioTs = Date.now(); localStorage.setItem('fb_prefs_ts', String(_bioTs));
+    _supabasePrefsWrite({ bio: _bioD, display_name: _dnD, prefs_ts: _bioTs }).catch(function(){});
+  }
   // Recargar datos completos para que zonas HR se recalculen con el nuevo hrMax
   if (typeof loadRealGoogleData === 'function' && token) loadRealGoogleData(true);
   // Feedback visual en el botón
@@ -14278,6 +14474,10 @@ async function loadReal(silentRefresh) {
     // there's no connection. silentRefresh only skips the skeleton loader (#lov).
     if (!navigator.onLine && !_connInited) _showOwait();
   } else showLoad();
+  // Sync preferences from Supabase on first load (not background refresh)
+  if (!silentRefresh && typeof _supabasePrefsRead === 'function') {
+    _supabasePrefsRead().catch(function(){});
+  }
   try {
     const h={'Authorization':'Bearer '+token}, td=_localDay();
     const after7=_localDay(-7*864e5);
@@ -14629,6 +14829,7 @@ function nextTour() {
 function endTour() {
   document.getElementById('tour-ov')?.classList.remove('on');
   try { localStorage.setItem('fb_seen_tour', '1'); } catch(e) {}
+  if (typeof _supabasePrefsWrite === 'function') _supabasePrefsWrite({ seen_tour: true }).catch(function(){});
 }
 function maybeAutoTour() {
   try { if (localStorage.getItem('fb_seen_tour')) return; } catch(e) {}
@@ -14683,6 +14884,7 @@ async function toggleNotifications() {
   // Turn OFF
   if (notifPref()) {
     try { localStorage.setItem('fb_notif','0'); } catch(e) {}
+    if (typeof _supabasePrefsWrite === 'function') { var _nts0 = Date.now(); localStorage.setItem('fb_prefs_ts', String(_nts0)); _supabasePrefsWrite({ notif_pref: false, prefs_ts: _nts0 }).catch(function(){}); }
     unsubscribeWebPush();
     _syncNotifUI();
     showToast(lang==='es'?'Notificaciones desactivadas':'Notifications off','info');
@@ -14690,6 +14892,7 @@ async function toggleNotifications() {
   }
   // Turn ON — record preference immediately so the toggle moves
   try { localStorage.setItem('fb_notif','1'); } catch(e) {}
+  if (typeof _supabasePrefsWrite === 'function') { var _nts1 = Date.now(); localStorage.setItem('fb_prefs_ts', String(_nts1)); _supabasePrefsWrite({ notif_pref: true, prefs_ts: _nts1 }).catch(function(){}); }
   _syncNotifUI();
   // Ensure browser permission for actual delivery
   let perm = Notification.permission;
@@ -15960,6 +16163,7 @@ function avFrameUnlocked(id) {
   if (ok && themePersistable) {
     st.unlocked[id] = true;
     try { localStorage.setItem('fb_avatar_unlocked', JSON.stringify(st.unlocked)); } catch(e) {}
+    if (typeof _supabasePrefsWrite === 'function') _supabasePrefsWrite({ avatar_unlocked: st.unlocked }).catch(function(){});
   }
   return ok;
 }
@@ -16110,6 +16314,10 @@ function avApplyFrame() {
   var f = window._avPendingFrame;
   if (!f) return;
   try { localStorage.setItem('fb_avatar_frame', f); } catch(e) {}
+  if (typeof _supabasePrefsWrite === 'function') {
+    var _afTs = Date.now(); localStorage.setItem('fb_prefs_ts', String(_afTs));
+    _supabasePrefsWrite({ avatar_frame: f, prefs_ts: _afTs }).catch(function(){});
+  }
   window._avPendingFrame = null;
   avRenderAll();
   openAvatarSheet();
@@ -16791,11 +16999,17 @@ var _ACH_LABELS = {
 function _loadAchStats() {
   try { return JSON.parse(localStorage.getItem('fb_ach_stats')||'{}'); } catch(e){ return {}; }
 }
-function _saveAchStats(s) { try { localStorage.setItem('fb_ach_stats', JSON.stringify(s)); } catch(e){} }
+function _saveAchStats(s) {
+  try { localStorage.setItem('fb_ach_stats', JSON.stringify(s)); } catch(e){}
+  if (typeof _supabasePrefsWrite === 'function') _supabasePrefsWrite({ ach_stats: s }).catch(function(){});
+}
 function _loadAchUnlocked() {
   try { return JSON.parse(localStorage.getItem('fb_ach')||'{}'); } catch(e){ return {}; }
 }
-function _saveAchUnlocked(u) { try { localStorage.setItem('fb_ach', JSON.stringify(u)); } catch(e){} }
+function _saveAchUnlocked(u) {
+  try { localStorage.setItem('fb_ach', JSON.stringify(u)); } catch(e){}
+  if (typeof _supabasePrefsWrite === 'function') _supabasePrefsWrite({ achievements: u }).catch(function(){});
+}
 
 function _achCountForTheme(t) {
   var u = _loadAchUnlocked(); return (u[t]||[]).filter(Boolean).length;
@@ -17225,6 +17439,7 @@ function atlasCheckDailyAward() {
   var prevTier = atlasGetTier(prev);
   localStorage.setItem('fb_atlas_pts', String(total));
   localStorage.setItem('fb_atlas_last_award', today);
+  if (typeof _supabasePrefsWrite === 'function') _supabasePrefsWrite({ atlas_pts: total, atlas_last_award: today }).catch(function(){});
   var newTier = atlasGetTier(total);
   if (newTier.tier > prevTier.tier) {
     setTimeout(function() { _showTierUpAnim(newTier.tier); }, 900);
@@ -17238,6 +17453,7 @@ function atlasAddAchPts() {
   var total = prev + 25;
   var prevTier = atlasGetTier(prev);
   localStorage.setItem('fb_atlas_pts', String(total));
+  if (typeof _supabasePrefsWrite === 'function') _supabasePrefsWrite({ atlas_pts: total }).catch(function(){});
   var newTier = atlasGetTier(total);
   if (newTier.tier > prevTier.tier) {
     setTimeout(function() { _showTierUpAnim(newTier.tier); }, 900);
@@ -17502,10 +17718,15 @@ function updateRecords() {
   if (rec != null && rec >= 90) {
     try {
       var nd = JSON.parse(localStorage.getItem('fb_nebula_days') || '[]');
-      if (nd.indexOf(today) === -1) { nd.push(today); localStorage.setItem('fb_nebula_days', JSON.stringify(nd)); }
+      if (nd.indexOf(today) === -1) {
+        nd.push(today);
+        localStorage.setItem('fb_nebula_days', JSON.stringify(nd));
+        if (typeof _supabasePrefsWrite === 'function') _supabasePrefsWrite({ nebula_days: nd }).catch(function(){});
+      }
     } catch(e) {}
   }
   try { localStorage.setItem('fb_records', JSON.stringify(stored)); } catch(e) {}
+  if (typeof _supabasePrefsWrite === 'function') _supabasePrefsWrite({ records: stored }).catch(function(){});
   return stored;
 }
 

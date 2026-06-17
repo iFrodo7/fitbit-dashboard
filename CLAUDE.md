@@ -12,7 +12,7 @@ Panel biométrico personal con 4 temas visuales (Minecraft, Halo, Naruto, Futuri
 
 - **Frontend principal:** `public/app.html` — SPA monolítica (~8800 líneas, JS vanilla, CSS variables por tema)
 - **Next.js 15:** App Router (TypeScript + Tailwind), por ahora solo sirve `app.html` y opcionalmente OAuth server-side
-- **Base de datos:** Supabase (PostgreSQL + RLS) — opcional, solo si se usa el backend Next
+- **Base de datos:** Supabase (PostgreSQL + RLS) — fuente autoritativa de sync cross-device. Ver **`DATABASE.md`** para el schema completo, estrategias de merge y qué se sincroniza.
 - **Auth:** OAuth 2.0 de Fitbit, flujo *client-side* para apps tipo "Personal" (sin secret)
 - **Cache local:** IndexedDB (`fb_history.daily`) + `localStorage` (tokens, preferencias)
 - **Hosting objetivo:** Vercel (status del deploy: ver HANDOFF)
@@ -50,7 +50,8 @@ app/
   layout.tsx, globals.css    ← shell Next mínimo
   api/auth/                  ← OAuth server-side (alternativa, aún no usada por app.html)
   api/fitbit/                ← Proxy a Fitbit API con caché en Supabase
-  api/user/preferences/      ← Preferencias de usuario
+  api/user/prefs/            ← Sync cross-device (GET + POST con merge por campo) — ver DATABASE.md
+  api/user/preferences/      ← CÓDIGO MUERTO — reemplazado por api/user/prefs/
 lib/
   fitbit/auth.ts             ← Token exchange y refresh (usado por api/)
   fitbit/client.ts           ← API client con caché en Supabase (usado por api/)
