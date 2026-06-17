@@ -48,6 +48,14 @@ export async function POST(req: NextRequest) {
     update.goals_ts = inGoalsTs;
   }
 
+  // ── T1: Adaptive goals (Pro) — gana el timestamp más alto ──────────────────
+  const inAdaptTs = Number(body.adaptive_goals_ts) || 0;
+  const exAdaptTs = Number((ex as Record<string,unknown> | null)?.adaptive_goals_ts) || 0;
+  if (body.adaptive_goals && inAdaptTs > exAdaptTs) {
+    update.adaptive_goals    = body.adaptive_goals;
+    update.adaptive_goals_ts = inAdaptTs;
+  }
+
   // ── T1: Steps streak — gana mayor count (racha nunca retrocede) ─────────────
   if (body.steps_streak && typeof body.steps_streak === "object") {
     const inc = body.steps_streak as { count?: number; lastDate?: string; goal?: number };
