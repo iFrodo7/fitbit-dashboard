@@ -10953,13 +10953,17 @@ function _getNextAchievement(t) {
   var lbl=(_ACH_LABELS[t]||_ACH_LABELS.naruto).list[best.idx];
   return{icon:def.icon,name:lbl?lbl.name:'',cur:best.cur,total:best.total,label:best.label};
 }
-function _saveDRGoals(g){
+function _saveDRGoals(g, syncNow){
   try{
     localStorage.setItem('fb_dr_goals',JSON.stringify(g));
-    localStorage.setItem('fb_dr_goals_ts',String(Date.now()));
-    // Fire-and-forget Drive write so other devices get the new goal right away
-    var _cStr={}; try{_cStr=JSON.parse(localStorage.getItem('fb_streak')||'{}');}catch(e2){}
-    if(_cStr.date&&typeof _driveStreakWrite==='function') _driveStreakWrite(_cStr).catch(function(){});
+    // syncNow=true only on confirmed manual saves (_saveDRGoalFromSheet).
+    // Live-preview and cancel calls omit it to avoid writing transient
+    // adaptive values to Drive while the user is dragging the slider.
+    if(syncNow){
+      localStorage.setItem('fb_dr_goals_ts',String(Date.now()));
+      var _cStr={}; try{_cStr=JSON.parse(localStorage.getItem('fb_streak')||'{}');}catch(e2){}
+      if(_cStr.date&&typeof _driveStreakWrite==='function') _driveStreakWrite(_cStr).catch(function(){});
+    }
   }catch(e){}
 }
 function _fmtGoal(key,v){if(key==='stp')return v>=1000?(v/1000).toFixed(v%1000===0?0:1)+'k':v+'';return v+'';}
@@ -11218,7 +11222,7 @@ function _saveDRGoalFromSheet(){
     var step=key==='stp'?500:key==='cal'?50:5;
     var v=parseInt(inp.value);
     if(!isNaN(v)&&v>=step){
-      var g=_loadDRGoals();g[key]=v;_saveDRGoals(g);
+      var g=_loadDRGoals();g[key]=v;_saveDRGoals(g, true);
       // Edición manual = nueva base. El límite ±20% día a día (anti-spike)
       // no debe pelear contra un cambio que el usuario pidió a propósito.
       try { localStorage.removeItem('fb_prev_day_goal'); localStorage.removeItem('fb_today_goal_track'); } catch(e2) {}
