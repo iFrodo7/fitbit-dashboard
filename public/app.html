@@ -14506,14 +14506,17 @@ async function loadReal(silentRefresh) {
     // there's no connection. silentRefresh only skips the skeleton loader (#lov).
     if (!navigator.onLine && !_connInited) _showOwait();
   } else showLoad();
-  // Sync preferences from Supabase on first load (not background refresh)
-  if (!silentRefresh && typeof _supabasePrefsRead === 'function') {
-    _supabasePrefsRead().catch(function(){});
-  }
+  // Sync preferences from Supabase in parallel with Fitbit API calls.
+  // We await the promise AFTER the Fitbit Promise.all so adaptive_goals are in
+  // localStorage before updateScores()→updateDailyRings() reads them.
+  var _supProm = (!silentRefresh && typeof _supabasePrefsRead === 'function')
+    ? _supabasePrefsRead().catch(function(){})
+    : Promise.resolve();
   try {
     const h={'Authorization':'Bearer '+token}, td=_localDay();
     const after7=_localDay(-7*864e5);
     const [pr,ac,hr,sl,wl] = await Promise.all([fetch(HS.ep.profile(),{headers:h}).then(r=>r.json()),fetch(HS.ep.activities(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.heartIntraday(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.sleepToday(),{headers:h}).then(r=>r.json()),Promise.race([fetch(HS.ep.workoutList(after7,3),{headers:h}).then(r=>r.ok?r.json():null),new Promise(r=>setTimeout(()=>r(null),4000))]).catch(()=>null)]);
+    await _supProm;
     if (pr?.user) {
       const _dn = (pr.user.displayName||pr.user.firstName||'').toUpperCase() || (lang==='es'?'USUARIO':'USER');
       document.getElementById('uname').textContent = _dn;
