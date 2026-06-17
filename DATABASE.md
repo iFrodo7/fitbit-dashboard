@@ -1,7 +1,7 @@
 # DATABASE — Arquitectura de datos y sync cross-device
 
 > Para ingenieros que revisen la base de datos o extiendan el sistema de sincronización.
-> Última actualización: 2026-06-16.
+> Última actualización: 2026-06-16. (rev 2 — adaptive goals Pro)
 
 ---
 
@@ -52,6 +52,8 @@ Una fila por usuario. Cada campo tiene su propia estrategia de merge aplicada en
 | **T1 — Crítico** ||||
 | `goals` | `jsonb` | `goals_ts` más alto gana | `fb_dr_goals` |
 | `goals_ts` | `bigint` | unix ms del último guardado manual | `fb_dr_goals_ts` |
+| `adaptive_goals` | `jsonb` | `adaptive_goals_ts` más alto gana — **solo Pro** | `fb_dr_goals_adaptive` |
+| `adaptive_goals_ts` | `bigint` | unix ms del último cálculo adaptativo | `fb_dr_goals_adaptive_ts` |
 | `steps_streak` | `jsonb` | max `count`, luego `lastDate` | `fb_streak_steps` |
 | **T2 — Identidad** ||||
 | `aira_uid` | `text` | Primer write gana — **nunca sobreescribir** | `aira_uid` |
@@ -85,7 +87,8 @@ Una fila por usuario. Cada campo tiene su propia estrategia de merge aplicada en
 #### Detalle de campos `jsonb`
 
 ```
-goals:          { stp: number, cal: number, act: number }
+goals:           { stp: number, cal: number, act: number }   ← guardado manual del usuario
+adaptive_goals:  { stp: number, cal: number, act: number }   ← baseline Pre-multiplicador (Pro). No confundir con goals: este valor es el promedio del historial local ANTES de aplicar el multiplicador diario (Recovery, ciclo, fatiga). Se sincroniza para que todos los dispositivos Pro partan de la misma base y apliquen su propio mult de forma independiente. Se escribe una vez por día vía updateDailyRings(). Si existe override manual (goals.stp), este campo no se usa.
 steps_streak:   { count: number, lastDate: "YYYY-MM-DD", goal: number }
 bio:            { age: number, weight: number, height: number, sex: "male"|"female"|"", activity: number }
 achievements:   { [achievementId]: true }
@@ -137,6 +140,7 @@ Aplica la estrategia de merge de cada campo antes de upsert. Nunca hace un reemp
 | Campo | Regla |
 |---|---|
 | `goals` + `goals_ts` | Solo actualiza si `incoming.goals_ts > existing.goals_ts` |
+| `adaptive_goals` + `adaptive_goals_ts` | Solo actualiza si `incoming.adaptive_goals_ts > existing.adaptive_goals_ts` — escrito por `updateDailyRings()` una vez por día (Pro sin override manual) |
 | `steps_streak` | Solo si `incoming.count > existing.count` (o misma fecha + mayor count) |
 | `aira_uid` | Solo si `existing.aira_uid` está vacío (primer write gana) |
 | `lang`, `theme`, `bio`, `display_name`, `notif_pref`, `avatar_frame`, `cycle_on`, `cycle_data` | Solo si `incoming.prefs_ts > existing.prefs_ts` |
@@ -160,7 +164,8 @@ Aplica la estrategia de merge de cada campo antes de upsert. Nunca hace un reemp
 | `fb_activity_history` | 30 días de datos que vienen de la API — se reconstruye |
 | `fb_personal_records` | Derivado de IndexedDB — se recalcula desde historial |
 | `fb_snap`, `fb_tab` | Estado UI efímero |
-| `fb_prev_day_goal`, `fb_today_goal_track`, `fb_baseline_cal` | Estado del algoritmo adaptativo — se deriva localmente |
+| `fb_prev_day_goal`, `fb_today_goal_track`, `fb_baseline_cal` | Estado intermedio del algoritmo adaptativo — se deriva localmente |
+| `fb_dr_goals_adaptive_date` | Fecha del último sync de adaptive_goals — control de "una vez por día", siempre device-specific |
 | `fb_checkin_*`, `fb_checkin_prompted_*` | Check-in del día — device-specific |
 | `fb_streak_anim_date`, `fb_last_open_date` | Timing de animaciones — device-specific |
 | Flags de migración (`*_clean_*`, `*_backfilled`) | Siempre device-specific |
