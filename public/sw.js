@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'fitbit-air-v143-streak-migration';
+const CACHE_VERSION = 'fitbit-air-v144-goals-sync';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
