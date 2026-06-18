@@ -56,6 +56,14 @@ export async function POST(req: NextRequest) {
     update.adaptive_goals_ts = inAdaptTs;
   }
 
+  // ── T1: Recovery score — gana el timestamp más alto ────────────────────────
+  const inRecTs = Number(body.recovery_score_ts) || 0;
+  const exRecTs = Number((ex as Record<string,unknown> | null)?.recovery_score_ts) || 0;
+  if (typeof body.recovery_score === "number" && inRecTs > exRecTs) {
+    update.recovery_score    = Math.round(body.recovery_score as number);
+    update.recovery_score_ts = inRecTs;
+  }
+
   // ── T1: Steps streak — gana mayor count (racha nunca retrocede) ─────────────
   if (body.steps_streak && typeof body.steps_streak === "object") {
     const inc = body.steps_streak as { count?: number; lastDate?: string; goal?: number };

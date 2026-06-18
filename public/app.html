@@ -11040,6 +11040,17 @@ function updateScores({ rec, strain, sleepPct }) {
   // Recomendación y color del status
   window._lastRec = rec; // single recovery source (read by Stats + status label)
   window._lastSleepPct = sleepPct;
+  // Sync recovery score a Supabase para que otros dispositivos arranquen con el valor correcto.
+  // Solo escribe si el score cambió (evita writes innecesarios en cada poll).
+  if (rec > 0 && typeof _supabasePrefsWrite === 'function') {
+    var _prevRec = parseInt(localStorage.getItem('fb_recovery_score') || '0') || 0;
+    if (Math.round(rec) !== _prevRec) {
+      var _recTs = Date.now();
+      localStorage.setItem('fb_recovery_score', String(Math.round(rec)));
+      localStorage.setItem('fb_recovery_score_ts', String(_recTs));
+      _supabasePrefsWrite({ recovery_score: Math.round(rec), recovery_score_ts: _recTs }).catch(function(){});
+    }
+  }
   setText('wrec', recTextFor(rec));
   updateStatusLabel();
   if (typeof renderAiraInsights === 'function') renderAiraInsights();
@@ -11960,6 +11971,16 @@ async function _supabasePrefsRead() {
     // T2: Booleans OR
     if (d.seen_tour) try { localStorage.setItem('fb_seen_tour', '1'); } catch(_e7) {}
     if (d.welcomed)  try { localStorage.setItem('fb_welcomed', '1'); } catch(_e8) {}
+
+    // T1: Recovery score — usa Supabase como fallback si no hay cómputo local aún
+    if (typeof d.recovery_score === 'number' && d.recovery_score_ts) {
+      var _lRecTs = parseInt(localStorage.getItem('fb_recovery_score_ts') || '0') || 0;
+      if (d.recovery_score_ts > _lRecTs) {
+        localStorage.setItem('fb_recovery_score', String(d.recovery_score));
+        localStorage.setItem('fb_recovery_score_ts', String(d.recovery_score_ts));
+        if (!window._lastRec) window._lastRec = d.recovery_score;
+      }
+    }
 
   } catch(_re) {}
 }

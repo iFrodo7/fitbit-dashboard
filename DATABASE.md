@@ -1,7 +1,7 @@
 # DATABASE — Arquitectura de datos y sync cross-device
 
 > Para ingenieros que revisen la base de datos o extiendan el sistema de sincronización.
-> Última actualización: 2026-06-17. (rev 3 — adaptive goals sync meta final post-mult)
+> Última actualización: 2026-06-17. (rev 4 — recovery score sync)
 
 ---
 
@@ -54,6 +54,8 @@ Una fila por usuario. Cada campo tiene su propia estrategia de merge aplicada en
 | `goals_ts` | `bigint` | unix ms del último guardado manual | `fb_dr_goals_ts` |
 | `adaptive_goals` | `jsonb` | `adaptive_goals_ts` más alto gana — **solo Pro** | `fb_dr_goals_adaptive` |
 | `adaptive_goals_ts` | `bigint` | unix ms del último cálculo adaptativo | `fb_dr_goals_adaptive_ts` |
+| `recovery_score` | `smallint` | `recovery_score_ts` más alto gana | `fb_recovery_score` |
+| `recovery_score_ts` | `bigint` | unix ms del último cómputo de recovery | `fb_recovery_score_ts` |
 | `steps_streak` | `jsonb` | max `count`, luego `lastDate` | `fb_streak_steps` |
 | **T2 — Identidad** ||||
 | `aira_uid` | `text` | Primer write gana — **nunca sobreescribir** | `aira_uid` |
@@ -141,6 +143,7 @@ Aplica la estrategia de merge de cada campo antes de upsert. Nunca hace un reemp
 |---|---|
 | `goals` + `goals_ts` | Solo actualiza si `incoming.goals_ts > existing.goals_ts` |
 | `adaptive_goals` + `adaptive_goals_ts` | Solo actualiza si `incoming.adaptive_goals_ts > existing.adaptive_goals_ts` — escrito por `updateDailyRings()` una vez por día (Pro sin override manual) |
+| `recovery_score` + `recovery_score_ts` | Solo actualiza si `incoming.recovery_score_ts > existing.recovery_score_ts` — escrito por `updateScores()` cuando el score cambia |
 | `steps_streak` | Solo si `incoming.count > existing.count` (o misma fecha + mayor count) |
 | `aira_uid` | Solo si `existing.aira_uid` está vacío (primer write gana) |
 | `lang`, `theme`, `bio`, `display_name`, `notif_pref`, `avatar_frame`, `cycle_on`, `cycle_data` | Solo si `incoming.prefs_ts > existing.prefs_ts` |
