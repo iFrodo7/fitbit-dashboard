@@ -11915,6 +11915,14 @@ async function _supabasePrefsRead() {
       if ((d.steps_streak.count || 0) > (parseInt(_lSS.count, 10) || 0)) {
         localStorage.setItem('fb_streak_steps', JSON.stringify(d.steps_streak));
         window._wkTodayStreakReal = Math.max(window._wkTodayStreakReal || 0, d.steps_streak.count);
+        // Actualizar DOM igual que hace _driveStreakRead — cubre el caso PWA con storage vacío
+        var _sbSSEl = document.getElementById('steps-streak-val');
+        if (_sbSSEl) _sbSSEl.textContent = d.steps_streak.count > 0 ? d.steps_streak.count : '—';
+        var _sbHeroEl = document.getElementById('streak-hero-num');
+        if (_sbHeroEl && (parseInt(_sbHeroEl.textContent, 10) || 0) < d.steps_streak.count) {
+          if (typeof _animateStreakHero === 'function') _animateStreakHero(d.steps_streak.count);
+          else _sbHeroEl.textContent = String(d.steps_streak.count);
+        }
       }
     }
 
@@ -14789,6 +14797,11 @@ async function loadReal(silentRefresh) {
       // isPro() funcione para PRO_EMAILS y que _supabasePrefsRead() sincronice prefs.
       if (pr.user.email && !localStorage.getItem('fb_email')) {
         localStorage.setItem('fb_email', pr.user.email.toLowerCase());
+        // Primera carga en dispositivo nuevo (PWA sin storage): el email no estaba disponible
+        // cuando _supabasePrefsRead() corrió arriba. Correrlo de nuevo ahora que ya está.
+        if (!silentRefresh && typeof _supabasePrefsRead === 'function') {
+          _supabasePrefsRead().catch(function(){});
+        }
       }
     }
     // Re-verificar estado Pro si aún no está confirmado (sesión fresca, incógnito,
