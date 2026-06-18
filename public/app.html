@@ -8125,6 +8125,28 @@ function toggleCycle() {
     var _ctTs = Date.now(); localStorage.setItem('fb_prefs_ts', String(_ctTs));
     _supabasePrefsWrite({ cycle_on: _cycNew === '1', prefs_ts: _ctTs }).catch(function(){});
   }
+  // Activando ciclo sin datos locales: jalar cycle_data de Supabase de inmediato.
+  // toggleCycle() escribe prefs_ts=now, lo que bloquea Bloque 1 y Bloque 2 en el
+  // próximo _supabasePrefsRead(). Fetch directo para no depender del reload.
+  if (_cycNew === '1' && !localStorage.getItem('fb_cycle')) {
+    var _tce = localStorage.getItem('fb_email');
+    if (_tce) {
+      fetch('/api/user/prefs?email=' + encodeURIComponent(_tce))
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          if (d.cycle_data) {
+            if (d.cycle_data.meta) localStorage.setItem('fb_cycle', JSON.stringify(d.cycle_data.meta));
+            if (d.cycle_data.log)  localStorage.setItem('fb_cyc_log', JSON.stringify(d.cycle_data.log));
+          }
+          renderProfile();
+          try { renderCycleHomeChip(); } catch(_e) {}
+        }).catch(function() {
+          renderProfile();
+          try { renderCycleHomeChip(); } catch(_e) {}
+        });
+      return;
+    }
+  }
   renderProfile();
   renderCycleHomeChip();
 }
@@ -12035,6 +12057,13 @@ async function _supabasePrefsRead() {
       localStorage.setItem('fb_cycle_on', '1');
       if (d.cycle_data && d.cycle_data.meta) localStorage.setItem('fb_cycle', JSON.stringify(d.cycle_data.meta));
       if (d.cycle_data && d.cycle_data.log)  localStorage.setItem('fb_cyc_log', JSON.stringify(d.cycle_data.log));
+    }
+    // Bloque 3: ciclo ya activo localmente pero sin datos (ej. toggleCycle() corrió
+    // antes de que Supabase tuviera los datos del otro dispositivo). Independiente
+    // de prefs_ts — si Supabase tiene datos y local no, siempre llenar.
+    if (d.cycle_on === true && localStorage.getItem('fb_cycle_on') === '1' && !localStorage.getItem('fb_cycle') && d.cycle_data) {
+      if (d.cycle_data.meta) localStorage.setItem('fb_cycle', JSON.stringify(d.cycle_data.meta));
+      if (d.cycle_data.log)  localStorage.setItem('fb_cyc_log', JSON.stringify(d.cycle_data.log));
     }
     // Re-renderizar chip de ciclo con datos autoritativos de Supabase.
     if (typeof renderCycleHomeChip === 'function') {
