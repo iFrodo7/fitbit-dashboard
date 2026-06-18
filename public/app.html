@@ -11887,14 +11887,19 @@ async function _supabasePrefsRead() {
       if (d.notif_pref !== undefined) localStorage.setItem('fb_notif', d.notif_pref ? '1' : '0');
       if (d.avatar_frame) localStorage.setItem('fb_avatar_frame', d.avatar_frame);
       if (d.cycle_on !== undefined) localStorage.setItem('fb_cycle_on', d.cycle_on ? '1' : '0');
+      var _cycUpdated = false;
       if (d.cycle_data) {
-        if (d.cycle_data.meta) localStorage.setItem('fb_cycle', JSON.stringify(d.cycle_data.meta));
-        if (d.cycle_data.log)  localStorage.setItem('fb_cyc_log', JSON.stringify(d.cycle_data.log));
+        if (d.cycle_data.meta) { localStorage.setItem('fb_cycle', JSON.stringify(d.cycle_data.meta)); _cycUpdated = true; }
+        if (d.cycle_data.log)  { localStorage.setItem('fb_cyc_log', JSON.stringify(d.cycle_data.log)); _cycUpdated = true; }
       }
       // Aplicar lang y theme con _skipSync=true para no rebotar a Supabase
       if (d.lang && d.lang !== lang) setLang(d.lang, true);
       if (d.theme && d.theme !== theme) selectTheme(d.theme, true);
       localStorage.setItem('fb_prefs_ts', String(d.prefs_ts));
+      // Re-renderizar chip de ciclo si los datos cambiaron (initDash lo rindió con datos viejos)
+      if (_cycUpdated && typeof renderCycleHomeChip === 'function') {
+        try { renderCycleHomeChip(); } catch(_rce) {}
+      }
     }
 
     // T2: Achievements — unión (nunca se pierde un logro)
