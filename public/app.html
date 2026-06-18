@@ -11875,7 +11875,7 @@ async function _supabasePrefsRead() {
   } catch(_qe) {}
 
   try {
-    var _r = await fetch('/api/user/prefs?email=' + encodeURIComponent(email));
+    var _r = await fetch('/api/user/prefs?email=' + encodeURIComponent(email), { cache: 'no-store' });
     if (!_r.ok) return;
     var d = await _r.json();
     if (!d || !d.email) return;
