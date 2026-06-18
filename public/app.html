@@ -12466,7 +12466,10 @@ function updateDailyRings() {
     var _drGM={}; try{_drGM=JSON.parse(localStorage.getItem('fb_dr_goals')||'{}');}catch(_ge){}
     if (!_drGM.stp) {
       var _aDay=_localDateStr();
-      if (localStorage.getItem('fb_dr_goals_adaptive_date')!==_aDay) {
+      var _curLocalAG=null; try{_curLocalAG=JSON.parse(localStorage.getItem('fb_dr_goals_adaptive')||'null');}catch(_age2){}
+      var _needAgWrite = localStorage.getItem('fb_dr_goals_adaptive_date')!==_aDay
+                      || !(_curLocalAG&&_curLocalAG._history); // re-escribir si falta _history
+      if (_needAgWrite) {
         localStorage.setItem('fb_dr_goals_adaptive_date', _aDay);
         var _agSync={stp:ag.stp,cal:ag.cal,act:ag.act,_final:true,_date:_aDay};
         // Incluir historial de metas por fecha (últimos 14 días) para que otros
