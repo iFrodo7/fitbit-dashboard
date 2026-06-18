@@ -1,7 +1,7 @@
 # DATABASE — Arquitectura de datos y sync cross-device
 
 > Para ingenieros que revisen la base de datos o extiendan el sistema de sincronización.
-> Última actualización: 2026-06-16. (rev 2 — adaptive goals Pro)
+> Última actualización: 2026-06-17. (rev 3 — adaptive goals sync meta final post-mult)
 
 ---
 
@@ -88,7 +88,7 @@ Una fila por usuario. Cada campo tiene su propia estrategia de merge aplicada en
 
 ```
 goals:           { stp: number, cal: number, act: number }   ← guardado manual del usuario
-adaptive_goals:  { stp: number, cal: number, act: number }   ← baseline Pre-multiplicador (Pro). No confundir con goals: este valor es el promedio del historial local ANTES de aplicar el multiplicador diario (Recovery, ciclo, fatiga). Se sincroniza para que todos los dispositivos Pro partan de la misma base y apliquen su propio mult de forma independiente. Se escribe una vez por día vía updateDailyRings(). Si existe override manual (goals.stp), este campo no se usa.
+adaptive_goals:  { stp: number, cal: number, act: number, _final: true, _date: "YYYY-MM-DD" } ← meta FINAL post-mult (Pro). El primer dispositivo del día calcula base × mult_recovery y escribe el resultado marcado con _final:true + _date. Los demás dispositivos lo usan directamente sin re-aplicar mult. Si _date ≠ hoy se ignora y cada dispositivo calcula localmente. Una vez por día vía updateDailyRings(). Si existe override manual (goals.stp), este campo no se usa.
 steps_streak:   { count: number, lastDate: "YYYY-MM-DD", goal: number }
 bio:            { age: number, weight: number, height: number, sex: "male"|"female"|"", activity: number }
 achievements:   { [achievementId]: true }
