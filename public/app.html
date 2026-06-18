@@ -16261,6 +16261,12 @@ async function renderHistory() {
   let cache = await _hGetAll();
   const wanted = _hDays(window._histRange);
   let rows = wanted.map(d => cache.find(c => c.date === d) || { date: d });
+  // Patch today's recovery with the live calcScores() value — IDB may have the
+  // old backfill formula result until the next updateScores() write.
+  if (window._lastRec != null) {
+    const _todayStr = _localDateStr();
+    rows = rows.map(r => r.date === _todayStr ? Object.assign({}, r, { recovery: Math.round(window._lastRec) }) : r);
+  }
   const willBeDemo = !token;
   if (!token) {
     const _dh = s => { let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))&0xffffff; return h; };
