@@ -157,6 +157,13 @@ export async function POST(req: NextRequest) {
     update.nebula_days = merged;
   }
 
+  // ── T1: Pro status — escrito por checkProStatus() después de validar con Stripe ─
+  // Permite que cualquier dispositivo / sesión fresca recupere el estado Pro
+  // leyendo Supabase, sin depender de aira_uid ni fb_pro en localStorage.
+  if (typeof body.is_pro === "boolean") {
+    update.is_pro = body.is_pro;
+  }
+
   // ── T2: Boolean OR — una vez true, siempre true ──────────────────────────────
   if (body.seen_tour === true) update.seen_tour = true;
   if (body.welcomed  === true) update.welcomed  = true;

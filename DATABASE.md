@@ -59,6 +59,7 @@ Una fila por usuario. Cada campo tiene su propia estrategia de merge aplicada en
 | `adaptive_goals_ts` | `bigint` | unix ms del último cálculo adaptativo | `fb_dr_goals_adaptive_ts` |
 | `recovery_score` | `smallint` | `recovery_score_ts` más alto gana | `fb_recovery_score` |
 | `recovery_score_ts` | `bigint` | unix ms del último cómputo de recovery | `fb_recovery_score_ts` |
+| `is_pro` | `boolean` | Último write gana — escrito por `checkProStatus()` tras validar Stripe | `fb_pro` |
 | `steps_streak` | `jsonb` | max `count`, luego `lastDate` | `fb_streak_steps` |
 | **T2 — Identidad** ||||
 | `aira_uid` | `text` | Primer write gana — **nunca sobreescribir** | `aira_uid` |

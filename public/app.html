@@ -8458,8 +8458,16 @@ async function checkProStatus() {
     const data = await res.json();
     if (data.plan === 'pro' && data.status === 'active') {
       localStorage.setItem('fb_pro', '1');
+      // Persist Pro status in Supabase so any device/session lo recupera sin
+      // depender de aira_uid ni fb_pro en localStorage.
+      if (typeof _supabasePrefsWrite === 'function') {
+        _supabasePrefsWrite({ is_pro: true }).catch(function(){});
+      }
     } else {
       localStorage.removeItem('fb_pro');
+      if (typeof _supabasePrefsWrite === 'function') {
+        _supabasePrefsWrite({ is_pro: false }).catch(function(){});
+      }
     }
   } catch (e) { /* offline — trust localStorage */ }
 }
@@ -11988,6 +11996,18 @@ async function _supabasePrefsRead() {
       }
     }
 
+    // T1: Pro status — restaurar desde Supabase (funciona en nuevo dispositivo / incógnito)
+    if (typeof d.is_pro === 'boolean') {
+      if (d.is_pro) {
+        localStorage.setItem('fb_pro', '1');
+      } else if (localStorage.getItem('fb_pro') === '1' && !window.PRO_EMAILS?.includes(
+        (localStorage.getItem('fb_email')||'').toLowerCase()
+      )) {
+        // Solo quitar fb_pro si no es cuenta beta — PRO_EMAILS siempre tiene acceso
+        localStorage.removeItem('fb_pro');
+      }
+    }
+
     // Migración de ciclo: si Supabase no tiene cycle_data pero local sí,
     // sincronizar automáticamente. Cubre datos configurados antes del sync.
     // Solo corre hasta que Supabase tenga el dato; después d.cycle_data es truthy.
@@ -14742,6 +14762,19 @@ async function loadReal(silentRefresh) {
       document.getElementById('uname').textContent = _dn;
       localStorage.setItem('fb_display_name', _dn);           // persist across sessions
       if (pr.user.gender) localStorage.setItem('fb_sex', String(pr.user.gender).toLowerCase());
+      // El perfil de Fitbit incluye email (scope 'profile'). Guardarlo permite que
+      // isPro() funcione para PRO_EMAILS y que _supabasePrefsRead() sincronice prefs.
+      if (pr.user.email && !localStorage.getItem('fb_email')) {
+        localStorage.setItem('fb_email', pr.user.email.toLowerCase());
+      }
+    }
+    // Re-verificar estado Pro si aún no está confirmado (sesión fresca, incógnito,
+    // nuevo dispositivo). Si Stripe confirma Pro → actualiza Supabase → todos los
+    // dispositivos lo verán en el próximo arranque.
+    if (!isPro() && typeof checkProStatus === 'function') {
+      checkProStatus().then(function() {
+        if (isPro()) { try { updateDailyRings(); } catch(_cpe) {} }
+      }).catch(function(){});
     }
     if (ac?.summary) {
       const s=ac.summary;
