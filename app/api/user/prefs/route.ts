@@ -157,6 +157,26 @@ export async function POST(req: NextRequest) {
     update.nebula_days = merged;
   }
 
+  // ── T2: Activity history — unión por fecha, gana el registro con más pasos ──
+  // Permite que dispositivos nuevos arranquen con historial real en lugar de
+  // defaults biométricos, evitando semanas de calibración desde cero.
+  if (Array.isArray(body.activity_history) && (body.activity_history as unknown[]).length) {
+    const exAH = ((ex as Record<string,unknown> | null)?.activity_history as Array<Record<string,unknown>> | null) ?? [];
+    const byDate = new Map(exAH.map(e => [String(e.date ?? ""), e]));
+    for (const entry of body.activity_history as Array<Record<string,unknown>>) {
+      const d = String(entry.date ?? "");
+      if (!d) continue;
+      const existing = byDate.get(d);
+      if (!existing || (Number(entry.steps) || 0) >= (Number(existing.steps) || 0)) {
+        byDate.set(d, entry);
+      }
+    }
+    const sorted = Array.from(byDate.values())
+      .sort((a, b) => String(a.date) < String(b.date) ? -1 : 1)
+      .slice(-30);
+    update.activity_history = sorted;
+  }
+
   // ── T1: Pro status — escrito por checkProStatus() después de validar con Stripe ─
   // Permite que cualquier dispositivo / sesión fresca recupere el estado Pro
   // leyendo Supabase, sin depender de aira_uid ni fb_pro en localStorage.

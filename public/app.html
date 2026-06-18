@@ -11237,6 +11237,12 @@ function _recordActivityDay(steps, cal, actMin, vigMin, goalMet, readiness, phas
     hist.sort(function(a,b){return a.date<b.date?-1:1;});
     if(hist.length>30) hist=hist.slice(-30);
     localStorage.setItem('fb_activity_history',JSON.stringify(hist));
+    // Sync a Supabase: siempre en entrada nueva del día; si ya existe, throttle 10 min.
+    var _ahSyncTs = parseInt(localStorage.getItem('fb_ah_sync_ts')||'0')||0;
+    if (!existing || Date.now()-_ahSyncTs > 600000) {
+      localStorage.setItem('fb_ah_sync_ts', String(Date.now()));
+      if (typeof _supabasePrefsWrite==='function') _supabasePrefsWrite({activity_history:hist}).catch(function(){});
+    }
   } catch(e){}
 }
 // Días consecutivos con entrenamiento real (>10 min de Cardio+Peak),
@@ -11906,6 +11912,29 @@ async function _supabasePrefsRead() {
         if (_lAB && _lAB._final && typeof _supabasePrefsWrite === 'function') {
           _supabasePrefsWrite({ adaptive_goals: _lAB, adaptive_goals_ts: _lATs }).catch(function(){});
         }
+      }
+    }
+
+    // T2: Activity history — merge Supabase → local.
+    // Garantiza que el baseline adaptativo use historial real aunque el dispositivo sea nuevo.
+    // Se aplica ANTES del patch de goalUsed para que todas las entradas ya estén presentes.
+    if (d.activity_history && Array.isArray(d.activity_history) && d.activity_history.length) {
+      var _lahR = []; try { _lahR = JSON.parse(localStorage.getItem('fb_activity_history')||'[]'); } catch(_lahe) {}
+      var _ahMap = {};
+      _lahR.forEach(function(e){ if(e.date) _ahMap[e.date] = e; });
+      var _ahChanged = false;
+      d.activity_history.forEach(function(e) {
+        if (!e.date) return;
+        var _loc = _ahMap[e.date];
+        // Gana el registro con más pasos (dato más completo del día)
+        if (!_loc || (e.steps||0) >= (_loc.steps||0)) {
+          if (!_loc || JSON.stringify(e) !== JSON.stringify(_loc)) _ahChanged = true;
+          _ahMap[e.date] = e;
+        }
+      });
+      if (_ahChanged) {
+        var _ahMerged = Object.keys(_ahMap).sort().slice(-30).map(function(k){ return _ahMap[k]; });
+        localStorage.setItem('fb_activity_history', JSON.stringify(_ahMerged));
       }
     }
 
