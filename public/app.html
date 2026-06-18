@@ -11940,17 +11940,14 @@ async function _supabasePrefsRead() {
       if (d.theme && d.theme !== theme) selectTheme(d.theme, true);
       localStorage.setItem('fb_prefs_ts', String(d.prefs_ts));
     }
-    // Ciclo: sincronización independiente del prefs_ts general.
-    // Si Supabase tiene cycle_on=true y local no, aplicar siempre (el usuario
-    // lo activó en otro dispositivo). Solo se respeta el apagado local si
-    // fb_prefs_ts local es más nuevo que el de Supabase (el usuario lo apagó aquí).
+    // Ciclo: sincronización autoritativa desde Supabase.
+    // cycle_on=true en Supabase significa que el usuario lo activó en algún dispositivo →
+    // aplicar en todos. Si el usuario lo apaga aquí, ese '0' se escribe a Supabase
+    // y en el siguiente arranque Supabase tendrá false, no disparando este bloque.
     if (d.cycle_on === true && localStorage.getItem('fb_cycle_on') !== '1') {
-      var _lCycTs = parseInt(localStorage.getItem('fb_prefs_ts') || '0') || 0;
-      if (!d.prefs_ts || d.prefs_ts >= _lCycTs) {
-        localStorage.setItem('fb_cycle_on', '1');
-        if (d.cycle_data && d.cycle_data.meta) localStorage.setItem('fb_cycle', JSON.stringify(d.cycle_data.meta));
-        if (d.cycle_data && d.cycle_data.log)  localStorage.setItem('fb_cyc_log', JSON.stringify(d.cycle_data.log));
-      }
+      localStorage.setItem('fb_cycle_on', '1');
+      if (d.cycle_data && d.cycle_data.meta) localStorage.setItem('fb_cycle', JSON.stringify(d.cycle_data.meta));
+      if (d.cycle_data && d.cycle_data.log)  localStorage.setItem('fb_cyc_log', JSON.stringify(d.cycle_data.log));
     }
     // Re-renderizar chip de ciclo con datos autoritativos de Supabase.
     if (typeof renderCycleHomeChip === 'function') {
