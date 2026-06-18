@@ -11048,6 +11048,14 @@ function updateScores({ rec, strain, sleepPct }) {
   // Recomendación y color del status
   window._lastRec = rec; // single recovery source (read by Stats + status label)
   window._lastSleepPct = sleepPct;
+  // Actualizar IndexedDB para hoy con el score autoritativo de calcScores() — evita que la
+  // gráfica de historial muestre el valor de la fórmula vieja del backfill.
+  (function() {
+    var _rd = _localDateStr();
+    _hGetDay(_rd).then(function(_dr) {
+      if (_dr) _hPut(Object.assign({}, _dr, { recovery: Math.round(rec) }));
+    }).catch(function(){});
+  })();
   // Sync recovery score a Supabase para que otros dispositivos arranquen con el valor correcto.
   // Solo escribe si el score cambió (evita writes innecesarios en cada poll).
   if (rec > 0 && typeof _supabasePrefsWrite === 'function') {
@@ -15305,6 +15313,13 @@ function _hPut(rec) {
     const tx = db.transaction('daily','readwrite').objectStore('daily').put(rec);
     tx.onsuccess = () => res(); tx.onerror = () => rej(tx.error);
   })).catch(() => {});
+}
+function _hGetDay(date) {
+  return _hOpenDB().then(db => new Promise((res,rej) => {
+    const tx = db.transaction('daily','readonly').objectStore('daily').get(date);
+    tx.onsuccess = () => res(tx.result || null);
+    tx.onerror = () => rej(tx.error);
+  })).catch(() => null);
 }
 function _hDays(n) {
   const out = [];
