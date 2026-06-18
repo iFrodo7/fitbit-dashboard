@@ -11874,7 +11874,12 @@ async function _supabasePrefsRead() {
     // T1: Adaptive goals (Pro) — aplica si Supabase es más reciente
     if (d.adaptive_goals && d.adaptive_goals_ts) {
       var _lATs = parseInt(localStorage.getItem('fb_dr_goals_adaptive_ts') || '0') || 0;
-      if (d.adaptive_goals_ts > _lATs) {
+      if (!d.adaptive_goals._final) {
+        // Formato viejo en Supabase (sin _final:true): limpiar la fecha de sync para
+        // que updateDailyRings recalcule hoy y escriba el nuevo formato con _final:true.
+        localStorage.removeItem('fb_dr_goals_adaptive_date');
+      } else if (d.adaptive_goals_ts > _lATs) {
+        // Formato nuevo con _final: aplicar directamente (multiplicador ya incluido)
         localStorage.setItem('fb_dr_goals_adaptive', JSON.stringify(d.adaptive_goals));
         localStorage.setItem('fb_dr_goals_adaptive_ts', String(d.adaptive_goals_ts));
       }
@@ -11980,6 +11985,20 @@ async function _supabasePrefsRead() {
         localStorage.setItem('fb_recovery_score', String(d.recovery_score));
         localStorage.setItem('fb_recovery_score_ts', String(d.recovery_score_ts));
         if (!window._lastRec) window._lastRec = d.recovery_score;
+      }
+    }
+
+    // Migración de ciclo: si Supabase no tiene cycle_data pero local sí,
+    // sincronizar automáticamente. Cubre datos configurados antes del sync.
+    // Solo corre hasta que Supabase tenga el dato; después d.cycle_data es truthy.
+    if (!d.cycle_data) {
+      var _migCyc = null; try { _migCyc = JSON.parse(localStorage.getItem('fb_cycle')||'null'); } catch(_mce){}
+      if (_migCyc) {
+        var _migLog = null; try { _migLog = JSON.parse(localStorage.getItem('fb_cyc_log')||'null'); } catch(_mle){}
+        var _migTs = Date.now(); localStorage.setItem('fb_prefs_ts', String(_migTs));
+        if (typeof _supabasePrefsWrite === 'function') {
+          _supabasePrefsWrite({ cycle_data: { meta: _migCyc, log: _migLog }, prefs_ts: _migTs }).catch(function(){});
+        }
       }
     }
 
