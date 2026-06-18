@@ -92,10 +92,24 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── T2: Achievements — unión total, un logro nunca se pierde ────────────────
+  // ── T2: Achievements — unión elemento a elemento por tema ───────────────────
+  // Los valores son arrays de booleans por tema {naruto:[true,false,...]}.
+  // El spread {...exA, ...incoming} remplaza arrays enteros → pierde logros.
+  // Hacemos OR bit a bit por posición para que un logro nunca retroceda.
   if (body.achievements && typeof body.achievements === "object") {
-    const exA = ((ex as Record<string,unknown> | null)?.achievements as Record<string, boolean> | null) ?? {};
-    update.achievements = { ...exA, ...(body.achievements as Record<string, boolean>) };
+    const exA = ((ex as Record<string,unknown> | null)?.achievements as Record<string, unknown> | null) ?? {};
+    const incoming = body.achievements as Record<string, unknown>;
+    const merged: Record<string, unknown> = { ...exA };
+    for (const [tk, supVal] of Object.entries(incoming)) {
+      const locVal = exA[tk];
+      if (Array.isArray(supVal) && Array.isArray(locVal)) {
+        const len = Math.max(supVal.length, locVal.length);
+        merged[tk] = Array.from({ length: len }, (_: unknown, i: number) => !!(supVal[i] || locVal[i]));
+      } else if (Array.isArray(supVal)) {
+        merged[tk] = supVal;
+      }
+    }
+    update.achievements = merged;
   }
 
   // ── T2: Ach stats — max por campo numérico ──────────────────────────────────

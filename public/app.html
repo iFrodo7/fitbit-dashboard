@@ -12041,10 +12041,26 @@ async function _supabasePrefsRead() {
       try { renderCycleHomeChip(); } catch(_rce) {}
     }
 
-    // T2: Achievements — unión (nunca se pierde un logro)
+    // T2: Achievements — unión elemento a elemento por tema.
+    // Object.assign remplazaría arrays enteros con la versión de Supabase (que puede
+    // ser más antigua), borrando logros ya desbloqueados → animaciones se repiten.
+    // La solución es un OR bit a bit por posición dentro de cada array de tema.
     if (d.achievements) {
       var _lAch = {}; try { _lAch = JSON.parse(localStorage.getItem('fb_ach') || '{}'); } catch(_e2) {}
-      localStorage.setItem('fb_ach', JSON.stringify(Object.assign({}, _lAch, d.achievements)));
+      var _mAch = {};
+      var _allTk = Object.keys(Object.assign({}, _lAch, d.achievements));
+      _allTk.forEach(function(tk) {
+        var _loc = _lAch[tk], _sup = d.achievements[tk];
+        if (Array.isArray(_loc) && Array.isArray(_sup)) {
+          var _len = Math.max(_loc.length, _sup.length);
+          _mAch[tk] = Array.from({length: _len}, function(_, i) { return !!(_loc[i] || _sup[i]); });
+        } else if (Array.isArray(_loc)) {
+          _mAch[tk] = _loc.slice();
+        } else if (Array.isArray(_sup)) {
+          _mAch[tk] = _sup.slice();
+        }
+      });
+      localStorage.setItem('fb_ach', JSON.stringify(_mAch));
     }
 
     // T2: Ach stats — max por campo numérico
