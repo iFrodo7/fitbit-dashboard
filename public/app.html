@@ -11909,6 +11909,24 @@ async function _supabasePrefsRead() {
       }
     }
 
+    // Parchar fb_activity_history con goalUsed histórico desde Supabase.
+    // adaptive_goals._history = { "2026-06-17": 10141, "2026-06-16": 9470, ... }
+    // Cubre el caso de dispositivo nuevo / PWA vacía: el backfill asigna _bioInformedDefaults()
+    // para goalUsed; este bloque lo reemplaza con la meta real que tuvo ese día en otro dispositivo.
+    if (d.adaptive_goals && d.adaptive_goals._history) {
+      var _patchAH = []; try { _patchAH = JSON.parse(localStorage.getItem('fb_activity_history') || '[]'); } catch(_pae) {}
+      var _patchChanged = false;
+      _patchAH.forEach(function(e) {
+        var _hGoal = d.adaptive_goals._history[e.date];
+        if (_hGoal && e.goalUsed !== _hGoal) {
+          e.goalUsed = _hGoal;
+          e.goalMet  = (e.steps || 0) >= _hGoal;
+          _patchChanged = true;
+        }
+      });
+      if (_patchChanged) localStorage.setItem('fb_activity_history', JSON.stringify(_patchAH));
+    }
+
     // T1: Steps streak — aplica si Supabase tiene count mayor
     if (d.steps_streak) {
       var _lSS = {}; try { _lSS = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}'); } catch(_e1) {}
@@ -12451,6 +12469,12 @@ function updateDailyRings() {
       if (localStorage.getItem('fb_dr_goals_adaptive_date')!==_aDay) {
         localStorage.setItem('fb_dr_goals_adaptive_date', _aDay);
         var _agSync={stp:ag.stp,cal:ag.cal,act:ag.act,_final:true,_date:_aDay};
+        // Incluir historial de metas por fecha (últimos 14 días) para que otros
+        // dispositivos puedan parchear su fb_activity_history con goalUsed correcto.
+        var _ahSnap=[]; try{_ahSnap=JSON.parse(localStorage.getItem('fb_activity_history')||'[]');}catch(_ahe){}
+        var _agHist={};
+        _ahSnap.slice(-14).forEach(function(e){ if(e.date&&e.goalUsed&&e.date!==_aDay) _agHist[e.date]=e.goalUsed; });
+        if(Object.keys(_agHist).length>0) _agSync._history=_agHist;
         localStorage.setItem('fb_dr_goals_adaptive', JSON.stringify(_agSync));
         var _aTs=Date.now(); localStorage.setItem('fb_dr_goals_adaptive_ts', String(_aTs));
         if (typeof _supabasePrefsWrite==='function') _supabasePrefsWrite({adaptive_goals:_agSync,adaptive_goals_ts:_aTs}).catch(function(){});
