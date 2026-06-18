@@ -10714,6 +10714,10 @@ function setHRZones({ zones=[], restHR=61, maxHR=172 }) {
   setBar('hrbar-fat',    'hrmin-fat',    fat);
   setBar('hrbar-cardio', 'hrmin-cardio', card);
   setBar('hrbar-peak',   'hrmin-peak',   peak);
+  // updateDailyRings() lee hrmin-* del DOM síncronamente, pero setBar usa setTimeout(150ms).
+  // Disparar un updateDailyRings() a 200ms garantiza que los anillos reflejen los
+  // minutos de zona HR del poll ACTUAL, no del anterior.
+  if (zones.length) setTimeout(function(){ if (typeof updateDailyRings === 'function') updateDailyRings(); }, 200);
 }
 
 // ══════ MC RING — PIXEL ART ICONS ══════
@@ -12036,7 +12040,6 @@ async function _supabasePrefsRead() {
     var _lPrefsTs = parseInt(localStorage.getItem('fb_prefs_ts') || '0') || 0;
     if (d.prefs_ts && d.prefs_ts > _lPrefsTs) {
       if (d.display_name) localStorage.setItem('fb_display_name', d.display_name);
-      if (d.bio) localStorage.setItem('fb_bio', JSON.stringify(d.bio));
       if (d.notif_pref !== undefined) localStorage.setItem('fb_notif', d.notif_pref ? '1' : '0');
       if (d.avatar_frame) localStorage.setItem('fb_avatar_frame', d.avatar_frame);
       if (d.cycle_on !== undefined) localStorage.setItem('fb_cycle_on', d.cycle_on ? '1' : '0');
@@ -12048,6 +12051,21 @@ async function _supabasePrefsRead() {
       if (d.lang && d.lang !== lang) setLang(d.lang, true);
       if (d.theme && d.theme !== theme) selectTheme(d.theme, true);
       localStorage.setItem('fb_prefs_ts', String(d.prefs_ts));
+    }
+    // Bio: timestamp independiente (bio_ts) para no competir con tema/idioma.
+    // Cualquier cambio de tema/idioma sube prefs_ts y bloquearía el bio del otro
+    // dispositivo si usara el mismo gate. bio_ts solo sube cuando el usuario
+    // guarda explícitamente su perfil biométrico.
+    var _lBioTs = parseInt(localStorage.getItem('fb_bio_ts') || '0') || 0;
+    if (d.bio && (d.bio_ts || 0) > _lBioTs) {
+      localStorage.setItem('fb_bio', JSON.stringify(d.bio));
+      localStorage.setItem('fb_bio_ts', String(d.bio_ts));
+    }
+    // Fallback: si Supabase tiene bio y local no tiene (dispositivo nuevo o datos
+    // borrados), siempre aplicar independiente de bio_ts.
+    if (d.bio && !localStorage.getItem('fb_bio')) {
+      localStorage.setItem('fb_bio', JSON.stringify(d.bio));
+      if (d.bio_ts) localStorage.setItem('fb_bio_ts', String(d.bio_ts));
     }
     // Ciclo: sincronización autoritativa desde Supabase.
     // cycle_on=true en Supabase significa que el usuario lo activó en algún dispositivo →
@@ -12213,10 +12231,13 @@ async function _supabasePrefsRead() {
       var _migBio = null;
       try { _migBio = JSON.parse(localStorage.getItem('fb_bio')||'null'); } catch(_mbe){}
       if (_migBio && typeof _migBio.age === 'number' && _migBio.age > 0) {
-        var _migBioTs = Date.now(); localStorage.setItem('fb_prefs_ts', String(_migBioTs));
+        var _migBioTs = Date.now();
+        localStorage.setItem('fb_prefs_ts', String(_migBioTs));
+        localStorage.setItem('fb_bio_ts', String(_migBioTs));
         if (typeof _supabasePrefsWrite === 'function') {
           _supabasePrefsWrite({
             bio: _migBio,
+            bio_ts: _migBioTs,
             display_name: localStorage.getItem('fb_display_name') || '',
             prefs_ts: _migBioTs
           }).catch(function(){});
@@ -14208,8 +14229,10 @@ function saveBioAndRefresh() {
   if (typeof _supabasePrefsWrite === 'function') {
     var _bioD = null; try { _bioD = JSON.parse(localStorage.getItem('fb_bio') || 'null'); } catch(_bE) {}
     var _dnD = localStorage.getItem('fb_display_name') || '';
-    var _bioTs = Date.now(); localStorage.setItem('fb_prefs_ts', String(_bioTs));
-    _supabasePrefsWrite({ bio: _bioD, display_name: _dnD, prefs_ts: _bioTs }).catch(function(){});
+    var _bioTs = Date.now();
+    localStorage.setItem('fb_bio_ts', String(_bioTs));
+    localStorage.setItem('fb_prefs_ts', String(_bioTs));
+    _supabasePrefsWrite({ bio: _bioD, bio_ts: _bioTs, display_name: _dnD, prefs_ts: _bioTs }).catch(function(){});
   }
   // Recargar datos completos para que zonas HR se recalculen con el nuevo hrMax
   if (typeof loadRealGoogleData === 'function' && token) loadRealGoogleData(true);

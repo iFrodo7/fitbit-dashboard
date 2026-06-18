@@ -85,11 +85,26 @@ export async function POST(req: NextRequest) {
   const exPrefsTs = Number((ex as Record<string,unknown> | null)?.prefs_ts) || 0;
   if (inPrefsTs > exPrefsTs) {
     update.prefs_ts = inPrefsTs;
-    const prefsFields = ["display_name", "bio", "lang", "theme", "notif_pref",
+    const prefsFields = ["display_name", "lang", "theme", "notif_pref",
                          "avatar_frame", "cycle_on"] as const;
     for (const f of prefsFields) {
       if (body[f] !== undefined) update[f] = body[f];
     }
+  }
+
+  // ── T2: bio — timestamp independiente para no competir con tema/idioma ───────
+  // bio_ts es análogo a recovery_score_ts: permite que el bio de un dispositivo
+  // llegue al otro aunque el prefs_ts local sea más nuevo por un cambio de tema.
+  const inBioTs = Number(body.bio_ts) || 0;
+  const exBioTs = Number((ex as Record<string,unknown> | null)?.bio_ts) || 0;
+  if (body.bio !== undefined && inBioTs > exBioTs) {
+    update.bio    = body.bio;
+    update.bio_ts = inBioTs;
+  }
+  // Fallback: si Supabase no tiene bio pero el entrante sí, siempre guardar.
+  if (body.bio && !(ex as Record<string,unknown> | null)?.bio) {
+    update.bio    = body.bio;
+    update.bio_ts = inBioTs || Date.now();
   }
 
   // ── T2: cycle_data — meta via prefs_ts, log siempre merge por fecha-key ─────
