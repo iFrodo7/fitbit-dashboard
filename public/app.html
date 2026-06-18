@@ -11902,17 +11902,18 @@ async function _supabasePrefsRead() {
       if (d.notif_pref !== undefined) localStorage.setItem('fb_notif', d.notif_pref ? '1' : '0');
       if (d.avatar_frame) localStorage.setItem('fb_avatar_frame', d.avatar_frame);
       if (d.cycle_on !== undefined) localStorage.setItem('fb_cycle_on', d.cycle_on ? '1' : '0');
-      var _cycUpdated = false;
       if (d.cycle_data) {
-        if (d.cycle_data.meta) { localStorage.setItem('fb_cycle', JSON.stringify(d.cycle_data.meta)); _cycUpdated = true; }
-        if (d.cycle_data.log)  { localStorage.setItem('fb_cyc_log', JSON.stringify(d.cycle_data.log)); _cycUpdated = true; }
+        if (d.cycle_data.meta) { localStorage.setItem('fb_cycle', JSON.stringify(d.cycle_data.meta)); }
+        if (d.cycle_data.log)  { localStorage.setItem('fb_cyc_log', JSON.stringify(d.cycle_data.log)); }
       }
       // Aplicar lang y theme con _skipSync=true para no rebotar a Supabase
       if (d.lang && d.lang !== lang) setLang(d.lang, true);
       if (d.theme && d.theme !== theme) selectTheme(d.theme, true);
       localStorage.setItem('fb_prefs_ts', String(d.prefs_ts));
-      // Re-renderizar chip de ciclo si los datos cambiaron (initDash lo rindió con datos viejos)
-      if (_cycUpdated && typeof renderCycleHomeChip === 'function') {
+      // Siempre re-renderizar el chip de ciclo con datos autoritativos de Supabase.
+      // Con startup Supabase-first, esto ocurre mientras el skeleton está visible,
+      // garantizando que el usuario nunca vea datos obsoletos.
+      if (typeof renderCycleHomeChip === 'function') {
         try { renderCycleHomeChip(); } catch(_rce) {}
       }
     }
@@ -14706,17 +14707,17 @@ async function loadReal(silentRefresh) {
     // there's no connection. silentRefresh only skips the skeleton loader (#lov).
     if (!navigator.onLine && !_connInited) _showOwait();
   } else showLoad();
-  // Sync preferences from Supabase in parallel with Fitbit API calls.
-  // We await the promise AFTER the Fitbit Promise.all so adaptive_goals are in
-  // localStorage before updateScores()→updateDailyRings() reads them.
-  var _supProm = (!silentRefresh && typeof _supabasePrefsRead === 'function')
-    ? _supabasePrefsRead().catch(function(){})
-    : Promise.resolve();
+  // Supabase-first: leer y aplicar TODAS las preferencias del usuario antes de
+  // iniciar las llamadas a Fitbit. El skeleton cubre la UI durante este await
+  // (~150-300ms adicionales), por lo que el usuario nunca ve datos obsoletos de
+  // localStorage. silentRefresh omite Supabase para no relentizar el polling.
+  if (!silentRefresh && typeof _supabasePrefsRead === 'function') {
+    await _supabasePrefsRead().catch(function(){});
+  }
   try {
     const h={'Authorization':'Bearer '+token}, td=_localDay();
     const after7=_localDay(-7*864e5);
     const [pr,ac,hr,sl,wl] = await Promise.all([fetch(HS.ep.profile(),{headers:h}).then(r=>r.json()),fetch(HS.ep.activities(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.heartIntraday(td),{headers:h}).then(r=>r.json()),fetch(HS.ep.sleepToday(),{headers:h}).then(r=>r.json()),Promise.race([fetch(HS.ep.workoutList(after7,3),{headers:h}).then(r=>r.ok?r.json():null),new Promise(r=>setTimeout(()=>r(null),4000))]).catch(()=>null)]);
-    await _supProm;
     if (pr?.user) {
       const _dn = (pr.user.displayName||pr.user.firstName||'').toUpperCase() || (lang==='es'?'USUARIO':'USER');
       document.getElementById('uname').textContent = _dn;

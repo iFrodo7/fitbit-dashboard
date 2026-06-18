@@ -20,8 +20,11 @@ Las rutas API usan `createServiceClient()` (service role key) y validan el email
 | **Google Drive** App Data | Caché rápida para rachas (solo Google) | Al abrir la app (Google users) |
 | **Supabase** `app_streaks` | Racha de apertura diaria | Al abrir la app (todos) |
 
-**Flujo de escritura:** `localStorage` → `POST /api/user/prefs` (Supabase) → `_driveStreakWrite()` (Google users)  
-**Flujo de lectura al arranque:** `Promise.all([_driveStreakRead(), _supabasePrefsRead()])` → luego `_initStreakFromGoogle()` (crítico: las metas deben estar sincronizadas antes de recalcular la racha de pasos)
+**Flujo de escritura:** `localStorage` (caché de sesión) → `POST /api/user/prefs` (Supabase) → `_driveStreakWrite()` (Google users)  
+**Flujo de lectura al arranque (Supabase-first):**
+- **Fitbit:** `showLoad()` → `await _supabasePrefsRead()` → llamadas Fitbit API → `hideLoad()`. Supabase bloquea antes de que lleguen datos biométricos; el skeleton cubre la UI durante el await, por lo que el usuario nunca ve datos obsoletos de localStorage.
+- **Google:** `showLoad()` → `await Promise.all([_driveStreakRead(), _supabasePrefsRead()])` → `_initStreakFromGoogle()` → llamadas Google Health API → `hideLoad()`. Misma garantía.
+- **silentRefresh (polling):** Supabase se omite para no añadir latencia al poll de 15s. Solo se lee en el arranque completo.
 
 ---
 
