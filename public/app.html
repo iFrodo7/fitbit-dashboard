@@ -12065,6 +12065,16 @@ async function _supabasePrefsRead() {
       if (d.cycle_data.meta) localStorage.setItem('fb_cycle', JSON.stringify(d.cycle_data.meta));
       if (d.cycle_data.log)  localStorage.setItem('fb_cyc_log', JSON.stringify(d.cycle_data.log));
     }
+    // Bloque 4: cycle_data.log siempre se mergea por fecha-key, independiente de prefs_ts.
+    // El log es acumulativo — una entrada de síntomas en laptop no debe perderse si
+    // el móvil tiene un prefs_ts más nuevo por cambiar tema u otra preferencia.
+    if (d.cycle_data && d.cycle_data.log && typeof d.cycle_data.log === 'object') {
+      var _lLog = {}; try { _lLog = JSON.parse(localStorage.getItem('fb_cyc_log') || '{}'); } catch(_l4e) {}
+      var _mLog = Object.assign({}, _lLog, d.cycle_data.log);
+      if (JSON.stringify(_mLog) !== JSON.stringify(_lLog)) {
+        localStorage.setItem('fb_cyc_log', JSON.stringify(_mLog));
+      }
+    }
     // Re-renderizar chip de ciclo con datos autoritativos de Supabase.
     if (typeof renderCycleHomeChip === 'function') {
       try { renderCycleHomeChip(); } catch(_rce) {}

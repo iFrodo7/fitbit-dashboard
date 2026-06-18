@@ -86,10 +86,24 @@ export async function POST(req: NextRequest) {
   if (inPrefsTs > exPrefsTs) {
     update.prefs_ts = inPrefsTs;
     const prefsFields = ["display_name", "bio", "lang", "theme", "notif_pref",
-                         "avatar_frame", "cycle_on", "cycle_data"] as const;
+                         "avatar_frame", "cycle_on"] as const;
     for (const f of prefsFields) {
       if (body[f] !== undefined) update[f] = body[f];
     }
+  }
+
+  // ── T2: cycle_data — meta via prefs_ts, log siempre merge por fecha-key ─────
+  // El log es acumulativo: entradas de distintos dispositivos deben unirse,
+  // nunca reemplazarse. Si prefs_ts del entrante es mayor, también actualiza meta.
+  if (body.cycle_data && typeof body.cycle_data === "object") {
+    const incoming = body.cycle_data as { meta?: unknown; log?: Record<string, unknown> | null };
+    const exCD = ((ex as Record<string,unknown> | null)?.cycle_data as { meta?: unknown; log?: Record<string, unknown> | null } | null) ?? {};
+    const merged: Record<string, unknown> = { ...exCD };
+    if (inPrefsTs > exPrefsTs && incoming.meta !== undefined) merged.meta = incoming.meta;
+    if (incoming.log && typeof incoming.log === "object") {
+      merged.log = { ...((exCD.log as Record<string, unknown>) ?? {}), ...incoming.log };
+    }
+    update.cycle_data = merged;
   }
 
   // ── T2: Achievements — unión elemento a elemento por tema ───────────────────
