@@ -5465,7 +5465,7 @@ const T = {
     hv_empty:'CONECTA GOOGLE PARA VER TUS TENDENCIAS', hv_no_data:'SIN DATOS EN ESTE RANGO', hv_collecting:'ACUMULANDO DATOS',
     hv_avg:'PROMEDIO', hv_min:'MÍN', hv_max:'MÁX', hv_hrs:'h', hv_bpm:'bpm',
     hv_trend_better:'Mejorando', hv_trend_worse:'Empeorando', hv_trend_flat:'Estable',
-    hv_steps_lbl:'// PASOS DIARIOS', hv_steps_goal:'META 10K',
+    hv_steps_lbl:'// PASOS DIARIOS', hv_steps_goal:'META',
     hv_sl_deep:'PROF.', hv_sl_rem:'REM', hv_sl_light:'LIGER.', hv_sl_wake:'DESP.',
     hv_coach_lbl:'ANÁLISIS AIRA',
     hv_ca_rec_lbl:'RECOVERY', hv_ca_rhr_lbl:'FREC. CARDÍACA', hv_ca_slp_lbl:'SUEÑO', hv_ca_overall:'RECOMENDACIÓN',
@@ -5740,7 +5740,7 @@ const T = {
     hv_empty:'CONNECT GOOGLE TO SEE TRENDS', hv_no_data:'NO DATA IN THIS RANGE', hv_collecting:'COLLECTING DATA',
     hv_avg:'AVG', hv_min:'MIN', hv_max:'MAX', hv_hrs:'h', hv_bpm:'bpm',
     hv_trend_better:'Improving', hv_trend_worse:'Declining', hv_trend_flat:'Stable',
-    hv_steps_lbl:'// DAILY STEPS', hv_steps_goal:'10K GOAL',
+    hv_steps_lbl:'// DAILY STEPS', hv_steps_goal:'GOAL',
     hv_sl_deep:'DEEP', hv_sl_rem:'REM', hv_sl_light:'LIGHT', hv_sl_wake:'AWAKE',
     hv_coach_lbl:'AIRA ANALYSIS',
     hv_ca_rec_lbl:'RECOVERY', hv_ca_rhr_lbl:'HEART RATE', hv_ca_slp_lbl:'SLEEP', hv_ca_overall:'RECOMMENDATION',
@@ -15746,6 +15746,15 @@ function _hRenderStepsBar(svg, rows) {
   var _actHist = []; try { _actHist = JSON.parse(localStorage.getItem('fb_activity_history')||'[]'); } catch(e) {}
   var _goalByDate = {};
   _actHist.forEach(function(e) { if (e.date && e.goalUsed) _goalByDate[e.date] = e.goalUsed; });
+  // Para Pro: hoy usa el goal adaptativo live en lugar de goalUsed (que puede quedar
+  // desactualizado por el anti-cheat max — sube pero nunca baja dentro del mismo día).
+  if (pro) {
+    var _todayChrt = typeof _localDateStr === 'function' ? _localDateStr() : new Date().toISOString().slice(0,10);
+    var _liveAG = null; try { _liveAG = JSON.parse(localStorage.getItem('fb_dr_goals_adaptive')||'null'); } catch(e) {}
+    if (_liveAG && _liveAG.stp && _liveAG._date === _todayChrt) {
+      _goalByDate[_todayChrt] = _liveAG.stp;
+    }
+  }
   const dayGoal = d => _goalByDate[d] || GOAL_DEFAULT;
   const maxSteps = Math.max(...stRows.map(r => r.steps), ...rows.map(r => dayGoal(r.date)));
   const hi = Math.ceil(maxSteps / 2000) * 2000;
@@ -16456,6 +16465,12 @@ async function renderHistory() {
     // Stat C: META CUMPLIDA X/N — uses per-day goalUsed (adaptive PRO / anti-cheat FREE)
     var _stpActH = []; try { _stpActH = JSON.parse(localStorage.getItem('fb_activity_history')||'[]'); } catch(e2) {}
     var _stpGoalByDate = {}; _stpActH.forEach(function(e){ if(e.date&&e.goalUsed) _stpGoalByDate[e.date]=e.goalUsed; });
+    // Pro: hoy usa el goal adaptativo live (mismo fix que en _hRenderStepsBar)
+    if (typeof isPro === 'function' && isPro()) {
+      var _stpTd = typeof _localDateStr === 'function' ? _localDateStr() : new Date().toISOString().slice(0,10);
+      var _stpLiveAG = null; try { _stpLiveAG = JSON.parse(localStorage.getItem('fb_dr_goals_adaptive')||'null'); } catch(e3) {}
+      if (_stpLiveAG && _stpLiveAG.stp && _stpLiveAG._date === _stpTd) _stpGoalByDate[_stpTd] = _stpLiveAG.stp;
+    }
     var _stpDefaultGoal = _loadDRGoals().stp;
     var _stpDays = rows.filter(r=>r.steps!=null);
     var _stpMet = _stpDays.filter(r => r.steps >= (_stpGoalByDate[r.date] || _stpDefaultGoal)).length;
