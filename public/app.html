@@ -11293,6 +11293,7 @@ function _updateBaselineCalibration() {
     }
     cal.lastDate=today;
     localStorage.setItem('fb_baseline_cal', JSON.stringify(cal));
+    if (typeof _supabasePrefsWrite==='function') _supabasePrefsWrite({baseline_cal:cal}).catch(function(){});
     return cal.factor;
   } catch(e) { return 1; }
 }
@@ -11366,6 +11367,16 @@ function _antiSpikeClamp(ag) {
       clamped={stp:clampKey('stp'), cal:clampKey('cal'), act:clampKey('act')};
     }
     localStorage.setItem('fb_today_goal_track', JSON.stringify(Object.assign({date:today}, clamped)));
+    // Sync goal_track a Supabase (throttled 30 min) para que anti-spike clamp
+    // funcione correctamente en dispositivos nuevos desde el primer día.
+    var _gtSyncTs = parseInt(localStorage.getItem('fb_gt_sync_ts')||'0')||0;
+    if (Date.now()-_gtSyncTs > 1800000) {
+      localStorage.setItem('fb_gt_sync_ts', String(Date.now()));
+      var _prevSnap = null; try { _prevSnap = JSON.parse(localStorage.getItem('fb_prev_day_goal')||'null'); } catch(_pse) {}
+      if (typeof _supabasePrefsWrite==='function') {
+        _supabasePrefsWrite({goal_track:{today:Object.assign({date:today},clamped),prev:_prevSnap||undefined}}).catch(function(){});
+      }
+    }
     return clamped;
   } catch(e) { return ag; }
 }
@@ -11954,6 +11965,24 @@ async function _supabasePrefsRead() {
         }
       });
       if (_patchChanged) localStorage.setItem('fb_activity_history', JSON.stringify(_patchAH));
+    }
+
+    // T1: baseline_cal — aplica si Supabase tiene lastDate más reciente
+    if (d.baseline_cal && d.baseline_cal.lastDate) {
+      var _lBC = null; try { _lBC = JSON.parse(localStorage.getItem('fb_baseline_cal')||'null'); } catch(_bce) {}
+      if (!_lBC || d.baseline_cal.lastDate >= (_lBC.lastDate||'')) {
+        localStorage.setItem('fb_baseline_cal', JSON.stringify(d.baseline_cal));
+      }
+    }
+
+    // T1: goal_track — aplica si Supabase tiene today.date más reciente
+    if (d.goal_track && d.goal_track.today && d.goal_track.today.date) {
+      var _lGT = null; try { _lGT = JSON.parse(localStorage.getItem('fb_today_goal_track')||'null'); } catch(_gte) {}
+      var _lGTDate = _lGT && _lGT.date ? _lGT.date : '';
+      if (d.goal_track.today.date >= _lGTDate) {
+        localStorage.setItem('fb_today_goal_track', JSON.stringify(d.goal_track.today));
+        if (d.goal_track.prev) localStorage.setItem('fb_prev_day_goal', JSON.stringify(d.goal_track.prev));
+      }
     }
 
     // T1: Steps streak — aplica si Supabase tiene count mayor

@@ -177,6 +177,24 @@ export async function POST(req: NextRequest) {
     update.activity_history = sorted;
   }
 
+  // ── T1: baseline_cal — gana el lastDate más reciente ───────────────────────
+  if (body.baseline_cal && typeof body.baseline_cal === "object") {
+    const inc = body.baseline_cal as { factor?: number; lastDate?: string };
+    const exBC = ((ex as Record<string,unknown> | null)?.baseline_cal) as { factor?: number; lastDate?: string } | null;
+    if (!exBC || (inc.lastDate ?? "") >= (exBC.lastDate ?? "")) {
+      update.baseline_cal = inc;
+    }
+  }
+
+  // ── T1: goal_track — gana el today.date más reciente ────────────────────────
+  if (body.goal_track && typeof body.goal_track === "object") {
+    const inc = body.goal_track as { today?: { date?: string }; prev?: unknown };
+    const exGT = ((ex as Record<string,unknown> | null)?.goal_track) as { today?: { date?: string } } | null;
+    if (!exGT || ((inc.today?.date ?? "") >= (exGT.today?.date ?? ""))) {
+      update.goal_track = inc;
+    }
+  }
+
   // ── T1: Pro status — escrito por checkProStatus() después de validar con Stripe ─
   // Permite que cualquier dispositivo / sesión fresca recupere el estado Pro
   // leyendo Supabase, sin depender de aira_uid ni fb_pro en localStorage.
