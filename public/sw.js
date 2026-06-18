@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'fitbit-air-v148-cycle-sync';
+const CACHE_VERSION = 'fitbit-air-v149-api-no-cache';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -339,7 +339,9 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Same-origin other assets (icons, manifest, etc.) → Cache first, network fallback
+  // API routes must never be served from SW cache — Supabase data must always be fresh.
   if (url.origin === self.location.origin) {
+    if (url.pathname.startsWith('/api/')) return;
     event.respondWith(
       caches.match(request).then((cached) => cached || fetch(request).then((response) => {
         if (response.ok) {

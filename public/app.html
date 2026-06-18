@@ -12045,6 +12045,35 @@ async function _supabasePrefsRead() {
       }
     }
 
+    // Bio migration: si Supabase no tiene bio pero localStorage sí,
+    // sincronizar automáticamente (igual que cycle_data migration).
+    if (!d.bio) {
+      var _migBio = null;
+      try { _migBio = JSON.parse(localStorage.getItem('fb_bio')||'null'); } catch(_mbe){}
+      if (_migBio && typeof _migBio.age === 'number' && _migBio.age > 0) {
+        var _migBioTs = Date.now(); localStorage.setItem('fb_prefs_ts', String(_migBioTs));
+        if (typeof _supabasePrefsWrite === 'function') {
+          _supabasePrefsWrite({
+            bio: _migBio,
+            display_name: localStorage.getItem('fb_display_name') || '',
+            prefs_ts: _migBioTs
+          }).catch(function(){});
+        }
+      }
+    }
+
+    // Racha de apertura de la app: sincronizar desde /api/streak para usuarios Fitbit.
+    // Google users ya la sincronizan dentro de loadRealGoogleData → _loadAppStreakServer().
+    if ((typeof HS === 'undefined' || HS.id !== 'google') && typeof _loadAppStreakServer === 'function') {
+      _loadAppStreakServer().catch(function(){});
+    }
+
+    // Inicializar _bioProfile desde fb_bio (ya actualizado desde Supabase arriba) para que
+    // el primer updateDailyRings() use el perfil correcto Y el recovery score de Supabase
+    // (window._lastRec fue aplicado en el bloque T1 de arriba). Hacerlo aquí — al final de
+    // _supabasePrefsRead() — garantiza que ambos datos estén disponibles antes de calcular.
+    if (typeof _applyBioProfile === 'function') try { _applyBioProfile(); } catch(_bpe) {}
+
   } catch(_re) {}
 }
 
@@ -14789,6 +14818,10 @@ async function loadReal(silentRefresh) {
       // isPro() funcione para PRO_EMAILS y que _supabasePrefsRead() sincronice prefs.
       if (pr.user.email && !localStorage.getItem('fb_email')) {
         localStorage.setItem('fb_email', pr.user.email.toLowerCase());
+        // Segunda lectura (awaited): _supabasePrefsRead() falló al inicio porque fb_email
+        // estaba vacío. Ahora que tenemos el email, bloquear aquí para que bio, recovery
+        // score y adaptive_goals queden aplicados ANTES de que updateScores() corra.
+        if (typeof _supabasePrefsRead === 'function') await _supabasePrefsRead().catch(function(){});
       }
     }
     // Re-verificar estado Pro si aún no está confirmado (sesión fresca, incógnito,
