@@ -13791,7 +13791,7 @@ function _applyBioProfile(p) {
   let fitAge = null;
   const vo2 = window._vo2Max;
   if (vo2 && age) {
-    const refVO2 = sex==='m' ? (58 - 0.33*(age-20)) : (46 - 0.27*(age-20));
+    const refVO2 = sex==='m' ? (48 - 0.40*(age-20)) : (39 - 0.35*(age-20));
     const delta  = vo2 - refVO2; // positivo = mejor que la media
     fitAge = Math.max(15, Math.min(80, Math.round(age - delta * 1.5)));
   }
