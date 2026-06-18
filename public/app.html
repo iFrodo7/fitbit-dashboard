@@ -4375,8 +4375,9 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         <div class="vc" id="temp-card" data-onb="temp">
           <div class="vc-head"><span class="vlbl" id="lbl-temp">// TEMP. CUTÁNEA</span><div style="display:flex;align-items:center;gap:6px;"><span id="temp-trd" style="font-size:11px;color:var(--tpos);font-weight:700;">→</span><button class="onb-q" onclick="showOnb('temp')" aria-label="info">?</button></div></div>
           <div style="display:flex;align-items:baseline;gap:6px;margin-top:4px;">
-            <div class="vval" id="tempv">36.4</div>
-            <span style="font-size:11px;opacity:0.45;letter-spacing:1px;">°C</span>
+            <div class="vval" id="tempv" style="display:none">36.4</div>
+            <div class="vval" id="temp-delta-main">—</div>
+            <span style="font-size:11px;opacity:0.45;letter-spacing:1px;white-space:nowrap;" id="temp-cf-unit">°C</span>
           </div>
           <span class="vunit" id="u-temp">PIEL — NORMAL</span>
           <!-- barra centrada en la base personal de piel (no core 35–38°) -->
@@ -4393,12 +4394,12 @@ body.t-synth::after{content:'';position:fixed;inset:0;
             <div class="cal-box">
               <div class="cal-box-lbl" id="lbl-temp-delta">VARIACIÓN</div>
               <div class="cal-box-val" id="temp-delta-val">—</div>
-              <div class="cal-box-unit">Δ°C BASE</div>
+              <div class="cal-box-unit" id="temp-delta-unit">Δ°C BASE</div>
             </div>
             <div class="cal-box">
               <div class="cal-box-lbl" id="lbl-temp-avg">PROMEDIO 7D</div>
               <div class="cal-box-val" id="temp-avg-val">—</div>
-              <div class="cal-box-unit">°C PIEL</div>
+              <div class="cal-box-unit" id="temp-avg-unit">°C PIEL</div>
             </div>
           </div>
         </div>
@@ -14146,8 +14147,11 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
   const set=(id,v)=>{const el=document.getElementById(id); if(el&&v!=null&&!isNaN(+v))el.textContent=Math.round(+v);};
   const setF=(id,v,d=1)=>{const el=document.getElementById(id); if(el&&v!=null&&!isNaN(+v))el.textContent=(+v).toFixed(d);};
   // Clear HTML demo values — quedan "—" si la API no devuelve datos
-  ['spo2v','hrvv','resp-val','tempv','temp-delta-val','temp-avg-val']
+  ['spo2v','hrvv','resp-val','tempv','temp-delta-main','temp-delta-val','temp-avg-val']
     .forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});
+  { const _cu=document.getElementById('temp-cf-unit'); if(_cu) _cu.textContent='°C'; }
+  { const _du=document.getElementById('temp-delta-unit'); if(_du) _du.textContent='Δ°C BASE'; }
+  { const _au=document.getElementById('temp-avg-unit'); if(_au) _au.textContent='°C PIEL'; }
   try {
     // daily-* no soportan filtros comparativos; pageSize=1 trae el registro más reciente.
     const [spo2,hrv,br,tempD,vo2D] = await Promise.all([
@@ -14194,14 +14198,23 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
       const delta   = (nightly!=null && base!=null) ? (nightly-base) : null;
       if (nightly!=null) {
         tempNum=nightly;
-        setF('tempv', nightly, 1);
+        setF('tempv', nightly, 1); // guardado para bodyStatus/ticker — no visible en card
       }
       if (delta!=null) {
         const sign=delta>=0?'+':'';
+        const deltaF=delta*9/5; // diferencia → no +32
+        const signF=deltaF>=0?'+':'';
+        // Main card: variación como métrica principal en °C y °F
+        const _dm=document.getElementById('temp-delta-main'); if(_dm) _dm.textContent=sign+delta.toFixed(1);
+        const _cu=document.getElementById('temp-cf-unit'); if(_cu) _cu.textContent='°C / '+signF+deltaF.toFixed(1)+' °F';
+        // Sub-box variación
         const el=document.getElementById('temp-delta-val'); if(el) el.textContent=sign+delta.toFixed(1);
+        const _du=document.getElementById('temp-delta-unit'); if(_du) _du.textContent='Δ°C / '+signF+deltaF.toFixed(1)+' Δ°F';
       }
       if (base!=null) {
+        const baseF=base*9/5+32;
         const el=document.getElementById('temp-avg-val'); if(el) el.textContent=base.toFixed(1);
+        const _au=document.getElementById('temp-avg-unit'); if(_au) _au.textContent='°C / '+baseF.toFixed(1)+' °F';
       }
       // Flecha de tendencia y etiqueta de estado — umbral dinámico según la
       // variabilidad noche a noche propia del usuario, no un valor fijo igual para todos.
