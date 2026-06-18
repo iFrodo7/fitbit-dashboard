@@ -11939,12 +11939,22 @@ async function _supabasePrefsRead() {
       if (d.lang && d.lang !== lang) setLang(d.lang, true);
       if (d.theme && d.theme !== theme) selectTheme(d.theme, true);
       localStorage.setItem('fb_prefs_ts', String(d.prefs_ts));
-      // Siempre re-renderizar el chip de ciclo con datos autoritativos de Supabase.
-      // Con startup Supabase-first, esto ocurre mientras el skeleton está visible,
-      // garantizando que el usuario nunca vea datos obsoletos.
-      if (typeof renderCycleHomeChip === 'function') {
-        try { renderCycleHomeChip(); } catch(_rce) {}
+    }
+    // Ciclo: sincronización independiente del prefs_ts general.
+    // Si Supabase tiene cycle_on=true y local no, aplicar siempre (el usuario
+    // lo activó en otro dispositivo). Solo se respeta el apagado local si
+    // fb_prefs_ts local es más nuevo que el de Supabase (el usuario lo apagó aquí).
+    if (d.cycle_on === true && localStorage.getItem('fb_cycle_on') !== '1') {
+      var _lCycTs = parseInt(localStorage.getItem('fb_prefs_ts') || '0') || 0;
+      if (!d.prefs_ts || d.prefs_ts >= _lCycTs) {
+        localStorage.setItem('fb_cycle_on', '1');
+        if (d.cycle_data && d.cycle_data.meta) localStorage.setItem('fb_cycle', JSON.stringify(d.cycle_data.meta));
+        if (d.cycle_data && d.cycle_data.log)  localStorage.setItem('fb_cyc_log', JSON.stringify(d.cycle_data.log));
       }
+    }
+    // Re-renderizar chip de ciclo con datos autoritativos de Supabase.
+    if (typeof renderCycleHomeChip === 'function') {
+      try { renderCycleHomeChip(); } catch(_rce) {}
     }
 
     // T2: Achievements — unión (nunca se pierde un logro)
