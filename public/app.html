@@ -9607,9 +9607,18 @@ async function loadWeekDataGoogle() {
       var _pNew  = 0;
       var _pdNew = '';
 
-      if (_pd === _t7) {
-        // Already updated this session — read stored value, don't re-save
+      if (_pd === _t7 && _wkStr7 >= _pc) {
+        // Already updated this session and window confirms value — don't re-save
         _pNew = _pc; _pdNew = _pd;
+      } else if (_pd === _t7) {
+        // Cached today but window detects a streak break not yet reflected — reset
+        _pNew  = _wkStr7;
+        _pdNew = _tmMet ? _t7 : _y7;
+        var _brkObj = {count:_pNew, lastDate:_pdNew, goal:_pNew>0?_strGoal7:0,
+                       prevCount:_pc, prevLastDate:_pd};
+        localStorage.setItem('fb_streak_steps', JSON.stringify(_brkObj));
+        window._wkPrevStreakCount   = _pc;
+        window._wkPrevStreakEndDate = _pd;
       } else {
         // gap: days between stored lastDate and today. 999 = no stored date (first run).
         var _gap = _pd ? Math.round((new Date(_t7) - new Date(_pd)) / 86400000) : 999;
@@ -11317,7 +11326,13 @@ function _goalMetForDate(dateStr, stepsVal, fallbackGoal) {
   try {
     var hist = JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
     var day = hist.find(function(e){ return e.date===dateStr; });
-    if (day && day.goalMet!=null) return !!day.goalMet;
+    if (day) {
+      // Recompute from goalUsed when available so streak stays consistent with the
+      // displayed percentage (avoids split-brain: display shows X but streak reads
+      // a stale goalMet:true that was written before goalUsed was corrected).
+      if (day.goalUsed != null) return (day.steps||0) >= day.goalUsed;
+      if (day.goalMet != null) return !!day.goalMet;
+    }
   } catch(e) {}
   return (stepsVal||0) >= fallbackGoal;
 }
