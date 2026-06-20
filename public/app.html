@@ -11362,7 +11362,8 @@ function _getActivityBaseline() {
     hist.forEach(function(e){
       if(e.steps>100){stpS+=e.steps;stpN++;}
       if(e.cal>10){calS+=e.cal;calN++;}
-      if(e.actMin>0){actS+=e.actMin;actN++;}
+      // vigMin = solo Cardio+Peak (sin Fat Burn) — refleja la meta del ring ACT
+      if((e.vigMin||0)>0){actS+=e.vigMin;actN++;}
     });
     var factor=_updateBaselineCalibration();
     return {
@@ -12742,11 +12743,13 @@ function updateDailyRings() {
     }
   }
   if(!window._drPrevRaw) window._drPrevRaw={};
-  var rawPcts={stp:steps>0?steps/ag.stp*100:0, cal:cal>0?cal/ag.cal*100:0, act:actMin>0?actMin/ag.act*100:0};
+  // Ring ACT: solo Cardio+Peak (vigMin). Fat Burn no cuenta — caminatas largas
+  // inflarían el ring sin que sea ejercicio real.
+  var rawPcts={stp:steps>0?steps/ag.stp*100:0, cal:cal>0?cal/ag.cal*100:0, act:vigMin>0?vigMin/ag.act*100:0};
   var data=[
     {id:'dr-stp',pct:Math.min(100,rawPcts.stp),rawPct:rawPcts.stp,  val:steps>0?(steps/1000).toFixed(1)+'k':'-',  unit:'', goalKey:'stp', goalVal:ag.stp},
     {id:'dr-cal',pct:Math.min(100,rawPcts.cal),rawPct:rawPcts.cal,  val:cal>0?cal.toLocaleString():'-',            unit:'kcal',goalKey:'cal',goalVal:ag.cal},
-    {id:'dr-act',pct:Math.min(100,rawPcts.act),rawPct:rawPcts.act,  val:actMin>0?Math.round(actMin)+'':'-',       unit:'min', goalKey:'act',goalVal:ag.act}
+    {id:'dr-act',pct:Math.min(100,rawPcts.act),rawPct:rawPcts.act,  val:vigMin>0?Math.round(vigMin)+'':'-',       unit:'min', goalKey:'act',goalVal:ag.act}
   ];
   data.forEach(function(d){
     var offset=(C*(1-d.pct/100)).toFixed(1);
@@ -12845,11 +12848,11 @@ function updateDailyRings() {
   var allHit = data.every(function(d){ return d.pct >= 100; });
   var anyHit = data.some(function(d){ return d.pct >= 100; });
   if (anyHit && isReal) recordGoalHit(allHit);
-  // raw (uncapped) percentages for 150% check
+  // raw (uncapped) percentages for 150% check — act usa vigMin, igual que el ring
   var rawPcts = {
     stp: steps/goals.stp*100,
     cal: cal/goals.cal*100,
-    act: actMin/goals.act*100
+    act: vigMin/goals.act*100
   };
   if (isReal) _updateDailyActivityStats(steps, rawPcts, anyHit);
   if (isReal) checkAchievements();
