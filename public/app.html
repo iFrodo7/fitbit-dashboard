@@ -11989,14 +11989,15 @@ async function _supabasePrefsRead() {
 
     // Parchar fb_activity_history con goalUsed histórico desde Supabase.
     // adaptive_goals._history = { "2026-06-17": 10141, "2026-06-16": 9470, ... }
-    // Cubre el caso de dispositivo nuevo / PWA vacía: el backfill asigna _bioInformedDefaults()
-    // para goalUsed; este bloque lo reemplaza con la meta real que tuvo ese día en otro dispositivo.
+    // Cubre SOLO el caso de dispositivo nuevo / PWA vacía: rellena entradas que no
+    // tienen goalUsed. NUNCA sobreescribe un goalUsed ya existente — la meta de un
+    // día pasado es inmutable una vez registrada en el dispositivo que la vivió.
     if (d.adaptive_goals && d.adaptive_goals._history) {
       var _patchAH = []; try { _patchAH = JSON.parse(localStorage.getItem('fb_activity_history') || '[]'); } catch(_pae) {}
       var _patchChanged = false;
       _patchAH.forEach(function(e) {
         var _hGoal = d.adaptive_goals._history[e.date];
-        if (_hGoal && e.goalUsed !== _hGoal) {
+        if (_hGoal && !e.goalUsed) {
           e.goalUsed = _hGoal;
           e.goalMet  = (e.steps || 0) >= _hGoal;
           _patchChanged = true;
