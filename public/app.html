@@ -11934,24 +11934,32 @@ async function _supabasePrefsRead() {
       localStorage.setItem('fb_dr_goals_ts', String(d.goals_ts));
     }
 
-    // T1: Adaptive goals (Pro) — aplica si Supabase es más reciente
+    // T1: Adaptive goals (Pro) — aplica si Supabase es más reciente.
+    // Regla "primer dispositivo del día gana": si local ya tiene _final:true+_q:1 para HOY,
+    // NO aplicar el de Supabase aunque tenga ts más alto. Evita que un segundo dispositivo
+    // (con historial o recovery score distintos) sobreescriba la meta durante el día.
     if (d.adaptive_goals && d.adaptive_goals_ts) {
       var _lATs = parseInt(localStorage.getItem('fb_dr_goals_adaptive_ts') || '0') || 0;
+      var _lAgNow = null; try { _lAgNow = JSON.parse(localStorage.getItem('fb_dr_goals_adaptive')||'null'); } catch(_e4) {}
+      var _todayAg = typeof _localDateStr==='function' ? _localDateStr() : new Date().toISOString().slice(0,10);
+      var _localHasFinalToday = _lAgNow && _lAgNow._final && _lAgNow._q===1 && _lAgNow._date===_todayAg;
       if (!d.adaptive_goals._final && d.adaptive_goals_ts > _lATs) {
         // Formato viejo en Supabase (sin _final:true) Y es más reciente que el local:
         // limpiar la fecha de sync para que updateDailyRings recalcule y escriba _final:true.
         // Si el local es más nuevo (ya tiene _final:true correcto), ignorar el dato viejo.
-        localStorage.removeItem('fb_dr_goals_adaptive_date');
+        if (!_localHasFinalToday) localStorage.removeItem('fb_dr_goals_adaptive_date');
       } else if (d.adaptive_goals._final && d.adaptive_goals_ts > _lATs) {
-        // Formato nuevo con _final: aplicar directamente (multiplicador ya incluido)
-        localStorage.setItem('fb_dr_goals_adaptive', JSON.stringify(d.adaptive_goals));
-        localStorage.setItem('fb_dr_goals_adaptive_ts', String(d.adaptive_goals_ts));
+        // Formato nuevo con _final: solo aplicar si el local NO tiene ya un _final de hoy.
+        // Un segundo dispositivo que calcula diferente no debe pisar la meta del día ya fijada.
+        if (!_localHasFinalToday) {
+          localStorage.setItem('fb_dr_goals_adaptive', JSON.stringify(d.adaptive_goals));
+          localStorage.setItem('fb_dr_goals_adaptive_ts', String(d.adaptive_goals_ts));
+        }
       } else if (!d.adaptive_goals._final && _lATs > 0) {
         // Supabase tiene formato viejo pero el local es más nuevo con _final:true.
         // Subir el valor local correcto a Supabase para que otros dispositivos lo usen.
-        var _lAB = JSON.parse(localStorage.getItem('fb_dr_goals_adaptive') || 'null');
-        if (_lAB && _lAB._final && typeof _supabasePrefsWrite === 'function') {
-          _supabasePrefsWrite({ adaptive_goals: _lAB, adaptive_goals_ts: _lATs }).catch(function(){});
+        if (_lAgNow && _lAgNow._final && typeof _supabasePrefsWrite === 'function') {
+          _supabasePrefsWrite({ adaptive_goals: _lAgNow, adaptive_goals_ts: _lATs }).catch(function(){});
         }
       }
     }

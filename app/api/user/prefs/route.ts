@@ -48,12 +48,21 @@ export async function POST(req: NextRequest) {
     update.goals_ts = inGoalsTs;
   }
 
-  // ── T1: Adaptive goals (Pro) — gana el timestamp más alto ──────────────────
+  // ── T1: Adaptive goals (Pro) — primer dispositivo del día gana ─────────────
+  // Si Supabase ya tiene _final:true+_q:1 para el mismo _date que viene en el body,
+  // NO sobreescribir: un segundo dispositivo (distinto historial / recovery score)
+  // no debe cambiar la meta una vez fijada. Solo se actualiza si la fecha cambia
+  // (nuevo día) o si el existente no era una meta final de calidad.
   const inAdaptTs = Number(body.adaptive_goals_ts) || 0;
   const exAdaptTs = Number((ex as Record<string,unknown> | null)?.adaptive_goals_ts) || 0;
   if (body.adaptive_goals && inAdaptTs > exAdaptTs) {
-    update.adaptive_goals    = body.adaptive_goals;
-    update.adaptive_goals_ts = inAdaptTs;
+    const inAG  = body.adaptive_goals as Record<string, unknown>;
+    const exAG  = ((ex as Record<string,unknown> | null)?.adaptive_goals) as Record<string, unknown> | null;
+    const exIsFinalToday = exAG?._final && exAG?._q === 1 && exAG?._date === inAG._date;
+    if (!exIsFinalToday) {
+      update.adaptive_goals    = body.adaptive_goals;
+      update.adaptive_goals_ts = inAdaptTs;
+    }
   }
 
   // ── T1: Recovery score — gana el timestamp más alto ────────────────────────
