@@ -9892,16 +9892,19 @@ async function _backfillActivityHistory() {
     });
     var seeded=existing.slice();
     var existingDates={}; seeded.forEach(function(e){ existingDates[e.date]=true; });
-    var defGoal=_bioInformedDefaults();
     for (var i=0;i<7;i++) {
       var dt=new Date(); dt.setDate(dt.getDate()-(6-i));
       var ds=_localDateStr(dt);
       if (existingDates[ds]) continue; // no pisar un día que AIRA ya registró por su cuenta
       var stp=stMap[ds]||0, cal=calMap[ds]||0, az=azMap[ds]||{actMin:0,vigMin:0};
       if (!stp && !cal && !az.actMin) continue; // sin dato real ese día, no inventar una entrada en cero
+      // NO sembrar goalUsed: es un placeholder (defGoal) que NO es la meta real que tuvo
+      // ese día. Dejarlo ausente permite que el merge adopte el goalUsed autoritativo de
+      // Supabase (el dispositivo que vivió ese día). _goalMetForDate cae a la meta actual
+      // mientras tanto. Sembrar defGoal aquí congelaría un valor falso en el dispositivo nuevo.
       seeded.push({
         date:ds, dow:dt.getDay(), steps:stp, cal:cal, actMin:az.actMin, vigMin:az.vigMin,
-        goalMet: stp>=defGoal.stp, goalUsed: defGoal.stp, readiness:0, phase:null
+        readiness:0, phase:null
       });
     }
     seeded.sort(function(a,b){ return a.date<b.date?-1:1; });
@@ -11267,7 +11270,9 @@ function _recordActivityDay(steps, cal, actMin, vigMin, goalMet, readiness, phas
     var _ahSyncTs = parseInt(localStorage.getItem('fb_ah_sync_ts')||'0')||0;
     if (!existing || Date.now()-_ahSyncTs > 600000) {
       localStorage.setItem('fb_ah_sync_ts', String(Date.now()));
-      if (typeof _supabasePrefsWrite==='function') _supabasePrefsWrite({activity_history:hist}).catch(function(){});
+      // ah_today: fecha local del cliente — el servidor la usa para saber qué día
+      // es "hoy" (editable) vs días pasados (goalUsed congelado/inmutable).
+      if (typeof _supabasePrefsWrite==='function') _supabasePrefsWrite({activity_history:hist, ah_today:today}).catch(function(){});
     }
   } catch(e){}
 }
@@ -11964,47 +11969,42 @@ async function _supabasePrefsRead() {
       }
     }
 
-    // T2: Activity history — merge Supabase → local.
-    // Garantiza que el baseline adaptativo use historial real aunque el dispositivo sea nuevo.
-    // Se aplica ANTES del patch de goalUsed para que todas las entradas ya estén presentes.
+    // T2: Activity history — merge Supabase → local. activity_history es la ÚNICA
+    // fuente de verdad del goalUsed por día. Reglas (mismas que el servidor):
+    //  · steps/cal/actMin/vigMin → máximo (dato más completo del día)
+    //  · goalUsed de un día PASADO → inmutable: si ya existe local, se conserva;
+    //    si falta (entrada de backfill sin goal), se adopta el de Supabase.
+    //  · goalUsed de HOY → se acepta el de Supabase (refleja el dispositivo autoritativo).
+    //  · goalMet → recalculado contra el goalUsed final y los pasos mergeados.
     if (d.activity_history && Array.isArray(d.activity_history) && d.activity_history.length) {
       var _lahR = []; try { _lahR = JSON.parse(localStorage.getItem('fb_activity_history')||'[]'); } catch(_lahe) {}
+      var _ahToday = typeof _localDateStr==='function' ? _localDateStr() : new Date().toISOString().slice(0,10);
       var _ahMap = {};
       _lahR.forEach(function(e){ if(e.date) _ahMap[e.date] = e; });
       var _ahChanged = false;
       d.activity_history.forEach(function(e) {
         if (!e.date) return;
         var _loc = _ahMap[e.date];
-        // Gana el registro con más pasos (dato más completo del día)
-        if (!_loc || (e.steps||0) >= (_loc.steps||0)) {
-          if (!_loc || JSON.stringify(e) !== JSON.stringify(_loc)) _ahChanged = true;
-          _ahMap[e.date] = e;
-        }
+        if (!_loc) { _ahMap[e.date] = e; _ahChanged = true; return; }
+        var _m = Object.assign({}, _loc);
+        _m.steps  = Math.max(_loc.steps||0,  e.steps||0);
+        _m.cal    = Math.max(_loc.cal||0,    e.cal||0);
+        _m.actMin = Math.max(_loc.actMin||0, e.actMin||0);
+        _m.vigMin = Math.max(_loc.vigMin||0, e.vigMin||0);
+        if (e.readiness!=null) _m.readiness = e.readiness;
+        if (e.phase!=null)     _m.phase     = e.phase;
+        if (e.dow!=null)       _m.dow       = e.dow;
+        var _isToday = e.date === _ahToday;
+        // Día pasado con goalUsed local → inmutable. Sin goalUsed local (backfill) u hoy → adoptar Supabase.
+        var _frozenGoal = (_loc.goalUsed!=null && !_isToday) ? _loc.goalUsed : e.goalUsed;
+        if (_frozenGoal!=null) { _m.goalUsed = _frozenGoal; _m.goalMet = (_m.steps||0) >= _frozenGoal; }
+        if (JSON.stringify(_m) !== JSON.stringify(_loc)) _ahChanged = true;
+        _ahMap[e.date] = _m;
       });
       if (_ahChanged) {
         var _ahMerged = Object.keys(_ahMap).sort().slice(-30).map(function(k){ return _ahMap[k]; });
         localStorage.setItem('fb_activity_history', JSON.stringify(_ahMerged));
       }
-    }
-
-    // Parchar fb_activity_history con goalUsed histórico desde Supabase.
-    // adaptive_goals._history = { "2026-06-17": 10141, "2026-06-16": 9470, ... }
-    // El servidor garantiza que _history solo contiene valores autoritativos
-    // (first-write-wins por fecha + seed del _date aceptado). Por tanto, cualquier
-    // diferencia entre el local y el _history de Supabase se corrige aquí — eso
-    // asegura que todos los dispositivos muestren el mismo goalUsed para cada día.
-    if (d.adaptive_goals && d.adaptive_goals._history) {
-      var _patchAH = []; try { _patchAH = JSON.parse(localStorage.getItem('fb_activity_history') || '[]'); } catch(_pae) {}
-      var _patchChanged = false;
-      _patchAH.forEach(function(e) {
-        var _hGoal = d.adaptive_goals._history[e.date];
-        if (_hGoal && e.goalUsed !== _hGoal) {
-          e.goalUsed = _hGoal;
-          e.goalMet  = (e.steps || 0) >= _hGoal;
-          _patchChanged = true;
-        }
-      });
-      if (_patchChanged) localStorage.setItem('fb_activity_history', JSON.stringify(_patchAH));
     }
 
     // T1: baseline_cal — aplica si Supabase tiene lastDate más reciente
@@ -12199,26 +12199,6 @@ async function _supabasePrefsRead() {
       )) {
         // Solo quitar fb_pro si no es cuenta beta — PRO_EMAILS siempre tiene acceso
         localStorage.removeItem('fb_pro');
-      }
-    }
-
-    // Fallback: adaptive_goals._history — escribe el historial a Supabase si el local
-    // tiene _final:true pero le falta _history (p.ej. code deploy con la sesión ya abierta,
-    // o tab en estado desconectado donde updateDailyRings() no corrió).
-    if (typeof isPro === 'function' && isPro()) {
-      var _agFb = null; try { _agFb = JSON.parse(localStorage.getItem('fb_dr_goals_adaptive')||'null'); } catch(_age3){}
-      if (_agFb && _agFb._final && !_agFb._history) {
-        var _ahFb = []; try { _ahFb = JSON.parse(localStorage.getItem('fb_activity_history')||'[]'); } catch(_ahe3){}
-        var _todayFb = typeof _localDateStr==='function' ? _localDateStr()
-          : (function(){var _d=new Date();return _d.getFullYear()+'-'+String(_d.getMonth()+1).padStart(2,'0')+'-'+String(_d.getDate()).padStart(2,'0')})();
-        var _histFb = {};
-        _ahFb.slice(-14).forEach(function(e){ if(e.date&&e.goalUsed&&e.date!==_todayFb) _histFb[e.date]=e.goalUsed; });
-        if (Object.keys(_histFb).length > 0) {
-          _agFb._history = _histFb;
-          localStorage.setItem('fb_dr_goals_adaptive', JSON.stringify(_agFb));
-          var _agFbTs = Date.now(); localStorage.setItem('fb_dr_goals_adaptive_ts', String(_agFbTs));
-          if (typeof _supabasePrefsWrite==='function') _supabasePrefsWrite({adaptive_goals:_agFb,adaptive_goals_ts:_agFbTs}).catch(function(){});
-        }
       }
     }
 
@@ -12636,7 +12616,6 @@ function updateDailyRings() {
       var _aDay=_localDateStr();
       var _curLocalAG=null; try{_curLocalAG=JSON.parse(localStorage.getItem('fb_dr_goals_adaptive')||'null');}catch(_age2){}
       var _needAgWrite = localStorage.getItem('fb_dr_goals_adaptive_date')!==_aDay
-                      || !(_curLocalAG&&_curLocalAG._history) // re-escribir si falta _history
                       || !(_curLocalAG&&_curLocalAG._q);     // re-escribir si falta bandera de calidad
       if (_needAgWrite) {
         // Solo cachear si hay historial real (≥1 día con pasos reales).
@@ -12646,12 +12625,9 @@ function updateDailyRings() {
         var _hasRealHist=_ahSnap.some(function(e){return(e.steps||0)>100;});
         if (_hasRealHist) {
           localStorage.setItem('fb_dr_goals_adaptive_date', _aDay);
+          // Solo la meta del día (stp/cal/act). El goalUsed de días pasados NO viaja aquí —
+          // su fuente de verdad es activity_history (congelado por día en el servidor).
           var _agSync={stp:ag.stp,cal:ag.cal,act:ag.act,_final:true,_date:_aDay,_q:1};
-          // Incluir historial de metas por fecha (últimos 14 días) para que otros
-          // dispositivos puedan parchear su fb_activity_history con goalUsed correcto.
-          var _agHist={};
-          _ahSnap.slice(-14).forEach(function(e){ if(e.date&&e.goalUsed&&e.date!==_aDay) _agHist[e.date]=e.goalUsed; });
-          if(Object.keys(_agHist).length>0) _agSync._history=_agHist;
           localStorage.setItem('fb_dr_goals_adaptive', JSON.stringify(_agSync));
           var _aTs=Date.now(); localStorage.setItem('fb_dr_goals_adaptive_ts', String(_aTs));
           if (typeof _supabasePrefsWrite==='function') _supabasePrefsWrite({adaptive_goals:_agSync,adaptive_goals_ts:_aTs}).catch(function(){});

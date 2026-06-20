@@ -49,39 +49,20 @@ export async function POST(req: NextRequest) {
   }
 
   // ── T1: Adaptive goals (Pro) — primer dispositivo del día gana ─────────────
-  // stp/cal/act: si Supabase ya tiene _final:true+_q:1 para el mismo _date, NO
-  // sobreescribir — el primer dispositivo que calcula el día es autoritativo.
-  //
-  // _history: se mergea por fecha con "existing wins", MÁS un seed obligatorio del
-  // exAG._date actual. Esto garantiza que el goalUsed del día anterior (que ya fue
-  // aceptado por el servidor vía first-write-wins) quede en _history con el valor
-  // correcto, incluso si un segundo dispositivo intentó escribir un valor diferente.
-  // Efecto: cualquier cliente que lea _history recibirá el valor autoritativo y podrá
-  // corregir su historial local para que todos los dispositivos muestren el mismo goalUsed.
+  // Si Supabase ya tiene _final:true+_q:1 para el mismo _date que viene en el body,
+  // NO sobreescribir: el primer dispositivo que calcula el día es autoritativo y su
+  // meta no cambia el resto del día. Solo se acepta si la fecha cambia (nuevo día) o
+  // si el existente no era una meta final de calidad.
+  // El goalUsed de días pasados NO vive aquí — su fuente de verdad es activity_history.
   const inAdaptTs = Number(body.adaptive_goals_ts) || 0;
   const exAdaptTs = Number((ex as Record<string,unknown> | null)?.adaptive_goals_ts) || 0;
-  if (body.adaptive_goals) {
+  if (body.adaptive_goals && inAdaptTs > exAdaptTs) {
     const inAG = body.adaptive_goals as Record<string, unknown>;
     const exAG = ((ex as Record<string,unknown> | null)?.adaptive_goals) as Record<string, unknown> | null;
-
-    // Merge _history por fecha: existing wins sobre incoming
-    const exHistory = (exAG?._history as Record<string,number> | null) ?? {};
-    const inHistory = (inAG._history as Record<string,number> | null) ?? {};
-    const mergedHistory: Record<string,number> = { ...inHistory, ...exHistory };
-    // Seed autoritativo: el _date/stp del exAG ya aceptado siempre gana en _history
-    if (exAG?._final && exAG._q === 1 && exAG._date && exAG.stp) {
-      mergedHistory[exAG._date as string] = exAG.stp as number;
-    }
-    const histPayload = Object.keys(mergedHistory).length ? mergedHistory : undefined;
-
     const exIsFinalToday = exAG?._final && exAG?._q === 1 && exAG?._date === inAG._date;
-    if (inAdaptTs > exAdaptTs && !exIsFinalToday) {
-      // Nuevo día o sin meta de calidad: acepta el goal entrante, con _history mergeado
-      update.adaptive_goals    = { ...inAG, _history: histPayload };
+    if (!exIsFinalToday) {
+      update.adaptive_goals    = body.adaptive_goals;
       update.adaptive_goals_ts = inAdaptTs;
-    } else if (exAG && JSON.stringify(exHistory) !== JSON.stringify(mergedHistory)) {
-      // Mismo día (no sobrescribir stp/cal/act) pero _history mejoró: actualizar solo _history
-      update.adaptive_goals = { ...exAG, _history: histPayload };
     }
   }
 
@@ -229,19 +210,38 @@ export async function POST(req: NextRequest) {
     update.nebula_days = merged;
   }
 
-  // ── T2: Activity history — unión por fecha, gana el registro con más pasos ──
-  // Permite que dispositivos nuevos arranquen con historial real en lugar de
-  // defaults biométricos, evitando semanas de calibración desde cero.
+  // ── T2: Activity history — unión por fecha. FUENTE DE VERDAD del goalUsed ────
+  // Reglas de merge por campo:
+  //  · steps/cal/actMin/vigMin → máximo (un sync tardío puede traer datos más completos)
+  //  · goalUsed de un día PASADO → inmutable (first-write-wins): una vez registrado,
+  //    ningún dispositivo lo cambia. La meta de un día vivido es un hecho histórico.
+  //  · goalUsed de HOY (body.ah_today, fecha local del cliente) → sí puede actualizarse.
+  //  · goalMet → siempre se recalcula contra el goalUsed final y los pasos mergeados.
+  // Si ah_today no viene (cliente viejo), se congelan todos los días por seguridad.
   if (Array.isArray(body.activity_history) && (body.activity_history as unknown[]).length) {
     const exAH = ((ex as Record<string,unknown> | null)?.activity_history as Array<Record<string,unknown>> | null) ?? [];
+    const ahToday = String(body.ah_today ?? "");
     const byDate = new Map(exAH.map(e => [String(e.date ?? ""), e]));
     for (const entry of body.activity_history as Array<Record<string,unknown>>) {
       const d = String(entry.date ?? "");
       if (!d) continue;
       const existing = byDate.get(d);
-      if (!existing || (Number(entry.steps) || 0) >= (Number(existing.steps) || 0)) {
-        byDate.set(d, entry);
+      if (!existing) { byDate.set(d, entry); continue; }
+      const merged: Record<string, unknown> = { ...existing };
+      for (const k of ["steps", "cal", "actMin", "vigMin"]) {
+        merged[k] = Math.max(Number(existing[k]) || 0, Number(entry[k]) || 0);
       }
+      if (entry.readiness != null) merged.readiness = entry.readiness;
+      if (entry.phase != null)     merged.phase     = entry.phase;
+      if (entry.dow != null)       merged.dow       = entry.dow;
+      // goalUsed: congelado para días pasados; hoy puede actualizarse al valor entrante.
+      const isToday = !!ahToday && d === ahToday;
+      const frozenGoal = (existing.goalUsed != null && !isToday) ? existing.goalUsed : entry.goalUsed;
+      if (frozenGoal != null) {
+        merged.goalUsed = frozenGoal;
+        merged.goalMet  = (Number(merged.steps) || 0) >= Number(frozenGoal);
+      }
+      byDate.set(d, merged);
     }
     const sorted = Array.from(byDate.values())
       .sort((a, b) => String(a.date) < String(b.date) ? -1 : 1)
