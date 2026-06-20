@@ -9321,7 +9321,9 @@ function wkBarSel(idx) {
 
   // ── Sub-metrics ──
   var daySufx = isToday ? (es ? ' HOY' : ' TODAY') : '';
-  var distKm  = d.dist != null ? d.dist : (steps * 0.00074);
+  var distKm  = (d.dist > 0) ? d.dist
+              : (_wkActDay && _wkActDay.dist > 0) ? _wkActDay.dist
+              : (steps * 0.00074);
 
   var e; // reuse variable
   e = document.getElementById('steps-dist-val');   if(e) e.textContent = steps ? distKm.toFixed(1) : '—';
@@ -9537,8 +9539,8 @@ async function loadWeekDataGoogle() {
     };
     var stMap   = _byDate(stW,   function(rp) { return parseInt(rp.steps?.countSum ?? rp.steps?.count_sum ?? rp.steps?.count ?? 0) || 0; });
     var distMap = _byDate(distW, function(rp) {
-      var m = parseFloat(rp.distance?.metersSum ?? rp.distance?.meters ?? rp.distance?.value ?? 0) || 0;
-      return m / 1000; // → km
+      var m = parseFloat(rp.distance?.metersSum ?? rp.distance?.meters ?? rp.distance?.value ?? rp.distance?.sum ?? 0) || 0;
+      return m > 0 ? m / 1000 : null; // null = no real data; triggers step-estimate fallback
     });
     var flrMap  = _byDate(flrW,  function(rp) { return parseInt(rp.floors?.countSum ?? rp.floors?.count ?? rp.floors?.value ?? 0) || 0; });
 
@@ -9551,12 +9553,25 @@ async function loadWeekDataGoogle() {
       return {
         date:    ds,
         steps:   stp,
-        dist:    distMap[ds] != null ? distMap[ds] : (stp * 0.00074),
+        dist:    distMap[ds] != null ? distMap[ds] : (stp > 0 ? stp * 0.00074 : null),
         floors:  flrMap[ds] || null,
         active:  null,                    // AZM per-day needs an extra call; skip for now
         hasData: stMap[ds] !== undefined, // FIX #6: true = API returned an entry; false = no source recorded data
       };
     });
+
+    // Persist real dist from Google Health into fb_activity_history for past days.
+    // Today's dist is handled by _recordActivityDay; past days have no other persistence path.
+    try {
+      var _ahD = JSON.parse(localStorage.getItem('fb_activity_history')||'[]');
+      var _ahDC = false;
+      days.forEach(function(day) {
+        if (!day.date || !distMap[day.date]) return; // skip today (or entries with no real dist)
+        var _e = _ahD.find(function(e){ return e.date === day.date; });
+        if (_e && _e.dist !== distMap[day.date]) { _e.dist = distMap[day.date]; _ahDC = true; }
+      });
+      if (_ahDC) localStorage.setItem('fb_activity_history', JSON.stringify(_ahD));
+    } catch(_de) {}
 
     // ── FIX #2: patch days[6] (today) from snap BEFORE streak calculation ──────
     // snap.steps comes from the primary activities endpoint (near real-time).
@@ -11281,9 +11296,12 @@ function _recordActivityDay(steps, cal, actMin, vigMin, goalMet, readiness, phas
     var existing=hist.find(function(e){return e.date===today;});
     var effectiveGoal=Math.max(goalUsed||0, existing&&existing.goalUsed||0);
     hist=hist.filter(function(e){return e.date!==today;});
+    var _distEl=document.getElementById('steps-dist-val');
+    var _distKm=_distEl&&_distEl.textContent&&_distEl.textContent!=='—'?parseFloat(_distEl.textContent)||0:0;
     hist.push({
       date:today, dow:new Date().getDay(),
       steps:steps||0, cal:cal||0, actMin:actMin||0, vigMin:vigMin||0,
+      dist: _distKm>0 ? _distKm : (existing&&existing.dist>0 ? existing.dist : undefined),
       goalMet: effectiveGoal>0 ? (steps||0)>=effectiveGoal : !!goalMet,
       goalUsed: effectiveGoal||undefined,
       readiness:readiness||0, phase:phase||null
