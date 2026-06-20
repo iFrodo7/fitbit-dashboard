@@ -90,15 +90,26 @@ export async function POST(req: NextRequest) {
     update.aira_uid = body.aira_uid;
   }
 
-  // ── T2: Prefs timestamp — gana el más reciente ──────────────────────────────
-  const inPrefsTs = Number(body.prefs_ts) || 0;
-  const exPrefsTs = Number((ex as Record<string,unknown> | null)?.prefs_ts) || 0;
-  if (inPrefsTs > exPrefsTs) {
-    update.prefs_ts = inPrefsTs;
-    const prefsFields = ["display_name", "lang", "theme", "notif_pref",
-                         "avatar_frame", "cycle_on"] as const;
-    for (const f of prefsFields) {
-      if (body[f] !== undefined) update[f] = body[f];
+  // ── T2: Prefs por campo — cada uno con su propio timestamp (prefs_meta) ───────
+  // Antes un único prefs_ts gobernaba todo el bundle: cambiar un campo en un
+  // dispositivo bloqueaba la sincronización de otro campo aún sin sincronizar en
+  // otro. Ahora prefs_meta = {campo: ts} y cada campo gana por su propio reloj.
+  // Compatibilidad: si llega el viejo prefs_ts sin prefs_meta, se usa como ts de
+  // los campos presentes; si el dato existente solo tiene prefs_ts, igual.
+  const exPrefsMeta = ((ex as Record<string,unknown> | null)?.prefs_meta as Record<string, number> | null) ?? {};
+  const exPrefsTs   = Number((ex as Record<string,unknown> | null)?.prefs_ts) || 0;
+  const inPrefsTs   = Number(body.prefs_ts) || 0;
+  const inPrefsMeta = (body.prefs_meta as Record<string, number> | null) ?? null;
+  const mergedMeta: Record<string, number> = { ...exPrefsMeta };
+  let prefsChanged = false;
+  for (const f of ["display_name", "lang", "theme", "notif_pref", "avatar_frame", "cycle_on"] as const) {
+    if (body[f] === undefined) continue;
+    const inTs = inPrefsMeta?.[f] ?? inPrefsTs;
+    const exTs = exPrefsMeta[f] ?? exPrefsTs;
+    if (inTs > exTs) {
+      update[f] = body[f];
+      mergedMeta[f] = inTs;
+      prefsChanged = true;
     }
   }
 
@@ -117,18 +128,29 @@ export async function POST(req: NextRequest) {
     update.bio_ts = inBioTs || Date.now();
   }
 
-  // ── T2: cycle_data — meta via prefs_ts, log siempre merge por fecha-key ─────
-  // El log es acumulativo: entradas de distintos dispositivos deben unirse,
-  // nunca reemplazarse. Si prefs_ts del entrante es mayor, también actualiza meta.
+  // ── T2: cycle_data — meta por reloj-de-campo (prefs_meta.cycle_data); log merge ─
+  // El log es acumulativo: entradas de distintos dispositivos se unen por fecha-key.
   if (body.cycle_data && typeof body.cycle_data === "object") {
     const incoming = body.cycle_data as { meta?: unknown; log?: Record<string, unknown> | null };
     const exCD = ((ex as Record<string,unknown> | null)?.cycle_data as { meta?: unknown; log?: Record<string, unknown> | null } | null) ?? {};
     const merged: Record<string, unknown> = { ...exCD };
-    if (inPrefsTs > exPrefsTs && incoming.meta !== undefined) merged.meta = incoming.meta;
+    const inTs = inPrefsMeta?.cycle_data ?? inPrefsTs;
+    const exTs = exPrefsMeta.cycle_data ?? exPrefsTs;
+    if (incoming.meta !== undefined && inTs > exTs) {
+      merged.meta = incoming.meta;
+      mergedMeta.cycle_data = inTs;
+      prefsChanged = true;
+    }
     if (incoming.log && typeof incoming.log === "object") {
       merged.log = { ...((exCD.log as Record<string, unknown>) ?? {}), ...incoming.log };
     }
     update.cycle_data = merged;
+  }
+
+  // Finalizar prefs_meta + mantener prefs_ts monotónico (compat con clientes viejos).
+  if (prefsChanged) {
+    update.prefs_meta = mergedMeta;
+    update.prefs_ts   = Math.max(inPrefsTs, exPrefsTs);
   }
 
   // ── T2: Achievements — unión elemento a elemento por tema ───────────────────
@@ -267,11 +289,17 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── T1: Pro status — escrito por checkProStatus() después de validar con Stripe ─
-  // Permite que cualquier dispositivo / sesión fresca recupere el estado Pro
-  // leyendo Supabase, sin depender de aira_uid ni fb_pro en localStorage.
+  // ── T1: Pro status — gana el check más reciente (is_pro_ts) ──────────────────
+  // El cliente solo escribe esto con un uid válido y nunca false para cuentas beta,
+  // así que un check transitorio (uid faltante, 429 de Stripe) ya no puede apagar el
+  // Pro. El timestamp evita además que un false viejo encolado pise un true reciente.
   if (typeof body.is_pro === "boolean") {
-    update.is_pro = body.is_pro;
+    const inProTs = Number(body.is_pro_ts) || 0;
+    const exProTs = Number((ex as Record<string,unknown> | null)?.is_pro_ts) || 0;
+    if (inProTs >= exProTs) {   // >= para que un cliente viejo (sin ts) aún pueda escribir
+      update.is_pro = body.is_pro;
+      if (inProTs) update.is_pro_ts = inProTs;
+    }
   }
 
   // ── T2: Boolean OR — una vez true, siempre true ──────────────────────────────
@@ -279,9 +307,19 @@ export async function POST(req: NextRequest) {
   if (body.welcomed  === true) update.welcomed  = true;
 
   // ── Upsert con merge aplicado ────────────────────────────────────────────────
-  const { error } = await db
+  // Resiliencia: si las columnas nuevas (is_pro_ts, prefs_meta) aún no existen en
+  // Supabase (migración 011 no aplicada todavía), reintentar sin ellas para no
+  // romper TODO el sync durante la ventana entre el deploy y la migración.
+  let { error } = await db
     .from("app_user_prefs")
     .upsert(update, { onConflict: "email" });
+
+  if (error && /is_pro_ts|prefs_meta/i.test(error.message)) {
+    const safe = { ...update };
+    delete safe.is_pro_ts;
+    delete safe.prefs_meta;
+    ({ error } = await db.from("app_user_prefs").upsert(safe, { onConflict: "email" }));
+  }
 
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });

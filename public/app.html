@@ -8472,24 +8472,40 @@ function getAiraUid() {
   return uid;
 }
 
+// Escribe el estado Pro a Supabase con su propio timestamp (is_pro_ts), para que
+// gane el check más reciente y un false viejo nunca pise un true reciente.
+function _writeProStatus(v) {
+  var _ts = Date.now();
+  localStorage.setItem('fb_pro_ts', String(_ts));
+  if (typeof _supabasePrefsWrite === 'function') {
+    _supabasePrefsWrite({ is_pro: v, is_pro_ts: _ts }).catch(function(){});
+  }
+}
 // Check PRO status from server (validates Stripe subscription is still active)
 async function checkProStatus() {
+  var _email = (localStorage.getItem('fb_email') || '').toLowerCase();
+  var _isBeta = !!(_email && window.PRO_EMAILS && window.PRO_EMAILS.includes(_email));
   try {
     const uid = getAiraUid();
+    // Sin uid válido NO se puede validar la suscripción → no escribir nada (un
+    // false espurio desde un dispositivo sin uid apagaría el Pro en todos).
+    if (!uid && !_isBeta) return;
+    if (_isBeta) {
+      // Cuenta beta: Pro por email, no por Stripe. Marcar true y nunca false.
+      localStorage.setItem('fb_pro', '1');
+      _writeProStatus(true);
+      return;
+    }
     const res = await fetch('/api/stripe/status?user_id=' + uid);
     const data = await res.json();
     if (data.plan === 'pro' && data.status === 'active') {
       localStorage.setItem('fb_pro', '1');
       // Persist Pro status in Supabase so any device/session lo recupera sin
       // depender de aira_uid ni fb_pro en localStorage.
-      if (typeof _supabasePrefsWrite === 'function') {
-        _supabasePrefsWrite({ is_pro: true }).catch(function(){});
-      }
+      _writeProStatus(true);
     } else {
       localStorage.removeItem('fb_pro');
-      if (typeof _supabasePrefsWrite === 'function') {
-        _supabasePrefsWrite({ is_pro: false }).catch(function(){});
-      }
+      _writeProStatus(false);
     }
   } catch (e) { /* offline — trust localStorage */ }
 }
@@ -11913,11 +11929,15 @@ async function _supabasePrefsRead() {
   var email = localStorage.getItem('fb_email');
   if (!email) return;
 
-  // Flush cola offline antes de leer (evita que Supabase tenga datos viejos)
+  // Vaciar el buffer coalescido en vuelo + la cola offline antes de leer
+  // (evita que Supabase devuelva datos más viejos que escrituras locales pendientes).
+  try { await _prefsFlush(); } catch(_fe) {}
   try {
-    var _q = JSON.parse(localStorage.getItem('fb_sync_queue') || '[]');
-    if (_q.length) {
-      var _qMerged = _q.reduce(function(acc, item) { return Object.assign(acc, item); }, {});
+    var _raw = JSON.parse(localStorage.getItem('fb_sync_queue') || 'null');
+    var _qMerged = Array.isArray(_raw)
+      ? _raw.reduce(function(a,i){ return _prefsMergeInto(a,i); }, {})   // compat: cola vieja en array
+      : (_raw && typeof _raw === 'object' ? _raw : null);
+    if (_qMerged && Object.keys(_qMerged).length) {
       _qMerged.email = email;
       var _qRes = await fetch('/api/user/prefs', { method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -12047,22 +12067,32 @@ async function _supabasePrefsRead() {
       localStorage.setItem('aira_uid', d.aira_uid);
     }
 
-    // T2: Prefs — aplica si Supabase es más reciente
-    var _lPrefsTs = parseInt(localStorage.getItem('fb_prefs_ts') || '0') || 0;
-    if (d.prefs_ts && d.prefs_ts > _lPrefsTs) {
-      if (d.display_name) localStorage.setItem('fb_display_name', d.display_name);
-      if (d.notif_pref !== undefined) localStorage.setItem('fb_notif', d.notif_pref ? '1' : '0');
-      if (d.avatar_frame) localStorage.setItem('fb_avatar_frame', d.avatar_frame);
-      if (d.cycle_on !== undefined) localStorage.setItem('fb_cycle_on', d.cycle_on ? '1' : '0');
-      if (d.cycle_data) {
-        if (d.cycle_data.meta) { localStorage.setItem('fb_cycle', JSON.stringify(d.cycle_data.meta)); }
-        if (d.cycle_data.log)  { localStorage.setItem('fb_cyc_log', JSON.stringify(d.cycle_data.log)); }
-      }
-      // Aplicar lang y theme con _skipSync=true para no rebotar a Supabase
-      if (d.lang && d.lang !== lang) setLang(d.lang, true);
-      if (d.theme && d.theme !== theme) selectTheme(d.theme, true);
-      localStorage.setItem('fb_prefs_ts', String(d.prefs_ts));
-    }
+    // T2: Prefs por campo — cada uno gana por su propio timestamp (prefs_meta).
+    // Antes un único prefs_ts gobernaba todo: aplicar el bundle podía pisar un
+    // cambio local sin sincronizar. Ahora cada campo se compara contra su propio
+    // reloj. Fallback: si Supabase solo trae el viejo prefs_ts (sin prefs_meta),
+    // se usa como ts de todos; si no hay ts local por-campo, se cae a fb_prefs_ts.
+    var _sPM = d.prefs_meta || null;
+    var _sPrefsTs = parseInt(d.prefs_ts || 0) || 0;
+    var _pmApply = function(f, fn){
+      var _st = _sPM && _sPM[f] != null ? (parseInt(_sPM[f]) || 0) : _sPrefsTs;
+      if (!_st) return;
+      var _lt = parseInt(localStorage.getItem('fb_pm_'+f) || '0') || 0;
+      if (!_lt) _lt = parseInt(localStorage.getItem('fb_prefs_ts') || '0') || 0;
+      if (_st <= _lt) return;
+      fn();
+      localStorage.setItem('fb_pm_'+f, String(_st));
+    };
+    _pmApply('display_name', function(){ if (d.display_name) localStorage.setItem('fb_display_name', d.display_name); });
+    _pmApply('notif_pref',   function(){ if (d.notif_pref !== undefined) localStorage.setItem('fb_notif', d.notif_pref ? '1' : '0'); });
+    _pmApply('avatar_frame', function(){ if (d.avatar_frame) localStorage.setItem('fb_avatar_frame', d.avatar_frame); });
+    _pmApply('cycle_on',     function(){ if (d.cycle_on !== undefined) localStorage.setItem('fb_cycle_on', d.cycle_on ? '1' : '0'); });
+    _pmApply('cycle_data',   function(){ if (d.cycle_data && d.cycle_data.meta) localStorage.setItem('fb_cycle', JSON.stringify(d.cycle_data.meta)); });
+    // lang/theme con _skipSync=true para no rebotar a Supabase
+    _pmApply('lang',         function(){ if (d.lang && d.lang !== lang) setLang(d.lang, true); });
+    _pmApply('theme',        function(){ if (d.theme && d.theme !== theme) selectTheme(d.theme, true); });
+    // Mantener fb_prefs_ts al máximo para compat con código viejo que aún lo lea.
+    if (_sPrefsTs) { var _lp = parseInt(localStorage.getItem('fb_prefs_ts')||'0')||0; if (_sPrefsTs > _lp) localStorage.setItem('fb_prefs_ts', String(_sPrefsTs)); }
     // Bio: timestamp independiente (bio_ts) para no competir con tema/idioma.
     // Cualquier cambio de tema/idioma sube prefs_ts y bloquearía el bio del otro
     // dispositivo si usara el mismo gate. bio_ts solo sube cuando el usuario
@@ -12190,15 +12220,23 @@ async function _supabasePrefsRead() {
       }
     }
 
-    // T1: Pro status — restaurar desde Supabase (funciona en nuevo dispositivo / incógnito)
+    // T1: Pro status — restaurar desde Supabase (funciona en nuevo dispositivo / incógnito).
+    // Solo aplicar si el check de Supabase es más reciente que el local (is_pro_ts);
+    // así un false viejo no revierte un true confirmado localmente hace un momento.
     if (typeof d.is_pro === 'boolean') {
-      if (d.is_pro) {
-        localStorage.setItem('fb_pro', '1');
-      } else if (localStorage.getItem('fb_pro') === '1' && !window.PRO_EMAILS?.includes(
-        (localStorage.getItem('fb_email')||'').toLowerCase()
-      )) {
-        // Solo quitar fb_pro si no es cuenta beta — PRO_EMAILS siempre tiene acceso
-        localStorage.removeItem('fb_pro');
+      var _lProTs = parseInt(localStorage.getItem('fb_pro_ts') || '0') || 0;
+      var _sProTs = parseInt(d.is_pro_ts || 0) || 0;
+      if (_sProTs >= _lProTs) {
+        if (d.is_pro) {
+          localStorage.setItem('fb_pro', '1');
+          if (_sProTs) localStorage.setItem('fb_pro_ts', String(_sProTs));
+        } else if (localStorage.getItem('fb_pro') === '1' && !window.PRO_EMAILS?.includes(
+          (localStorage.getItem('fb_email')||'').toLowerCase()
+        )) {
+          // Solo quitar fb_pro si no es cuenta beta — PRO_EMAILS siempre tiene acceso
+          localStorage.removeItem('fb_pro');
+          if (_sProTs) localStorage.setItem('fb_pro_ts', String(_sProTs));
+        }
       }
     }
 
@@ -12251,26 +12289,95 @@ async function _supabasePrefsRead() {
   } catch(_re) {}
 }
 
-async function _supabasePrefsWrite(data) {
+// Merge inteligente de payloads de sync (coalescing). Une prefs_meta y cycle_data
+// por sub-clave; el resto = último gana (cada uno es un snapshot completo del campo).
+function _prefsMergeInto(buf, data) {
+  if (!buf) buf = {};
+  Object.keys(data).forEach(function(k){
+    if (k === 'prefs_meta' && data.prefs_meta) {
+      buf.prefs_meta = Object.assign({}, buf.prefs_meta || {}, data.prefs_meta);
+    } else if (k === 'cycle_data' && data.cycle_data) {
+      var ex = buf.cycle_data || {}, inc = data.cycle_data || {};
+      buf.cycle_data = {
+        meta: inc.meta !== undefined ? inc.meta : ex.meta,
+        log: Object.assign({}, ex.log || {}, inc.log || {})
+      };
+    } else {
+      buf[k] = data[k];
+    }
+  });
+  return buf;
+}
+
+// Envía el buffer coalescido a Supabase. En fallo (offline) lo fusiona en la cola
+// (un solo objeto, nunca pierde writes viejos como hacía el array con tope 10).
+async function _prefsFlush() {
+  if (window._prefsFlushTimer) { clearTimeout(window._prefsFlushTimer); window._prefsFlushTimer = null; }
+  var buf = window._prefsBuf;
+  if (!buf || !Object.keys(buf).length) return;
   var email = localStorage.getItem('fb_email');
   if (!email) return;
-  var payload = Object.assign({ email: email }, data);
+  window._prefsBuf = null; // tomar el buffer; si falla, se reencola abajo
   try {
     var res = await fetch('/api/user/prefs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ email: email }, buf))
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
   } catch(_we) {
-    // Offline: encolar para el próximo arranque
     try {
-      var _wq = JSON.parse(localStorage.getItem('fb_sync_queue') || '[]');
-      _wq.push(data);
-      if (_wq.length > 10) _wq = _wq.slice(-10);
+      var _raw = JSON.parse(localStorage.getItem('fb_sync_queue') || 'null');
+      var _wq = Array.isArray(_raw) ? _raw.reduce(function(a,i){return _prefsMergeInto(a,i);},{})
+                                    : (_raw && typeof _raw === 'object' ? _raw : {});
+      _prefsMergeInto(_wq, buf);
+      delete _wq.email;
       localStorage.setItem('fb_sync_queue', JSON.stringify(_wq));
     } catch(_wqe) {}
   }
+}
+
+// fire-and-forget desde cualquier acción confirmada. Coalescing: acumula en un
+// buffer y dispara un flush con debounce (1s), reduciendo N POSTs a uno. Garantías
+// de entrega: flush en visibilitychange→hidden, beacon en pagehide, y flush al
+// inicio de cada _supabasePrefsRead().
+function _supabasePrefsWrite(data) {
+  var email = localStorage.getItem('fb_email');
+  if (!email) return Promise.resolve();
+  // Derivar prefs_meta: cada campo de preferencia presente recibe su propio timestamp.
+  var _PREF_FIELDS = ['lang','theme','display_name','notif_pref','avatar_frame','cycle_on','cycle_data'];
+  var _ts = data.prefs_ts || Date.now();
+  var _meta = (data.prefs_meta && typeof data.prefs_meta === 'object') ? Object.assign({}, data.prefs_meta) : null;
+  _PREF_FIELDS.forEach(function(f){
+    if (data[f] === undefined) return;
+    if (!_meta) _meta = {};
+    if (_meta[f] == null) _meta[f] = _ts;
+    try { localStorage.setItem('fb_pm_'+f, String(_meta[f])); } catch(e){}
+  });
+  if (_meta) data = Object.assign({}, data, { prefs_meta: _meta });
+  window._prefsBuf = _prefsMergeInto(window._prefsBuf, data);
+  if (window._prefsFlushTimer) clearTimeout(window._prefsFlushTimer);
+  window._prefsFlushTimer = setTimeout(_prefsFlush, 1000);
+  return Promise.resolve();
+}
+
+// Hooks de entrega garantizada (registrar una sola vez).
+if (!window._prefsFlushHooked) {
+  window._prefsFlushHooked = true;
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'hidden') _prefsFlush();
+  });
+  window.addEventListener('pagehide', function(){
+    var buf = window._prefsBuf;
+    if (!buf || !Object.keys(buf).length) return;
+    var email = localStorage.getItem('fb_email');
+    if (email && navigator.sendBeacon) {
+      try {
+        navigator.sendBeacon('/api/user/prefs',
+          new Blob([JSON.stringify(Object.assign({ email: email }, buf))], { type: 'application/json' }));
+        window._prefsBuf = null;
+      } catch(e){}
+    }
+  });
 }
 // ── END Supabase prefs sync ──────────────────────────────────────────────────
 
