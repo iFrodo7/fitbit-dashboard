@@ -20,12 +20,18 @@ import { sendPush, pushConfigured, type WebPushSub } from "@/lib/push";
 //
 // ⚠️ PENDIENTE DE VERIFICAR contra una notificación real (forma exacta del
 //    envelope y del header Authorization). Marcado con TODO donde aplica.
+// Google sends GET probes during subscriber verification — must return 2xx.
+export async function GET() {
+  return new NextResponse(null, { status: 204 });
+}
+
 export async function POST(req: NextRequest) {
   // ── 1. Autenticación: el secreto de la subscription en Authorization ──────────
   const secret = process.env.GH_WEBHOOK_SECRET;
   const authHeader = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
-  // DEBUG — remove after webhook verification works
-  console.log('[webhook] secret_set=' + !!secret + ' auth_len=' + authHeader.length + ' match=' + (authHeader === secret));
+  // No Authorization header → Google verification health-check; accept silently.
+  if (!authHeader) return new NextResponse(null, { status: 204 });
+  // Wrong secret → reject.
   if (!secret || authHeader !== secret) {
     return new NextResponse(null, { status: 401 });
   }
