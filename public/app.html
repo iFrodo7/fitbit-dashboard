@@ -1365,10 +1365,10 @@ html.owait-lock body{overflow:hidden!important;overscroll-behavior:none!importan
 #stk-cel canvas{position:absolute;inset:0;pointer-events:none;}
 .stk-cel-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:0;}
 .stk-cel-eye{font-size:11px;letter-spacing:.2em;color:var(--sub,#555);font-family:monospace;margin-bottom:28px;}
-.stk-cel-fire{font-size:88px;display:block;animation:stkFireIn .55s var(--ease-spring) forwards;transform:scale(0);}
-@keyframes stkFireIn{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0)}}
-.stk-cel-num{font-size:min(28vw,140px);font-weight:900;color:var(--ta,#f97316);line-height:1;font-family:monospace;letter-spacing:-.04em;opacity:0;animation:stkNumIn .45s var(--ease-spring) .25s forwards;}
-@keyframes stkNumIn{from{transform:scale(.3) translateY(16px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.stk-cel-fire{font-size:88px;display:block;animation:stkCelFireIn .55s var(--ease-spring) forwards;transform:scale(0);}
+@keyframes stkCelFireIn{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0)}}
+.stk-cel-num{font-size:min(28vw,140px);font-weight:900;color:var(--ta,#f97316);line-height:1;font-family:monospace;letter-spacing:-.04em;opacity:0;animation:stkCelNumIn .45s var(--ease-spring) .25s forwards;}
+@keyframes stkCelNumIn{from{transform:scale(.3) translateY(16px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
 .stk-cel-unit{font-size:13px;letter-spacing:.28em;color:var(--sub,#555);font-family:monospace;margin-top:6px;opacity:0;animation:stkFadeUp .4s var(--ease-out) .45s forwards;}
 .stk-cel-title{font-size:clamp(20px,5vw,32px);font-weight:700;color:var(--txt,#fff);font-family:monospace;margin-top:22px;opacity:0;animation:stkFadeUp .4s var(--ease-out) .55s forwards;text-align:center;padding:0 20px;}
 .stk-cel-sub{font-size:13px;color:var(--sub,#555);font-family:monospace;margin-top:10px;opacity:0;animation:stkFadeUp .4s var(--ease-out) .65s forwards;text-align:center;padding:0 24px;line-height:1.6;}
@@ -11592,6 +11592,11 @@ function getDailyStreak() {
     var cnt=s.date===yest?(s.count||1)+1:1;
     // Detect loss: had a streak >1 that just got reset
     if (cnt===1 && (s.count||0)>1) window._streakLost = s.count;
+    // Detect gain: streak genuinely advanced today (date was yesterday → cnt>1).
+    // getDailyStreak() runs many times per page (boot render, achievements, etc.)
+    // and writes fb_streak as a side-effect, so the app-open celebration can't
+    // rely on a pre/post localStorage compare — it reads this flag instead.
+    if (s.date===yest && cnt>1 && window._streakAdvancedToday==null) window._streakAdvancedToday = cnt;
     localStorage.setItem('fb_streak',JSON.stringify({date:today,count:cnt}));
     // Fire-and-forget write to server so other devices pick up the latest value
     _writeAppStreakServer(today, cnt);
@@ -12596,11 +12601,11 @@ function _checkDailyStreakAnim() {
   window._streakLost = 0; // consume it
   scheduleStreakReminder(d.strk); // schedule tonight's reminder
   setTimeout(function() {
-    if (lost > 1) {
-      openStreakLostSheet(lost);       // show "you lost X days" screen
-    } else {
-      openStreakSheet(true);           // show streak celebration
-    }
+    // Streak-gain celebration is now the full-screen confetti overlay
+    // (_showStreakCelebration, fired from loadRealGoogleData). Only the
+    // streak-lost screen is driven from here, to avoid a double celebration.
+    // The bottom-sheet (openStreakSheet) stays available for manual badge taps.
+    if (lost > 1) openStreakLostSheet(lost);
   }, 950);
 }
 
@@ -14348,16 +14353,17 @@ async function loadRealGoogleData(silentRefresh) {
   // Initialize 90-day steps streak from API (independent of app-open streak).
   await _initStreakFromGoogle().catch(function(){});
   // Sync streak — renderDailyRings() ran before data arrived so both the
-  // badge and the milestone panel may show stale values. Capture the count
-  // before and after server sync, re-render rings with the correct number,
-  // and celebrate if the streak genuinely increased.
-  var _stkBefore=0;
-  try{_stkBefore=JSON.parse(localStorage.getItem('fb_streak')||'{}').count||0;}catch(e){}
+  // badge and the milestone panel may show stale values. Pull the latest from
+  // the server, re-render rings with the correct number, and celebrate if the
+  // streak genuinely advanced today. We gate on window._streakAdvancedToday
+  // (set by getDailyStreak the first time it bumps the count) because a
+  // pre/post localStorage compare here is always equal — getDailyStreak already
+  // incremented fb_streak during the boot-time renderDailyRings() call.
   await _loadAppStreakServer().catch(function(){});
   var _stkNow=getDailyStreak();
   { const el=document.getElementById('dr-stk'); if(el) el.textContent=_stkNow; }
   try { renderDailyRings(); } catch(e){}
-  if (_stkNow > 1 && _stkNow > _stkBefore) {
+  if (window._streakAdvancedToday && _stkNow > 1) {
     setTimeout(function(){ if(typeof window._showStreakCelebration==='function') window._showStreakCelebration(_stkNow); }, 1800);
   }
   // Always apply bio profile at the end so home bio widget (FC Máx, Fitness Age, VO2)
