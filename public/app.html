@@ -9298,54 +9298,31 @@ function wkBarSel(idx) {
   // consecutive days ending on `sel` that met the step goal.
   e = document.getElementById('steps-streak-val');
   if (e && !isToday) {
+    // Authoritative backward walk: count consecutive goal-met days ending on the
+    // clicked date, reading day-by-day from fb_activity_history (30-day retention,
+    // stores per-day steps + goalUsed) plus the in-window data[] (freshest for the
+    // current calendar week). Replaces the old cross-window bridging (FIX #15/#17/
+    // #17c) which capped at the rolling 7-day window and relied on a corruptible
+    // streak cache + an IDB store that never held `steps` — so streaks that began
+    // in a previous week (e.g. started Jun 12, viewed on Mon Jun 15) under-counted.
+    var _ahMapS = {}; _wkActH.forEach(function(r){ if (r && r.date) _ahMapS[r.date] = r; });
+    var _winMapS = {}; data.forEach(function(r){ if (r && r.date) _winMapS[r.date] = r; });
+    var _curGoalS = _loadDRGoals().stp;
+    var _goalFloorS = 0;
+    try { _goalFloorS = parseInt(JSON.parse(localStorage.getItem('fb_streak_steps')||'{}').goal||0)||0; } catch(_eS){}
     var _streak = 0;
-    for (var _si = sel; _si >= 0; _si--) {
-      var _siDay = _wkActH.find(function(e){return e.date===data[_si].date;});
-      var _siGoal = (_siDay && _siDay.goalUsed) || _loadDRGoals().stp;
-      if ((data[_si].steps || 0) >= _siGoal) _streak++;
+    var _walkS = new Date(d.date + 'T12:00:00'); // noon avoids DST edge cases
+    for (var _kS = 0; _kS < 366; _kS++) {
+      var _wdsS = _localDateStr(_walkS);
+      // steps: prefer the in-window bar (freshest), then history
+      var _wStepsS = null;
+      if (_winMapS[_wdsS] && _winMapS[_wdsS].steps != null) _wStepsS = _winMapS[_wdsS].steps;
+      else if (_ahMapS[_wdsS] && _ahMapS[_wdsS].steps != null) _wStepsS = _ahMapS[_wdsS].steps;
+      if (_wStepsS == null) break; // no record this far back — can't confirm continuation
+      // goal: per-day goalUsed (anti-cheat, immutable for past days) else current/floor
+      var _wGoalS = (_ahMapS[_wdsS] && _ahMapS[_wdsS].goalUsed) || Math.max(_curGoalS, _goalFloorS);
+      if (_wStepsS >= _wGoalS) { _streak++; _walkS.setDate(_walkS.getDate() - 1); }
       else break;
-    }
-    // Cross-window extension: the run reaches the window's left edge (idx 0), so the
-    // real streak may continue before the visible week. Two cases:
-    // FIX #15: current streak still active — anchor on last goal-met day `_m`.
-    // FIX #17: current streak broke (todayStreakReal=0) — bridge using the preserved
-    //   pre-break count from _wkPrevStreakCount / _wkPrevStreakEndDate.
-    if (_streak > 0 && _streak === sel + 1) {
-      var _realStr17 = window._wkTodayStreakReal || 0;
-      var _bridged17 = false;
-      if (_realStr17) {
-        // FIX #15 path: active streak — anchor on most-recent goal-met day
-        var _m = -1;
-        for (var _mi = _wkTdIdx; _mi >= 0; _mi--) {
-          if ((data[_mi].steps || 0) >= goal) { _m = _mi; break; }
-        }
-        if (_m >= sel) {
-          var _contig = true;
-          for (var _ci = sel; _ci <= _m; _ci++) {
-            if ((data[_ci].steps || 0) < goal) { _contig = false; break; }
-          }
-          if (_contig) { _streak = Math.max(_streak, _realStr17 - (_m - sel)); _bridged17 = true; }
-        }
-      }
-      // FIX #17 path: fires when FIX #15 didn't bridge (streak broke, or resumed after gap).
-      // Uses prevCount (pre-break peak) to show correct historical count for past bars.
-      if (!_bridged17 && window._wkPrevStreakCount && window._wkPrevStreakEndDate) {
-        var _selDate17 = data[sel] && data[sel].date;
-        if (_selDate17 && _selDate17 <= window._wkPrevStreakEndDate) {
-          var _daysToEnd17 = Math.round(
-            (new Date(window._wkPrevStreakEndDate + 'T12:00:00') -
-             new Date(_selDate17 + 'T12:00:00')) / 86400000
-          );
-          // Verify sel is contiguous up to prevLastDate (no miss between them in-window)
-          var _pContig17 = true;
-          for (var _pci17 = sel; _pci17 <= _wkTdIdx; _pci17++) {
-            var _pcd17 = data[_pci17];
-            if (!_pcd17 || _pcd17.date > window._wkPrevStreakEndDate) break;
-            if ((_pcd17.steps || 0) < goal) { _pContig17 = false; break; }
-          }
-          if (_pContig17) _streak = Math.max(_streak, window._wkPrevStreakCount - _daysToEnd17);
-        }
-      }
     }
     e.textContent = _streak > 0 ? _streak : '×';
   } else if (e && isToday) {
