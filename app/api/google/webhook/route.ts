@@ -29,8 +29,13 @@ export async function POST(req: NextRequest) {
   // ── 1. Autenticación: el secreto de la subscription en Authorization ──────────
   const secret = process.env.GH_WEBHOOK_SECRET;
   const authHeader = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
-  // No Authorization header → Google verification health-check; accept silently.
-  if (!authHeader) return new NextResponse(null, { status: 204 });
+  // No Authorization header → log body for debugging, then accept silently.
+  if (!authHeader) {
+    let dbgBody = 'empty';
+    try { dbgBody = await req.text(); } catch { /* ignore */ }
+    console.log('[webhook-verify] no-auth body:', dbgBody.substring(0, 500));
+    return new NextResponse(null, { status: 204 });
+  }
   // Wrong secret → reject.
   if (!secret || authHeader !== secret) {
     return new NextResponse(null, { status: 401 });
