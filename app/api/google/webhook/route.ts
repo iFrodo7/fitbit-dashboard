@@ -30,17 +30,28 @@ export async function POST(req: NextRequest) {
   let rawBody = '';
   try { rawBody = await req.text(); } catch { /* ignore */ }
 
-  // ── Verification challenge: Google sends {"type":"verification"} (with or without auth) ──
-  // Echo the body back so the verification check passes.
-  let parsed: unknown;
-  try { parsed = JSON.parse(rawBody); } catch { /* not JSON */ }
-  if (parsed && typeof parsed === 'object' && (parsed as Record<string, unknown>).type === 'verification') {
-    return new NextResponse(rawBody, { status: 200, headers: { 'Content-Type': 'application/json' } });
-  }
-
-  // ── 1. Autenticación: el secreto de la subscription en Authorization ──────────
+  // ── 1. Autenticación ─────────────────────────────────────────────────────────
   const secret = process.env.GH_WEBHOOK_SECRET;
   const authHeader = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
+
+  // ── Verification challenge: Google sends {"type":"verification"} WITH the secret ──
+  // Must validate auth first, then echo the body.
+  let parsed: unknown;
+  try { parsed = JSON.parse(rawBody); } catch { /* not JSON */ }
+  const isVerification = parsed && typeof parsed === 'object' && (parsed as Record<string, unknown>).type === 'verification';
+
+  if (isVerification) {
+    // Auth present and valid → echo body to confirm we hold the secret.
+    if (authHeader && secret && authHeader === secret) {
+      return new NextResponse(rawBody, { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
+    // No auth (Google probe) → silent accept.
+    if (!authHeader) return new NextResponse(null, { status: 204 });
+    // Wrong secret on verification → reject.
+    return new NextResponse(null, { status: 401 });
+  }
+
+  // ── Normal notifications: require valid auth ──────────────────────────────────
   if (!authHeader) return new NextResponse(null, { status: 204 });
   if (!secret || authHeader !== secret) {
     return new NextResponse(null, { status: 401 });
