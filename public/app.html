@@ -9588,14 +9588,23 @@ async function loadWeekDataGoogle() {
         // Already updated this session and window confirms value — don't re-save
         _pNew = _pc; _pdNew = _pd;
       } else if (_pd === _t7) {
-        // Cached today but window detects a streak break not yet reflected — reset
+        // Cached today but window detects a streak break not yet reflected — reset.
+        // Compute actual last good day (the day before the break) instead of using
+        // _pd (today), which would make wkBarSel FIX #17 fail on the break day.
         _pNew  = _wkStr7;
         _pdNew = _tmMet ? _t7 : _y7;
+        var _prevEnd2 = (function() {
+          var _bi2 = 6 - _wkStr7; // index of the break day in rolling window
+          for (var _pe2 = _bi2 - 1; _pe2 >= 0; _pe2--) {
+            if (days[_pe2] && _goalMetForDate(days[_pe2].date, days[_pe2].steps, _strGoal7)) return days[_pe2].date;
+          }
+          return '';
+        })();
         var _brkObj = {count:_pNew, lastDate:_pdNew, goal:_pNew>0?_strGoal7:0,
-                       prevCount:_pc, prevLastDate:_pd};
+                       prevCount:_pc, prevLastDate:_prevEnd2 || _pd};
         localStorage.setItem('fb_streak_steps', JSON.stringify(_brkObj));
         window._wkPrevStreakCount   = _pc;
-        window._wkPrevStreakEndDate = _pd;
+        window._wkPrevStreakEndDate = _prevEnd2 || _pd;
       } else {
         // gap: days between stored lastDate and today. 999 = no stored date (first run).
         var _gap = _pd ? Math.round((new Date(_t7) - new Date(_pd)) / 86400000) : 999;
@@ -9702,10 +9711,17 @@ async function loadWeekDataGoogle() {
           // FIX #17: when streak resets downward preserve the old peak so past
           // bars in wkBarSel can show their correct historical count.
           if (_pc > _pNew && _pd) {
+            var _prevEndN = (function() {
+              var _biN = 6 - _wkStr7;
+              for (var _peN = _biN - 1; _peN >= 0; _peN--) {
+                if (days[_peN] && _goalMetForDate(days[_peN].date, days[_peN].steps, _strGoal7)) return days[_peN].date;
+              }
+              return '';
+            })();
             _saveStrObj.prevCount = _pc;
-            _saveStrObj.prevLastDate = _pd;
+            _saveStrObj.prevLastDate = _prevEndN || _pd;
             window._wkPrevStreakCount = _pc;
-            window._wkPrevStreakEndDate = _pd;
+            window._wkPrevStreakEndDate = _prevEndN || _pd;
           } else if (_ps.prevCount) {
             _saveStrObj.prevCount = _ps.prevCount;
             _saveStrObj.prevLastDate = _ps.prevLastDate || '';
