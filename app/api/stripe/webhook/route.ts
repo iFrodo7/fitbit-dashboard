@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import Stripe from 'stripe'
 import { createServiceClient } from '@/lib/supabase/server'
+import { sendMetaPurchaseEvent } from '@/lib/meta-capi'
 
 export const runtime = 'nodejs'
 
@@ -36,6 +37,13 @@ export async function POST(req: NextRequest) {
         plan: 'pro',
         current_period_end: new Date((sub as any).current_period_end * 1000).toISOString(),
       }, { onConflict: 'user_id' })
+
+      await sendMetaPurchaseEvent({
+        email: session.customer_details?.email ?? undefined,
+        value: (session.amount_total ?? 0) / 100,
+        currency: (session.currency ?? 'usd').toUpperCase(),
+        orderId: session.id,
+      })
       break
     }
 
