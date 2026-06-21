@@ -8,18 +8,19 @@ import { sendPush, pushConfigured, type WebPushSub } from "@/lib/push";
 // Google llama aquí cuando llegan datos NUEVOS de un usuario a su nube (tras el
 // sync Bluetooth Fitbit Air → app Google Health → cloud). El payload trae el
 // healthUserId, el dataType y la operación (UPSERT/DELETE). Mapeamos
-// healthUserId → email (guardado al conectar vía users/me:getIdentity) y
+// healthUserId → email (guardado al conectar vía GET users/me/identity) y
 // disparamos un Web Push a los dispositivos de ese usuario para que AIRA
 // re-fetchee la métrica fresca SIN que el usuario tenga que abrir Google Health.
 //
 // Contrato con Google (ver https://developers.google.com/health/webhooks):
 //  · El secreto de la subscription llega en el header Authorization de cada
 //    notificación. Lo validamos contra GH_WEBHOOK_SECRET.
+//  · Verificación del subscriber (confirmada al registrar 2026-06-20): Google
+//    envía {"type":"verification"} DOS veces — una CON el secret (hay que
+//    devolver el body en eco con 200) y otra SIN auth (hay que rechazar 401).
+//    También sondea con GET → debe responder 2xx.
 //  · Hay que responder 2xx (204) rápido. Si fallamos, Google reintenta con
 //    backoff hasta 7 días — así que nunca devolvemos 5xx por un error de push.
-//
-// ⚠️ PENDIENTE DE VERIFICAR contra una notificación real (forma exacta del
-//    envelope y del header Authorization). Marcado con TODO donde aplica.
 // Google sends GET probes during subscriber verification — must return 2xx.
 export async function GET() {
   return new NextResponse(null, { status: 204 });

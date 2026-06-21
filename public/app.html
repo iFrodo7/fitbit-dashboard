@@ -13427,7 +13427,7 @@ const GoogleHealthSource = {
     distance:      ()   => `${GoogleHealthSource.base}/users/me/dataTypes/distance/dataPoints`,
     floors:        ()   => `${GoogleHealthSource.base}/users/me/dataTypes/floors/dataPoints`,
     voMax:         ()   => `${GoogleHealthSource.base}/users/me/dataTypes/daily-vo2-max/dataPoints`,
-    identity:      ()   => `${GoogleHealthSource.base}/users/me:getIdentity`,
+    identity:      ()   => `${GoogleHealthSource.base}/users/me/identity`,
   },
 };
 // Active data source — restored from the last login provider.
@@ -13935,9 +13935,10 @@ async function _captureGoogleIdentity() {
   var flagKey = 'fb_gh_identity_' + (email || 'anon');
   if (localStorage.getItem(flagKey)) return;
   try {
+    // GET users/me/identity → { name, legacyUserId (Fitbit), healthUserId (Google) }.
+    // healthUserId is the opaque ID Google sends in webhook notifications.
     var r = await _ghGet(GoogleHealthSource.ep.identity(), true);
-    console.log('[gh identity raw]', JSON.stringify(r));  // TODO(verificar): confirmar el nombre del campo
-    var uid = r && (r.healthUserId || r.userId || r.id || r.name || (r.identity && r.identity.healthUserId));
+    var uid = r && r.healthUserId;
     if (uid) {
       localStorage.setItem('gh_user_id', String(uid));
       localStorage.setItem(flagKey, '1');
