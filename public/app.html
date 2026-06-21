@@ -12103,7 +12103,13 @@ async function _supabasePrefsRead() {
       localStorage.setItem('fb_pm_'+f, String(_st));
     };
     _pmApply('display_name', function(){ if (d.display_name) localStorage.setItem('fb_display_name', d.display_name); });
-    _pmApply('notif_pref',   function(){ if (d.notif_pref !== undefined) localStorage.setItem('fb_notif', d.notif_pref ? '1' : '0'); });
+    _pmApply('notif_pref',   function(){
+      if (d.notif_pref === undefined) return;
+      localStorage.setItem('fb_notif', d.notif_pref ? '1' : '0');
+      // OFF llegado de otro dispositivo → des-suscribir ESTE también.
+      if (!d.notif_pref) { try { if (typeof unsubscribeWebPush === 'function') unsubscribeWebPush(); } catch(_ue){} }
+      if (typeof _syncNotifUI === 'function') { try { _syncNotifUI(); } catch(_se){} }
+    });
     _pmApply('avatar_frame', function(){ if (d.avatar_frame) localStorage.setItem('fb_avatar_frame', d.avatar_frame); });
     _pmApply('cycle_on',     function(){ if (d.cycle_on !== undefined) localStorage.setItem('fb_cycle_on', d.cycle_on ? '1' : '0'); });
     _pmApply('cycle_data',   function(){ if (d.cycle_data && d.cycle_data.meta) localStorage.setItem('fb_cycle', JSON.stringify(d.cycle_data.meta)); });
@@ -12112,6 +12118,23 @@ async function _supabasePrefsRead() {
     _pmApply('theme',        function(){ if (d.theme && d.theme !== theme) selectTheme(d.theme, true); });
     // Mantener fb_prefs_ts al máximo para compat con código viejo que aún lo lea.
     if (_sPrefsTs) { var _lp = parseInt(localStorage.getItem('fb_prefs_ts')||'0')||0; if (_sPrefsTs > _lp) localStorage.setItem('fb_prefs_ts', String(_sPrefsTs)); }
+    // Notificaciones: sincronización autoritativa por-dispositivo (mismo patrón que
+    // el ciclo). notif_pref=true en Supabase = el usuario las activó en algún
+    // dispositivo → ESTE también debe quedar registrado. Pero la suscripción push
+    // es POR-DISPOSITIVO (cada navegador tiene su propio endpoint), así que aquí
+    // registramos/backfilleamos la suscripción de este dispositivo. Solo es posible
+    // en silencio si este navegador ya concedió permiso; si no, el toggle queda ON
+    // y el usuario concede permiso al interactuar. Corre en cada read (idempotente).
+    if (d.notif_pref === true) {
+      if (localStorage.getItem('fb_notif') !== '1') localStorage.setItem('fb_notif', '1');
+      try {
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted'
+            && typeof subscribeWebPush === 'function') {
+          subscribeWebPush();   // registra/backfillea la suscripción de ESTE dispositivo
+        }
+      } catch (_ne) {}
+      if (typeof _syncNotifUI === 'function') { try { _syncNotifUI(); } catch(_se){} }
+    }
     // Bio: timestamp independiente (bio_ts) para no competir con tema/idioma.
     // Cualquier cambio de tema/idioma sube prefs_ts y bloquearía el bio del otro
     // dispositivo si usara el mismo gate. bio_ts solo sube cuando el usuario
