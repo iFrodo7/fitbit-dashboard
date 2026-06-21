@@ -2394,6 +2394,22 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .ach-item.locked .ach-name{color:var(--txt);opacity:0.6;}
 .ach-desc{font-size:10px;letter-spacing:0.5px;opacity:0.45;margin-top:2px;}
 .ach-unlocked-lbl{font-size:8px;letter-spacing:1px;color:var(--ta);opacity:0.6;margin-top:2px;}
+/* ── Voxel (Minecraft) premium achievements — inventory-slot styling ── */
+.t-mc #ach-drawer{background:linear-gradient(150deg,#251c00,#1a1200 55%,#251c00)!important;border-top:4px solid #6a5020!important;box-shadow:0 -4px 0 rgba(0,0,0,0.6)!important;}
+.t-mc .ach-title{color:#6aff3a!important;text-shadow:2px 2px 0 #003800;font-size:18px!important;letter-spacing:2px!important;}
+.t-mc .ach-list{gap:10px;padding-top:8px;}
+.t-mc .ach-item{position:relative;border-bottom:none!important;border-radius:0!important;padding:12px 12px;gap:14px;background:linear-gradient(180deg,#2a2008,#1c1404);outline:3px solid #6a5020;box-shadow:inset 2px 2px 0 rgba(200,155,55,0.20),inset -2px -2px 0 rgba(0,0,0,0.55),3px 3px 0 rgba(0,0,0,0.6);}
+.t-mc .ach-item:not(.locked){outline-color:#b8860b;box-shadow:inset 2px 2px 0 rgba(255,215,80,0.30),inset -2px -2px 0 rgba(0,0,0,0.55),3px 3px 0 rgba(0,0,0,0.7),0 0 12px rgba(255,170,0,0.18);}
+.t-mc .ach-item:not(.locked):hover,.t-mc .ach-item:not(.locked):active{background:linear-gradient(180deg,#34280a,#221806)!important;}
+.t-mc .ach-item.locked{opacity:0.5;}
+.t-mc .ach-item:not(.locked)::after{content:'';position:absolute;top:5px;right:5px;width:7px;height:7px;background:#ffaa00;box-shadow:-2px 0 0 #5a3a00;}
+.t-mc .ach-icon{width:42px;height:42px;border-radius:0!important;border:none!important;background:#14100a!important;box-shadow:inset 2px 2px 0 rgba(0,0,0,0.7),inset -2px -2px 0 rgba(120,90,30,0.35);font-size:20px;}
+.t-mc .ach-item:not(.locked) .ach-icon{background:linear-gradient(135deg,#1d3a0a,#0f2105)!important;box-shadow:inset 2px 2px 0 rgba(106,255,58,0.35),inset -2px -2px 0 rgba(0,0,0,0.6),0 0 8px rgba(106,255,58,0.25)!important;}
+.t-mc .ach-name{color:#6aff3a!important;text-shadow:1px 1px 0 #003800;font-size:16px!important;letter-spacing:0.5px!important;}
+.t-mc .ach-item.locked .ach-name{color:#9a8a55!important;text-shadow:1px 1px 0 #000;opacity:1;}
+.t-mc .ach-desc{color:#b9a66a!important;font-size:14px!important;opacity:0.85;}
+.t-mc .ach-unlocked-lbl{color:#ffaa00!important;text-shadow:1px 1px 0 #3a2800;font-size:12px!important;opacity:1;}
+.t-mc .ach-replay-hint{color:#ffaa00!important;opacity:0.85;font-size:13px!important;}
 /* toast */
 #ach-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg);border:1px solid var(--ta);border-radius:24px;padding:8px 18px;font-size:11px;letter-spacing:1px;color:var(--ta);font-family:'IBM Plex Mono',monospace;z-index:9000;opacity:0;transition:opacity 0.2s,transform 0.2s;pointer-events:none;white-space:nowrap;}
 #ach-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -17632,6 +17648,30 @@ var _ACH_LABELS = {
       {name:'Jardín Eterno',   nameEn:'Eternal Garden',   desc:'30 días seguidos — florecimiento total',           descEn:'30 consecutive days — full flourishing'},
       {name:'Flor Inmortal',   nameEn:'Immortal Flower',  desc:'Todos los logros — jardín completo',               descEn:'All achievements — garden complete'}
     ]
+  },
+  synth:{
+    title:'▶ LOGROS · OUTRUN',
+    titleEn:'▶ ACHIEVEMENTS · OUTRUN',
+    list:[
+      {name:'POWER ON',        desc:'Encendiste el modo Synthwave',                     descEn:'Powered on Synthwave mode'},
+      {name:'FIRST DROP',      desc:'Primera meta alcanzada',                           descEn:'First goal reached'},
+      {name:'NEON STRIDE',     desc:'10,000 pasos en un día',                           descEn:'10,000 steps in one day'},
+      {name:'FULL SPECTRUM',   desc:'3 rings al 100%',                                  descEn:'All 3 rings at 100%'},
+      {name:'OUTRUN',          desc:'20,000 pasos — máxima velocidad',                  descEn:'20,000 steps — top speed'},
+      {name:'OVERDRIVE ×5',    desc:'Minutos activos al 100% en 5 ocasiones',           descEn:'Active minutes at 100% on 5 occasions'},
+      {name:'REGULAR PLAY',    desc:'5 sesiones en Synthwave',                          descEn:'5 sessions in Synthwave'},
+      {name:'REDLINE >150',    desc:'Superar el 150% de cualquier objetivo',            descEn:'Surpass 150% of any goal'},
+      {name:'PERFECT MIX',     desc:'Día perfecto — todos los objetivos',               descEn:'Perfect day — all goals completed'},
+      {name:'PEAK SIGNAL',     desc:'Composite ≥ 90%',                                  descEn:'Composite ≥ 90%'},
+      {name:'HEAT WAVE ×5',    desc:'Calorías al 100% durante 5 días seguidos',         descEn:'Calories at 100% for 5 consecutive days'},
+      {name:'7-NIGHT RUN',     desc:'7 días seguidos con al menos 1 ring cerrado',      descEn:'7 consecutive days with at least 1 ring closed'},
+      {name:'TRIPLE SYNC ×3',  desc:'3 días seguidos con los 3 rings cerrados',         descEn:'3 consecutive days with all 3 rings closed'},
+      {name:'MIDNIGHT DRIVE',  desc:'7 días seguidos con los 3 rings cerrados',         descEn:'7 consecutive days with all 3 rings closed'},
+      {name:'CHROME MONTH',    desc:'30 días seguidos con al menos 1 ring cerrado',     descEn:'30 consecutive days with at least 1 ring closed'},
+      {name:'LASER GRID ×15',  desc:'15 días seguidos con los 3 rings cerrados',        descEn:'15 consecutive days with all 3 rings closed'},
+      {name:'ETERNAL SUNSET',  desc:'30 días seguidos — nivel leyenda',                 descEn:'30 consecutive days — legend level'},
+      {name:'GRANDMASTER',     desc:'Todos los logros — sistema dominado',              descEn:'All achievements — system mastered'}
+    ]
   }
 };
 
@@ -17873,7 +17913,7 @@ function _showRingNotif(ringId, rawPct) {
 }
 
 function _updateAchBadges(activeTheme) {
-  var themes = ['naruto','halo','mc','fut','bloom'];
+  var themes = ['naruto','halo','mc','fut','bloom','synth'];
   themes.forEach(function(t) {
     var count = _achCountForTheme(t);
     var total = _ACH_DEFS.length;
