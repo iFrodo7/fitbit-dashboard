@@ -41,15 +41,12 @@ export async function POST(req: NextRequest) {
   const isVerification = parsed && typeof parsed === 'object' && (parsed as Record<string, unknown>).type === 'verification';
 
   if (isVerification) {
-    const authOk = authHeader && secret && authHeader === secret;
-    console.log('[verify] auth_ok=' + authOk + ' auth_len=' + authHeader.length + ' body=' + rawBody.substring(0, 200));
-    // Auth present and valid → echo body to confirm we hold the secret.
-    if (authOk) {
+    // Authorized challenge → echo the body, proving we hold the secret.
+    if (authHeader && secret && authHeader === secret) {
       return new NextResponse(rawBody, { status: 200, headers: { 'Content-Type': 'application/json' } });
     }
-    // No auth (Google probe) → silent accept.
-    if (!authHeader) return new NextResponse(null, { status: 204 });
-    // Wrong secret on verification → reject.
+    // Missing OR wrong secret → MUST reject. Google's verification deliberately
+    // sends an unauthenticated challenge to confirm the endpoint enforces auth.
     return new NextResponse(null, { status: 401 });
   }
 
