@@ -87,22 +87,27 @@ export async function POST(req: NextRequest) {
       new Set((users ?? []).map((u) => u.email).filter(Boolean) as string[])
     );
 
+    // DEBUG temporal — quitar tras confirmar el pipeline end-to-end
+    let _sent = 0, _subCount = 0;
     if (emails.length && pushConfigured) {
       const { data: subs } = await db
         .from("push_subscriptions")
         .select("endpoint, p256dh, auth")
         .in("email", emails);
 
+      _subCount = (subs ?? []).length;
       const stale: string[] = [];
       for (const s of subs ?? []) {
         const sub: WebPushSub = { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } };
         // Push de "data-sync": el service worker lo intercepta y dispara un
         // re-fetch silencioso. tag fijo → coalesce si llegan varias seguidas.
         const res = await sendPush(sub, { title: "", tag: "gh-sync", url: "/?ghsync=1" });
-        if (res.gone) stale.push(s.endpoint);
+        if (res.gone) stale.push(s.endpoint); else _sent++;
       }
       if (stale.length) await db.from("push_subscriptions").delete().in("endpoint", stale);
     }
+    // DEBUG temporal
+    console.log('[webhook-debug] healthUserIds=' + healthUserIds.length + ' emails=' + emails.length + ' subs=' + _subCount + ' pushed=' + _sent + ' pushConfigured=' + pushConfigured);
   } catch {
     // tragamos: ya validamos a Google; el push es best-effort.
   }
