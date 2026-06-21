@@ -13925,7 +13925,7 @@ async function _initStreakFromGoogle() {
 }
 
 // ── Identidad Google Health → gh_user_id ───────────────────────────────────
-// Captura el healthUserId opaco de Google (users/me:getIdentity) y lo guarda en
+// Captura el healthUserId opaco de Google (GET users/me/identity) y lo guarda en
 // Supabase. El webhook (/api/google/webhook) lo usa para mapear la notificación
 // "datos nuevos de healthUserId X" → email → dispositivos, y disparar el Web Push
 // que refresca AIRA sin abrir Google Health. Una sola vez por cuenta.
