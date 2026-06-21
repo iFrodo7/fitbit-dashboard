@@ -12106,9 +12106,12 @@ async function _supabasePrefsRead() {
     _pmApply('notif_pref',   function(){
       if (d.notif_pref === undefined) return;
       localStorage.setItem('fb_notif', d.notif_pref ? '1' : '0');
-      // Nota: NO des-suscribimos aquí. Un false propagado (a veces stale) NO debe
-      // destruir una suscripción push que funciona. La des-suscripción solo ocurre
-      // por acción explícita del usuario en el toggle local (toggleNotifications).
+      // OFF que llega con timestamp más nuevo = el usuario apagó las notificaciones
+      // en otro dispositivo → este TAMBIÉN se des-suscribe (sync simétrico con el ON).
+      // Seguro: el gate de _pmApply solo deja pasar un cambio genuinamente más reciente;
+      // y si por error entrara un false viejo, el bloque autoritativo ON re-suscribe en
+      // el próximo read cuando Supabase vuelva a true (auto-reparable).
+      if (!d.notif_pref) { try { if (typeof unsubscribeWebPush === 'function') unsubscribeWebPush(); } catch(_ue){} }
       if (typeof _syncNotifUI === 'function') { try { _syncNotifUI(); } catch(_se){} }
     });
     _pmApply('avatar_frame', function(){ if (d.avatar_frame) localStorage.setItem('fb_avatar_frame', d.avatar_frame); });
