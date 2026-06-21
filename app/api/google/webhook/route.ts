@@ -29,12 +29,15 @@ export async function POST(req: NextRequest) {
   // ── 1. Autenticación: el secreto de la subscription en Authorization ──────────
   const secret = process.env.GH_WEBHOOK_SECRET;
   const authHeader = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
-  // No Authorization header → log body for debugging, then accept silently.
+  // No Authorization header → Google verification challenge.
+  // Echo the body back so Google's verification check passes.
   if (!authHeader) {
-    let dbgBody = 'empty';
-    try { dbgBody = await req.text(); } catch { /* ignore */ }
-    console.log('[webhook-verify] no-auth body:', dbgBody.substring(0, 500));
-    return new NextResponse(null, { status: 204 });
+    let verifyBody = '';
+    try { verifyBody = await req.text(); } catch { /* ignore */ }
+    return new NextResponse(verifyBody || null, {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
   // Wrong secret → reject.
   if (!secret || authHeader !== secret) {
