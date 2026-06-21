@@ -8787,7 +8787,27 @@ if ('serviceWorker' in navigator) {
   });
   // Escuchar actualizaciones de racha calculadas por el SW en background
   navigator.serviceWorker.addEventListener('message', function(ev) {
-    if (!ev.data || ev.data.type !== 'SW_STREAK_UPDATE') return;
+    if (!ev.data) return;
+    // GH_SYNC: el webhook de Google Health avisó que hay datos nuevos en la nube.
+    // Re-fetcheamos al instante (sin abrir Google Health). Throttle 10s para no
+    // encadenar polls si llegan varias notificaciones seguidas.
+    if (ev.data.type === 'GH_SYNC') {
+      try {
+        var _now = Date.now();
+        if (_now - (window._lastGhSync || 0) > 10000 && typeof isReal !== 'undefined' && isReal) {
+          window._lastGhSync = _now;
+          var _isG = (typeof HS !== 'undefined' && HS && HS.id === 'google');
+          var _pf = _isG ? (typeof pollFastGoogle === 'function' ? pollFastGoogle : null)
+                         : (typeof pollFast === 'function' ? pollFast : null);
+          var _ps = _isG ? (typeof pollSlowGoogle === 'function' ? pollSlowGoogle : null)
+                         : (typeof pollSlow === 'function' ? pollSlow : null);
+          if (_pf) _pf();
+          if (_ps) _ps();
+        }
+      } catch(e) {}
+      return;
+    }
+    if (ev.data.type !== 'SW_STREAK_UPDATE') return;
     try {
       var _swC = ev.data.count, _swD = ev.data.lastDate;
       var _stored = {}; try { _stored = JSON.parse(localStorage.getItem('fb_streak_steps') || '{}'); } catch(e2) {}
@@ -11995,7 +12015,9 @@ async function _supabasePrefsRead() {
     //  · goalMet → recalculado contra el goalUsed final y los pasos mergeados.
     if (d.activity_history && Array.isArray(d.activity_history) && d.activity_history.length) {
       var _lahR = []; try { _lahR = JSON.parse(localStorage.getItem('fb_activity_history')||'[]'); } catch(_lahe) {}
-      var _ahToday = typeof _localDateStr==='function' ? _localDateStr() : new Date().toISOString().slice(0,10);
+      // R1 (audit): hoy+ayer mutables; días anteriores a ayer son inmutables (simétrico al servidor).
+      var _ahYd = new Date(); _ahYd.setDate(_ahYd.getDate()-1);
+      var _ahYday = typeof _localDateStr==='function' ? _localDateStr(_ahYd) : new Date(Date.now()-86400000).toISOString().slice(0,10);
       var _ahMap = {};
       _lahR.forEach(function(e){ if(e.date) _ahMap[e.date] = e; });
       var _ahChanged = false;
@@ -12011,9 +12033,9 @@ async function _supabasePrefsRead() {
         if (e.readiness!=null) _m.readiness = e.readiness;
         if (e.phase!=null)     _m.phase     = e.phase;
         if (e.dow!=null)       _m.dow       = e.dow;
-        var _isToday = e.date === _ahToday;
-        // Día pasado con goalUsed local → inmutable. Sin goalUsed local (backfill) u hoy → adoptar Supabase.
-        var _frozenGoal = (_loc.goalUsed!=null && !_isToday) ? _loc.goalUsed : e.goalUsed;
+        var _isFrozen = e.date < _ahYday;
+        // Día anterior a ayer con goalUsed local → inmutable. Sin goalUsed local (backfill) u hoy/ayer → adoptar Supabase.
+        var _frozenGoal = (_loc.goalUsed!=null && _isFrozen) ? _loc.goalUsed : e.goalUsed;
         if (_frozenGoal!=null) { _m.goalUsed = _frozenGoal; _m.goalMet = (_m.steps||0) >= _frozenGoal; }
         if (JSON.stringify(_m) !== JSON.stringify(_loc)) _ahChanged = true;
         _ahMap[e.date] = _m;
@@ -13902,12 +13924,35 @@ async function _initStreakFromGoogle() {
   } catch(e) { console.warn('[gh streak init]', e); }
 }
 
+// ── Identidad Google Health → gh_user_id ───────────────────────────────────
+// Captura el healthUserId opaco de Google (users/me:getIdentity) y lo guarda en
+// Supabase. El webhook (/api/google/webhook) lo usa para mapear la notificación
+// "datos nuevos de healthUserId X" → email → dispositivos, y disparar el Web Push
+// que refresca AIRA sin abrir Google Health. Una sola vez por cuenta.
+async function _captureGoogleIdentity() {
+  if (!token) return;
+  var email = (localStorage.getItem('fb_email') || '').toLowerCase();
+  var flagKey = 'fb_gh_identity_' + (email || 'anon');
+  if (localStorage.getItem(flagKey)) return;
+  try {
+    var r = await _ghGet(GoogleHealthSource.ep.identity(), true);
+    console.log('[gh identity raw]', JSON.stringify(r));  // TODO(verificar): confirmar el nombre del campo
+    var uid = r && (r.healthUserId || r.userId || r.id || r.name || (r.identity && r.identity.healthUserId));
+    if (uid) {
+      localStorage.setItem('gh_user_id', String(uid));
+      localStorage.setItem(flagKey, '1');
+      if (typeof _supabasePrefsWrite === 'function') _supabasePrefsWrite({ gh_user_id: String(uid) }).catch(function(){});
+    }
+  } catch(e) { console.warn('[gh identity]', e); }
+}
+
 // ── Initial full load ─────────────────────────────────────────────────────
 async function loadRealGoogleData(silentRefresh) {
   // Migrate any fb_streak_steps.goal / fb_activity_history goalUsed that were
   // incorrectly set to 10000 by the pre-v142 fb_steps_goal bug. Must run before
   // updateDailyRings() and _initStreakFromGoogle() read those values.
   _migrateStreakGoalData();
+  _captureGoogleIdentity();   // best-effort: healthUserId → gh_user_id para el webhook
   // Wipe every HTML demo value up front so hardcoded HTML defaults (8.4 strain,
   // 90% sleep, 24 stress, etc.) never leak to authenticated users.
   // Then, if silentRefresh=true, _restoreSnap() is called immediately after the
@@ -15459,7 +15504,12 @@ async function subscribeWebPush() {
     if (!publicKey) return;
     let sub = await reg.pushManager.getSubscription();
     if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: _urlB64ToUint8(publicKey) });
-    await fetch('/api/push/subscribe', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(sub) });
+    // Adjuntamos el email para que el webhook de Google Health pueda dirigir el
+    // push de datos al usuario correcto (push_subscriptions.email). Re-enviar en
+    // cada llamada también backfillea suscripciones viejas que no traían email.
+    const _subBody = (sub.toJSON ? sub.toJSON() : sub);
+    _subBody.email = (localStorage.getItem('fb_email') || '').toLowerCase();
+    await fetch('/api/push/subscribe', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(_subBody) });
   } catch (e) { /* push opcional; nunca rompe el flujo */ }
 }
 async function unsubscribeWebPush() {

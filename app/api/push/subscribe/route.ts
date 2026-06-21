@@ -6,7 +6,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 // user_id es opcional: si hay cookie de sesión la asociamos; si no, queda anónima
 // (la app es personal). El endpoint es único → upsert.
 export async function POST(request: NextRequest) {
-  let body: { endpoint?: string; keys?: { p256dh?: string; auth?: string } };
+  let body: { endpoint?: string; keys?: { p256dh?: string; auth?: string }; email?: string };
   try {
     body = await request.json();
   } catch {
@@ -16,6 +16,9 @@ export async function POST(request: NextRequest) {
   const endpoint = body?.endpoint;
   const p256dh = body?.keys?.p256dh;
   const auth = body?.keys?.auth;
+  // email: dueño de la suscripción → el webhook de Google Health lo usa para
+  // dirigir el push de datos al dispositivo correcto (ver /api/google/webhook).
+  const email = body?.email?.toLowerCase().trim() || null;
   if (!endpoint || !p256dh || !auth) {
     return NextResponse.json({ error: "Missing subscription fields" }, { status: 400 });
   }
@@ -29,6 +32,7 @@ export async function POST(request: NextRequest) {
     .upsert(
       {
         user_id: userId,
+        email,
         endpoint,
         p256dh,
         auth,

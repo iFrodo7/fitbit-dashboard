@@ -90,6 +90,14 @@ export async function POST(req: NextRequest) {
     update.aira_uid = body.aira_uid;
   }
 
+  // ── Identidad Google Health — healthUserId opaco ↔ email. Lo usa el webhook
+  //    (/api/google/webhook) para dirigir el Web Push al dispositivo correcto.
+  //    Viene de users/me:getIdentity (autenticado), así que adoptamos el último
+  //    valor si cambia o falta — self-healing, no es first-write-wins estricto.
+  if (body.gh_user_id && (ex as Record<string,unknown> | null)?.gh_user_id !== body.gh_user_id) {
+    update.gh_user_id = body.gh_user_id;
+  }
+
   // ── T2: Prefs por campo — cada uno con su propio timestamp (prefs_meta) ───────
   // Antes un único prefs_ts gobernaba todo el bundle: cambiar un campo en un
   // dispositivo bloqueaba la sincronización de otro campo aún sin sincronizar en
@@ -242,7 +250,15 @@ export async function POST(req: NextRequest) {
   // Si ah_today no viene (cliente viejo), se congelan todos los días por seguridad.
   if (Array.isArray(body.activity_history) && (body.activity_history as unknown[]).length) {
     const exAH = ((ex as Record<string,unknown> | null)?.activity_history as Array<Record<string,unknown>> | null) ?? [];
-    const ahToday = String(body.ah_today ?? "");
+    // R1 (audit fix): la mutabilidad de un día NO se decide con el reloj del cliente
+    // (body.ah_today), que puede venir con zona/hora incorrecta y dejar que un
+    // dispositivo re-escriba un día que otro ya congeló. La fuente autoritativa es el
+    // reloj del SERVIDOR: solo HOY y AYER (UTC) son mutables — cubre cualquier zona
+    // horaria real (ningún usuario va >1 día detrás de UTC). Todo lo anterior a ayer-UTC
+    // es un hecho histórico inmutable, sin importar lo que afirme el cliente.
+    const _utcDay = (offsetDays: number) =>
+      new Date(Date.now() + offsetDays * 86400000).toISOString().slice(0, 10);
+    const serverYday = _utcDay(-1);
     const byDate = new Map(exAH.map(e => [String(e.date ?? ""), e]));
     for (const entry of body.activity_history as Array<Record<string,unknown>>) {
       const d = String(entry.date ?? "");
@@ -256,9 +272,9 @@ export async function POST(req: NextRequest) {
       if (entry.readiness != null) merged.readiness = entry.readiness;
       if (entry.phase != null)     merged.phase     = entry.phase;
       if (entry.dow != null)       merged.dow       = entry.dow;
-      // goalUsed: congelado para días pasados; hoy puede actualizarse al valor entrante.
-      const isToday = !!ahToday && d === ahToday;
-      const frozenGoal = (existing.goalUsed != null && !isToday) ? existing.goalUsed : entry.goalUsed;
+      // goalUsed: inmutable para días anteriores a ayer-UTC; hoy/ayer pueden actualizarse.
+      const isFrozen = d < serverYday;
+      const frozenGoal = (existing.goalUsed != null && isFrozen) ? existing.goalUsed : entry.goalUsed;
       if (frozenGoal != null) {
         merged.goalUsed = frozenGoal;
         merged.goalMet  = (Number(merged.steps) || 0) >= Number(frozenGoal);
@@ -314,10 +330,11 @@ export async function POST(req: NextRequest) {
     .from("app_user_prefs")
     .upsert(update, { onConflict: "email" });
 
-  if (error && /is_pro_ts|prefs_meta/i.test(error.message)) {
+  if (error && /is_pro_ts|prefs_meta|gh_user_id/i.test(error.message)) {
     const safe = { ...update };
     delete safe.is_pro_ts;
     delete safe.prefs_meta;
+    delete safe.gh_user_id;   // migración 013 aún no aplicada → no romper el resto del sync
     ({ error } = await db.from("app_user_prefs").upsert(safe, { onConflict: "email" }));
   }
 

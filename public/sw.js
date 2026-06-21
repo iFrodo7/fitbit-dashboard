@@ -35,6 +35,26 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('push', (event) => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch (e) { data = { body: event.data && event.data.text() }; }
+
+  // Push de DATOS del webhook de Google Health (tag 'gh-sync'): no es para el
+  // usuario, es para refrescar. Avisamos a las pestañas abiertas para que
+  // re-fetcheen el total reconciliado (dailyRollUp), sin abrir Google Health.
+  // Solo mostramos una notificación (silenciosa) si NINGUNA pestaña está a la
+  // vista — la política de Web Push exige mostrar algo cuando la app no está activa.
+  if (data.tag === 'gh-sync') {
+    event.waitUntil((async () => {
+      const cls = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      for (const c of cls) c.postMessage({ type: 'GH_SYNC' });
+      const anyVisible = cls.some((c) => c.visibilityState === 'visible');
+      if (!anyVisible) {
+        await self.registration.showNotification('Fitbit Air', {
+          body: '', tag: 'gh-sync', silent: true, data: { url: '/app.html' }
+        });
+      }
+    })());
+    return;
+  }
+
   const title = data.title || 'Fitbit Air';
   const options = {
     body: data.body || '',
