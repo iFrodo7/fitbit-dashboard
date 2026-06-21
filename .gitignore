@@ -35,3 +35,7 @@ next-env.d.ts
 # Local Claude Code tooling (preview launch config, etc.)
 .claude/
 .env*
+
+# Service account keys (never commit)
+scripts/gh-sa-key.json
+*-sa-key.json
