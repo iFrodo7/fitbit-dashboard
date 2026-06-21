@@ -24,6 +24,8 @@ export async function POST(req: NextRequest) {
   // ── 1. Autenticación: el secreto de la subscription en Authorization ──────────
   const secret = process.env.GH_WEBHOOK_SECRET;
   const authHeader = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
+  // DEBUG — remove after webhook verification works
+  console.log('[webhook] secret_set=' + !!secret + ' auth_len=' + authHeader.length + ' match=' + (authHeader === secret));
   if (!secret || authHeader !== secret) {
     return new NextResponse(null, { status: 401 });
   }
