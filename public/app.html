@@ -9756,6 +9756,15 @@ async function loadWeekDataGoogle() {
         if (_prevStrLoad.prevCount && parseInt(_prevStrLoad.prevCount,10) > window._wkTodayStreakReal) {
           window._wkPrevStreakCount = parseInt(_prevStrLoad.prevCount, 10);
           window._wkPrevStreakEndDate = _prevStrLoad.prevLastDate || '';
+          // Sanitize: prevLastDate must not fall on or after the break day that ended the
+          // current streak (e.g. if the cache was written with prevLastDate = today - 1,
+          // which happens when a prior incorrect run set it during the active period).
+          // If corrupted, clear so FIX #17c can recompute authoritatively from IDB.
+          var _brkDay17 = (_wkStr7 < 7 && days[6 - _wkStr7]) ? days[6 - _wkStr7].date : '';
+          if (_brkDay17 && window._wkPrevStreakEndDate >= _brkDay17) {
+            window._wkPrevStreakCount   = 0;
+            window._wkPrevStreakEndDate = '';
+          }
         }
       } catch(e5) {}
     }
@@ -9811,7 +9820,8 @@ async function loadWeekDataGoogle() {
             // Persist so subsequent loads skip the IDB scan
             try {
               var _psd17c = JSON.parse(localStorage.getItem('fb_streak_steps')||'{}');
-              if (!_psd17c.prevCount || _tot17c > _psd17c.prevCount) {
+              if (!_psd17c.prevCount || _tot17c > _psd17c.prevCount ||
+                  (days[_pe17c] && _psd17c.prevLastDate !== days[_pe17c].date)) {
                 _psd17c.prevCount    = _tot17c;
                 _psd17c.prevLastDate = days[_pe17c].date;
                 localStorage.setItem('fb_streak_steps', JSON.stringify(_psd17c));
