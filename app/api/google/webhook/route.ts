@@ -26,29 +26,29 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  // Read body first — needed to detect verification challenges before auth check.
+  let rawBody = '';
+  try { rawBody = await req.text(); } catch { /* ignore */ }
+
+  // ── Verification challenge: Google sends {"type":"verification"} (with or without auth) ──
+  // Echo the body back so the verification check passes.
+  let parsed: unknown;
+  try { parsed = JSON.parse(rawBody); } catch { /* not JSON */ }
+  if (parsed && typeof parsed === 'object' && (parsed as Record<string, unknown>).type === 'verification') {
+    return new NextResponse(rawBody, { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }
+
   // ── 1. Autenticación: el secreto de la subscription en Authorization ──────────
   const secret = process.env.GH_WEBHOOK_SECRET;
   const authHeader = (req.headers.get("authorization") || "").replace(/^Bearer\s+/i, "").trim();
-  // No Authorization header → Google verification challenge.
-  // Echo the body back so Google's verification check passes.
-  if (!authHeader) {
-    let verifyBody = '';
-    try { verifyBody = await req.text(); } catch { /* ignore */ }
-    return new NextResponse(verifyBody || null, {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-  // Wrong secret → reject.
+  if (!authHeader) return new NextResponse(null, { status: 204 });
   if (!secret || authHeader !== secret) {
     return new NextResponse(null, { status: 401 });
   }
 
   // ── 2. Parseo defensivo del payload ──────────────────────────────────────────
-  // TODO(verificar): confirmar si Google envía { notifications: [...] }, un array
-  // suelto, o una notificación única. Aceptamos las tres formas por ahora.
   let payload: unknown;
-  try { payload = await req.json(); } catch { return new NextResponse(null, { status: 204 }); }
+  try { payload = JSON.parse(rawBody); } catch { return new NextResponse(null, { status: 204 }); }
 
   const notes: Array<Record<string, unknown>> =
     Array.isArray((payload as { notifications?: unknown })?.notifications)
