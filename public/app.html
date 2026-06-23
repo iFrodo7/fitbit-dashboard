@@ -1800,14 +1800,14 @@ body.t-mc::after{content:'';position:fixed;inset:0;background:var(--mc-tint,tran
   }
 }
 .t-mc .db-hdr{background:#1e1600;border-bottom:4px solid #6a5020;box-shadow:0 4px 0 rgba(0,0,0,0.6);}
-.t-mc .card,.t-mc .vc{border:none!important;outline:3px solid #6a5020;box-shadow:inset 3px 3px 0 rgba(225,172,72,0.30),inset -3px -4px 0 rgba(0,0,0,0.66),inset 0 0 0 1px rgba(90,55,8,0.75),5px 6px 0 rgba(0,0,0,0.85);background:repeating-linear-gradient(0deg,transparent,transparent 15px,rgba(180,120,40,.11) 15px,rgba(180,120,40,.11) 16px),repeating-linear-gradient(90deg,transparent,transparent 15px,rgba(180,120,40,.11) 15px,rgba(180,120,40,.11) 16px),linear-gradient(150deg,#251c00,#1a1200 55%,#251c00)!important;}
+.t-mc .card,.t-mc .vc{border:none!important;outline:3px solid #6a5020;box-shadow:inset 3px 3px 0 rgba(225,172,72,0.30),inset -3px -4px 0 rgba(0,0,0,0.66),inset 0 0 0 1px rgba(90,55,8,0.75),5px 6px 0 rgba(0,0,0,0.85);background:repeating-linear-gradient(0deg,transparent,transparent 15px,rgba(180,120,40,.08) 15px,rgba(180,120,40,.08) 16px),repeating-linear-gradient(90deg,transparent,transparent 15px,rgba(180,120,40,.08) 15px,rgba(180,120,40,.08) 16px),linear-gradient(150deg,rgba(37,28,0,0.68),rgba(26,18,0,0.68) 55%,rgba(37,28,0,0.68))!important;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);}
 /* ── Voxel: cara superior iluminada por el atardecer (sunlit block top) ──
    Solo .card — .vc ya usa ::before para su cuadrito indicador verde. */
 .t-mc .card::before{content:'';position:absolute;top:0;left:0;right:0;height:7px;background:linear-gradient(180deg,rgba(255,176,64,0.22),rgba(255,176,64,0));pointer-events:none;z-index:1;}
 /* ── worn corner chips en cards mc ── */
 .t-mc .card::after,.t-mc .vc::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;background:linear-gradient(135deg,rgba(0,0,0,0.70) 4px,transparent 4px) top left/8px 8px no-repeat,linear-gradient(225deg,rgba(0,0,0,0.70) 4px,transparent 4px) top right/8px 8px no-repeat,linear-gradient(315deg,rgba(0,0,0,0.70) 4px,transparent 4px) bottom right/8px 8px no-repeat,linear-gradient(45deg,rgba(0,0,0,0.70) 4px,transparent 4px) bottom left/8px 8px no-repeat;}
 /* ── card.rw (Barra de Vida): fondo plano sin degradado de terreno ── */
-.t-mc .card.rw{background:repeating-linear-gradient(0deg,transparent,transparent 15px,rgba(180,120,40,.11) 15px,rgba(180,120,40,.11) 16px),repeating-linear-gradient(90deg,transparent,transparent 15px,rgba(180,120,40,.11) 15px,rgba(180,120,40,.11) 16px),#1a1200!important;}
+.t-mc .card.rw{background:repeating-linear-gradient(0deg,transparent,transparent 15px,rgba(180,120,40,.08) 15px,rgba(180,120,40,.08) 16px),repeating-linear-gradient(90deg,transparent,transparent 15px,rgba(180,120,40,.08) 15px,rgba(180,120,40,.08) 16px),rgba(26,18,0,0.68)!important;}
 /* VT323 override — use px not rem for crisp rendering */
 .t-mc *{font-family:'VT323',monospace!important;}
 .t-mc .db-name{font-size:38px!important;color:#6aff3a;text-shadow:2px 2px 0 #003800;animation:mcCrtFlicker 5.5s steps(1,end) infinite;}
