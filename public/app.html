@@ -3557,7 +3557,6 @@ body.t-synth::after{content:'';position:fixed;inset:0;
               </symbol>
               <!-- ❤ Corazón pixel-art clásico Minecraft (14×12) -->
               <symbol id="mc-ic-heart" viewBox="0 0 14 12">
-                <!-- Cuerpo principal -->
                 <rect x="2" y="0"  width="4"  height="2" fill="currentColor"/>
                 <rect x="8" y="0"  width="4"  height="2" fill="currentColor"/>
                 <rect x="0" y="2"  width="14" height="2" fill="currentColor"/>
@@ -3565,10 +3564,24 @@ body.t-synth::after{content:'';position:fixed;inset:0;
                 <rect x="2" y="6"  width="10" height="2" fill="currentColor"/>
                 <rect x="4" y="8"  width="6"  height="2" fill="currentColor"/>
                 <rect x="6" y="10" width="2"  height="2" fill="currentColor"/>
-                <!-- Pixel de brillo (esquina sup-izq, siempre blanco) -->
                 <rect x="2" y="2"  width="2"  height="2" fill="rgba(255,255,255,0.65)"/>
-                <!-- Pixel de sombra inferior -->
                 <rect x="4" y="6"  width="2"  height="2" fill="rgba(0,0,0,0.25)"/>
+              </symbol>
+              <!-- 🍗 Muslo de pollo pixel-art (14×12) — icono HAMBRE/calorías -->
+              <symbol id="mc-ic-food" viewBox="0 0 14 12">
+                <rect x="4" y="0"  width="6"  height="2" fill="currentColor"/>
+                <rect x="2" y="2"  width="10" height="2" fill="currentColor"/>
+                <rect x="2" y="4"  width="10" height="2" fill="currentColor"/>
+                <rect x="4" y="6"  width="6"  height="2" fill="currentColor"/>
+                <rect x="5" y="8"  width="4"  height="2" fill="currentColor"/>
+                <rect x="4" y="10" width="6"  height="2" fill="currentColor"/>
+                <rect x="2" y="2"  width="2"  height="2" fill="rgba(255,255,255,0.5)"/>
+              </symbol>
+              <!-- ▪ Bloque XP pixel-art (14×12) — icono XP/minutos activos -->
+              <symbol id="mc-ic-xp" viewBox="0 0 14 12">
+                <rect x="1" y="1"  width="12" height="10" fill="currentColor"/>
+                <rect x="1" y="1"  width="12" height="2"  fill="rgba(255,255,255,0.30)"/>
+                <rect x="1" y="1"  width="2"  height="10" fill="rgba(255,255,255,0.18)"/>
               </symbol>
             </defs>
             <!-- Brackets esquina inventario -->
@@ -3580,44 +3593,44 @@ body.t-synth::after{content:'';position:fixed;inset:0;
             <rect x="2"   y="137" width="12" height="3"  fill="#6a5020"/>
             <rect x="157" y="127" width="3"  height="12" fill="#6a5020"/>
             <rect x="146" y="137" width="12" height="3"  fill="#6a5020"/>
-            <!-- ── Fila 1: RECUPERACION (rayos) ── -->
-            <text x="8" y="11" font-family="VT323" font-size="13" fill="#ffdd00">* PASOS</text>
-            <use id="mc-r-0" href="#mc-ic-bolt" x="5"   y="13" width="10" height="14" color="#2a2000"/>
-            <use id="mc-r-1" href="#mc-ic-bolt" x="20"  y="13" width="10" height="14" color="#2a2000"/>
-            <use id="mc-r-2" href="#mc-ic-bolt" x="35"  y="13" width="10" height="14" color="#2a2000"/>
-            <use id="mc-r-3" href="#mc-ic-bolt" x="50"  y="13" width="10" height="14" color="#2a2000"/>
-            <use id="mc-r-4" href="#mc-ic-bolt" x="65"  y="13" width="10" height="14" color="#2a2000"/>
-            <use id="mc-r-5" href="#mc-ic-bolt" x="80"  y="13" width="10" height="14" color="#2a2000"/>
-            <use id="mc-r-6" href="#mc-ic-bolt" x="95"  y="13" width="10" height="14" color="#2a2000"/>
-            <use id="mc-r-7" href="#mc-ic-bolt" x="110" y="13" width="10" height="14" color="#2a2000"/>
-            <use id="mc-r-8" href="#mc-ic-bolt" x="125" y="13" width="10" height="14" color="#2a2000"/>
-            <use id="mc-r-9" href="#mc-ic-bolt" x="140" y="13" width="10" height="14" color="#2a2000"/>
+            <!-- ── Fila 1: HP (corazones) ── -->
+            <text id="mc-hp-lbl" x="8" y="11" font-family="VT323" font-size="13" fill="#ff5555">* HP</text>
+            <use id="mc-r-0" href="#mc-ic-heart" x="3"   y="13" width="14" height="12" color="#2a0000"/>
+            <use id="mc-r-1" href="#mc-ic-heart" x="18"  y="13" width="14" height="12" color="#2a0000"/>
+            <use id="mc-r-2" href="#mc-ic-heart" x="33"  y="13" width="14" height="12" color="#2a0000"/>
+            <use id="mc-r-3" href="#mc-ic-heart" x="48"  y="13" width="14" height="12" color="#2a0000"/>
+            <use id="mc-r-4" href="#mc-ic-heart" x="63"  y="13" width="14" height="12" color="#2a0000"/>
+            <use id="mc-r-5" href="#mc-ic-heart" x="78"  y="13" width="14" height="12" color="#2a0000"/>
+            <use id="mc-r-6" href="#mc-ic-heart" x="93"  y="13" width="14" height="12" color="#2a0000"/>
+            <use id="mc-r-7" href="#mc-ic-heart" x="108" y="13" width="14" height="12" color="#2a0000"/>
+            <use id="mc-r-8" href="#mc-ic-heart" x="123" y="13" width="14" height="12" color="#2a0000"/>
+            <use id="mc-r-9" href="#mc-ic-heart" x="138" y="13" width="14" height="12" color="#2a0000"/>
             <rect x="8" y="29" width="144" height="2" fill="#3a2800"/>
-            <!-- ── Fila 2: SUENO (Zs) ── -->
-            <text x="8" y="42" font-family="VT323" font-size="13" fill="#5bc8ff">* CALORIAS</text>
-            <use id="mc-s-0" href="#mc-ic-z" x="3"   y="44" width="14" height="12" color="#001830"/>
-            <use id="mc-s-1" href="#mc-ic-z" x="18"  y="44" width="14" height="12" color="#001830"/>
-            <use id="mc-s-2" href="#mc-ic-z" x="33"  y="44" width="14" height="12" color="#001830"/>
-            <use id="mc-s-3" href="#mc-ic-z" x="48"  y="44" width="14" height="12" color="#001830"/>
-            <use id="mc-s-4" href="#mc-ic-z" x="63"  y="44" width="14" height="12" color="#001830"/>
-            <use id="mc-s-5" href="#mc-ic-z" x="78"  y="44" width="14" height="12" color="#001830"/>
-            <use id="mc-s-6" href="#mc-ic-z" x="93"  y="44" width="14" height="12" color="#001830"/>
-            <use id="mc-s-7" href="#mc-ic-z" x="108" y="44" width="14" height="12" color="#001830"/>
-            <use id="mc-s-8" href="#mc-ic-z" x="123" y="44" width="14" height="12" color="#001830"/>
-            <use id="mc-s-9" href="#mc-ic-z" x="138" y="44" width="14" height="12" color="#001830"/>
+            <!-- ── Fila 2: HAMBRE (muslos de pollo) ── -->
+            <text x="8" y="42" font-family="VT323" font-size="13" fill="#ffaa00">* HAMBRE</text>
+            <use id="mc-s-0" href="#mc-ic-food" x="3"   y="44" width="14" height="12" color="#2a1500"/>
+            <use id="mc-s-1" href="#mc-ic-food" x="18"  y="44" width="14" height="12" color="#2a1500"/>
+            <use id="mc-s-2" href="#mc-ic-food" x="33"  y="44" width="14" height="12" color="#2a1500"/>
+            <use id="mc-s-3" href="#mc-ic-food" x="48"  y="44" width="14" height="12" color="#2a1500"/>
+            <use id="mc-s-4" href="#mc-ic-food" x="63"  y="44" width="14" height="12" color="#2a1500"/>
+            <use id="mc-s-5" href="#mc-ic-food" x="78"  y="44" width="14" height="12" color="#2a1500"/>
+            <use id="mc-s-6" href="#mc-ic-food" x="93"  y="44" width="14" height="12" color="#2a1500"/>
+            <use id="mc-s-7" href="#mc-ic-food" x="108" y="44" width="14" height="12" color="#2a1500"/>
+            <use id="mc-s-8" href="#mc-ic-food" x="123" y="44" width="14" height="12" color="#2a1500"/>
+            <use id="mc-s-9" href="#mc-ic-food" x="138" y="44" width="14" height="12" color="#2a1500"/>
             <rect x="8" y="60" width="144" height="2" fill="#3a2800"/>
-            <!-- ── Fila 3: ESTRES (corazones) ── -->
-            <text id="mc-st-lbl" x="8" y="73" font-family="VT323" font-size="13" fill="#ff5555">MIN ACT.</text>
-            <use id="mc-st-0" href="#mc-ic-heart" x="3"   y="75" width="14" height="12" color="#2a0000"/>
-            <use id="mc-st-1" href="#mc-ic-heart" x="18"  y="75" width="14" height="12" color="#2a0000"/>
-            <use id="mc-st-2" href="#mc-ic-heart" x="33"  y="75" width="14" height="12" color="#2a0000"/>
-            <use id="mc-st-3" href="#mc-ic-heart" x="48"  y="75" width="14" height="12" color="#2a0000"/>
-            <use id="mc-st-4" href="#mc-ic-heart" x="63"  y="75" width="14" height="12" color="#2a0000"/>
-            <use id="mc-st-5" href="#mc-ic-heart" x="78"  y="75" width="14" height="12" color="#2a0000"/>
-            <use id="mc-st-6" href="#mc-ic-heart" x="93"  y="75" width="14" height="12" color="#2a0000"/>
-            <use id="mc-st-7" href="#mc-ic-heart" x="108" y="75" width="14" height="12" color="#2a0000"/>
-            <use id="mc-st-8" href="#mc-ic-heart" x="123" y="75" width="14" height="12" color="#2a0000"/>
-            <use id="mc-st-9" href="#mc-ic-heart" x="138" y="75" width="14" height="12" color="#2a0000"/>
+            <!-- ── Fila 3: XP (bloques) ── -->
+            <text x="8" y="73" font-family="VT323" font-size="13" fill="#6aff3a">* XP</text>
+            <use id="mc-st-0" href="#mc-ic-xp" x="3"   y="75" width="14" height="12" color="#0a2200"/>
+            <use id="mc-st-1" href="#mc-ic-xp" x="18"  y="75" width="14" height="12" color="#0a2200"/>
+            <use id="mc-st-2" href="#mc-ic-xp" x="33"  y="75" width="14" height="12" color="#0a2200"/>
+            <use id="mc-st-3" href="#mc-ic-xp" x="48"  y="75" width="14" height="12" color="#0a2200"/>
+            <use id="mc-st-4" href="#mc-ic-xp" x="63"  y="75" width="14" height="12" color="#0a2200"/>
+            <use id="mc-st-5" href="#mc-ic-xp" x="78"  y="75" width="14" height="12" color="#0a2200"/>
+            <use id="mc-st-6" href="#mc-ic-xp" x="93"  y="75" width="14" height="12" color="#0a2200"/>
+            <use id="mc-st-7" href="#mc-ic-xp" x="108" y="75" width="14" height="12" color="#0a2200"/>
+            <use id="mc-st-8" href="#mc-ic-xp" x="123" y="75" width="14" height="12" color="#0a2200"/>
+            <use id="mc-st-9" href="#mc-ic-xp" x="138" y="75" width="14" height="12" color="#0a2200"/>
             <rect x="8" y="93" width="144" height="2" fill="#3a2800"/>
             <!-- Score (estilo inventario) -->
             <rect x="22" y="99" width="116" height="22" fill="#171200" stroke="#6a5020" stroke-width="2"/>
@@ -3627,9 +3640,9 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         </div>
         <!-- Leyenda MC -->
         <div class="mc-leg">
-          <span class="mc-ldot" style="background:#ffdd00;box-shadow:2px 2px 0 #2a2000;"></span>PASOS
-          <span class="mc-ldot" style="background:#5bc8ff;box-shadow:2px 2px 0 #001830;margin-left:8px;"></span>CAL
-          <span class="mc-ldot" style="background:#ff5555;box-shadow:2px 2px 0 #600000;margin-left:8px;"></span>ACT
+          <span class="mc-ldot" style="background:#ff5555;box-shadow:2px 2px 0 #2a0000;"></span>HP
+          <span class="mc-ldot" style="background:#ffaa00;box-shadow:2px 2px 0 #2a1500;margin-left:8px;"></span>HAMBRE
+          <span class="mc-ldot" style="background:#6aff3a;box-shadow:2px 2px 0 #0a2200;margin-left:8px;"></span>XP
         </div>
 
         <!-- Naruto Ring — naruto theme only -->
@@ -10857,13 +10870,13 @@ function setHRZones({ zones=[], restHR=61, maxHR=172 }) {
 // ══════ MC RING — PIXEL ART ICONS ══════
 function setMCHearts(type, filled) {
   const cols = {
-    r:  { on: '#ffdd00', off: '#2a2000' },
-    s:  { on: '#5bc8ff', off: '#001830' },
-    st: { on: '#ff5555', off: '#2a0000' }
+    r:  { on: '#ff5555', off: '#2a0000' },
+    s:  { on: '#ffaa00', off: '#2a1500' },
+    st: { on: '#6aff3a', off: '#0a2200' }
   };
   const c = cols[type];
   if (!c) return;
-  const isLowHP = (type === 'st' && filled <= 2);
+  const isLowHP = (type === 'r' && filled <= 2);
   // Paso 1: resetear todas a 'none' para forzar restart de animación
   for (let i = 0; i < 10; i++) {
     const el = document.getElementById(`mc-${type}-${i}`);
@@ -10880,11 +10893,10 @@ function setMCHearts(type, filled) {
       ? `mcLowHpBlink 0.65s steps(1) infinite ${delay}`
       : `mcFillIn .22s ease-out ${delay} both`;
   }
-  // C: blink en label MIN ACT. cuando HP crítico
-  if (type === 'st') {
-    const lbl = document.getElementById('mc-st-lbl');
+  // C: blink en label HP cuando crítico + velocidad del latido del score
+  if (type === 'r') {
+    const lbl = document.getElementById('mc-hp-lbl');
     if (lbl) lbl.style.animation = isLowHP ? 'mcLowHpBlink 0.65s steps(1) infinite' : '';
-    // D: velocidad del latido según nivel de HP
     const svg = document.querySelector('.mc-rsvg');
     if (svg) {
       const dur = filled >= 7 ? '2.6s' : filled >= 4 ? '1.5s' : '0.65s';
