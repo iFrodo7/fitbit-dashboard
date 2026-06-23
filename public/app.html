@@ -1773,9 +1773,12 @@ body.t-mc::after{content:'';position:fixed;inset:0;background:var(--mc-tint,tran
   transform-origin:50% 0%;transform:rotateX(84deg);
   animation:swGridFloor 1.7s linear infinite;}
 @keyframes swGridFloor{from{transform:rotateX(84deg) translateY(0)}to{transform:rotateX(84deg) translateY(36px)}}
-/* reflejo del sol sobre la grilla */
-.sw-sunref{position:absolute;left:50%;bottom:0;width:120px;height:42%;transform:translateX(-50%);
-  background:linear-gradient(180deg,rgba(255,120,185,0.5) 0%,rgba(255,40,150,0) 78%);pointer-events:none;}
+/* reflejo del sol sobre la grilla — óvalo vertical (círculo proyectado en perspectiva sobre el suelo) */
+.sw-sunref{position:absolute;left:50%;bottom:0;width:220px;height:50%;transform:translateX(-50%);
+  pointer-events:none;
+  /* sin clip-path: el gradiente radial define la forma y el borde queda difuminado de forma natural */
+  background:radial-gradient(ellipse 50% 28% at 50% 28%,rgba(255,215,150,0.52) 0%,rgba(255,140,60,0.30) 35%,rgba(255,90,20,0.10) 62%,transparent 82%);
+  mix-blend-mode:screen;}
 /* estrella fugaz + pulso del glow del sol */
 @keyframes swShoot{0%,82%{transform:translate(0,0);opacity:0}84%{opacity:1}92%{transform:translate(-130px,66px);opacity:0}100%{opacity:0}}
 .sw-shoot{animation:swShoot 9s ease-in infinite;transform-box:fill-box}
