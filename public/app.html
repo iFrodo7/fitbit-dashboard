@@ -1773,7 +1773,9 @@ body.t-mc::after{content:'';position:fixed;inset:0;background:var(--mc-tint,tran
 .t-mc .acmt,.t-mc .sltm,.t-mc .wdl,.t-mc .sllbl,.t-mc .spct,.t-mc .sgoal,.t-mc .itxt{font-size:14px!important;}
 .t-mc .ityp{font-size:13px!important;}
 .t-mc .db-date{font-size:13px!important;}
-.t-mc .cbtn{border:3px solid #6aff3a!important;font-size:15px!important;box-shadow:2px 2px 0 #000;}
+.t-mc .cbtn{border:3px solid #6aff3a!important;font-size:15px!important;box-shadow:2px 2px 0 #000;transition:transform .06s steps(2),box-shadow .06s steps(2);}
+/* ── Voxel: botón se hunde al presionar (como botón de Minecraft) ── */
+.t-mc .cbtn:active{transform:translate(2px,2px);box-shadow:0 0 0 #000!important;}
 .t-mc .rfil{stroke:#6aff3a!important;filter:none;}
 .t-mc .vc::before{content:'';position:absolute;top:3px;right:3px;width:8px;height:8px;background:#6aff3a;box-shadow:-2px 0 0 #003800;}
 /* MC HP/XP bars */
