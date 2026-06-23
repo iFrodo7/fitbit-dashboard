@@ -1756,15 +1756,23 @@ body.t-mc::after{content:'';position:fixed;inset:0;background:var(--mc-tint,tran
    translúcido (z-index 0); el ::after (scanlines CRT) corona el efecto. ── */
 #synth-city{display:none;}
 .t-synth #synth-city{display:block;position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
-  background:linear-gradient(180deg,#070617 0%,#140a34 30%,#33125a 50%,#7a1a78 72%,#c92a82 88%,#e85aa0 100%);}
+  /* Cielo con profundidad: nebulosa alta + cuerpo midnight multi-stop + glow magenta
+     concentrado en el horizonte (~60%) que se derrama sobre el grid para fundir ambas capas. */
+  background:
+    radial-gradient(125% 46% at 50% 60%,rgba(255,86,160,0.42) 0%,rgba(173,40,128,0.20) 30%,transparent 62%),
+    radial-gradient(85% 32% at 50% 16%,rgba(86,42,150,0.32) 0%,transparent 70%),
+    linear-gradient(180deg,#04030e 0%,#0a0726 22%,#160a3a 40%,#2a0f52 54%,#1c0a3e 66%,#0c0420 82%,#070314 100%);}
 .t-synth #synth-city .sw-scene{position:absolute;top:0;left:0;width:100%;height:60%;}
 /* piso de grilla en perspectiva */
-.sw-grid-wrap{position:absolute;left:0;right:0;bottom:0;height:44%;overflow:hidden;perspective:300px;perspective-origin:50% 0%;}
+.sw-grid-wrap{position:absolute;left:0;right:0;bottom:0;height:50%;overflow:hidden;perspective:520px;perspective-origin:50% 0%;
+  /* el grid emerge desde el horizonte: las líneas lejanas se difuminan en el cielo (parallax) */
+  -webkit-mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,0.22) 9%,#000 40%);
+  mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,0.22) 9%,#000 40%);}
 .sw-grid{position:absolute;left:-50%;top:0;width:200%;height:200%;
-  background-image:repeating-linear-gradient(90deg,transparent 0 46px,#28dbff 46px 48px),repeating-linear-gradient(0deg,transparent 0 46px,#28dbff 46px 48px);
-  transform-origin:50% 0%;transform:rotateX(82deg);
+  background-image:repeating-linear-gradient(90deg,transparent 0 34px,rgba(40,219,255,0.82) 34px,rgba(40,219,255,0.82) 36px),repeating-linear-gradient(0deg,transparent 0 34px,rgba(40,219,255,0.82) 34px,rgba(40,219,255,0.82) 36px);
+  transform-origin:50% 0%;transform:rotateX(84deg);
   animation:swGridFloor 1.7s linear infinite;}
-@keyframes swGridFloor{from{transform:rotateX(82deg) translateY(0)}to{transform:rotateX(82deg) translateY(48px)}}
+@keyframes swGridFloor{from{transform:rotateX(84deg) translateY(0)}to{transform:rotateX(84deg) translateY(36px)}}
 /* reflejo del sol sobre la grilla */
 .sw-sunref{position:absolute;left:50%;bottom:0;width:120px;height:42%;transform:translateX(-50%);
   background:linear-gradient(180deg,rgba(255,120,185,0.5) 0%,rgba(255,40,150,0) 78%);pointer-events:none;}
@@ -2135,7 +2143,8 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .t-synth .card::before{content:'';position:absolute;top:0;left:0;width:16px;height:2px;background:rgba(255,0,255,0.7);box-shadow:0 0 6px rgba(255,0,255,0.5);}
 /* Nav */
 .t-synth .bnav{border-top:1px solid rgba(255,0,255,0.22);background:rgba(10,0,21,0.97);}
-/* Cards */
+/* Cards — panel de cristal oscuro: legibles sobre la escena outrun sin perder el tinte neón */
+.t-synth .card,.t-synth .vc{background:linear-gradient(158deg,rgba(26,8,48,0.74),rgba(10,2,24,0.86));backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);}
 .t-synth .iitm{background:rgba(255,0,255,0.04);border-color:rgba(255,0,255,0.14);}
 .t-synth .iitm::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,0,255,0.7),transparent);animation:sw-scanline 5s ease-in-out infinite;pointer-events:none;}
 @keyframes sw-scanline{0%,100%{transform:translateY(0);opacity:0;}40%{opacity:0;}50%{transform:translateY(200%);opacity:0.8;}60%{opacity:0;}}
