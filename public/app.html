@@ -1684,7 +1684,7 @@ body.t-fut{
 }
 body.t-fut::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,245,255,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,255,0.022) 1px,transparent 1px);background-size:34px 34px;pointer-events:none;z-index:0;}
 body.t-fut::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.05) 2px,rgba(0,0,0,0.05) 4px);pointer-events:none;z-index:999;}
-.t-fut .db-hdr{background:rgba(2,8,16,0.93);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,245,255,0.09);}
+.t-fut .db-hdr{background:rgba(2,8,16,0.97);border-bottom:1px solid rgba(0,245,255,0.09);}
 .t-fut .db-name,.t-fut .rnum,.t-fut .snum,.t-fut .vval{font-family:'Rajdhani',sans-serif;font-weight:700;}
 .t-fut .vval{font-size:34px;}
 .t-fut .rnum{font-size:42px;}
@@ -1751,6 +1751,20 @@ body.t-mc::after{content:'';position:fixed;inset:0;background:var(--mc-tint,tran
 @keyframes mcCloudDrift{from{transform:translateX(-90px)}to{transform:translateX(560px)}}
 @keyframes mcSunGlowPulse{0%,100%{opacity:0.85}50%{opacity:1}}
 .mc-sky-sunglow{animation:mcSunGlowPulse 6s ease-in-out infinite;transform-box:fill-box;transform-origin:center;}
+/* ── Accesibilidad + rendimiento: con "reducir movimiento" del SO, apagamos SOLO
+   las animaciones DECORATIVAS continuas (fondos, glows, flicker, partículas).
+   Listadas por selector a propósito — NUNCA tocamos animaciones de entrada/carga
+   (que usan fill forwards), así ningún elemento puede quedar invisible. ── */
+@media (prefers-reduced-motion: reduce){
+  body.t-halo::before, body.t-synth::before,
+  .t-synth .db-name, .t-halo .db-name, .t-mc .db-name, .t-mc .db-name::after,
+  .t-synth .iitm::after, .synth-eq-bar,
+  #mc-ambient, #mc-ambient::before, #mc-ambient::after, .mc-sky-sunglow,
+  #mc-rscore, #nn-chip-body, #blm-rfil, #blm-blossom,
+  #nrt-rfil, #nrt-kuji-ring, .nrt-seal, .b-spark, .nn-col{
+    animation: none !important;
+  }
+}
 .t-mc .db-hdr{background:#1e1600;border-bottom:4px solid #6a5020;box-shadow:0 4px 0 rgba(0,0,0,0.6);}
 .t-mc .card,.t-mc .vc{border:none!important;outline:3px solid #6a5020;box-shadow:inset 3px 3px 0 rgba(225,172,72,0.30),inset -3px -4px 0 rgba(0,0,0,0.66),inset 0 0 0 1px rgba(90,55,8,0.75),5px 6px 0 rgba(0,0,0,0.85);background:repeating-linear-gradient(0deg,transparent,transparent 15px,rgba(180,120,40,.11) 15px,rgba(180,120,40,.11) 16px),repeating-linear-gradient(90deg,transparent,transparent 15px,rgba(180,120,40,.11) 15px,rgba(180,120,40,.11) 16px),linear-gradient(150deg,#251c00,#1a1200 55%,#251c00)!important;}
 /* ── Voxel: cara superior iluminada por el atardecer (sunlit block top) ──
@@ -1953,7 +1967,7 @@ body.t-halo{
 body.t-halo::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(175deg,transparent 0px,transparent 22px,rgba(255,45,120,0.038) 22px,rgba(255,45,120,0.038) 23px),linear-gradient(rgba(255,45,120,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,45,120,0.018) 1px,transparent 1px);background-size:100% 100%,38px 38px,38px 38px;animation:nn-rain 10s linear infinite;pointer-events:none;z-index:0;}
 /* CRT scanlines */
 body.t-halo::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.055) 2px,rgba(0,0,0,0.055) 4px);pointer-events:none;z-index:999;}
-.t-halo .db-hdr{background:rgba(6,0,16,0.95);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,45,120,0.14);}
+.t-halo .db-hdr{background:rgba(6,0,16,0.97);border-bottom:1px solid rgba(255,45,120,0.14);}
 .t-halo .db-name,.t-halo .rnum,.t-halo .snum,.t-halo .vval{font-family:'Rajdhani',sans-serif;font-weight:700;}
 .t-halo .db-name{letter-spacing:10px;animation:swGlitch 7s steps(1) infinite;}
 .t-halo .vval{font-size:34px;}
@@ -1989,7 +2003,7 @@ body.t-bloom{
 body.t-bloom::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(232,92,138,0.07) 1px,transparent 1px);background-size:22px 22px;pointer-events:none;z-index:0;}
 /* Warm rose vignette bloom from bottom */
 body.t-bloom::after{content:'';position:fixed;bottom:0;left:0;right:0;height:35vh;background:radial-gradient(ellipse 80% 100% at 50% 100%,rgba(232,92,138,0.06) 0%,transparent 70%);pointer-events:none;z-index:0;}
-.t-bloom .db-hdr{background:rgba(15,7,9,0.94);backdrop-filter:blur(18px);border-bottom:1px solid rgba(232,92,138,0.12);}
+.t-bloom .db-hdr{background:rgba(15,7,9,0.97);border-bottom:1px solid rgba(232,92,138,0.12);}
 .t-bloom .db-name,.t-bloom .rnum,.t-bloom .snum,.t-bloom .vval{font-family:'Nunito',sans-serif;font-weight:800;}
 .t-bloom .db-name{letter-spacing:4px;}
 .t-bloom .vval{font-size:34px;}
@@ -2030,7 +2044,7 @@ body.t-naruto::before{content:'';position:fixed;inset:0;background:
   repeating-linear-gradient(0deg,rgba(45,68,90,0.013) 0px,rgba(45,68,90,0.013) 1px,transparent 1px,transparent 24px);
 pointer-events:none;z-index:0;}
 body.t-naruto::after{content:'気';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Noto Serif JP',serif;font-size:55vw;color:rgba(74,106,132,0.022);pointer-events:none;z-index:0;line-height:1;}
-.t-naruto .db-hdr{background:rgba(6,8,12,0.96);backdrop-filter:blur(12px);border-bottom:1px solid rgba(74,106,132,0.18);}
+.t-naruto .db-hdr{background:rgba(6,8,12,0.97);border-bottom:1px solid rgba(74,106,132,0.18);}
 /* Titles: Permanent Marker */
 .t-naruto .db-name{font-family:'Permanent Marker',cursive;color:#a0b8d0;text-shadow:2px 2px 0 #000;letter-spacing:2px;}
 .t-naruto .rnum{font-family:'Permanent Marker',cursive;font-size:42px;color:#a0b8d0;text-shadow:2px 2px 6px rgba(0,0,0,0.70);}
@@ -2082,7 +2096,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
     radial-gradient(ellipse 70% 35% at 50% 100%,rgba(255,0,255,0.12) 0%,rgba(0,255,255,0.06) 40%,transparent 70%),
     repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);
   pointer-events:none;z-index:999;}
-.t-synth .db-hdr{background:rgba(10,0,21,0.94);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,0,255,0.14);}
+.t-synth .db-hdr{background:rgba(10,0,21,0.97);border-bottom:1px solid rgba(255,0,255,0.14);}
 .t-synth .db-name,.t-synth .rnum,.t-synth .snum,.t-synth .vval{font-family:'Rajdhani',sans-serif;font-weight:700;}
 .t-synth .db-name{letter-spacing:8px;animation:swNeonFlicker 6s ease-in-out infinite;}
 .t-synth .vval{font-size:34px;}
@@ -15092,6 +15106,25 @@ async function pollSlow() {
   } catch(e) {}
 }
 function stopPoll() { clearInterval(ptmr);clearInterval(cdtmr);clearInterval(slowTmr);isReal=false;token='';window._pollRunning=false;localStorage.removeItem('fb_tok');localStorage.removeItem('fb_snap'); }
+// ── Pausa el polling cuando la app está oculta (ahorra batería, datos y cuota
+// de la API). Listener NUEVO — no toca los visibilitychange existentes. Solo
+// actúa si hay sesión activa (isReal/token); al volver reusa startPoll (que
+// limpia antes de re-armar, sin duplicar timers) + un fetch inmediato. ──
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) {
+    if (isReal) {
+      clearInterval(ptmr); clearInterval(slowTmr); clearInterval(cdtmr);
+      window._pollPausedHidden = true;
+    }
+  } else if (window._pollPausedHidden) {
+    window._pollPausedHidden = false;
+    if (isReal && token) {
+      startPoll();
+      var _pf = (typeof HS !== 'undefined' && HS.id === 'google') ? pollFastGoogle : pollFast;
+      try { _pf(); } catch (e) {}
+    }
+  }
+});
 async function loadReal(silentRefresh) {
   if (silentRefresh) {
     document.documentElement.removeAttribute('data-booting');
