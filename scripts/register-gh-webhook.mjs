@@ -64,12 +64,14 @@ async function getSubscriber(base, headers) {
 }
 
 async function deleteSubscriber(base, headers) {
-  console.log('🗑️  Borrando subscriber existente...');
+  console.log('🗑️  Borrando subscriber...');
   const res = await fetch(`${base}/subscribers/${SUBSCRIBER_ID}`, { method: 'DELETE', headers });
-  if (res.ok) { console.log('   borrado (status ' + res.status + ')'); return; }
   const text = await res.text();
-  console.error('❌ Error al borrar (status ' + res.status + '): ' + text);
-  process.exit(1);
+  if (res.ok) { console.log('   borrado (status ' + res.status + ')'); return true; }
+  if (res.status === 404) { console.log('   no había nada que borrar (404)'); return false; }
+  // Tolerante: logueamos y seguimos — el create dirá si quedó libre.
+  console.log('   DELETE status ' + res.status + ': ' + text.slice(0, 200));
+  return false;
 }
 
 async function createSubscriber(base, headers, secret) {
@@ -130,10 +132,10 @@ async function main() {
     return;
   }
 
-  // --recreate: borrar (si existe) y crear de nuevo. Úsalo cuando dejó de entregar.
+  // --recreate: borrar SIEMPRE (el GET de esta API no es fiable — puede dar 404
+  // aunque el subscriber exista) y crear de nuevo. Úsalo cuando dejó de entregar.
   if (mode === 'recreate') {
-    if (existing.ok) await deleteSubscriber(base, headers);
-    else console.log(`(no existía, status ${existing.status} — creando directo)`);
+    await deleteSubscriber(base, headers);
     await createSubscriber(base, headers, secret);
     return;
   }
