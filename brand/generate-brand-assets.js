@@ -24,7 +24,7 @@ const THEMES = [
   { id: 'futuristic', name: 'Futuristic', c1: '#00f5ff', c2: '#7b2fff', bg1: '#020810', bg2: '#0a1828' },
   { id: 'neon-noir',  name: 'Neon Noir',  c1: '#ff2d78', c2: '#bd00ff', bg1: '#0a0010', bg2: '#120020' },
   { id: 'shinobi',    name: 'Shinobi',    c1: '#7ab0d0', c2: '#c0d0e0', bg1: '#0c1520', bg2: '#1a2030' },
-  { id: 'minecraft',  name: 'Minecraft',  c1: '#6aff3a', c2: '#ffaa00', bg1: '#0a1220', bg2: '#182030' },
+  { id: 'voxel',      name: 'Voxel',      c1: '#6aff3a', c2: '#ffaa00', bg1: '#0a1220', bg2: '#182030' },
   { id: 'bloom',      name: 'Bloom',      c1: '#e85c8a', c2: '#c47fb5', bg1: '#1a0a10', bg2: '#280f1a' },
 ];
 const DEF  = THEMES[0]; // Default (Futuristic) used for primary brand color

@@ -32,7 +32,7 @@
 | **Racha diaria** | `getDailyStreak()`: contador `{ date, count }` en localStorage (`fb_streak`). Badge `🔥 N DÍAS` en el header de los rings. |
 | **Metas de rings** | Recovery ≥100pts, Calorías 500 kcal activas (`#calv`), Pasos 10,000 (`#stepsv`), Min. Activos 30 min (cardio+peak HR zones), Sueño 8h=100%. |
 | **Escala desktop** | Grid `.mg` ampliado de 236px→272px. `@media(min-width:900px)` escala SVGs de 58px→44px para que los 5 rings quepan en la card narrow de desktop. |
-| **AIRA Narrative** | `genAiraMsg()`: mensaje contextual bajo el nombre del usuario. 9 pools de estado (peak/peak_great/peak_stress/peak_sleep/high/high_stress/high_sleep/mid/mid_stress/mid_sleep/low/low_stress/floor + demo) × ES/EN. 4 voces temáticas: naruto=chakra, mc=gaming, halo=SPARTAN, bloom=wellness (fut usa la voz default de AIRA). Modifiers: stress >65, sleepPct <50, sleepPct ≥75. Rotación diaria (`day % pool.length`). Fade-in con `.live` class. Llamado desde `updateScores()` + `setLang()`. |
+| **AIRA Narrative** | `genAiraMsg()`: mensaje contextual bajo el nombre del usuario. 9 pools de estado (peak/peak_great/peak_stress/peak_sleep/high/high_stress/high_sleep/mid/mid_stress/mid_sleep/low/low_stress/floor + demo) × ES/EN. 4 voces temáticas: shinobi=chakra, voxel=gaming, neonnoir=netrunner, bloom=wellness (fut usa la voz default de AIRA). Modifiers: stress >65, sleepPct <50, sleepPct ≥75. Rotación diaria (`day % pool.length`). Fade-in con `.live` class. Llamado desde `updateScores()` + `setLang()`. |
 | **`.wsrow` oculto** | `display:none` en CSS — los rings reemplazan ESFUERZO/RESP/SUEÑO visualmente. Los elementos siguen en DOM (los scripts que los actualizan no se rompen). |
 
 **Funciones clave añadidas:**
@@ -67,7 +67,7 @@
 
 | Área | Qué |
 |---|---|
-| **Naruto easter eggs** | Shuriken CSS spinners en `.vc` cards, kunai blade, makimono scroll tag (巻), scratch effect en labels, chip de rango dinámico (Aprendiz→Genin→Chunin→Jonin→Kage). |
+| **Shinobi easter eggs** | Shuriken CSS spinners en `.vc` cards, kunai blade, makimono scroll tag (巻), scratch effect en labels, chip de rango dinámico (Aprendiz→Genin→Chunin→Jonin→Kage). |
 | **Reorder biométrico** | Home: HR › HRV › Estrés › Cal › SpO₂ › Temp. Col3: Sueño primero, HR Chart segundo. Stats: Recovery › Sueño › HR Zonas › Cuerpo › Fitness. |
 | **Jiggle mode (edición widgets)** | Long-press 500ms → modo edición estilo iPhone. Badge `×` frosted-glass top-left para eliminar. Botón LISTO flotante. El `?` ya NO se dispara durante jiggle. |
 | **Drag & drop reorder** | En jiggle mode, arrastra widgets (touch y mouse). Ghost semitransparente + slot punteado de destino. Orden persiste en `localStorage (fb_wm_order)`. |
@@ -134,7 +134,7 @@ npm run typecheck                 # tsc --noEmit (correr antes de PR)
 ## 🧠 Contexto crítico
 
 - **`public/app.html`** es el único frontend (~3500 líneas, SPA vanilla). Casi todo el trabajo ocurre acá.
-- **4 temas** (`mc`/`halo`/`naruto`/`fut`): usa SIEMPRE CSS vars (`--ta`, `--ta2`, `--tpos`, `--tneg`, `--sub`, `--bg`, `--bg2`, `--bdr`, `--txt` ←texto, `--sat`) — nunca colores hard-coded. **OJO:** es `--txt`, no `--tx` (este último no existe → en SVG el `fill` se vuelve negro).
+- **6 temas** (`voxel`/`neonnoir`/`shinobi`/`fut`/`bloom`/`synth`): usa SIEMPRE CSS vars (`--ta`, `--ta2`, `--tpos`, `--tneg`, `--sub`, `--bg`, `--bg2`, `--bdr`, `--txt` ←texto, `--sat`) — nunca colores hard-coded. **OJO:** es `--txt`, no `--tx` (este último no existe → en SVG el `fill` se vuelve negro).
 - **i18n ES/EN obligatorio**: si añades string en `T.es`, añádelo en `T.en`. Aplica con `setText`/`setHTML` en `applyText()`.
 - **Coach key NUNCA en el cliente** — vive solo en `app/api/coach` (server). Es el patrón a seguir para cualquier integración con costo.
 - **Recovery = una sola fuente**: el anillo (`window._lastRec` vía `calcScores`). Stats lo refleja. No reintroducir cálculos paralelos.

@@ -60,7 +60,7 @@
   <line x1="353" y1="442" x2="497" y2="442" stroke="#7ab0d0" stroke-width="2" stroke-opacity="0.5"/>
   <text x="425" y="468" text-anchor="middle"
         font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" fill="#7ab0d088" letter-spacing="0.5">Accent · Secondary · BG</text>
-  <!-- Minecraft column -->
+  <!-- Voxel column -->
   <rect x="509" y="68"  width="144" height="108" rx="8" fill="#6aff3a"/>
   <text x="581" y="196" text-anchor="middle"
         font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#6aff3a" letter-spacing="0.5" font-weight="600">#6AFF3A</text>
@@ -75,7 +75,7 @@
         font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" fill="white" opacity="0.4" letter-spacing="0.5">#0A1220</text>
 
   <text x="581" y="426" text-anchor="middle"
-        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#6aff3a" letter-spacing="2" font-weight="600">MINECRAFT</text>
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="11" fill="#6aff3a" letter-spacing="2" font-weight="600">VOXEL</text>
   <line x1="509" y1="442" x2="653" y2="442" stroke="#6aff3a" stroke-width="2" stroke-opacity="0.5"/>
   <text x="581" y="468" text-anchor="middle"
         font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" fill="#6aff3a88" letter-spacing="0.5">Accent · Secondary · BG</text>

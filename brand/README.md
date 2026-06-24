@@ -37,7 +37,7 @@ brand/
 │   │   ├── aira-futuristic.svg / -icon-futuristic.svg
 │   │   ├── aira-neon-noir.svg   / -icon-neon-noir.svg
 │   │   ├── aira-shinobi.svg     / -icon-shinobi.svg
-│   │   ├── aira-minecraft.svg   / -icon-minecraft.svg
+│   │   ├── aira-voxel.svg       / -icon-voxel.svg
 │   │   └── aira-bloom.svg       / -icon-bloom.svg
 │   │
 │   └── png/                    ← PNGs exportados (generados)
@@ -83,7 +83,7 @@ brand/
 | `futuristic` | Futuristic   | `#00f5ff` | `#7b2fff` | `#020810`  |
 | `neon-noir`  | Neon Noir    | `#ff2d78` | `#bd00ff` | `#0a0010`  |
 | `shinobi`    | Shinobi      | `#7ab0d0` | `#c0d0e0` | `#0c1520`  |
-| `minecraft`  | Minecraft    | `#6aff3a` | `#ffaa00` | `#0a1220`  |
+| `voxel`      | Voxel        | `#6aff3a` | `#ffaa00` | `#0a1220`  |
 | `bloom`      | Bloom        | `#e85c8a` | `#c47fb5` | `#1a0a10`  |
 
 ---
@@ -96,7 +96,7 @@ brand/
 | Tagline           | Helvetica Neue / Helvetica / Arial         | 300   |
 | UI principal      | IBM Plex Mono (monospace)                  | 400   |
 | Números / datos   | Rajdhani                                   | 400–600 |
-| Tema Minecraft    | VT323 (pixel font)                         | 400   |
+| Tema Voxel        | VT323 (pixel font)                         | 400   |
 | Tema Shinobi      | Noto Serif JP + Permanent Marker           | varies|
 | Tema Bloom        | Nunito                                     | 400   |
 
