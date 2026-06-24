@@ -5225,6 +5225,20 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         <div class="pv-rlbl" id="pv-notif-lbl">NOTIFICACIONES</div>
         <button class="pv-toggle" id="pv-notif-toggle" onclick="toggleNotifications()" aria-label="toggle notifications"></button>
       </div>
+      <div id="pv-notif-cats" style="display:none;padding-left:14px;border-left:2px solid var(--bdr);margin:2px 0 4px;">
+        <div class="pv-row" style="padding-top:6px;padding-bottom:6px;">
+          <div class="pv-rlbl" id="pv-ncat-achv-lbl" style="opacity:0.72;font-size:11px;">LOGROS</div>
+          <button class="pv-toggle" id="pv-ncat-achv-toggle" onclick="toggleNotifCat('achv')" aria-label="toggle achievement notifications"></button>
+        </div>
+        <div class="pv-row" style="padding-top:6px;padding-bottom:6px;">
+          <div class="pv-rlbl" id="pv-ncat-streak-lbl" style="opacity:0.72;font-size:11px;">RACHA</div>
+          <button class="pv-toggle" id="pv-ncat-streak-toggle" onclick="toggleNotifCat('streak')" aria-label="toggle streak notifications"></button>
+        </div>
+        <div class="pv-row" style="padding-top:6px;padding-bottom:6px;">
+          <div class="pv-rlbl" id="pv-ncat-recovery-lbl" style="opacity:0.72;font-size:11px;">RECUPERACIÓN</div>
+          <button class="pv-toggle" id="pv-ncat-recovery-toggle" onclick="toggleNotifCat('recovery')" aria-label="toggle recovery notifications"></button>
+        </div>
+      </div>
       <div class="pv-row">
         <div class="pv-rlbl" id="pv-cyc-lbl">SEGUIMIENTO DE CICLO</div>
         <button class="pv-toggle" id="pv-cyc-toggle" onclick="toggleCycle()" aria-label="toggle cycle tracking"></button>
@@ -5736,6 +5750,7 @@ const T = {
     pv_sec_sync: 'SINCRONIZACIÓN',
     pv_interval_lbl: 'INTERVALO',
     pv_notif_lbl: 'NOTIFICACIONES',
+    pv_ncat_achv: 'LOGROS', pv_ncat_streak: 'RACHA', pv_ncat_recovery: 'RECUPERACIÓN',
     pv_lastsync_lbl: 'ÚLTIMA SYNC',
     pv_sec_info: 'INFORMACIÓN',
     pv_version_lbl: 'VERSIÓN',
@@ -6009,6 +6024,7 @@ const T = {
     pv_sec_sync: 'SYNC',
     pv_interval_lbl: 'INTERVAL',
     pv_notif_lbl: 'NOTIFICATIONS',
+    pv_ncat_achv: 'ACHIEVEMENTS', pv_ncat_streak: 'STREAK', pv_ncat_recovery: 'RECOVERY',
     pv_lastsync_lbl: 'LAST SYNC',
     pv_sec_info: 'INFO',
     pv_version_lbl: 'VERSION',
@@ -6147,6 +6163,7 @@ function setLang(l, _skipSync) {
   setText('pv-connect-btn', t.pv_connect_btn); setText('pv-disconnect-btn', t.pv_disconnect_btn);
   setText('pv-sec-appearance', t.pv_sec_appearance); setText('pv-theme-lbl', t.pv_theme_lbl); setText('pv-lang-lbl', t.pv_lang_lbl);
   setText('pv-sec-sync', t.pv_sec_sync); setText('pv-interval-lbl', t.pv_interval_lbl); setText('pv-notif-lbl', t.pv_notif_lbl); setText('pv-cyc-lbl', t.cyc_on_lbl);
+  setText('pv-ncat-achv-lbl', t.pv_ncat_achv); setText('pv-ncat-streak-lbl', t.pv_ncat_streak); setText('pv-ncat-recovery-lbl', t.pv_ncat_recovery);
   setText('pv-lastsync-lbl', t.pv_lastsync_lbl);
   setText('pv-sec-info', t.pv_sec_info); setText('pv-version-lbl', t.pv_version_lbl);
   setText('pv-privacy-lbl', t.pv_privacy_lbl); setText('pv-privacy-link', t.pv_privacy_link);
@@ -12745,31 +12762,14 @@ function _checkDailyStreakAnim() {
   }, 950);
 }
 
+// "Racha en riesgo" la maneja ahora el cron del servidor (/api/push/cron), que sí
+// dispara con la app cerrada y solo si la meta NO se cumplió (issue #68). Los timers
+// client-side de antes morían al cerrar la app y no chequeaban la meta → se retiran
+// para no duplicar el aviso. Mantenemos el registro de last-open y limpiamos cualquier
+// timer heredado en el SW por si quedó uno programado de una sesión vieja.
 function scheduleStreakReminder(strk) {
-  if (!notifEnabled() || strk < 1) return;
   try { localStorage.setItem('fb_last_open_date', _localDateStr()); } catch(e) {}
-  var now = new Date();
-  var h = now.getHours();
-  if (h >= 22) return; // too late tonight
-  var fireH = h >= 20 ? 21 : 20; // 8pm, or 9pm if already past 8
-  var fireAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), fireH, 0, 0, 0).getTime();
-  var delay = fireAt - Date.now();
-  if (delay < 60000) return;
-  var es = lang === 'es';
-  if (window._streakNotifTimer) clearTimeout(window._streakNotifTimer);
-  window._streakNotifTimer = setTimeout(function() {
-    showLocalNotification(
-      '🔥 ' + (es ? 'Tu racha de ' + strk + ' días peligra' : strk + '-day streak at risk'),
-      es ? '¡Abre la app y completa tus metas antes de medianoche!' : 'Complete your goals before midnight to keep it!',
-      'streak-reminder'
-    );
-  }, delay);
-  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-    navigator.serviceWorker.controller.postMessage({
-      type: 'SCHEDULE_STREAK_NOTIF',
-      payload: { streak: strk, fireAt: fireAt, es: es }
-    });
-  }
+  cancelStreakReminder();
 }
 
 function cancelStreakReminder() {
@@ -12963,6 +12963,10 @@ function updateDailyRings() {
       }
     }
     if (_ss > (window._wkTodayStreakReal || 0)) window._wkTodayStreakReal = _ss;
+    // "Meta cumplida" (issue #68): notifica 1/día al cruzar la meta del día.
+    if (typeof notifCheckGoalMet === 'function') notifCheckGoalMet(steps, ag.stp, _ss);
+    // Sube la señal derivada para que el cron decida racha en riesgo / resumen matutino.
+    if (typeof _pushNotifSignal === 'function') _pushNotifSignal(steps, ag.stp, _ss);
     var _sse=document.getElementById('steps-streak-val');
     // Show "90+" with disclaimer if streak hit the 90-day init cap and hasn't grown past it yet
     var _isCapped = _strStored.capped && _ss <= 90;
@@ -15629,6 +15633,37 @@ function notifEnabled() {
 }
 // User preference (drives the toggle); delivery additionally needs permission.
 function notifPref() { try { return localStorage.getItem('fb_notif') === '1'; } catch(e) { return false; } }
+// Per-category gate (issue #68 anti-saturación). Categorías: 'achv' (logros/meta),
+// 'streak' (racha en riesgo), 'recovery' (resumen matutino). Default ON; un toggle
+// por categoría puede apagarla guardando fb_notif_cat_<cat>='0'. La UI de toggles
+// llega en un PR posterior — por ahora todas quedan activas con el global encendido.
+function notifCatEnabled(cat) { try { return localStorage.getItem('fb_notif_cat_' + cat) !== '0'; } catch(e) { return true; } }
+// Horario silencioso (issue #68): 21:00–07:00 local. El resumen matutino (7am) y la
+// racha (7pm) los decide el cron por hora local, así que esto solo guarda las notifs
+// client-side (meta cumplida) para no molestar de madrugada.
+function notifInQuietHours() { try { var h = new Date().getHours(); return h >= 21 || h < 7; } catch(e) { return false; } }
+// Alterna un toggle por categoría y refleja el cambio en la señal (para que el cron
+// lo respete cuanto antes). Las categorías son 'achv' | 'streak' | 'recovery'.
+function toggleNotifCat(cat) {
+  var on = notifCatEnabled(cat);
+  try { localStorage.setItem('fb_notif_cat_' + cat, on ? '0' : '1'); } catch(e) {}
+  _syncNotifCatUI();
+  try {
+    if (typeof _supabasePrefsWrite === 'function' && window._notifSigT) {
+      window._notifSigT.cats[cat] = !on;
+      window._notifSigT.updatedAt = Date.now();
+      _supabasePrefsWrite({ notif_signal: window._notifSigT }).catch(function(){});
+    }
+  } catch(e) {}
+}
+function _syncNotifCatUI() {
+  var box = document.getElementById('pv-notif-cats');
+  if (box) box.style.display = notifPref() ? 'block' : 'none';
+  ['achv','streak','recovery'].forEach(function(cat) {
+    var t = document.getElementById('pv-ncat-' + cat + '-toggle');
+    if (t) t.classList.toggle('on', notifCatEnabled(cat));
+  });
+}
 function refreshBell() {
   const b = document.getElementById('bell-btn'); if (!b) return;
   b.classList.remove('on','denied');
@@ -15642,6 +15677,7 @@ function _syncNotifUI() {
   refreshBell();
   const t = document.getElementById('pv-notif-toggle');
   if (t) t.classList.toggle('on', notifPref());
+  _syncNotifCatUI();
 }
 async function toggleNotifications() {
   if (!notifSupported()) {
@@ -15758,6 +15794,70 @@ async function notifCheckRHR(rhr) {
   }
 }
 function notifMarkSync() { window._notifState.lastSync = Date.now(); }
+
+// ── "Meta cumplida" (issue #68, notif #1) ───────────────────────────────────
+// Dispara UNA sola vez al cruzar la meta de pasos del día. La detección es
+// client-side (el server no procesa pasos crudos → mantiene la exención $0):
+// se evalúa en cada render real de actividad, y el webhook de Google Health
+// (GH_SYNC) despierta la pestaña en segundo plano para re-fetchear, de modo
+// que también dispara con la app minimizada pero viva.
+//   · Dedup por día con fb_notif_goalmet_date (local) → "no en cada sync".
+//   · Si la app está visible, NO empujamos notif (el relleno de anillos +
+//     confeti ya celebran); igual marcamos el día para no spamear al minimizar.
+function notifCheckGoalMet(steps, goal, streak) {
+  if (!notifEnabled() || !notifCatEnabled('achv')) return;
+  steps = parseInt(steps, 10) || 0;
+  goal  = parseInt(goal, 10)  || 0;
+  if (!goal || steps < goal) return; // meta no cumplida (o sin meta válida)
+  var today = _localDateStr();
+  try { if (localStorage.getItem('fb_notif_goalmet_date') === today) return; } catch(e) {}
+  try { localStorage.setItem('fb_notif_goalmet_date', today); } catch(e) {} // marca: 1/día
+  // Usuario mirando la app → la celebración in-app ya lo cubre, suprimimos el push.
+  try { if (document.visibilityState === 'visible') return; } catch(e) {}
+  if (notifInQuietHours()) return; // sin pings de madrugada (ya quedó marcado el día)
+  var es = lang === 'es';
+  var g = goal.toLocaleString('en-US');
+  var strk = parseInt(streak, 10) || 0;
+  var tail = strk >= 2 ? (es ? ' · racha de ' + strk + ' días' : ' · ' + strk + '-day streak') : '';
+  showLocalNotification(
+    es ? '🎯 ¡Meta cumplida!' : '🎯 Goal complete!',
+    (es ? g + ' pasos' : g + ' steps') + tail,
+    'goal-met'
+  );
+}
+
+// ── Señal derivada para el cron (issue #68, arquitectura A) ──────────────────
+// Sube a Supabase SOLO datos derivados (sin pasos crudos): booleano goalMet,
+// racha, pasos restantes aprox (bucketed), recovery y sueño. El cron la lee para
+// decidir resumen matutino / racha en riesgo según la hora local del usuario.
+function _buildNotifSignal(steps, goal, streak) {
+  steps = parseInt(steps, 10) || 0;
+  goal  = parseInt(goal, 10)  || 0;
+  var rem = Math.max(0, goal - steps);
+  rem = Math.round(rem / 10) * 10; // bucketed → "aprox", solo para el copy
+  var rec = (typeof window._lastRec === 'number' && window._lastRec > 0) ? Math.round(window._lastRec) : null;
+  var slp = (window._lastScoreOpts && parseInt(window._lastScoreOpts.sleepMin, 10)) || null;
+  return {
+    date: _localDateStr(),
+    tzOffset: new Date().getTimezoneOffset(),
+    goalMet: goal > 0 && steps >= goal,
+    streak: parseInt(streak, 10) || 0,
+    stepsRemaining: rem,
+    recovery: rec,
+    sleepMin: slp,
+    cats: { achv: notifCatEnabled('achv'), streak: notifCatEnabled('streak'), recovery: notifCatEnabled('recovery') },
+    updatedAt: Date.now()
+  };
+}
+// Debounced — no spamear Supabase en cada poll. Solo si el usuario activó notifs.
+function _pushNotifSignal(steps, goal, streak) {
+  if (!notifPref() || typeof _supabasePrefsWrite !== 'function') return;
+  window._notifSigT = _buildNotifSignal(steps, goal, streak);
+  if (window._notifSigTimer) clearTimeout(window._notifSigTimer);
+  window._notifSigTimer = setTimeout(function() {
+    _supabasePrefsWrite({ notif_signal: window._notifSigT }).catch(function(){});
+  }, 4000);
+}
 
 // ══════════════════════════════════════════════════════════════════════
 // HISTORY MODULE — IndexedDB cache + Fitbit time-series + SVG charts

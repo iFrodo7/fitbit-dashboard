@@ -74,6 +74,17 @@ export async function POST(req: NextRequest) {
     update.recovery_score_ts = inRecTs;
   }
 
+  // ── T2: Notif signal (issue #68) — señal derivada; gana el updatedAt más alto ─
+  // La escribe el cliente en cada render real; el cron la lee para decidir push.
+  // notif_state NO se acepta del cliente: lo escribe solo el cron (service role).
+  if (body.notif_signal && typeof body.notif_signal === "object") {
+    const inc = body.notif_signal as { updatedAt?: number };
+    const exNS = (ex as Record<string, unknown> | null)?.notif_signal as { updatedAt?: number } | null;
+    if (!exNS || (Number(inc.updatedAt) || 0) >= (Number(exNS.updatedAt) || 0)) {
+      update.notif_signal = body.notif_signal;
+    }
+  }
+
   // ── T1: Steps streak — gana mayor count (racha nunca retrocede) ─────────────
   if (body.steps_streak && typeof body.steps_streak === "object") {
     const inc = body.steps_streak as { count?: number; lastDate?: string; goal?: number };
@@ -330,11 +341,12 @@ export async function POST(req: NextRequest) {
     .from("app_user_prefs")
     .upsert(update, { onConflict: "email" });
 
-  if (error && /is_pro_ts|prefs_meta|gh_user_id/i.test(error.message)) {
+  if (error && /is_pro_ts|prefs_meta|gh_user_id|notif_signal/i.test(error.message)) {
     const safe = { ...update };
     delete safe.is_pro_ts;
     delete safe.prefs_meta;
     delete safe.gh_user_id;   // migración 013 aún no aplicada → no romper el resto del sync
+    delete safe.notif_signal; // migración 014 aún no aplicada → no romper el resto del sync
     ({ error } = await db.from("app_user_prefs").upsert(safe, { onConflict: "email" }));
   }
 
