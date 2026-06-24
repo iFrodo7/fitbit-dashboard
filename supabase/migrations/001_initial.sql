@@ -18,8 +18,8 @@ create table public.fitbit_sessions (
 -- Preferencias de usuario (tema, idioma)
 create table public.user_preferences (
   user_id   uuid primary key,
-  theme     text not null default 'futuristic'
-              check (theme in ('minecraft','halo','naruto','futuristic')),
+  theme     text not null default 'fut'
+              check (theme in ('voxel','neonnoir','shinobi','fut','bloom','synth')),
   language  text not null default 'es'
               check (language in ('es','en')),
   updated_at timestamptz default now()

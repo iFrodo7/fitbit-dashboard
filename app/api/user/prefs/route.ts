@@ -162,7 +162,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ── T2: Achievements — unión elemento a elemento por tema ───────────────────
-  // Los valores son arrays de booleans por tema {naruto:[true,false,...]}.
+  // Los valores son arrays de booleans por tema {shinobi:[true,false,...]}.
   // El spread {...exA, ...incoming} remplaza arrays enteros → pierde logros.
   // Hacemos OR bit a bit por posición para que un logro nunca retroceda.
   if (body.achievements && typeof body.achievements === "object") {

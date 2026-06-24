@@ -15,7 +15,7 @@ export async function GET() {
     .eq("user_id", userId)
     .single();
 
-  if (error) return NextResponse.json({ theme: "futuristic", language: "es" });
+  if (error) return NextResponse.json({ theme: "fut", language: "es" });
   return NextResponse.json(data);
 }
 
@@ -25,7 +25,7 @@ export async function PATCH(request: NextRequest) {
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json() as { theme?: Theme; language?: Language };
-  const validThemes: Theme[] = ["minecraft", "halo", "naruto", "futuristic"];
+  const validThemes: Theme[] = ["voxel", "neonnoir", "shinobi", "fut", "bloom", "synth"];
   const validLangs: Language[] = ["es", "en"];
 
   const update: Partial<{ theme: Theme; language: Language }> = {};

@@ -1,4 +1,4 @@
-export type Theme = "minecraft" | "halo" | "naruto" | "futuristic";
+export type Theme = "voxel" | "neonnoir" | "shinobi" | "fut" | "bloom" | "synth";
 export type Language = "es" | "en";
 
 export interface FitbitSessionRow {

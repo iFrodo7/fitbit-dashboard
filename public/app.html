@@ -26,8 +26,8 @@
   document.documentElement.setAttribute('data-booting','1');
   // Apply the per-theme background color to <html> so the loader overlay uses the
   // correct color even before body.t-* classes are applied by JS.
-  var _bg={bloom:'#0f0709',halo:'#060010',naruto:'#0c0400',fut:'#020810',mc:'#1a1200'};
-  var _ta={bloom:'#e85c8a',halo:'#ff2d78',naruto:'#4a6a84',fut:'#00f5ff',mc:'#6aff3a'};
+  var _bg={bloom:'#0f0709',neonnoir:'#060010',shinobi:'#0c0400',fut:'#020810',voxel:'#1a1200'};
+  var _ta={bloom:'#e85c8a',neonnoir:'#ff2d78',shinobi:'#4a6a84',fut:'#00f5ff',voxel:'#6aff3a'};
   document.documentElement.style.setProperty('--bg', _bg[_t]||'#020810');
   document.documentElement.style.setProperty('--ta', _ta[_t]||'#00f5ff');
 })();
@@ -194,9 +194,9 @@ body.sheet-lock{overflow:hidden;}
 /* Footer */
 .sel-ft{margin-top:18px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;color:#1c1c1c;text-align:center;}
 
-/* MC card preview */
-.tc-mc{background:#1a1200;border:3px solid #6a5020;image-rendering:pixelated;}
-.mc-pg{display:grid;grid-template-columns:repeat(20,1fr);grid-template-rows:repeat(11,1fr);height:100%;gap:1px;background:#0d0900;padding:2px;}
+/* Voxel card preview */
+.tc-voxel{background:#1a1200;border:3px solid #6a5020;image-rendering:pixelated;}
+.voxel-pg{display:grid;grid-template-columns:repeat(20,1fr);grid-template-rows:repeat(11,1fr);height:100%;gap:1px;background:#0d0900;padding:2px;}
 .b0{background:#0a0f1e;} /* cielo nocturno       */
 .b1{background:#4fb520;} /* pasto (grass top)    */
 .b2{background:#7a4a1a;} /* tierra (dirt)        */
@@ -207,8 +207,8 @@ body.sheet-lock{overflow:hidden;}
 .b7{background:#2d7a18;} /* hojas (leaves)       */
 .b8{background:#5a3a10;} /* tronco (log)         */
 .b9{background:#1a2a44;} /* cielo con estrella   */
-.mc-ov .tn{font-family:'VT323',monospace;font-size:clamp(28px,5vw,42px);color:#6aff3a;text-shadow:3px 3px 0 #003800,0 0 18px rgba(106,255,58,0.4);letter-spacing:3px;line-height:1;}
-.mc-ov .ts{font-family:'Silkscreen',monospace;font-size:10px;color:#4aaa2a;letter-spacing:3px;margin-top:6px;}
+.voxel-ov .tn{font-family:'VT323',monospace;font-size:clamp(28px,5vw,42px);color:#6aff3a;text-shadow:3px 3px 0 #003800,0 0 18px rgba(106,255,58,0.4);letter-spacing:3px;line-height:1;}
+.voxel-ov .ts{font-family:'Silkscreen',monospace;font-size:10px;color:#4aaa2a;letter-spacing:3px;margin-top:6px;}
 
 /* ── SYNTHWAVE card preview ── */
 .tc-synth{background:#0a0015;border:1px solid rgba(255,0,255,0.35);box-shadow:inset 0 1px 0 rgba(255,0,255,0.08);}
@@ -248,21 +248,21 @@ body.sheet-lock{overflow:hidden;}
 .bloom-ov .ts{font-family:'Nunito',sans-serif;font-size:10px;font-weight:600;color:rgba(232,92,138,0.55);letter-spacing:3px;margin-top:5px;}
 
 /* ── NEON NOIR card preview ── */
-.tc-halo{background:#060010;border:1px solid rgba(255,45,120,0.35);box-shadow:inset 0 1px 0 rgba(255,45,120,0.06);}
-.halo-pv{
+.tc-neonnoir{background:#060010;border:1px solid rgba(255,45,120,0.35);box-shadow:inset 0 1px 0 rgba(255,45,120,0.06);}
+.neonnoir-pv{
   width:100%;height:100%;position:relative;overflow:hidden;
   background:
     radial-gradient(ellipse at 50% 50%,rgba(255,45,120,0.12) 0%,transparent 52%),
     radial-gradient(ellipse at 50% 120%,#1e0035 0%,#060010 55%);
 }
 /* Diagonal scan rain — keep animation */
-.halo-pv::before{content:'';position:absolute;inset:0;pointer-events:none;
+.neonnoir-pv::before{content:'';position:absolute;inset:0;pointer-events:none;
   background-image:repeating-linear-gradient(175deg,transparent 0px,transparent 18px,rgba(255,45,120,0.07) 18px,rgba(255,45,120,0.07) 19px),
     linear-gradient(rgba(255,45,120,0.025) 1px,transparent 1px),
     linear-gradient(90deg,rgba(255,45,120,0.025) 1px,transparent 1px);
   background-size:100% 100%,28px 28px,28px 28px;animation:nn-prevrain 4s linear infinite;}
 /* Bottom glow strip */
-.halo-pv::after{content:'';position:absolute;bottom:0;left:0;right:0;height:45px;pointer-events:none;
+.neonnoir-pv::after{content:'';position:absolute;bottom:0;left:0;right:0;height:45px;pointer-events:none;
   background:linear-gradient(0deg,rgba(255,45,120,0.16) 0%,transparent 100%);}
 @keyframes nn-prevrain{from{background-position:0 0,0 0,0 0;}to{background-position:-25px 100px,0 0,0 0;}}
 /* CPU chip SVG */
@@ -277,16 +277,16 @@ body.sheet-lock{overflow:hidden;}
 .nn-br{bottom:24px;right:10px;border-bottom:1.5px solid rgba(255,45,120,0.55);border-right:1.5px solid rgba(255,45,120,0.55);}
 .nn-hud-top{position:absolute;top:11px;left:13px;right:13px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,45,120,0.45);letter-spacing:2px;text-transform:uppercase;}
 .nn-hud-bot{position:absolute;bottom:10px;left:13px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,45,120,0.32);letter-spacing:2px;}
-.halo-ov .tn{font-family:'Rajdhani',sans-serif;font-size:clamp(20px,3.5vw,28px);font-weight:800;color:#ff2d78;letter-spacing:7px;text-shadow:0 0 22px rgba(255,45,120,0.85),0 0 44px rgba(255,45,120,0.3);}
-.halo-ov .ts{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,45,120,0.55);letter-spacing:3px;margin-top:5px;}
+.neonnoir-ov .tn{font-family:'Rajdhani',sans-serif;font-size:clamp(20px,3.5vw,28px);font-weight:800;color:#ff2d78;letter-spacing:7px;text-shadow:0 0 22px rgba(255,45,120,0.85),0 0 44px rgba(255,45,120,0.3);}
+.neonnoir-ov .ts{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,45,120,0.55);letter-spacing:3px;margin-top:5px;}
 
-/* Naruto card preview */
-.tc-naruto{
+/* Shinobi card preview */
+.tc-shinobi{
   background:#06080c;
   border:1px solid rgba(74,106,132,0.32);
   box-shadow:inset 0 1px 0 rgba(74,106,132,0.07),inset 0 -1px 0 rgba(0,0,0,0.6);
 }
-.naruto-pv{
+.shinobi-pv{
   width:100%;height:100%;position:relative;overflow:hidden;
   background:
     radial-gradient(ellipse at 32% 68%, rgba(74,106,132,0.16) 0%, transparent 52%),
@@ -295,9 +295,9 @@ body.sheet-lock{overflow:hidden;}
     linear-gradient(152deg, #0c1520 0%, #06080c 42%, #0a1018 100%);
 }
 /* Bamboo grove — replace spider-web grid */
-.naruto-pv::before{content:none;}
+.shinobi-pv::before{content:none;}
 /* Battle scratch lines */
-.naruto-pv::after{
+.shinobi-pv::after{
   content:'';position:absolute;inset:0;pointer-events:none;
   background:
     linear-gradient(138deg, transparent 35%,   rgba(160,192,220,0.08) 35.4%, rgba(160,192,220,0.08) 35.9%, transparent 36.3%),
@@ -314,7 +314,7 @@ body.sheet-lock{overflow:hidden;}
   line-height:1;letter-spacing:-2px;
 }
 /* SHINOBI title */
-.naruto-ov .tn{
+.shinobi-ov .tn{
   font-family:'Permanent Marker',cursive;
   font-size:clamp(26px,4.5vw,38px);
   color:rgba(210,230,248,0.96);
@@ -326,7 +326,7 @@ body.sheet-lock{overflow:hidden;}
   letter-spacing:3px;line-height:1;
 }
 /* subtitle */
-.naruto-ov .ts{
+.shinobi-ov .ts{
   font-family:'Noto Serif JP',serif;font-size:10px;
   color:rgba(160,192,220,0.40);
   letter-spacing:4px;margin-top:8px;
@@ -402,8 +402,8 @@ body.sheet-lock{overflow:hidden;}
 .aira-msg{font-size:12px;letter-spacing:0.3px;color:var(--txt);opacity:0;line-height:1.5;margin-top:7px;max-width:380px;font-style:italic;}
 @keyframes airaMsgIn{from{opacity:0;transform:translateY(4px);}to{opacity:0.68;transform:translateY(0);}}
 .aira-msg.live{opacity:0.68;transition:none;animation:airaMsgIn 0.55s var(--ease-out) both;}
-.t-mc .aira-msg{font-family:'VT323',monospace;font-style:normal;font-size:14px;letter-spacing:1px;}
-.t-naruto .aira-msg{font-family:'Noto Serif JP',serif;font-style:normal;font-size:11px;}
+.t-voxel .aira-msg{font-family:'VT323',monospace;font-style:normal;font-size:14px;letter-spacing:1px;}
+.t-shinobi .aira-msg{font-family:'Noto Serif JP',serif;font-style:normal;font-size:11px;}
 .t-bloom .aira-msg{font-style:normal;font-size:12.5px;}
 .db-ac{color:var(--ta);}
 .db-date{font-size:13px;letter-spacing:2px;margin-top:6px;opacity:0.55;}
@@ -458,11 +458,11 @@ body.sheet-lock{overflow:hidden;}
 
 /* Per-theme glow on key numbers */
 .t-fut .vval,.t-fut .rnum,.t-fut .snum{text-shadow:0 0 20px rgba(0,245,255,0.6),0 0 40px rgba(0,245,255,0.3);}
-.t-halo .vval,.t-halo .rnum,.t-halo .snum{text-shadow:0 0 20px rgba(255,45,120,0.7),0 0 40px rgba(255,45,120,0.3),0 0 60px rgba(189,0,255,0.15);}
-.t-naruto .vval,.t-naruto .rnum,.t-naruto .snum{text-shadow:2px 2px 8px rgba(0,0,0,0.70);}
+.t-neonnoir .vval,.t-neonnoir .rnum,.t-neonnoir .snum{text-shadow:0 0 20px rgba(255,45,120,0.7),0 0 40px rgba(255,45,120,0.3),0 0 60px rgba(189,0,255,0.15);}
+.t-shinobi .vval,.t-shinobi .rnum,.t-shinobi .snum{text-shadow:2px 2px 8px rgba(0,0,0,0.70);}
 .t-fut .wsn,.t-fut .snum{text-shadow:0 0 16px rgba(0,245,255,0.7),0 0 32px rgba(0,245,255,0.4);}
-.t-halo .wsn{text-shadow:0 0 16px rgba(255,45,120,0.8),0 0 32px rgba(255,45,120,0.4);}
-.t-naruto .wsn{text-shadow:2px 2px 6px rgba(0,0,0,0.55);}
+.t-neonnoir .wsn{text-shadow:0 0 16px rgba(255,45,120,0.8),0 0 32px rgba(255,45,120,0.4);}
+.t-shinobi .wsn{text-shadow:2px 2px 6px rgba(0,0,0,0.55);}
 
 /* Steps */
 .snum{font-size:clamp(28px,3.5vw,48px);font-weight:700;line-height:1;animation:snumload 0.9s var(--ease-spring);font-optical-sizing:auto;}
@@ -762,9 +762,9 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .av-core{position:absolute;inset:3px;border-radius:inherit;overflow:hidden;background:var(--sub);display:flex;align-items:center;justify-content:center;z-index:2;}
 .av-img{width:100%;height:100%;object-fit:cover;display:block;}
 .av-mono{font-size:calc(var(--av-size,46px)*0.34);font-weight:800;letter-spacing:1px;color:var(--ta);user-select:none;line-height:1;}
-.t-mc .av-mono{font-family:'VT323',monospace;font-size:calc(var(--av-size,46px)*0.44);}
-.t-naruto .av-mono{font-family:'Noto Serif JP',serif;}
-.t-halo .av-mono,.t-fut .av-mono{font-family:'Rajdhani',sans-serif;}
+.t-voxel .av-mono{font-family:'VT323',monospace;font-size:calc(var(--av-size,46px)*0.44);}
+.t-shinobi .av-mono{font-family:'Noto Serif JP',serif;}
+.t-neonnoir .av-mono,.t-fut .av-mono{font-family:'Rajdhani',sans-serif;}
 .t-bloom .av-mono{font-family:'Nunito',sans-serif;}
 .av-ring{position:absolute;inset:0;border-radius:inherit;z-index:1;overflow:hidden;}
 .av-wrap:not(.av-live) .av-ring{animation:av-breathe 4s var(--ease-std) infinite;}
@@ -789,18 +789,18 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .av-f-nebula .av-ring{border:1.5px solid rgba(123,47,255,0.5);animation:nebRotate 8s linear infinite;}
 .av-f-nebula .av-ring::before{content:'';position:absolute;inset:-35%;background:conic-gradient(transparent 60deg,rgba(123,47,255,0.65) 65deg,rgba(0,245,255,0.45) 80deg,transparent 90deg,transparent 180deg,rgba(232,92,138,0.55) 190deg,transparent 200deg,transparent 300deg,rgba(0,245,255,0.35) 310deg,transparent 320deg);animation:av-spin 4s linear infinite;border-radius:50%;}
 @keyframes nebRotate{0%{box-shadow:2px 0 8px rgba(0,245,255,0.5)}25%{box-shadow:0 2px 8px rgba(123,47,255,0.5)}50%{box-shadow:-2px 0 8px rgba(232,92,138,0.5)}75%{box-shadow:0 -2px 8px rgba(0,245,255,0.4)}100%{box-shadow:2px 0 8px rgba(0,245,255,0.5)}}
-/* GLITCH — RGB split con distorsión, solo temas Halo/Futuristic */
-.t-halo .av-f-glitch .av-ring,.t-fut .av-f-glitch .av-ring{border:2px solid #ff2d78;}
-.t-halo .av-f-glitch .av-ring::before,.t-fut .av-f-glitch .av-ring::before{content:'';position:absolute;inset:-2px;border-radius:50%;border:2px solid #00f5ff;animation:glitchA 2s steps(1) infinite;clip-path:polygon(0 30%,100% 30%,100% 60%,0 60%);}
-.t-halo .av-f-glitch .av-ring::after,.t-fut .av-f-glitch .av-ring::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid #7b2fff;animation:glitchB 2.3s steps(1) infinite;clip-path:polygon(0 65%,100% 65%,100% 85%,0 85%);}
+/* GLITCH — RGB split con distorsión, solo temas Neon Noir/Futuristic */
+.t-neonnoir .av-f-glitch .av-ring,.t-fut .av-f-glitch .av-ring{border:2px solid #ff2d78;}
+.t-neonnoir .av-f-glitch .av-ring::before,.t-fut .av-f-glitch .av-ring::before{content:'';position:absolute;inset:-2px;border-radius:50%;border:2px solid #00f5ff;animation:glitchA 2s steps(1) infinite;clip-path:polygon(0 30%,100% 30%,100% 60%,0 60%);}
+.t-neonnoir .av-f-glitch .av-ring::after,.t-fut .av-f-glitch .av-ring::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid #7b2fff;animation:glitchB 2.3s steps(1) infinite;clip-path:polygon(0 65%,100% 65%,100% 85%,0 85%);}
 @keyframes glitchA{0%,90%,100%{opacity:1;transform:translateX(0)}92%{transform:translateX(2px)}94%{transform:translateX(-2px)}96%{transform:translateX(1px)}}
 @keyframes glitchB{0%,85%,100%{opacity:1;transform:translateX(0)}87%{transform:translateX(-3px)}89%{transform:translateX(2px)}}
-/* PIXEL — borde pixelado cuadrado, solo tema Minecraft */
-.t-mc .av-f-pixel .av-ring{border-radius:8px!important;border:none;overflow:visible;}
-.t-mc .av-f-pixel .av-ring::before{content:'';position:absolute;inset:0;border-radius:8px;background:repeating-linear-gradient(90deg,#6aff3a 0,#6aff3a 4px,transparent 4px,transparent 8px);animation:pixBlink 1s steps(1) infinite;}
-.t-mc .av-f-pixel .av-ring::after{content:'';position:absolute;inset:0;border-radius:8px;background:repeating-linear-gradient(0deg,#6aff3a 0,#6aff3a 4px,transparent 4px,transparent 8px);animation:pixBlink 1s steps(1) 0.5s infinite;}
-.t-mc .av-f-pixel .av-core{border-radius:6px!important;}
-.t-mc .av-f-pixel{border-radius:8px!important;}
+/* PIXEL — borde pixelado cuadrado, solo tema Voxel */
+.t-voxel .av-f-pixel .av-ring{border-radius:8px!important;border:none;overflow:visible;}
+.t-voxel .av-f-pixel .av-ring::before{content:'';position:absolute;inset:0;border-radius:8px;background:repeating-linear-gradient(90deg,#6aff3a 0,#6aff3a 4px,transparent 4px,transparent 8px);animation:pixBlink 1s steps(1) infinite;}
+.t-voxel .av-f-pixel .av-ring::after{content:'';position:absolute;inset:0;border-radius:8px;background:repeating-linear-gradient(0deg,#6aff3a 0,#6aff3a 4px,transparent 4px,transparent 8px);animation:pixBlink 1s steps(1) 0.5s infinite;}
+.t-voxel .av-f-pixel .av-core{border-radius:6px!important;}
+.t-voxel .av-f-pixel{border-radius:8px!important;}
 @keyframes pixBlink{0%,49%{opacity:1}50%,100%{opacity:0}}
 /* av-ring2: only visible on Nova */
 .av-ring2{display:none;}
@@ -814,16 +814,16 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 @media(min-width:641px){
   .db-greet-right{margin-left:auto;align-self:flex-start;padding-bottom:0;}
 }
-/* Voxel: square identity (Minecraft skin culture) */
-.t-mc .av-wrap{border-radius:8px;}
+/* Voxel: square identity (Voxel skin culture) */
+.t-voxel .av-wrap{border-radius:8px;}
 /* ══════ PULSE IDENTITY CARD ══════ */
 /* ─── PULSE CARD — Racha Hero ─────────────────────────────── */
 .pulse-card{padding:0;overflow:hidden;position:relative;}
 .pulse-bg{position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 150% 100% at 50% -10%,rgba(var(--ta-rgb,0,200,255),0.13) 0%,transparent 55%),radial-gradient(ellipse 70% 70% at 90% 90%,rgba(var(--ta2-rgb,120,80,255),0.07) 0%,transparent 55%);}
 /* Ghost watermark — big streak number behind everything */
 .streak-ghost{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:220px;font-weight:900;line-height:1;letter-spacing:-12px;color:rgba(var(--ta-rgb,0,200,255),0.045);pointer-events:none;z-index:0;font-family:'Rajdhani',sans-serif;user-select:none;animation:ghostFloat 7s ease-in-out infinite;white-space:nowrap;}
-.t-mc     .streak-ghost{font-family:'VT323',monospace;letter-spacing:0;font-size:230px;}
-.t-naruto .streak-ghost{font-family:'Permanent Marker',cursive;font-size:180px;letter-spacing:-6px;}
+.t-voxel     .streak-ghost{font-family:'VT323',monospace;letter-spacing:0;font-size:230px;}
+.t-shinobi .streak-ghost{font-family:'Permanent Marker',cursive;font-size:180px;letter-spacing:-6px;}
 /* Compact identity header */
 .pulse-compact-id{position:relative;display:flex;align-items:center;gap:12px;padding:16px 18px 6px;z-index:2;}
 .pulse-compact-id .pulse-av-section{width:auto;height:auto;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
@@ -843,14 +843,14 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .streak-hero{position:relative;z-index:1;padding:4px 18px 18px;text-align:center;}
 .streak-num-wrap{display:inline-block;position:relative;}
 .streak-num{display:block;font-size:104px;font-weight:900;line-height:1;letter-spacing:-5px;color:var(--ta);font-family:'Rajdhani',sans-serif;}
-.t-mc     .streak-num{font-family:'VT323',monospace;font-size:128px;letter-spacing:0;}
-.t-naruto .streak-num{font-family:'Permanent Marker',cursive;font-size:86px;letter-spacing:-2px;}
+.t-voxel     .streak-num{font-family:'VT323',monospace;font-size:128px;letter-spacing:0;}
+.t-shinobi .streak-num{font-family:'Permanent Marker',cursive;font-size:86px;letter-spacing:-2px;}
 .t-bloom  .streak-num{font-family:'Nunito',sans-serif;font-weight:900;}
 .streak-num.sh-anim{animation:streakGlow 3.5s ease-in-out infinite,streakIn 0.65s var(--ease-spring) both;}
 .streak-num.sh-idle{animation:streakGlow 3.5s ease-in-out infinite;}
 .streak-num.sh-pop {animation:streakGlow 3.5s ease-in-out infinite,streakPop 0.55s var(--ease-spring) both;}
 .streak-hero.zero .streak-num{opacity:0.3;font-size:80px;letter-spacing:-3px;}
-.t-mc.streak-hero.zero .streak-num,.t-mc .streak-hero.zero .streak-num{font-size:96px;}
+.t-voxel.streak-hero.zero .streak-num,.t-voxel .streak-hero.zero .streak-num{font-size:96px;}
 .streak-unit{font-size:8px;letter-spacing:4px;color:var(--ta);opacity:0.6;margin-top:-2px;font-family:'IBM Plex Mono',monospace;}
 .streak-tagline{font-size:8px;letter-spacing:2.5px;opacity:0.28;margin-top:10px;font-family:'IBM Plex Mono',monospace;}
 /* Milestone glow override */
@@ -904,9 +904,9 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .rec-sub{font-size:9px;opacity:0.27;letter-spacing:0.3px;margin-top:1px;}
 /* Per-theme RGB vars */
 .t-fut    .pulse-card{--ta-rgb:0,245,255;--ta2-rgb:123,47,255;}
-.t-halo   .pulse-card{--ta-rgb:255,45,120;--ta2-rgb:189,0,255;}
-.t-mc     .pulse-card{--ta-rgb:106,255,58;--ta2-rgb:255,170,0;}
-.t-naruto .pulse-card{--ta-rgb:74,106,132;--ta2-rgb:192,208,224;}
+.t-neonnoir   .pulse-card{--ta-rgb:255,45,120;--ta2-rgb:189,0,255;}
+.t-voxel     .pulse-card{--ta-rgb:106,255,58;--ta2-rgb:255,170,0;}
+.t-shinobi .pulse-card{--ta-rgb:74,106,132;--ta2-rgb:192,208,224;}
 .t-bloom  .pulse-card{--ta-rgb:232,92,138;--ta2-rgb:196,127,181;}
 .t-synth  .pulse-card{--ta-rgb:0,255,255;--ta2-rgb:255,0,255;}
 /* Tier Sheet */
@@ -970,7 +970,7 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 #av-crop.open{display:block;}
 .avc-title{font-size:11px;letter-spacing:3px;font-weight:700;color:var(--ta);text-align:center;margin:6px 0 4px;text-transform:uppercase;}
 .avc-stage{position:relative;width:min(72vw,250px);height:min(72vw,250px);margin:14px auto 0;border-radius:50%;overflow:hidden;border:2px solid var(--ta);touch-action:none;background:#000;cursor:grab;}
-.t-mc .avc-stage{border-radius:8px;}
+.t-voxel .avc-stage{border-radius:8px;}
 .avc-stage img{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform;user-select:none;-webkit-user-drag:none;pointer-events:none;max-width:none;}
 .avc-zoom-row{display:flex;align-items:center;gap:12px;margin:16px auto 2px;max-width:280px;}
 .avc-zoom{flex:1;accent-color:var(--ta);}
@@ -1015,9 +1015,9 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
 /* theme RGB vars for glow effects */
 .t-fut  .pro-hero,.t-fut  .pro-feats,.t-fut  .pro-feat-row,.t-fut  .pro-active-bar{--ta2-rgb:123,47,255;--ta-rgb:0,245,255;}
-.t-halo .pro-hero,.t-halo .pro-feats,.t-halo .pro-feat-row,.t-halo .pro-active-bar{--ta2-rgb:189,0,255;--ta-rgb:255,45,120;}
-.t-mc   .pro-hero,.t-mc   .pro-feats,.t-mc   .pro-feat-row,.t-mc   .pro-active-bar{--ta2-rgb:255,170,0;--ta-rgb:106,255,58;}
-.t-naruto .pro-hero,.t-naruto .pro-feats,.t-naruto .pro-feat-row,.t-naruto .pro-active-bar{--ta2-rgb:192,208,224;--ta-rgb:74,106,132;}
+.t-neonnoir .pro-hero,.t-neonnoir .pro-feats,.t-neonnoir .pro-feat-row,.t-neonnoir .pro-active-bar{--ta2-rgb:189,0,255;--ta-rgb:255,45,120;}
+.t-voxel   .pro-hero,.t-voxel   .pro-feats,.t-voxel   .pro-feat-row,.t-voxel   .pro-active-bar{--ta2-rgb:255,170,0;--ta-rgb:106,255,58;}
+.t-shinobi .pro-hero,.t-shinobi .pro-feats,.t-shinobi .pro-feat-row,.t-shinobi .pro-active-bar{--ta2-rgb:192,208,224;--ta-rgb:74,106,132;}
 .t-bloom .pro-hero,.t-bloom .pro-feats,.t-bloom .pro-feat-row,.t-bloom .pro-active-bar{--ta2-rgb:196,127,181;--ta-rgb:232,92,138;}
 .t-synth .pro-hero,.t-synth .pro-feats,.t-synth .pro-feat-row,.t-synth .pro-active-bar{--ta2-rgb:255,0,255;--ta-rgb:0,255,255;}
 .pv-connect-btn{width:100%;padding:12px;background:var(--ta);color:var(--bg);border:none;cursor:pointer;font-family:inherit;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;border-radius:3px;transition:opacity 0.2s;-webkit-tap-highlight-color:transparent;}
@@ -1173,22 +1173,22 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 @keyframes fut-scan{0%{opacity:0;}50%{opacity:1;}100%{opacity:0;}}
 
 /* NEON NOIR: Glitch scan & neon bleed effects */
-.t-halo .iitm{background:rgba(255,45,120,0.04);border-color:rgba(255,45,120,0.14);}
-.t-halo .iitm::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,45,120,0.7),transparent);animation:nn-scanline 6s ease-in-out infinite;pointer-events:none;}
+.t-neonnoir .iitm{background:rgba(255,45,120,0.04);border-color:rgba(255,45,120,0.14);}
+.t-neonnoir .iitm::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,45,120,0.7),transparent);animation:nn-scanline 6s ease-in-out infinite;pointer-events:none;}
 @keyframes nn-scanline{0%,100%{transform:translateY(0);opacity:0;}40%{opacity:0;}50%{transform:translateY(200%);opacity:0.8;}60%{opacity:0;}}
-.t-halo .vc::before{content:'';position:absolute;top:0;left:0;width:14px;height:2px;background:rgba(255,45,120,0.7);box-shadow:0 0 6px rgba(255,45,120,0.5);}
-.t-halo .vc::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,rgba(255,45,120,0.6),rgba(189,0,255,0.3),transparent);}
+.t-neonnoir .vc::before{content:'';position:absolute;top:0;left:0;width:14px;height:2px;background:rgba(255,45,120,0.7);box-shadow:0 0 6px rgba(255,45,120,0.5);}
+.t-neonnoir .vc::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,rgba(255,45,120,0.6),rgba(189,0,255,0.3),transparent);}
 
-/* NARUTO: Chakra pulse — sin glow, solo opacidad/escala */
-.t-naruto .iitm{background:rgba(74,106,132,0.04);border-color:rgba(74,106,132,0.16);}
-.t-naruto .iitm::after{content:'';position:absolute;inset:0;border:1px solid rgba(74,106,132,0.20);border-radius:4px;animation:naruto-pulse 4s ease-in-out infinite;pointer-events:none;}
-@keyframes naruto-pulse{0%,100%{transform:scale(1);opacity:0;}50%{transform:scale(1.015);opacity:0.32;}}
-.t-naruto .typ{animation:naruto-glow 3.5s ease-in-out infinite;}
-@keyframes naruto-glow{0%,100%{opacity:0.72;}50%{opacity:1.0;}}
+/* SHINOBI: Chakra pulse — sin glow, solo opacidad/escala */
+.t-shinobi .iitm{background:rgba(74,106,132,0.04);border-color:rgba(74,106,132,0.16);}
+.t-shinobi .iitm::after{content:'';position:absolute;inset:0;border:1px solid rgba(74,106,132,0.20);border-radius:4px;animation:shinobi-pulse 4s ease-in-out infinite;pointer-events:none;}
+@keyframes shinobi-pulse{0%,100%{transform:scale(1);opacity:0;}50%{transform:scale(1.015);opacity:0.32;}}
+.t-shinobi .typ{animation:shinobi-glow 3.5s ease-in-out infinite;}
+@keyframes shinobi-glow{0%,100%{opacity:0.72;}50%{opacity:1.0;}}
 
-/* ── NARUTO EASTER EGGS: ocultos en todos los temas, visibles solo en .t-naruto ── */
+/* ── SHINOBI EASTER EGGS: ocultos en todos los temas, visibles solo en .t-shinobi ── */
 .nrt-egg{display:none;}
-.t-naruto .nrt-egg{display:block;}
+.t-shinobi .nrt-egg{display:block;}
 /* Nindo quote strip (home) */
 .nrt-nindo-strip{font-family:'Noto Serif JP',serif;font-size:9.5px;color:rgba(160,192,220,0.30);
   letter-spacing:2.5px;text-align:center;padding:5px 0 0;line-height:1.8;
@@ -1213,27 +1213,27 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .nrt-rank-nindo{font-size:8.5px;color:rgba(160,192,220,0.38);letter-spacing:1px;
   margin-top:6px;font-family:'Noto Serif JP',serif;font-style:italic;line-height:1.6;}
 
-/* ── WORN BATTLE LABELS — scratches + worn ink on every label in .t-naruto ── */
+/* ── WORN BATTLE LABELS — scratches + worn ink on every label in .t-shinobi ── */
 /* .clbl is display:flex → ::before is absolute-positioned (out of flow)       */
-.t-naruto .clbl{
+.t-shinobi .clbl{
   position:relative;
   text-shadow:0.4px 0.4px 0 rgba(0,0,0,0.55),-0.2px 0 0 rgba(160,192,220,0.07);}
-.t-naruto .clbl::before{
+.t-shinobi .clbl::before{
   content:'';position:absolute;inset:-4px -2px;pointer-events:none;z-index:1;
   background:
     linear-gradient(134deg,transparent 41%,rgba(210,235,255,0.060) 41.5%,rgba(210,235,255,0.060) 42.5%,transparent 43%),
     linear-gradient(51deg, transparent 63%,rgba(0,0,0,0.072) 63.5%,rgba(0,0,0,0.072) 64.5%,transparent 65%),
     linear-gradient(109deg,transparent 27%,rgba(210,235,255,0.042) 27.5%,rgba(210,235,255,0.042) 28.5%,transparent 29%);}
 /* .vlbl is an inline <span> → use background-image directly (no ::before needed) */
-.t-naruto .vlbl{
+.t-shinobi .vlbl{
   text-shadow:0.4px 0.4px 0 rgba(0,0,0,0.55),-0.2px 0 0 rgba(160,192,220,0.07);
   background-image:
     linear-gradient(162deg,transparent 34%,rgba(210,235,255,0.055) 34.5%,rgba(210,235,255,0.055) 35.5%,transparent 36%),
     linear-gradient(74deg, transparent 70%,rgba(0,0,0,0.062) 70.5%,rgba(0,0,0,0.062) 71.5%,transparent 72%);}
 
 /* ── SHURIKEN — 8-point throwing-star spinner on every .vc corner ── */
-.t-naruto .vc{position:relative;}
-.t-naruto .vc::before{
+.t-shinobi .vc{position:relative;}
+.t-shinobi .vc::before{
   content:'';position:absolute;bottom:5px;right:5px;
   width:9px;height:9px;
   background:rgba(74,106,132,0.17);
@@ -1253,18 +1253,18 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
   font-family:'Noto Serif JP',serif;font-size:11px;
   color:rgba(74,106,132,0.20);letter-spacing:1px;pointer-events:none;}
 
-/* MINECRAFT: Ore/block glow effects */
-.t-mc .iitm{background:rgba(106,255,58,0.03);border-color:rgba(106,255,58,0.15);}
-.t-mc .iitm::after{content:'▪';position:absolute;top:2px;right:4px;font-size:18px;color:rgba(106,255,58,0.25);text-shadow:0 0 6px rgba(106,255,58,0.4);animation:mc-ore 2s ease-in-out infinite;}
-@keyframes mc-ore{0%,100%{opacity:0.4;}50%{opacity:0.8;text-shadow:0 0 12px rgba(106,255,58,0.6);}}
-.t-mc .vc{box-shadow:inset 0 0 8px rgba(0,0,0,0.3);}
-.t-mc .vc:hover{box-shadow:inset 0 0 8px rgba(0,0,0,0.3),0 0 10px rgba(106,255,58,0.3);}
+/* VOXEL: Ore/block glow effects */
+.t-voxel .iitm{background:rgba(106,255,58,0.03);border-color:rgba(106,255,58,0.15);}
+.t-voxel .iitm::after{content:'▪';position:absolute;top:2px;right:4px;font-size:18px;color:rgba(106,255,58,0.25);text-shadow:0 0 6px rgba(106,255,58,0.4);animation:voxel-ore 2s ease-in-out infinite;}
+@keyframes voxel-ore{0%,100%{opacity:0.4;}50%{opacity:0.8;text-shadow:0 0 12px rgba(106,255,58,0.6);}}
+.t-voxel .vc{box-shadow:inset 0 0 8px rgba(0,0,0,0.3);}
+.t-voxel .vc:hover{box-shadow:inset 0 0 8px rgba(0,0,0,0.3),0 0 10px rgba(106,255,58,0.3);}
 
 /* Enhanced card hover states for all themes */
 .t-fut .card:hover,.t-fut .vc:hover{border-color:rgba(0,245,255,0.4);box-shadow:0 0 16px rgba(0,245,255,0.15);}
-.t-halo .card:hover,.t-halo .vc:hover{border-color:rgba(255,45,120,0.5);box-shadow:0 0 18px rgba(255,45,120,0.15),0 0 4px rgba(189,0,255,0.1);}
-.t-naruto .card:hover,.t-naruto .vc:hover{border-color:rgba(74,106,132,0.40);box-shadow:0 3px 14px rgba(0,0,0,0.55);}
-.t-mc .card:hover,.t-mc .vc:hover{border-color:rgba(106,255,58,0.4);box-shadow:0 0 16px rgba(106,255,58,0.15);}
+.t-neonnoir .card:hover,.t-neonnoir .vc:hover{border-color:rgba(255,45,120,0.5);box-shadow:0 0 18px rgba(255,45,120,0.15),0 0 4px rgba(189,0,255,0.1);}
+.t-shinobi .card:hover,.t-shinobi .vc:hover{border-color:rgba(74,106,132,0.40);box-shadow:0 3px 14px rgba(0,0,0,0.55);}
+.t-voxel .card:hover,.t-voxel .vc:hover{border-color:rgba(106,255,58,0.4);box-shadow:0 0 16px rgba(106,255,58,0.15);}
 
 /* Header controls */
 .cbtn{
@@ -1665,10 +1665,10 @@ body.is-offline .dstrip, body.is-unstable .dstrip{display:none;}
 #bnav-ind{position:absolute;top:0;height:2px;width:28px;background:var(--ta);border-radius:0 0 3px 3px;left:0;transition:left 0.32s var(--ease-spring),background var(--dur-base) var(--ease-std),opacity var(--dur-base) var(--ease-std);opacity:0;pointer-events:none;}
 .bnav-ic{font-size:20px;line-height:1;}
 .bnav-lbl{font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:600;}
-.t-mc .bnav{background:#1e1600;border-top:3px solid #6a5020;}
-.t-mc .bnav-btn.active{color:#6aff3a;}
-.t-halo .bnav{border-top:1px solid rgba(255,45,120,0.28);background:rgba(6,0,16,0.97);}
-.t-naruto .bnav{border-top:1px solid rgba(74,106,132,0.18);background:rgba(6,8,12,0.98);}
+.t-voxel .bnav{background:#1e1600;border-top:3px solid #6a5020;}
+.t-voxel .bnav-btn.active{color:#6aff3a;}
+.t-neonnoir .bnav{border-top:1px solid rgba(255,45,120,0.28);background:rgba(6,0,16,0.97);}
+.t-shinobi .bnav{border-top:1px solid rgba(74,106,132,0.18);background:rgba(6,8,12,0.98);}
 
 /* ═══════════════════════════════════════
    THEME: FUTURISTIC
@@ -1717,10 +1717,10 @@ body.t-fut::after{content:'';position:fixed;inset:0;background:repeating-linear-
 .hud-pct-sym{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;color:#00f5ff;opacity:0.75;margin-left:1px;text-shadow:0 0 10px rgba(0,245,255,0.5);}
 
 /* ═══════════════════════════════════════
-   THEME: MINECRAFT
+   THEME: VOXEL
    VT323 (auténtico bitmap CRT) — todo en px para imagen-rendering pixelated
 ═══════════════════════════════════════ */
-body.t-mc{
+body.t-voxel{
   --ta:#6aff3a;--ta2:#ffaa00;--tpos:#6aff3a;--tneg:#ff5555;
   --bg:#1a1200;--bg2:#231800;--bdr:#6a5020;
   --sub:rgba(106,80,32,0.38);--cbg:#1e1600;
@@ -1728,29 +1728,29 @@ body.t-mc{
   background:var(--bg);color:var(--txt);
   font-family:'VT323',monospace;image-rendering:pixelated;
 }
-body.t-mc::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(0deg,rgba(130,90,25,0.14) 0,rgba(130,90,25,0.14) 1px,transparent 1px,transparent 28px),repeating-linear-gradient(90deg,rgba(130,90,25,0.14) 0,rgba(130,90,25,0.14) 1px,transparent 1px,transparent 28px),repeating-linear-gradient(0deg,rgba(70,42,6,0.06) 0,rgba(70,42,6,0.06) 1px,transparent 1px,transparent 6px),repeating-linear-gradient(90deg,rgba(70,42,6,0.06) 0,rgba(70,42,6,0.06) 1px,transparent 1px,transparent 6px);pointer-events:none;z-index:0;}
+body.t-voxel::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(0deg,rgba(130,90,25,0.14) 0,rgba(130,90,25,0.14) 1px,transparent 1px,transparent 28px),repeating-linear-gradient(90deg,rgba(130,90,25,0.14) 0,rgba(130,90,25,0.14) 1px,transparent 1px,transparent 28px),repeating-linear-gradient(0deg,rgba(70,42,6,0.06) 0,rgba(70,42,6,0.06) 1px,transparent 1px,transparent 6px),repeating-linear-gradient(90deg,rgba(70,42,6,0.06) 0,rgba(70,42,6,0.06) 1px,transparent 1px,transparent 6px);pointer-events:none;z-index:0;}
 /* ── Voxel C: ciclo día/noche — tinte sobre toda la escena ──── */
-body.t-mc::after{content:'';position:fixed;inset:0;background:var(--mc-tint,transparent);pointer-events:none;z-index:0;transition:background 3s ease;}
+body.t-voxel::after{content:'';position:fixed;inset:0;background:var(--voxel-tint,transparent);pointer-events:none;z-index:0;transition:background 3s ease;}
 /* ── Voxel A: partículas pixel flotantes (3 capas, posiciones fijas) ── */
-#mc-ambient{display:none;position:fixed;top:0;left:0;width:2px;height:2px;pointer-events:none;z-index:0;}
-#mc-ambient::before,#mc-ambient::after{content:'';position:fixed;top:0;left:0;width:2px;height:2px;pointer-events:none;z-index:0;}
-.t-mc #mc-ambient{display:block;animation:mcPartRise 14s linear infinite;animation-delay:-2s;
+#voxel-ambient{display:none;position:fixed;top:0;left:0;width:2px;height:2px;pointer-events:none;z-index:0;}
+#voxel-ambient::before,#voxel-ambient::after{content:'';position:fixed;top:0;left:0;width:2px;height:2px;pointer-events:none;z-index:0;}
+.t-voxel #voxel-ambient{display:block;animation:voxelPartRise 14s linear infinite;animation-delay:-2s;
   box-shadow:40px 12vh 0 0 rgba(106,255,58,.5),180px 58vh 0 0 rgba(255,170,0,.45),290px 95vh 0 0 rgba(106,255,58,.4),360px 140vh 0 0 rgba(170,255,100,.45),490px 30vh 0 0 rgba(255,170,0,.5),620px 175vh 0 0 rgba(106,255,58,.4),750px 65vh 0 0 rgba(85,180,255,.45),880px 120vh 0 0 rgba(255,170,0,.5),1010px 45vh 0 0 rgba(106,255,58,.45),1140px 155vh 0 0 rgba(170,255,100,.4),1280px 85vh 0 0 rgba(255,170,0,.45),1400px 195vh 0 0 rgba(106,255,58,.4);}
-.t-mc #mc-ambient::before{animation:mcPartRise 9s linear infinite;animation-delay:-4s;
+.t-voxel #voxel-ambient::before{animation:voxelPartRise 9s linear infinite;animation-delay:-4s;
   box-shadow:70px 85vh 0 0 rgba(255,170,0,.5),160px 35vh 0 0 rgba(106,255,58,.45),320px 160vh 0 0 rgba(85,180,255,.5),380px 72vh 0 0 rgba(255,170,0,.4),510px 110vh 0 0 rgba(106,255,58,.45),640px 50vh 0 0 rgba(170,255,100,.5),780px 185vh 0 0 rgba(255,170,0,.4),920px 28vh 0 0 rgba(106,255,58,.5),1050px 145vh 0 0 rgba(85,180,255,.4),1180px 95vh 0 0 rgba(255,170,0,.45),1320px 170vh 0 0 rgba(106,255,58,.4);}
-.t-mc #mc-ambient::after{animation:mcPartRise 20s linear infinite;animation-delay:-7s;
+.t-voxel #voxel-ambient::after{animation:voxelPartRise 20s linear infinite;animation-delay:-7s;
   box-shadow:20px 48vh 0 0 rgba(106,255,58,.4),130px 130vh 0 0 rgba(255,170,0,.5),240px 75vh 0 0 rgba(170,255,100,.45),400px 190vh 0 0 rgba(106,255,58,.4),550px 22vh 0 0 rgba(85,180,255,.45),680px 162vh 0 0 rgba(255,170,0,.45),800px 100vh 0 0 rgba(106,255,58,.5),930px 55vh 0 0 rgba(170,255,100,.4),1060px 178vh 0 0 rgba(255,170,0,.4),1190px 32vh 0 0 rgba(106,255,58,.45),1350px 118vh 0 0 rgba(85,180,255,.4),1450px 80vh 0 0 rgba(255,170,0,.45);}
-@keyframes mcPartRise{from{transform:translateY(0)}to{transform:translateY(-100vh)}}
+@keyframes voxelPartRise{from{transform:translateY(0)}to{transform:translateY(-100vh)}}
 /* ── Voxel D: skybox atmosférico a pantalla completa (parallax) ──
-   Sol blocky + montañas en 3 capas + nubes Minecraft + árboles. Vive detrás
-   del contenido (z-index 0, igual que #mc-ambient) y el grid ::before queda
-   oculto tras el cielo opaco. El tinte día/noche (::after, --mc-tint) lo modula. */
-#mc-sky{display:none;}
-.t-mc #mc-sky{display:block;position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
-.t-mc #mc-sky svg{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;}
-@keyframes mcCloudDrift{from{transform:translateX(-90px)}to{transform:translateX(560px)}}
-@keyframes mcSunGlowPulse{0%,100%{opacity:0.85}50%{opacity:1}}
-.mc-sky-sunglow{animation:mcSunGlowPulse 6s ease-in-out infinite;transform-box:fill-box;transform-origin:center;}
+   Sol blocky + montañas en 3 capas + nubes Voxel + árboles. Vive detrás
+   del contenido (z-index 0, igual que #voxel-ambient) y el grid ::before queda
+   oculto tras el cielo opaco. El tinte día/noche (::after, --voxel-tint) lo modula. */
+#voxel-sky{display:none;}
+.t-voxel #voxel-sky{display:block;position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.t-voxel #voxel-sky svg{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;}
+@keyframes voxelCloudDrift{from{transform:translateX(-90px)}to{transform:translateX(560px)}}
+@keyframes voxelSunGlowPulse{0%,100%{opacity:0.85}50%{opacity:1}}
+.voxel-sky-sunglow{animation:voxelSunGlowPulse 6s ease-in-out infinite;transform-box:fill-box;transform-origin:center;}
 /* ── Synthwave OUTRUN backdrop: cielo degradado + sol retro con bandas + montañas
    + piso de grilla neón en perspectiva que avanza. Vive detrás del contenido
    translúcido (z-index 0); el ::after (scanlines CRT) corona el efecto. ── */
@@ -1789,77 +1789,77 @@ body.t-mc::after{content:'';position:fixed;inset:0;background:var(--mc-tint,tran
    Listadas por selector a propósito — NUNCA tocamos animaciones de entrada/carga
    (que usan fill forwards), así ningún elemento puede quedar invisible. ── */
 @media (prefers-reduced-motion: reduce){
-  body.t-halo::before, body.t-synth::before,
-  .t-synth .db-name, .t-halo .db-name, .t-mc .db-name, .t-mc .db-name::after,
+  body.t-neonnoir::before, body.t-synth::before,
+  .t-synth .db-name, .t-neonnoir .db-name, .t-voxel .db-name, .t-voxel .db-name::after,
   .t-synth .iitm::after, .synth-eq-bar,
   .sw-grid, .sw-sun-glow, .sw-shoot,
-  #mc-ambient, #mc-ambient::before, #mc-ambient::after, .mc-sky-sunglow,
-  #mc-rscore, #nn-chip-body, #blm-rfil, #blm-blossom,
+  #voxel-ambient, #voxel-ambient::before, #voxel-ambient::after, .voxel-sky-sunglow,
+  #voxel-rscore, #nn-chip-body, #blm-rfil, #blm-blossom,
   #nrt-rfil, #nrt-kuji-ring, .nrt-seal, .b-spark, .nn-col{
     animation: none !important;
   }
 }
-.t-mc .db-hdr{background:#1e1600;border-bottom:4px solid #6a5020;box-shadow:0 4px 0 rgba(0,0,0,0.6);}
-.t-mc .card,.t-mc .vc{border:none!important;outline:3px solid #6a5020;box-shadow:inset 3px 3px 0 rgba(225,172,72,0.30),inset -3px -4px 0 rgba(0,0,0,0.66),inset 0 0 0 1px rgba(90,55,8,0.75),5px 6px 0 rgba(0,0,0,0.85);background:repeating-linear-gradient(0deg,transparent,transparent 15px,rgba(180,120,40,.08) 15px,rgba(180,120,40,.08) 16px),repeating-linear-gradient(90deg,transparent,transparent 15px,rgba(180,120,40,.08) 15px,rgba(180,120,40,.08) 16px),linear-gradient(150deg,rgba(37,28,0,0.68),rgba(26,18,0,0.68) 55%,rgba(37,28,0,0.68))!important;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);}
+.t-voxel .db-hdr{background:#1e1600;border-bottom:4px solid #6a5020;box-shadow:0 4px 0 rgba(0,0,0,0.6);}
+.t-voxel .card,.t-voxel .vc{border:none!important;outline:3px solid #6a5020;box-shadow:inset 3px 3px 0 rgba(225,172,72,0.30),inset -3px -4px 0 rgba(0,0,0,0.66),inset 0 0 0 1px rgba(90,55,8,0.75),5px 6px 0 rgba(0,0,0,0.85);background:repeating-linear-gradient(0deg,transparent,transparent 15px,rgba(180,120,40,.08) 15px,rgba(180,120,40,.08) 16px),repeating-linear-gradient(90deg,transparent,transparent 15px,rgba(180,120,40,.08) 15px,rgba(180,120,40,.08) 16px),linear-gradient(150deg,rgba(37,28,0,0.68),rgba(26,18,0,0.68) 55%,rgba(37,28,0,0.68))!important;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);}
 /* ── Voxel: cara superior iluminada por el atardecer (sunlit block top) ──
    Solo .card — .vc ya usa ::before para su cuadrito indicador verde. */
-.t-mc .card::before{content:'';position:absolute;top:0;left:0;right:0;height:7px;background:linear-gradient(180deg,rgba(255,176,64,0.22),rgba(255,176,64,0));pointer-events:none;z-index:1;}
-/* ── worn corner chips en cards mc ── */
-.t-mc .card::after,.t-mc .vc::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;background:linear-gradient(135deg,rgba(0,0,0,0.70) 4px,transparent 4px) top left/8px 8px no-repeat,linear-gradient(225deg,rgba(0,0,0,0.70) 4px,transparent 4px) top right/8px 8px no-repeat,linear-gradient(315deg,rgba(0,0,0,0.70) 4px,transparent 4px) bottom right/8px 8px no-repeat,linear-gradient(45deg,rgba(0,0,0,0.70) 4px,transparent 4px) bottom left/8px 8px no-repeat;}
+.t-voxel .card::before{content:'';position:absolute;top:0;left:0;right:0;height:7px;background:linear-gradient(180deg,rgba(255,176,64,0.22),rgba(255,176,64,0));pointer-events:none;z-index:1;}
+/* ── worn corner chips en cards voxel ── */
+.t-voxel .card::after,.t-voxel .vc::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;background:linear-gradient(135deg,rgba(0,0,0,0.70) 4px,transparent 4px) top left/8px 8px no-repeat,linear-gradient(225deg,rgba(0,0,0,0.70) 4px,transparent 4px) top right/8px 8px no-repeat,linear-gradient(315deg,rgba(0,0,0,0.70) 4px,transparent 4px) bottom right/8px 8px no-repeat,linear-gradient(45deg,rgba(0,0,0,0.70) 4px,transparent 4px) bottom left/8px 8px no-repeat;}
 /* ── card.rw (Barra de Vida): fondo plano sin degradado de terreno ── */
-.t-mc .card.rw{background:repeating-linear-gradient(0deg,transparent,transparent 15px,rgba(180,120,40,.08) 15px,rgba(180,120,40,.08) 16px),repeating-linear-gradient(90deg,transparent,transparent 15px,rgba(180,120,40,.08) 15px,rgba(180,120,40,.08) 16px),rgba(26,18,0,0.68)!important;}
+.t-voxel .card.rw{background:repeating-linear-gradient(0deg,transparent,transparent 15px,rgba(180,120,40,.08) 15px,rgba(180,120,40,.08) 16px),repeating-linear-gradient(90deg,transparent,transparent 15px,rgba(180,120,40,.08) 15px,rgba(180,120,40,.08) 16px),rgba(26,18,0,0.68)!important;}
 /* VT323 override — use px not rem for crisp rendering */
-.t-mc *{font-family:'VT323',monospace!important;}
-.t-mc .db-name{font-size:38px!important;color:#6aff3a;text-shadow:2px 2px 0 #003800;animation:mcCrtFlicker 5.5s steps(1,end) infinite;}
+.t-voxel *{font-family:'VT323',monospace!important;}
+.t-voxel .db-name{font-size:38px!important;color:#6aff3a;text-shadow:2px 2px 0 #003800;animation:voxelCrtFlicker 5.5s steps(1,end) infinite;}
 /* ── Voxel: saludo animado estilo CRT (equivalente al neón de Synthwave) ──
    Parpadeo sutil de monitor CRT + cursor de bloque parpadeante tras el nombre. */
-@keyframes mcCrtFlicker{0%,46%,48%,70%,72%,100%{opacity:1;}47%{opacity:0.72;}71%{opacity:0.88;}3%{opacity:0.85;}4%{opacity:1;}}
-.t-mc .db-name::after{content:'\2588';color:#6aff3a;font-size:0.72em;margin-left:4px;text-shadow:2px 2px 0 #003800;animation:mcBlink 1.06s steps(1,end) infinite;}
-.t-mc .rnum{font-size:44px!important;color:#6aff3a;text-shadow:2px 2px 0 #003800;}
-.t-mc .vval{font-size:36px!important;text-shadow:2px 2px 0 #000;}
-.t-mc .snum{font-size:52px!important;text-shadow:2px 2px 0 #000;}
-.t-mc .clbl,.t-mc .db-eye{font-size:16px!important;color:#aaa;text-shadow:1px 1px 0 #000;}
-.t-mc .vlbl{font-size:14px!important;color:#aaa;}
-.t-mc .vunit{font-size:13px!important;color:#777;}
-.t-mc .acnm{font-size:16px!important;}
-.t-mc .acmt,.t-mc .sltm,.t-mc .wdl,.t-mc .sllbl,.t-mc .spct,.t-mc .sgoal,.t-mc .itxt{font-size:14px!important;}
-.t-mc .ityp{font-size:13px!important;}
-.t-mc .db-date{font-size:13px!important;}
-.t-mc .cbtn{border:3px solid #6aff3a!important;font-size:15px!important;box-shadow:2px 2px 0 #000;transition:transform .06s steps(2),box-shadow .06s steps(2);}
-/* ── Voxel: botón se hunde al presionar (como botón de Minecraft) ── */
-.t-mc .cbtn:active{transform:translate(2px,2px);box-shadow:0 0 0 #000!important;}
-.t-mc .rfil{stroke:#6aff3a!important;filter:none;}
-.t-mc .vc::before{content:'';position:absolute;top:3px;right:3px;width:8px;height:8px;background:#6aff3a;box-shadow:-2px 0 0 #003800;}
-/* MC HP/XP bars */
-.mc-bars{margin-top:10px;width:100%;}
-.mc-blbl{font-size:15px;color:#aaa;text-shadow:1px 1px 0 #000;margin-bottom:3px;}
-.mc-btr{width:100%;height:11px;background:#333;border:2px solid #555;box-shadow:inset 1px 1px 0 #000;}
-.mc-bfi{height:100%;}
-.mc-hp{background:repeating-linear-gradient(90deg,#ff5555 0,#ff5555 12px,#aa0000 12px,#aa0000 14px);}
-.mc-xp{background:repeating-linear-gradient(90deg,#6aff3a 0,#6aff3a 12px,#3aaa1a 12px,#3aaa1a 14px);}
-/* ── Minecraft HUD Ring ── */
-.mc-rc{display:none;position:relative;width:145px;height:142px;}
-.mc-leg{display:none;align-items:center;gap:6px;font-size:13px!important;letter-spacing:1px;opacity:0.85;margin-top:4px;justify-content:center;}
-.mc-ldot{width:8px;height:8px;display:inline-block;flex-shrink:0;}
-.t-mc .rc{display:none;}
-.t-mc .mc-rc{display:block;}
-.t-mc .mc-leg{display:flex;}
-.mc-rsvg{width:100%;height:100%;}
-@keyframes mcBlink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
+@keyframes voxelCrtFlicker{0%,46%,48%,70%,72%,100%{opacity:1;}47%{opacity:0.72;}71%{opacity:0.88;}3%{opacity:0.85;}4%{opacity:1;}}
+.t-voxel .db-name::after{content:'\2588';color:#6aff3a;font-size:0.72em;margin-left:4px;text-shadow:2px 2px 0 #003800;animation:voxelBlink 1.06s steps(1,end) infinite;}
+.t-voxel .rnum{font-size:44px!important;color:#6aff3a;text-shadow:2px 2px 0 #003800;}
+.t-voxel .vval{font-size:36px!important;text-shadow:2px 2px 0 #000;}
+.t-voxel .snum{font-size:52px!important;text-shadow:2px 2px 0 #000;}
+.t-voxel .clbl,.t-voxel .db-eye{font-size:16px!important;color:#aaa;text-shadow:1px 1px 0 #000;}
+.t-voxel .vlbl{font-size:14px!important;color:#aaa;}
+.t-voxel .vunit{font-size:13px!important;color:#777;}
+.t-voxel .acnm{font-size:16px!important;}
+.t-voxel .acmt,.t-voxel .sltm,.t-voxel .wdl,.t-voxel .sllbl,.t-voxel .spct,.t-voxel .sgoal,.t-voxel .itxt{font-size:14px!important;}
+.t-voxel .ityp{font-size:13px!important;}
+.t-voxel .db-date{font-size:13px!important;}
+.t-voxel .cbtn{border:3px solid #6aff3a!important;font-size:15px!important;box-shadow:2px 2px 0 #000;transition:transform .06s steps(2),box-shadow .06s steps(2);}
+/* ── Voxel: botón se hunde al presionar (como botón de Voxel) ── */
+.t-voxel .cbtn:active{transform:translate(2px,2px);box-shadow:0 0 0 #000!important;}
+.t-voxel .rfil{stroke:#6aff3a!important;filter:none;}
+.t-voxel .vc::before{content:'';position:absolute;top:3px;right:3px;width:8px;height:8px;background:#6aff3a;box-shadow:-2px 0 0 #003800;}
+/* Voxel HP/XP bars */
+.voxel-bars{margin-top:10px;width:100%;}
+.voxel-blbl{font-size:15px;color:#aaa;text-shadow:1px 1px 0 #000;margin-bottom:3px;}
+.voxel-btr{width:100%;height:11px;background:#333;border:2px solid #555;box-shadow:inset 1px 1px 0 #000;}
+.voxel-bfi{height:100%;}
+.voxel-hp{background:repeating-linear-gradient(90deg,#ff5555 0,#ff5555 12px,#aa0000 12px,#aa0000 14px);}
+.voxel-xp{background:repeating-linear-gradient(90deg,#6aff3a 0,#6aff3a 12px,#3aaa1a 12px,#3aaa1a 14px);}
+/* ── Voxel HUD Ring ── */
+.voxel-rc{display:none;position:relative;width:145px;height:142px;}
+.voxel-leg{display:none;align-items:center;gap:6px;font-size:13px!important;letter-spacing:1px;opacity:0.85;margin-top:4px;justify-content:center;}
+.voxel-ldot{width:8px;height:8px;display:inline-block;flex-shrink:0;}
+.t-voxel .rc{display:none;}
+.t-voxel .voxel-rc{display:block;}
+.t-voxel .voxel-leg{display:flex;}
+.voxel-rsvg{width:100%;height:100%;}
+@keyframes voxelBlink{0%,49%{opacity:1;}50%,100%{opacity:0;}}
 /* B: fill-in izq→der al recibir datos */
-@keyframes mcFillIn{0%{opacity:0;}55%{opacity:1;}75%{opacity:.6;}100%{opacity:1;}}
-.mc-fill-in{animation:mcFillIn .22s ease-out both;}
+@keyframes voxelFillIn{0%{opacity:0;}55%{opacity:1;}75%{opacity:.6;}100%{opacity:1;}}
+.voxel-fill-in{animation:voxelFillIn .22s ease-out both;}
 /* C: LOW HP — blink cuando MIN ACT ≤ 20% */
-@keyframes mcLowHpBlink{0%,49%{opacity:1;}50%,100%{opacity:.12;}}
-/* D: latido del score — velocidad varía con --mc-beat-dur */
-@keyframes mcHpBeat{
+@keyframes voxelLowHpBlink{0%,49%{opacity:1;}50%,100%{opacity:.12;}}
+/* D: latido del score — velocidad varía con --voxel-beat-dur */
+@keyframes voxelHpBeat{
   0%,70%,100%{filter:none;}
   10%{filter:drop-shadow(0 0 6px #6aff3a);}
   22%{filter:drop-shadow(0 0 2px #6aff3a);}
   35%{filter:none;}
 }
-#mc-rscore{animation:mcHpBeat var(--mc-beat-dur,2.2s) ease-in-out infinite;}
-.mc-pulse{animation:mcBlink 1s steps(1) infinite;}
+#voxel-rscore{animation:voxelHpBeat var(--voxel-beat-dur,2.2s) ease-in-out infinite;}
+.voxel-pulse{animation:voxelBlink 1s steps(1) infinite;}
 
 /* ═══════════════════════════════════════
    THEME-SPECIFIC BARS: Health/Experience
@@ -1873,36 +1873,36 @@ body.t-mc::after{content:'';position:fixed;inset:0;background:var(--mc-tint,tran
 .bloom-vita{background:linear-gradient(90deg,#e85c8a 0%,#c47fb5 100%);box-shadow:0 0 10px rgba(232,92,138,0.7),inset 0 1px 2px rgba(255,150,180,0.3);}
 .bloom-flow{background:linear-gradient(90deg,#e8a87c 0%,#d4637a 100%);box-shadow:0 0 10px rgba(232,168,124,0.6),inset 0 1px 2px rgba(212,99,122,0.2);}
 .t-bloom .bloom-bars{display:block;}
-.t-bloom .mc-bars,.halo-bars,.naruto-bars,.fut-bars{display:none;}
+.t-bloom .voxel-bars,.neonnoir-bars,.shinobi-bars,.fut-bars{display:none;}
 
 /* ── NEON NOIR: NEURAL LINK & CHROME ── */
-.halo-bars{margin-top:10px;width:100%;}
-.halo-blbl{font-size:11px;letter-spacing:2px;color:#ff2d78;text-shadow:0 0 8px rgba(255,45,120,0.55);margin-bottom:4px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;}
-.halo-btr{width:100%;height:8px;background:rgba(6,0,16,0.9);border:1px solid rgba(255,45,120,0.2);box-shadow:inset 0 0 4px rgba(0,0,0,0.8),0 0 8px rgba(255,45,120,0.1);}
-.halo-bfi{height:100%;transition:width 0.5s var(--ease-std);}
-.halo-shields{background:linear-gradient(90deg,#ff2d78 0%,#bd00ff 100%);box-shadow:0 0 10px rgba(255,45,120,0.8),inset 0 1px 2px rgba(189,0,255,0.3);}
-.halo-ammo{background:linear-gradient(90deg,#00f5ff 0%,#0066ff 100%);box-shadow:0 0 10px rgba(0,245,255,0.6),inset 0 1px 2px rgba(0,102,255,0.2);}
-.t-halo .halo-bars{display:block;}
-.t-halo .mc-bars,.t-naruto-bars,.t-fut-bars{display:none;}
+.neonnoir-bars{margin-top:10px;width:100%;}
+.neonnoir-blbl{font-size:11px;letter-spacing:2px;color:#ff2d78;text-shadow:0 0 8px rgba(255,45,120,0.55);margin-bottom:4px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;}
+.neonnoir-btr{width:100%;height:8px;background:rgba(6,0,16,0.9);border:1px solid rgba(255,45,120,0.2);box-shadow:inset 0 0 4px rgba(0,0,0,0.8),0 0 8px rgba(255,45,120,0.1);}
+.neonnoir-bfi{height:100%;transition:width 0.5s var(--ease-std);}
+.neonnoir-shields{background:linear-gradient(90deg,#ff2d78 0%,#bd00ff 100%);box-shadow:0 0 10px rgba(255,45,120,0.8),inset 0 1px 2px rgba(189,0,255,0.3);}
+.neonnoir-ammo{background:linear-gradient(90deg,#00f5ff 0%,#0066ff 100%);box-shadow:0 0 10px rgba(0,245,255,0.6),inset 0 1px 2px rgba(0,102,255,0.2);}
+.t-neonnoir .neonnoir-bars{display:block;}
+.t-neonnoir .voxel-bars,.t-shinobi-bars,.t-fut-bars{display:none;}
 
-/* ── NARUTO: CHAKRA & STAMINA ── */
-.naruto-bars{margin-top:10px;width:100%;}
-.naruto-blbl{font-size:11px;letter-spacing:2.5px;color:#a0b8d0;margin-bottom:5px;font-family:'Noto Serif JP',serif;font-weight:700;text-transform:uppercase;}
-.naruto-btr{width:100%;height:10px;background:rgba(6,8,14,0.85);border:1px solid rgba(74,106,132,0.22);box-shadow:inset 0 0 4px rgba(0,0,0,0.7);}
-.naruto-bfi{height:100%;transition:width 0.5s var(--ease-std);}
-.naruto-chakra{background:linear-gradient(90deg,#141e28 0%,#4a6a84 100%);box-shadow:inset 0 1px 3px rgba(0,0,0,0.5);}
-.naruto-stamina{background:linear-gradient(90deg,#1a2030 0%,#8aaac4 100%);box-shadow:inset 0 1px 3px rgba(0,0,0,0.5);}
-.t-naruto .naruto-bars{display:block;}
-.t-naruto .mc-bars,.halo-bars,.t-fut-bars{display:none;}
+/* ── SHINOBI: CHAKRA & STAMINA ── */
+.shinobi-bars{margin-top:10px;width:100%;}
+.shinobi-blbl{font-size:11px;letter-spacing:2.5px;color:#a0b8d0;margin-bottom:5px;font-family:'Noto Serif JP',serif;font-weight:700;text-transform:uppercase;}
+.shinobi-btr{width:100%;height:10px;background:rgba(6,8,14,0.85);border:1px solid rgba(74,106,132,0.22);box-shadow:inset 0 0 4px rgba(0,0,0,0.7);}
+.shinobi-bfi{height:100%;transition:width 0.5s var(--ease-std);}
+.shinobi-chakra{background:linear-gradient(90deg,#141e28 0%,#4a6a84 100%);box-shadow:inset 0 1px 3px rgba(0,0,0,0.5);}
+.shinobi-stamina{background:linear-gradient(90deg,#1a2030 0%,#8aaac4 100%);box-shadow:inset 0 1px 3px rgba(0,0,0,0.5);}
+.t-shinobi .shinobi-bars{display:block;}
+.t-shinobi .voxel-bars,.neonnoir-bars,.t-fut-bars{display:none;}
 
-/* ── NARUTO: Fuinjutsu Sealing Ring ──
+/* ── SHINOBI: Fuinjutsu Sealing Ring ──
    Inspired by the Eight Trigrams Sealing Style (八卦封印式).
    No rotating parts — the mystique comes from the static seal design,
    the Ba Gua trigrams, and chakra energy breathing through the arc.  */
 .nrt-rc{display:none;position:relative;width:220px;height:220px;}
 .nrt-rsvg{width:100%;height:100%;overflow:visible;}
-.t-naruto .rc{display:none;}
-.t-naruto .nrt-rc{display:block;}
+.t-shinobi .rc{display:none;}
+.t-shinobi .nrt-rc{display:block;}
 /* Chakra arc — acero lunar, respira sin glow */
 #nrt-rfil{fill:none;stroke:#4a6a84;stroke-width:9;stroke-linecap:round;
   stroke-dasharray:364;stroke-dashoffset:73;
@@ -1958,7 +1958,7 @@ body.t-mc::after{content:'';position:fixed;inset:0;background:var(--mc-tint,tran
    3 petals orbit the ring using animateMotion with rotate="auto". */
 .blm-rc{display:none;position:relative;width:220px;height:220px;}
 .blm-rsvg{width:100%;height:100%;overflow:visible;}
-/* Recovery arc (r=58, circ≈364 — identical to Naruto ring) */
+/* Recovery arc (r=58, circ≈364 — identical to Shinobi ring) */
 #blm-rfil{fill:none;stroke:#e85c8a;stroke-width:9;stroke-linecap:round;
   stroke-dasharray:364;stroke-dashoffset:73;
   transition:stroke-dashoffset 1.5s var(--ease-std);
@@ -1981,14 +1981,14 @@ body.t-mc::after{content:'';position:fixed;inset:0;background:var(--mc-tint,tran
 .fut-energy{background:linear-gradient(90deg,#00f5ff 0%,#00ff88 100%);box-shadow:0 0 10px rgba(0,245,255,0.8),inset 0 1px 2px rgba(0,255,136,0.3);}
 .fut-processor{background:linear-gradient(90deg,#7b2fff 0%,#ff2d78 100%);box-shadow:0 0 10px rgba(123,43,255,0.7),inset 0 1px 2px rgba(255,45,120,0.2);}
 .t-fut .fut-bars{display:block;}
-.t-fut .mc-bars,.halo-bars,.naruto-bars{display:none;}
+.t-fut .voxel-bars,.neonnoir-bars,.shinobi-bars{display:none;}
 
 /* ═══════════════════════════════════════
    THEME: NEON NOIR
    Cyberpunk dystopia — Rajdhani (display) + IBM Plex Mono (terminal)
    Palette: hot pink #ff2d78 · electric violet #bd00ff · neon green #39ff14
 ═══════════════════════════════════════ */
-body.t-halo{
+body.t-neonnoir{
   --ta:#ff2d78;--ta2:#bd00ff;--tpos:#39ff14;--tneg:#ff2d78;
   --bg:#060010;--bg2:#0e0020;--bdr:rgba(255,45,120,0.18);
   --sub:rgba(255,45,120,0.07);--cbg:rgba(255,45,120,0.025);
@@ -1998,27 +1998,27 @@ body.t-halo{
 }
 /* Animated rain streaks + faint grid */
 @keyframes nn-rain{from{background-position:0 0,0 0,0 0;}to{background-position:-30px 120px,0 0,0 0;}}
-body.t-halo::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(175deg,transparent 0px,transparent 22px,rgba(255,45,120,0.038) 22px,rgba(255,45,120,0.038) 23px),linear-gradient(rgba(255,45,120,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,45,120,0.018) 1px,transparent 1px);background-size:100% 100%,38px 38px,38px 38px;animation:nn-rain 10s linear infinite;pointer-events:none;z-index:0;}
+body.t-neonnoir::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(175deg,transparent 0px,transparent 22px,rgba(255,45,120,0.038) 22px,rgba(255,45,120,0.038) 23px),linear-gradient(rgba(255,45,120,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,45,120,0.018) 1px,transparent 1px);background-size:100% 100%,38px 38px,38px 38px;animation:nn-rain 10s linear infinite;pointer-events:none;z-index:0;}
 /* CRT scanlines */
-body.t-halo::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.055) 2px,rgba(0,0,0,0.055) 4px);pointer-events:none;z-index:999;}
-.t-halo .db-hdr{background:rgba(6,0,16,0.97);border-bottom:1px solid rgba(255,45,120,0.14);}
-.t-halo .db-name,.t-halo .rnum,.t-halo .snum,.t-halo .vval{font-family:'Rajdhani',sans-serif;font-weight:700;}
-.t-halo .db-name{letter-spacing:10px;animation:swGlitch 7s steps(1) infinite;}
-.t-halo .vval{font-size:34px;}
-.t-halo .rnum{font-size:44px;}
-.t-halo #logo-t{font-family:'Rajdhani',sans-serif;font-weight:800;letter-spacing:5px;}
-.t-halo .cbtn{font-family:'IBM Plex Mono',monospace;letter-spacing:2px;}
+body.t-neonnoir::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.055) 2px,rgba(0,0,0,0.055) 4px);pointer-events:none;z-index:999;}
+.t-neonnoir .db-hdr{background:rgba(6,0,16,0.97);border-bottom:1px solid rgba(255,45,120,0.14);}
+.t-neonnoir .db-name,.t-neonnoir .rnum,.t-neonnoir .snum,.t-neonnoir .vval{font-family:'Rajdhani',sans-serif;font-weight:700;}
+.t-neonnoir .db-name{letter-spacing:10px;animation:swGlitch 7s steps(1) infinite;}
+.t-neonnoir .vval{font-size:34px;}
+.t-neonnoir .rnum{font-size:44px;}
+.t-neonnoir #logo-t{font-family:'Rajdhani',sans-serif;font-weight:800;letter-spacing:5px;}
+.t-neonnoir .cbtn{font-family:'IBM Plex Mono',monospace;letter-spacing:2px;}
 /* Left neon stripe on vitals */
-.t-halo .vc::after{content:'';position:absolute;top:0;left:0;width:2px;height:100%;background:linear-gradient(180deg,var(--ta),var(--ta2));opacity:0.7;}
+.t-neonnoir .vc::after{content:'';position:absolute;top:0;left:0;width:2px;height:100%;background:linear-gradient(180deg,var(--ta),var(--ta2));opacity:0.7;}
 /* Corner cut on readiness card */
-.t-halo .rfil{filter:drop-shadow(0 0 6px #ff2d78) drop-shadow(0 0 12px rgba(189,0,255,0.4));}
+.t-neonnoir .rfil{filter:drop-shadow(0 0 6px #ff2d78) drop-shadow(0 0 12px rgba(189,0,255,0.4));}
 /* Neon top-left corner mark on cards */
-.t-halo .card::before{content:'';position:absolute;top:0;left:0;width:18px;height:2px;background:rgba(255,45,120,0.65);box-shadow:0 0 6px rgba(255,45,120,0.4);}
+.t-neonnoir .card::before{content:'';position:absolute;top:0;left:0;width:18px;height:2px;background:rgba(255,45,120,0.65);box-shadow:0 0 6px rgba(255,45,120,0.4);}
 /* Glitch flicker on activity type labels */
 @keyframes nn-glitch{0%,96%,100%{transform:none;opacity:1;}97%{transform:translateX(2px) skewX(1deg);opacity:0.8;}98%{transform:translateX(-1px);opacity:0.9;}}
-.t-halo .typ{animation:nn-glitch 5s ease-in-out infinite;}
-.t-halo .rc{display:none;}
-.t-halo .nn-rc{display:block;}
+.t-neonnoir .typ{animation:nn-glitch 5s ease-in-out infinite;}
+.t-neonnoir .rc{display:none;}
+.t-neonnoir .nn-rc{display:block;}
 
 /* ═══════════════════════════════════════
    THEME: BLOOM
@@ -2057,12 +2057,12 @@ body.t-bloom::after{content:'';position:fixed;bottom:0;left:0;right:0;height:35v
 .t-bloom .blm-rc{display:block;}
 
 /* ═══════════════════════════════════════
-   THEME: NARUTO
+   THEME: SHINOBI
    Permanent Marker (títulos energía shonen) + Noto Serif JP (body auténtico japonés)
    CRÍTICO: .vval usa Rajdhani para números — Noto Serif JP no tiene glyphs numéricos
    que se vean bien a tamaños grandes. Se usa Rajdhani bold para datos numéricos.
 ═══════════════════════════════════════ */
-body.t-naruto{
+body.t-shinobi{
   --ta:#4a6a84;--ta2:#c0d0e0;--tpos:#c0d0e0;--tneg:#1a2530;
   --bg:#080a0c;--bg2:#0e1218;--bdr:rgba(74,106,132,0.28);
   --sub:rgba(74,106,132,0.09);--cbg:rgba(74,106,132,0.020);
@@ -2070,39 +2070,39 @@ body.t-naruto{
   background:var(--bg);color:var(--txt);
   font-family:'Noto Serif JP',serif;
 }
-body.t-naruto::before{content:'';position:fixed;inset:0;background:
+body.t-shinobi::before{content:'';position:fixed;inset:0;background:
   radial-gradient(ellipse 90% 90% at 50% 50%,transparent 40%,rgba(0,0,0,0.45) 100%),
   radial-gradient(ellipse 52% 52% at 50% 50%,rgba(60,90,120,0.06) 0%,transparent 62%),
   repeating-linear-gradient(23deg,rgba(50,75,100,0.038) 0px,rgba(50,75,100,0.038) 1px,transparent 1px,transparent 34px),
   repeating-linear-gradient(-9deg,rgba(40,60,80,0.024) 0px,rgba(40,60,80,0.024) 1px,transparent 1px,transparent 54px),
   repeating-linear-gradient(0deg,rgba(45,68,90,0.013) 0px,rgba(45,68,90,0.013) 1px,transparent 1px,transparent 24px);
 pointer-events:none;z-index:0;}
-body.t-naruto::after{content:'気';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Noto Serif JP',serif;font-size:55vw;color:rgba(74,106,132,0.022);pointer-events:none;z-index:0;line-height:1;}
-.t-naruto .db-hdr{background:rgba(6,8,12,0.97);border-bottom:1px solid rgba(74,106,132,0.18);}
+body.t-shinobi::after{content:'気';position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Noto Serif JP',serif;font-size:55vw;color:rgba(74,106,132,0.022);pointer-events:none;z-index:0;line-height:1;}
+.t-shinobi .db-hdr{background:rgba(6,8,12,0.97);border-bottom:1px solid rgba(74,106,132,0.18);}
 /* Titles: Permanent Marker */
-.t-naruto .db-name{font-family:'Permanent Marker',cursive;color:#a0b8d0;text-shadow:2px 2px 0 #000;letter-spacing:2px;}
-.t-naruto .rnum{font-family:'Permanent Marker',cursive;font-size:42px;color:#a0b8d0;text-shadow:2px 2px 6px rgba(0,0,0,0.70);}
-.t-naruto .rstatus{font-family:'Noto Serif JP',serif;}
-.t-naruto .snum{font-family:'Permanent Marker',cursive;color:#a0b8d0;}
+.t-shinobi .db-name{font-family:'Permanent Marker',cursive;color:#a0b8d0;text-shadow:2px 2px 0 #000;letter-spacing:2px;}
+.t-shinobi .rnum{font-family:'Permanent Marker',cursive;font-size:42px;color:#a0b8d0;text-shadow:2px 2px 6px rgba(0,0,0,0.70);}
+.t-shinobi .rstatus{font-family:'Noto Serif JP',serif;}
+.t-shinobi .snum{font-family:'Permanent Marker',cursive;color:#a0b8d0;}
 /* DATA NUMBERS: Rajdhani — soluciona el problema de glifos japoneses en números grandes */
-body.t-naruto .vval,
-body.t-naruto div.vval,
-body.t-naruto span.vval{
+body.t-shinobi .vval,
+body.t-shinobi div.vval,
+body.t-shinobi span.vval{
   font-family:'Rajdhani',sans-serif!important;
   font-weight:700!important;
   font-size:36px!important;
   color:#fff!important;
 }
 /* Labels: Noto Serif JP */
-.t-naruto .clbl,.t-naruto .vlbl,.t-naruto .db-eye,.t-naruto .sllbl,.t-naruto .acnm,.t-naruto .itxt{font-family:'Noto Serif JP',serif;}
-.t-naruto .vunit{font-family:'Noto Serif JP',serif;font-size:11px;}
-.t-naruto #logo-t{font-family:'Permanent Marker',cursive;letter-spacing:2px;}
-.t-naruto .cbtn{font-family:'Noto Serif JP',serif;font-weight:700;}
+.t-shinobi .clbl,.t-shinobi .vlbl,.t-shinobi .db-eye,.t-shinobi .sllbl,.t-shinobi .acnm,.t-shinobi .itxt{font-family:'Noto Serif JP',serif;}
+.t-shinobi .vunit{font-family:'Noto Serif JP',serif;font-size:11px;}
+.t-shinobi #logo-t{font-family:'Permanent Marker',cursive;letter-spacing:2px;}
+.t-shinobi .cbtn{font-family:'Noto Serif JP',serif;font-weight:700;}
 /* Scroll card styling */
-.t-naruto .card::before{content:'';position:absolute;top:-1px;left:12%;right:12%;height:1px;background:linear-gradient(90deg,transparent,rgba(74,106,132,0.40),transparent);}
-.t-naruto .card::after{content:'';position:absolute;bottom:9px;right:9px;width:11px;height:11px;border:1px solid rgba(74,106,132,0.22);border-radius:50%;}
-.t-naruto .vc::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(74,106,132,0.32),transparent);}
-.t-naruto .rfil{filter:none;}
+.t-shinobi .card::before{content:'';position:absolute;top:-1px;left:12%;right:12%;height:1px;background:linear-gradient(90deg,transparent,rgba(74,106,132,0.40),transparent);}
+.t-shinobi .card::after{content:'';position:absolute;bottom:9px;right:9px;width:11px;height:11px;border:1px solid rgba(74,106,132,0.22);border-radius:50%;}
+.t-shinobi .vc::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(74,106,132,0.32),transparent);}
+.t-shinobi .rfil{filter:none;}
 /* ── Whoop-style scores dentro del ring card ── */
 .wsrow{display:none;}
 /* ═══════════════════════════════════════
@@ -2460,22 +2460,22 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .ach-item.locked .ach-name{color:var(--txt);opacity:0.6;}
 .ach-desc{font-size:10px;letter-spacing:0.5px;opacity:0.45;margin-top:2px;}
 .ach-unlocked-lbl{font-size:8px;letter-spacing:1px;color:var(--ta);opacity:0.6;margin-top:2px;}
-/* ── Voxel (Minecraft) premium achievements — inventory-slot styling ── */
-.t-mc #ach-drawer{background:linear-gradient(150deg,#251c00,#1a1200 55%,#251c00)!important;border-top:4px solid #6a5020!important;box-shadow:0 -4px 0 rgba(0,0,0,0.6)!important;}
-.t-mc .ach-title{color:#6aff3a!important;text-shadow:2px 2px 0 #003800;font-size:18px!important;letter-spacing:2px!important;}
-.t-mc .ach-list{gap:10px;padding-top:8px;}
-.t-mc .ach-item{position:relative;border-bottom:none!important;border-radius:0!important;padding:12px 12px;gap:14px;background:linear-gradient(180deg,#2a2008,#1c1404);outline:3px solid #6a5020;box-shadow:inset 2px 2px 0 rgba(200,155,55,0.20),inset -2px -2px 0 rgba(0,0,0,0.55),3px 3px 0 rgba(0,0,0,0.6);}
-.t-mc .ach-item:not(.locked){outline-color:#b8860b;box-shadow:inset 2px 2px 0 rgba(255,215,80,0.30),inset -2px -2px 0 rgba(0,0,0,0.55),3px 3px 0 rgba(0,0,0,0.7),0 0 12px rgba(255,170,0,0.18);}
-.t-mc .ach-item:not(.locked):hover,.t-mc .ach-item:not(.locked):active{background:linear-gradient(180deg,#34280a,#221806)!important;}
-.t-mc .ach-item.locked{opacity:0.5;}
-.t-mc .ach-item:not(.locked)::after{content:'';position:absolute;top:5px;right:5px;width:7px;height:7px;background:#ffaa00;box-shadow:-2px 0 0 #5a3a00;}
-.t-mc .ach-icon{width:42px;height:42px;border-radius:0!important;border:none!important;background:#14100a!important;box-shadow:inset 2px 2px 0 rgba(0,0,0,0.7),inset -2px -2px 0 rgba(120,90,30,0.35);font-size:20px;}
-.t-mc .ach-item:not(.locked) .ach-icon{background:linear-gradient(135deg,#1d3a0a,#0f2105)!important;box-shadow:inset 2px 2px 0 rgba(106,255,58,0.35),inset -2px -2px 0 rgba(0,0,0,0.6),0 0 8px rgba(106,255,58,0.25)!important;}
-.t-mc .ach-name{color:#6aff3a!important;text-shadow:1px 1px 0 #003800;font-size:16px!important;letter-spacing:0.5px!important;}
-.t-mc .ach-item.locked .ach-name{color:#9a8a55!important;text-shadow:1px 1px 0 #000;opacity:1;}
-.t-mc .ach-desc{color:#b9a66a!important;font-size:14px!important;opacity:0.85;}
-.t-mc .ach-unlocked-lbl{color:#ffaa00!important;text-shadow:1px 1px 0 #3a2800;font-size:12px!important;opacity:1;}
-.t-mc .ach-replay-hint{color:#ffaa00!important;opacity:0.85;font-size:13px!important;}
+/* ── Voxel premium achievements — inventory-slot styling ── */
+.t-voxel #ach-drawer{background:linear-gradient(150deg,#251c00,#1a1200 55%,#251c00)!important;border-top:4px solid #6a5020!important;box-shadow:0 -4px 0 rgba(0,0,0,0.6)!important;}
+.t-voxel .ach-title{color:#6aff3a!important;text-shadow:2px 2px 0 #003800;font-size:18px!important;letter-spacing:2px!important;}
+.t-voxel .ach-list{gap:10px;padding-top:8px;}
+.t-voxel .ach-item{position:relative;border-bottom:none!important;border-radius:0!important;padding:12px 12px;gap:14px;background:linear-gradient(180deg,#2a2008,#1c1404);outline:3px solid #6a5020;box-shadow:inset 2px 2px 0 rgba(200,155,55,0.20),inset -2px -2px 0 rgba(0,0,0,0.55),3px 3px 0 rgba(0,0,0,0.6);}
+.t-voxel .ach-item:not(.locked){outline-color:#b8860b;box-shadow:inset 2px 2px 0 rgba(255,215,80,0.30),inset -2px -2px 0 rgba(0,0,0,0.55),3px 3px 0 rgba(0,0,0,0.7),0 0 12px rgba(255,170,0,0.18);}
+.t-voxel .ach-item:not(.locked):hover,.t-voxel .ach-item:not(.locked):active{background:linear-gradient(180deg,#34280a,#221806)!important;}
+.t-voxel .ach-item.locked{opacity:0.5;}
+.t-voxel .ach-item:not(.locked)::after{content:'';position:absolute;top:5px;right:5px;width:7px;height:7px;background:#ffaa00;box-shadow:-2px 0 0 #5a3a00;}
+.t-voxel .ach-icon{width:42px;height:42px;border-radius:0!important;border:none!important;background:#14100a!important;box-shadow:inset 2px 2px 0 rgba(0,0,0,0.7),inset -2px -2px 0 rgba(120,90,30,0.35);font-size:20px;}
+.t-voxel .ach-item:not(.locked) .ach-icon{background:linear-gradient(135deg,#1d3a0a,#0f2105)!important;box-shadow:inset 2px 2px 0 rgba(106,255,58,0.35),inset -2px -2px 0 rgba(0,0,0,0.6),0 0 8px rgba(106,255,58,0.25)!important;}
+.t-voxel .ach-name{color:#6aff3a!important;text-shadow:1px 1px 0 #003800;font-size:16px!important;letter-spacing:0.5px!important;}
+.t-voxel .ach-item.locked .ach-name{color:#9a8a55!important;text-shadow:1px 1px 0 #000;opacity:1;}
+.t-voxel .ach-desc{color:#b9a66a!important;font-size:14px!important;opacity:0.85;}
+.t-voxel .ach-unlocked-lbl{color:#ffaa00!important;text-shadow:1px 1px 0 #3a2800;font-size:12px!important;opacity:1;}
+.t-voxel .ach-replay-hint{color:#ffaa00!important;opacity:0.85;font-size:13px!important;}
 /* ── Synthwave premium achievements — neon outrun HUD panels ── */
 .t-synth #ach-drawer{background:radial-gradient(ellipse 80% 40% at 50% 0%,rgba(255,0,255,0.10),rgba(0,255,255,0.04) 45%,transparent 70%),repeating-linear-gradient(0deg,rgba(255,0,255,0.045) 0,rgba(255,0,255,0.045) 1px,transparent 1px,transparent 30px),repeating-linear-gradient(90deg,rgba(255,0,255,0.045) 0,rgba(255,0,255,0.045) 1px,transparent 1px,transparent 30px),linear-gradient(180deg,#0a0015 0%,#150028 55%,#0a0015 100%)!important;border-top:1px solid rgba(255,0,255,0.5)!important;box-shadow:0 -1px 0 rgba(0,255,255,0.35),0 -12px 40px rgba(255,0,255,0.18)!important;}
 .t-synth .ach-title{font-family:'Rajdhani',sans-serif!important;font-weight:700;letter-spacing:4px!important;color:#ff00ff!important;text-shadow:0 0 8px rgba(255,0,255,0.85),0 0 18px rgba(0,255,255,0.4);animation:swNeonFlicker 6s ease-in-out infinite;}
@@ -2818,11 +2818,11 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .tprev-bloom-bg::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(232,92,138,0.08) 1px,transparent 1px);background-size:22px 22px;}
 @keyframes tpb-ring{0%,100%{opacity:0.4;transform:translate(-50%,-50%) scale(1);}50%{opacity:0.9;transform:translate(-50%,-50%) scale(1.05);}}
 /* NEON NOIR preview canvas */
-.tprev-halo-bg{width:100%;height:100%;background:radial-gradient(ellipse at 50% 120%,#1e0035 0%,#060010 65%);position:relative;overflow:hidden;}
+.tprev-neonnoir-bg{width:100%;height:100%;background:radial-gradient(ellipse at 50% 120%,#1e0035 0%,#060010 65%);position:relative;overflow:hidden;}
 @keyframes tph-scan{0%{transform:translateY(-100%);}100%{transform:translateY(100vh);}}
-.tprev-halo-bg::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(255,45,120,0.4),transparent);animation:tph-scan 3s linear infinite;}
+.tprev-neonnoir-bg::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(255,45,120,0.4),transparent);animation:tph-scan 3s linear infinite;}
 /* SHINOBI preview canvas */
-.tprev-naruto-bg{width:100%;height:100%;
+.tprev-shinobi-bg{width:100%;height:100%;
   background:
     radial-gradient(ellipse at 32% 68%, rgba(74,106,132,0.14) 0%, transparent 52%),
     radial-gradient(ellipse at 74% 26%, rgba(30,50,78,0.22) 0%, transparent 48%),
@@ -2852,14 +2852,14 @@ body.t-synth::after{content:'';position:fixed;inset:0;
    NEON NOIR AMBIENT LAYER — home screen personality
    ══════════════════════════════════════════════════════════════════ */
 #nn-ambient{display:none;position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
-.t-halo #nn-ambient{display:block;}
+.t-neonnoir #nn-ambient{display:block;}
 @keyframes nn-col-fall{0%{transform:translateY(-120%);opacity:0;}5%{opacity:1;}90%{opacity:0.65;}100%{transform:translateY(110vh);opacity:0;}}
 .nn-col{position:absolute;top:0;display:flex;flex-direction:column;gap:3px;font-family:'IBM Plex Mono',monospace;font-size:10px;line-height:1.3;color:rgba(255,45,120,0.22);animation:nn-col-fall linear infinite;pointer-events:none;}
 /* NN HUD brackets on ring card */
-.t-halo .card.rw{position:relative;}
-.t-halo .card.rw::before,.t-halo .card.rw::after{content:'';position:absolute;width:16px;height:16px;pointer-events:none;}
-.t-halo .card.rw::before{top:7px;left:7px;border-top:1px solid rgba(255,45,120,0.6);border-left:1px solid rgba(255,45,120,0.6);}
-.t-halo .card.rw::after{bottom:7px;right:7px;border-bottom:1px solid rgba(189,0,255,0.5);border-right:1px solid rgba(189,0,255,0.5);}
+.t-neonnoir .card.rw{position:relative;}
+.t-neonnoir .card.rw::before,.t-neonnoir .card.rw::after{content:'';position:absolute;width:16px;height:16px;pointer-events:none;}
+.t-neonnoir .card.rw::before{top:7px;left:7px;border-top:1px solid rgba(255,45,120,0.6);border-left:1px solid rgba(255,45,120,0.6);}
+.t-neonnoir .card.rw::after{bottom:7px;right:7px;border-bottom:1px solid rgba(189,0,255,0.5);border-right:1px solid rgba(189,0,255,0.5);}
 /* ══ Universal boot / intro overlay (all themes) ══ */
 #theme-boot{display:none;position:fixed;inset:0;z-index:10001;flex-direction:column;justify-content:center;align-items:flex-start;padding:clamp(28px,6vw,60px);transition:opacity var(--dur-slow) var(--ease-std);}
 #theme-boot.on{display:flex;}
@@ -3006,8 +3006,8 @@ body.t-synth::after{content:'';position:fixed;inset:0;
     </div>
 
     <!-- ── NEON NOIR (cyberpunk dystopia aesthetic) ── -->
-    <div class="t-card tc-halo" data-id="halo" onclick="openThemePreview('halo')">
-      <div class="halo-pv">
+    <div class="t-card tc-neonnoir" data-id="neonnoir" onclick="openThemePreview('neonnoir')">
+      <div class="neonnoir-pv">
         <div class="nn-hud-top">NIGHT CITY UPLINK — NEURAL NET v2.0.77</div>
         <!-- CPU chip with circuit traces -->
         <svg class="nn-chip-svg" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
@@ -3086,21 +3086,21 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         <div class="nn-corner nn-br"></div>
         <div class="nn-hud-bot">HR 68 · ICE 98% · HRV 48ms</div>
       </div>
-      <div class="t-badge t-badge-free" id="tbf-halo">GRATIS</div>
+      <div class="t-badge t-badge-free" id="tbf-neonnoir">GRATIS</div>
       <div class="t-check">✓</div>
-      <div class="t-ov halo-ov">
-        <div class="tn halo">NEON NOIR</div>
-        <div class="ts halo" id="sel-halo-sub">NIGHT CITY UPLINK</div>
+      <div class="t-ov neonnoir-ov">
+        <div class="tn neonnoir">NEON NOIR</div>
+        <div class="ts neonnoir" id="sel-neonnoir-sub">NIGHT CITY UPLINK</div>
       </div>
-      <div class="tc-ach" id="tc-ach-halo">
+      <div class="tc-ach" id="tc-ach-neonnoir">
         <span class="tc-ach-count">0/18</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#ff2d78;width:0%"></div></div>
       </div>
     </div>
 
     <!-- ── SHINOBI (feudal Japan / ki energy aesthetic) ── -->
-    <div class="t-card tc-naruto" data-id="naruto" onclick="openThemePreview('naruto')">
-      <div class="naruto-pv">
+    <div class="t-card tc-shinobi" data-id="shinobi" onclick="openThemePreview('shinobi')">
+      <div class="shinobi-pv">
         <svg viewBox="0 0 200 260" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%" xmlns="http://www.w3.org/2000/svg">
           <!-- Bamboo stalks — varying heights, slight lean -->
           <g fill="none" stroke="rgba(74,106,132,0.22)" stroke-linecap="round">
@@ -3175,13 +3175,13 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         </svg>
         <div class="nseal">忍</div>
       </div>
-      <div class="t-badge t-badge-free" id="tbf-naruto">GRATIS</div>
+      <div class="t-badge t-badge-free" id="tbf-shinobi">GRATIS</div>
       <div class="t-check">✓</div>
-      <div class="t-ov naruto-ov">
-        <div class="tn naruto">SHINOBI</div>
-        <div class="ts naruto" id="sel-naruto-sub">気 · MONITOR DE ENERGÍA</div>
+      <div class="t-ov shinobi-ov">
+        <div class="tn shinobi">SHINOBI</div>
+        <div class="ts shinobi" id="sel-shinobi-sub">気 · MONITOR DE ENERGÍA</div>
       </div>
-      <div class="tc-ach" id="tc-ach-naruto">
+      <div class="tc-ach" id="tc-ach-shinobi">
         <span class="tc-ach-count">0/18</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#4a6a84;width:0%"></div></div>
       </div>
@@ -3223,19 +3223,19 @@ body.t-synth::after{content:'';position:fixed;inset:0;
     </div>
 
     <!-- ── VOXEL PRO (block-world aesthetics — PRO tier) ── -->
-    <div class="t-card tc-mc t-locked" id="tc-voxel" onclick="onProThemeClick('mc')">
-      <div class="mc-pg" id="mc-pg"></div>
+    <div class="t-card tc-voxel t-locked" id="tc-voxel" onclick="onProThemeClick('voxel')">
+      <div class="voxel-pg" id="voxel-pg"></div>
       <div class="t-badge t-badge-pro">PRO</div>
       <div class="t-lock-ov" id="tc-voxel-ov">
         <div class="t-lock-ico">⛏</div>
         <div class="t-lock-nm">VOXEL</div>
         <div class="t-lock-tag">PRO</div>
       </div>
-      <div class="t-ov mc-ov" id="tc-voxel-name-ov" style="display:none">
-        <div class="tn mc">VOXEL</div>
-        <div class="ts mc">BLOCK WORLD · PRO</div>
+      <div class="t-ov voxel-ov" id="tc-voxel-name-ov" style="display:none">
+        <div class="tn voxel">VOXEL</div>
+        <div class="ts voxel">BLOCK WORLD · PRO</div>
       </div>
-      <div class="tc-ach" id="tc-ach-mc">
+      <div class="tc-ach" id="tc-ach-voxel">
         <span class="tc-ach-count">0/18</span>
         <div class="tc-ach-bar"><div class="tc-ach-fill" style="background:#6aff3a;width:0%"></div></div>
       </div>
@@ -3372,9 +3372,9 @@ body.t-synth::after{content:'';position:fixed;inset:0;
   <!-- ══ AMBIENT LAYERS (theme-specific, fixed, pointer-events:none) ══ -->
   <div id="bloom-ambient"></div>
   <div id="nn-ambient"></div>
-  <div id="mc-sky" aria-hidden="true"><svg viewBox="0 0 480 300" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="mcSkyGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b0a05"/><stop offset="0.42" stop-color="#15110a"/><stop offset="0.72" stop-color="#241a0c"/><stop offset="1" stop-color="#181206"/></linearGradient><linearGradient id="mcSunGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe488"/><stop offset="0.5" stop-color="#ffb524"/><stop offset="1" stop-color="#ff7a0a"/></linearGradient><radialGradient id="mcSunGlowGrad" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffae1e" stop-opacity="0.5"/><stop offset="0.55" stop-color="#ff8a14" stop-opacity="0.16"/><stop offset="1" stop-color="#ff8a14" stop-opacity="0"/></radialGradient></defs><rect x="0" y="0" width="480" height="300" fill="url(#mcSkyGrad)"/><g fill="#fff" opacity="0.5"><rect x="40" y="20" width="2" height="2"/><rect x="92" y="48" width="2" height="2"/><rect x="150" y="16" width="2" height="2"/><rect x="208" y="40" width="2" height="2"/><rect x="264" y="24" width="2" height="2"/><rect x="300" y="58" width="2" height="2"/><rect x="120" y="70" width="2" height="2"/><rect x="226" y="66" width="2" height="2"/><rect x="60" y="92" width="2" height="2"/></g><g fill="#fff" opacity="0.5"><rect x="36" y="14" width="2" height="2"/><rect x="78" y="40" width="2" height="2"/><rect x="132" y="22" width="2" height="2"/><rect x="358" y="20" width="2" height="2"/><rect x="408" y="44" width="2" height="2"/><rect x="446" y="26" width="2" height="2"/></g><ellipse class="mc-sky-sunglow" cx="232" cy="108" rx="162" ry="92" fill="url(#mcSunGlowGrad)"/><g><rect x="208" y="80" width="46" height="46" rx="5" fill="url(#mcSunGrad)"/><rect x="216" y="88" width="9" height="9" fill="#fff3c8" opacity="0.8"/><rect x="236" y="100" width="6" height="6" fill="#ffd76a" opacity="0.6"/></g><g fill="#e8e0cc" opacity="0.32"><animateTransform attributeName="transform" type="translate" from="-90 0" to="560 0" dur="72s" repeatCount="indefinite"/><rect x="0" y="50" width="44" height="9"/><rect x="10" y="43" width="26" height="7"/><rect x="-8" y="57" width="60" height="7"/></g><g fill="#e8e0cc" opacity="0.24"><animateTransform attributeName="transform" type="translate" from="-150 0" to="560 0" dur="98s" begin="-40s" repeatCount="indefinite"/><rect x="0" y="74" width="36" height="8"/><rect x="8" y="67" width="20" height="7"/><rect x="-8" y="81" width="50" height="7"/></g><path d="M0,300 L0,108 L40,108 L40,94 L88,94 L88,114 L140,114 L140,90 L192,90 L192,106 L244,106 L244,118 L300,118 L300,98 L352,98 L352,112 L408,112 L408,94 L456,94 L456,110 L480,110 L480,300 Z" fill="#2a2440" opacity="0.55"/><path d="M0,300 L0,128 L48,128 L48,112 L100,112 L100,134 L152,134 L152,110 L208,110 L208,128 L264,128 L264,116 L320,116 L320,136 L372,136 L372,120 L428,120 L428,134 L480,134 L480,300 Z" fill="#3a2709"/><path d="M0,300 L0,156 L60,156 L60,144 L128,144 L128,160 L192,160 L192,148 L256,148 L256,162 L324,162 L324,150 L396,150 L396,164 L456,164 L456,152 L480,152 L480,300 Z" fill="#1c160b"/><path d="M0,156 L60,156 L60,144 L128,144 L128,160 L192,160 L192,148 L256,148 L256,162 L324,162 L324,150 L396,150 L396,164 L456,164 L456,152 L480,152" fill="none" stroke="#4a6a1f" stroke-width="2.5" opacity="0.5"/><g fill="#16280d"><rect x="150" y="124" width="12" height="9"/><rect x="144" y="133" width="24" height="9"/><rect x="138" y="142" width="36" height="8"/></g><rect x="153" y="150" width="6" height="10" fill="#241606"/><g fill="#16280d"><rect x="362" y="118" width="10" height="8"/><rect x="357" y="126" width="20" height="8"/><rect x="352" y="134" width="30" height="7"/></g><rect x="364" y="141" width="6" height="9" fill="#241606"/></svg></div>
+  <div id="voxel-sky" aria-hidden="true"><svg viewBox="0 0 480 300" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="voxelSkyGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b0a05"/><stop offset="0.42" stop-color="#15110a"/><stop offset="0.72" stop-color="#241a0c"/><stop offset="1" stop-color="#181206"/></linearGradient><linearGradient id="voxelSunGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe488"/><stop offset="0.5" stop-color="#ffb524"/><stop offset="1" stop-color="#ff7a0a"/></linearGradient><radialGradient id="voxelSunGlowGrad" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffae1e" stop-opacity="0.5"/><stop offset="0.55" stop-color="#ff8a14" stop-opacity="0.16"/><stop offset="1" stop-color="#ff8a14" stop-opacity="0"/></radialGradient></defs><rect x="0" y="0" width="480" height="300" fill="url(#voxelSkyGrad)"/><g fill="#fff" opacity="0.5"><rect x="40" y="20" width="2" height="2"/><rect x="92" y="48" width="2" height="2"/><rect x="150" y="16" width="2" height="2"/><rect x="208" y="40" width="2" height="2"/><rect x="264" y="24" width="2" height="2"/><rect x="300" y="58" width="2" height="2"/><rect x="120" y="70" width="2" height="2"/><rect x="226" y="66" width="2" height="2"/><rect x="60" y="92" width="2" height="2"/></g><g fill="#fff" opacity="0.5"><rect x="36" y="14" width="2" height="2"/><rect x="78" y="40" width="2" height="2"/><rect x="132" y="22" width="2" height="2"/><rect x="358" y="20" width="2" height="2"/><rect x="408" y="44" width="2" height="2"/><rect x="446" y="26" width="2" height="2"/></g><ellipse class="voxel-sky-sunglow" cx="232" cy="108" rx="162" ry="92" fill="url(#voxelSunGlowGrad)"/><g><rect x="208" y="80" width="46" height="46" rx="5" fill="url(#voxelSunGrad)"/><rect x="216" y="88" width="9" height="9" fill="#fff3c8" opacity="0.8"/><rect x="236" y="100" width="6" height="6" fill="#ffd76a" opacity="0.6"/></g><g fill="#e8e0cc" opacity="0.32"><animateTransform attributeName="transform" type="translate" from="-90 0" to="560 0" dur="72s" repeatCount="indefinite"/><rect x="0" y="50" width="44" height="9"/><rect x="10" y="43" width="26" height="7"/><rect x="-8" y="57" width="60" height="7"/></g><g fill="#e8e0cc" opacity="0.24"><animateTransform attributeName="transform" type="translate" from="-150 0" to="560 0" dur="98s" begin="-40s" repeatCount="indefinite"/><rect x="0" y="74" width="36" height="8"/><rect x="8" y="67" width="20" height="7"/><rect x="-8" y="81" width="50" height="7"/></g><path d="M0,300 L0,108 L40,108 L40,94 L88,94 L88,114 L140,114 L140,90 L192,90 L192,106 L244,106 L244,118 L300,118 L300,98 L352,98 L352,112 L408,112 L408,94 L456,94 L456,110 L480,110 L480,300 Z" fill="#2a2440" opacity="0.55"/><path d="M0,300 L0,128 L48,128 L48,112 L100,112 L100,134 L152,134 L152,110 L208,110 L208,128 L264,128 L264,116 L320,116 L320,136 L372,136 L372,120 L428,120 L428,134 L480,134 L480,300 Z" fill="#3a2709"/><path d="M0,300 L0,156 L60,156 L60,144 L128,144 L128,160 L192,160 L192,148 L256,148 L256,162 L324,162 L324,150 L396,150 L396,164 L456,164 L456,152 L480,152 L480,300 Z" fill="#1c160b"/><path d="M0,156 L60,156 L60,144 L128,144 L128,160 L192,160 L192,148 L256,148 L256,162 L324,162 L324,150 L396,150 L396,164 L456,164 L456,152 L480,152" fill="none" stroke="#4a6a1f" stroke-width="2.5" opacity="0.5"/><g fill="#16280d"><rect x="150" y="124" width="12" height="9"/><rect x="144" y="133" width="24" height="9"/><rect x="138" y="142" width="36" height="8"/></g><rect x="153" y="150" width="6" height="10" fill="#241606"/><g fill="#16280d"><rect x="362" y="118" width="10" height="8"/><rect x="357" y="126" width="20" height="8"/><rect x="352" y="134" width="30" height="7"/></g><rect x="364" y="141" width="6" height="9" fill="#241606"/></svg></div>
   <div id="synth-city" aria-hidden="true"><div class="sw-grid-wrap"><div class="sw-grid"></div></div><div class="sw-sunref"></div><svg class="sw-scene" viewBox="0 0 480 300" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="swSun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe53a"/><stop offset="0.4" stop-color="#ff9b2a"/><stop offset="0.7" stop-color="#ff5236"/><stop offset="1" stop-color="#ff2d6e"/></linearGradient><radialGradient id="swSunGlow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ff5fb0" stop-opacity="0.55"/><stop offset="0.5" stop-color="#ff2d95" stop-opacity="0.16"/><stop offset="1" stop-color="#ff2d95" stop-opacity="0"/></radialGradient><mask id="swSunMask"><rect x="158" y="176" width="164" height="150" fill="#fff"/><rect x="158" y="254" width="164" height="3" fill="#000"/><rect x="158" y="261" width="164" height="4" fill="#000"/><rect x="158" y="270" width="164" height="5" fill="#000"/><rect x="158" y="281" width="164" height="7" fill="#000"/></mask></defs><g fill="#fff"><rect x="30" y="18" width="2" height="2" opacity=".6"/><rect x="78" y="40" width="2" height="2" opacity=".45"/><rect x="138" y="24" width="2" height="2" opacity=".6"/><rect x="196" y="14" width="2" height="2" opacity=".4"/><rect x="350" y="22" width="2" height="2" opacity=".55"/><rect x="404" y="44" width="2" height="2" opacity=".4"/><rect x="446" y="28" width="2" height="2" opacity=".55"/><rect x="60" y="78" width="2" height="2" opacity=".4"/><rect x="170" y="64" width="2" height="2" opacity=".45"/><rect x="300" y="58" width="2" height="2" opacity=".4"/><rect x="430" y="92" width="2" height="2" opacity=".35"/><rect x="250" y="96" width="2" height="2" opacity=".4"/></g><g class="sw-shoot"><rect x="396" y="28" width="30" height="1.6" rx="0.8" fill="#fff" opacity="0.9" transform="rotate(28 396 28)"/></g><ellipse class="sw-sun-glow" cx="240" cy="252" rx="155" ry="115" fill="url(#swSunGlow)"/><circle cx="240" cy="250" r="72" fill="url(#swSun)" mask="url(#swSunMask)"/><path d="M0,300 L0,250 Q70,228 140,244 Q210,258 280,240 Q350,224 420,242 Q455,250 480,244 L480,300 Z" fill="#3a1758" opacity="0.78"/><path d="M0,300 L0,268 Q55,250 110,262 Q160,272 200,277 Q240,281 280,277 Q320,271 370,258 Q420,248 480,266 L480,300 Z" fill="#160a30"/></svg></div>
-  <div id="mc-ambient" aria-hidden="true"></div>
+  <div id="voxel-ambient" aria-hidden="true"></div>
 
   <div class="sbar"><div class="sbfi" id="sbfi"></div></div>
   <div class="toast" id="toast"></div>
@@ -3427,7 +3427,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         <div class="db-name"><span id="g-pfx">BUEN DÍA, </span><span id="uname" class="db-ac">USUARIO</span></div>
         <!-- BLOOM: daily affirmation (hidden on other themes via CSS) -->
         <div id="bloom-aff"></div>
-        <!-- 忍 Naruto: Nindo quote — visible only in .t-naruto theme -->
+        <!-- 忍 Shinobi: Nindo quote — visible only in .t-shinobi theme -->
         <div class="nrt-egg nrt-nindo-strip" id="nrt-nindo-strip">忍道 · 諦めなければ、失敗はない</div>
         <!-- AIRA contextual narrative — generated from biometric state -->
         <div id="aira-msg" class="aira-msg" aria-live="polite"></div>
@@ -3529,12 +3529,12 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           </div>
         </div>
 
-        <!-- MC Ring — Minecraft theme only -->
-        <div class="mc-rc">
-          <svg class="mc-rsvg" viewBox="0 0 160 142">
+        <!-- Voxel Ring — Voxel theme only -->
+        <div class="voxel-rc">
+          <svg class="voxel-rsvg" viewBox="0 0 160 142">
             <defs>
               <!-- ⚡ Rayo pixel-art (10×14) — diagonal arriba-derecha a abajo-izquierda -->
-              <symbol id="mc-ic-bolt" viewBox="0 0 10 14">
+              <symbol id="voxel-ic-bolt" viewBox="0 0 10 14">
                 <rect x="4" y="0"  width="6" height="2" fill="currentColor"/>
                 <rect x="2" y="2"  width="8" height="2" fill="currentColor"/>
                 <rect x="0" y="4"  width="10" height="2" fill="currentColor"/>
@@ -3544,7 +3544,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
                 <rect x="0" y="12" width="2" height="2" fill="currentColor"/>
               </symbol>
               <!-- 🌙 Luna creciente pixel-art (14×12) — C-shape abre a la derecha -->
-              <symbol id="mc-ic-z" viewBox="0 0 14 12">
+              <symbol id="voxel-ic-z" viewBox="0 0 14 12">
                 <rect x="2" y="0"  width="6" height="2" fill="currentColor"/>
                 <rect x="0" y="2"  width="8" height="2" fill="currentColor"/>
                 <rect x="0" y="4"  width="6" height="2" fill="currentColor"/>
@@ -3555,8 +3555,8 @@ body.t-synth::after{content:'';position:fixed;inset:0;
                 <rect x="10" y="1"  width="2" height="2" fill="currentColor" opacity="0.7"/>
                 <rect x="12" y="5"  width="2" height="2" fill="currentColor" opacity="0.4"/>
               </symbol>
-              <!-- ❤ Corazón pixel-art clásico Minecraft (14×12) -->
-              <symbol id="mc-ic-heart" viewBox="0 0 14 12">
+              <!-- ❤ Corazón pixel-art clásico Voxel (14×12) -->
+              <symbol id="voxel-ic-heart" viewBox="0 0 14 12">
                 <rect x="2" y="0"  width="4"  height="2" fill="currentColor"/>
                 <rect x="8" y="0"  width="4"  height="2" fill="currentColor"/>
                 <rect x="0" y="2"  width="14" height="2" fill="currentColor"/>
@@ -3568,7 +3568,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
                 <rect x="4" y="6"  width="2"  height="2" fill="rgba(0,0,0,0.25)"/>
               </symbol>
               <!-- 🍗 Muslo de pollo pixel-art (14×12) — icono HAMBRE/calorías -->
-              <symbol id="mc-ic-food" viewBox="0 0 14 12">
+              <symbol id="voxel-ic-food" viewBox="0 0 14 12">
                 <rect x="4" y="0"  width="6"  height="2" fill="currentColor"/>
                 <rect x="2" y="2"  width="10" height="2" fill="currentColor"/>
                 <rect x="2" y="4"  width="10" height="2" fill="currentColor"/>
@@ -3578,7 +3578,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
                 <rect x="2" y="2"  width="2"  height="2" fill="rgba(255,255,255,0.5)"/>
               </symbol>
               <!-- ▪ Bloque XP pixel-art (14×12) — icono XP/minutos activos -->
-              <symbol id="mc-ic-xp" viewBox="0 0 14 12">
+              <symbol id="voxel-ic-xp" viewBox="0 0 14 12">
                 <rect x="1" y="1"  width="12" height="10" fill="currentColor"/>
                 <rect x="1" y="1"  width="12" height="2"  fill="rgba(255,255,255,0.30)"/>
                 <rect x="1" y="1"  width="2"  height="10" fill="rgba(255,255,255,0.18)"/>
@@ -3594,58 +3594,58 @@ body.t-synth::after{content:'';position:fixed;inset:0;
             <rect x="157" y="127" width="3"  height="12" fill="#6a5020"/>
             <rect x="146" y="137" width="12" height="3"  fill="#6a5020"/>
             <!-- ── Fila 1: HP (corazones) ── -->
-            <text id="mc-hp-lbl" x="8" y="11" font-family="VT323" font-size="13" fill="#ff5555">* HP - PASOS</text>
-            <use id="mc-r-0" href="#mc-ic-heart" x="3"   y="13" width="14" height="12" color="#2a0000"/>
-            <use id="mc-r-1" href="#mc-ic-heart" x="18"  y="13" width="14" height="12" color="#2a0000"/>
-            <use id="mc-r-2" href="#mc-ic-heart" x="33"  y="13" width="14" height="12" color="#2a0000"/>
-            <use id="mc-r-3" href="#mc-ic-heart" x="48"  y="13" width="14" height="12" color="#2a0000"/>
-            <use id="mc-r-4" href="#mc-ic-heart" x="63"  y="13" width="14" height="12" color="#2a0000"/>
-            <use id="mc-r-5" href="#mc-ic-heart" x="78"  y="13" width="14" height="12" color="#2a0000"/>
-            <use id="mc-r-6" href="#mc-ic-heart" x="93"  y="13" width="14" height="12" color="#2a0000"/>
-            <use id="mc-r-7" href="#mc-ic-heart" x="108" y="13" width="14" height="12" color="#2a0000"/>
-            <use id="mc-r-8" href="#mc-ic-heart" x="123" y="13" width="14" height="12" color="#2a0000"/>
-            <use id="mc-r-9" href="#mc-ic-heart" x="138" y="13" width="14" height="12" color="#2a0000"/>
+            <text id="voxel-hp-lbl" x="8" y="11" font-family="VT323" font-size="13" fill="#ff5555">* HP - PASOS</text>
+            <use id="voxel-r-0" href="#voxel-ic-heart" x="3"   y="13" width="14" height="12" color="#2a0000"/>
+            <use id="voxel-r-1" href="#voxel-ic-heart" x="18"  y="13" width="14" height="12" color="#2a0000"/>
+            <use id="voxel-r-2" href="#voxel-ic-heart" x="33"  y="13" width="14" height="12" color="#2a0000"/>
+            <use id="voxel-r-3" href="#voxel-ic-heart" x="48"  y="13" width="14" height="12" color="#2a0000"/>
+            <use id="voxel-r-4" href="#voxel-ic-heart" x="63"  y="13" width="14" height="12" color="#2a0000"/>
+            <use id="voxel-r-5" href="#voxel-ic-heart" x="78"  y="13" width="14" height="12" color="#2a0000"/>
+            <use id="voxel-r-6" href="#voxel-ic-heart" x="93"  y="13" width="14" height="12" color="#2a0000"/>
+            <use id="voxel-r-7" href="#voxel-ic-heart" x="108" y="13" width="14" height="12" color="#2a0000"/>
+            <use id="voxel-r-8" href="#voxel-ic-heart" x="123" y="13" width="14" height="12" color="#2a0000"/>
+            <use id="voxel-r-9" href="#voxel-ic-heart" x="138" y="13" width="14" height="12" color="#2a0000"/>
             <rect x="8" y="29" width="144" height="2" fill="#3a2800"/>
             <!-- ── Fila 2: HAMBRE (muslos de pollo) ── -->
             <text x="8" y="42" font-family="VT323" font-size="13" fill="#ffaa00">* HAMBRE - CAL</text>
-            <use id="mc-s-0" href="#mc-ic-food" x="3"   y="44" width="14" height="12" color="#2a1500"/>
-            <use id="mc-s-1" href="#mc-ic-food" x="18"  y="44" width="14" height="12" color="#2a1500"/>
-            <use id="mc-s-2" href="#mc-ic-food" x="33"  y="44" width="14" height="12" color="#2a1500"/>
-            <use id="mc-s-3" href="#mc-ic-food" x="48"  y="44" width="14" height="12" color="#2a1500"/>
-            <use id="mc-s-4" href="#mc-ic-food" x="63"  y="44" width="14" height="12" color="#2a1500"/>
-            <use id="mc-s-5" href="#mc-ic-food" x="78"  y="44" width="14" height="12" color="#2a1500"/>
-            <use id="mc-s-6" href="#mc-ic-food" x="93"  y="44" width="14" height="12" color="#2a1500"/>
-            <use id="mc-s-7" href="#mc-ic-food" x="108" y="44" width="14" height="12" color="#2a1500"/>
-            <use id="mc-s-8" href="#mc-ic-food" x="123" y="44" width="14" height="12" color="#2a1500"/>
-            <use id="mc-s-9" href="#mc-ic-food" x="138" y="44" width="14" height="12" color="#2a1500"/>
+            <use id="voxel-s-0" href="#voxel-ic-food" x="3"   y="44" width="14" height="12" color="#2a1500"/>
+            <use id="voxel-s-1" href="#voxel-ic-food" x="18"  y="44" width="14" height="12" color="#2a1500"/>
+            <use id="voxel-s-2" href="#voxel-ic-food" x="33"  y="44" width="14" height="12" color="#2a1500"/>
+            <use id="voxel-s-3" href="#voxel-ic-food" x="48"  y="44" width="14" height="12" color="#2a1500"/>
+            <use id="voxel-s-4" href="#voxel-ic-food" x="63"  y="44" width="14" height="12" color="#2a1500"/>
+            <use id="voxel-s-5" href="#voxel-ic-food" x="78"  y="44" width="14" height="12" color="#2a1500"/>
+            <use id="voxel-s-6" href="#voxel-ic-food" x="93"  y="44" width="14" height="12" color="#2a1500"/>
+            <use id="voxel-s-7" href="#voxel-ic-food" x="108" y="44" width="14" height="12" color="#2a1500"/>
+            <use id="voxel-s-8" href="#voxel-ic-food" x="123" y="44" width="14" height="12" color="#2a1500"/>
+            <use id="voxel-s-9" href="#voxel-ic-food" x="138" y="44" width="14" height="12" color="#2a1500"/>
             <rect x="8" y="60" width="144" height="2" fill="#3a2800"/>
             <!-- ── Fila 3: XP (bloques) ── -->
             <text x="8" y="73" font-family="VT323" font-size="13" fill="#6aff3a">* XP - MIN.ACT</text>
-            <use id="mc-st-0" href="#mc-ic-xp" x="3"   y="75" width="14" height="12" color="#0a2200"/>
-            <use id="mc-st-1" href="#mc-ic-xp" x="18"  y="75" width="14" height="12" color="#0a2200"/>
-            <use id="mc-st-2" href="#mc-ic-xp" x="33"  y="75" width="14" height="12" color="#0a2200"/>
-            <use id="mc-st-3" href="#mc-ic-xp" x="48"  y="75" width="14" height="12" color="#0a2200"/>
-            <use id="mc-st-4" href="#mc-ic-xp" x="63"  y="75" width="14" height="12" color="#0a2200"/>
-            <use id="mc-st-5" href="#mc-ic-xp" x="78"  y="75" width="14" height="12" color="#0a2200"/>
-            <use id="mc-st-6" href="#mc-ic-xp" x="93"  y="75" width="14" height="12" color="#0a2200"/>
-            <use id="mc-st-7" href="#mc-ic-xp" x="108" y="75" width="14" height="12" color="#0a2200"/>
-            <use id="mc-st-8" href="#mc-ic-xp" x="123" y="75" width="14" height="12" color="#0a2200"/>
-            <use id="mc-st-9" href="#mc-ic-xp" x="138" y="75" width="14" height="12" color="#0a2200"/>
+            <use id="voxel-st-0" href="#voxel-ic-xp" x="3"   y="75" width="14" height="12" color="#0a2200"/>
+            <use id="voxel-st-1" href="#voxel-ic-xp" x="18"  y="75" width="14" height="12" color="#0a2200"/>
+            <use id="voxel-st-2" href="#voxel-ic-xp" x="33"  y="75" width="14" height="12" color="#0a2200"/>
+            <use id="voxel-st-3" href="#voxel-ic-xp" x="48"  y="75" width="14" height="12" color="#0a2200"/>
+            <use id="voxel-st-4" href="#voxel-ic-xp" x="63"  y="75" width="14" height="12" color="#0a2200"/>
+            <use id="voxel-st-5" href="#voxel-ic-xp" x="78"  y="75" width="14" height="12" color="#0a2200"/>
+            <use id="voxel-st-6" href="#voxel-ic-xp" x="93"  y="75" width="14" height="12" color="#0a2200"/>
+            <use id="voxel-st-7" href="#voxel-ic-xp" x="108" y="75" width="14" height="12" color="#0a2200"/>
+            <use id="voxel-st-8" href="#voxel-ic-xp" x="123" y="75" width="14" height="12" color="#0a2200"/>
+            <use id="voxel-st-9" href="#voxel-ic-xp" x="138" y="75" width="14" height="12" color="#0a2200"/>
             <rect x="8" y="93" width="144" height="2" fill="#3a2800"/>
             <!-- Score (estilo inventario) -->
             <rect x="22" y="99" width="116" height="22" fill="#171200" stroke="#6a5020" stroke-width="2"/>
-            <text id="mc-rscore" x="74" y="115" font-family="VT323" font-size="19" fill="#6aff3a" text-anchor="end">80</text>
+            <text id="voxel-rscore" x="74" y="115" font-family="VT323" font-size="19" fill="#6aff3a" text-anchor="end">80</text>
             <text x="78" y="115" font-family="VT323" font-size="16" fill="#888888">/100</text>
           </svg>
         </div>
-        <!-- Leyenda MC -->
-        <div class="mc-leg">
-          <span class="mc-ldot" style="background:#ff5555;box-shadow:2px 2px 0 #2a0000;"></span>HP
-          <span class="mc-ldot" style="background:#ffaa00;box-shadow:2px 2px 0 #2a1500;margin-left:8px;"></span>HAMBRE
-          <span class="mc-ldot" style="background:#6aff3a;box-shadow:2px 2px 0 #0a2200;margin-left:8px;"></span>XP
+        <!-- Leyenda Voxel -->
+        <div class="voxel-leg">
+          <span class="voxel-ldot" style="background:#ff5555;box-shadow:2px 2px 0 #2a0000;"></span>HP
+          <span class="voxel-ldot" style="background:#ffaa00;box-shadow:2px 2px 0 #2a1500;margin-left:8px;"></span>HAMBRE
+          <span class="voxel-ldot" style="background:#6aff3a;box-shadow:2px 2px 0 #0a2200;margin-left:8px;"></span>XP
         </div>
 
-        <!-- Naruto Ring — naruto theme only -->
+        <!-- Shinobi Ring — shinobi theme only -->
         <!-- Design: Eight Trigrams Sealing Style (八卦封印式)                     -->
         <!-- Outer: 八卦 Ba Gua with 3-tier radial marks (astrolabe compass style) -->
         <!-- Inner: 九字 Kuji-in hand-seal kanji (臨兵闘者皆陣烈前行)              -->
@@ -3772,7 +3772,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           </div>
         </div>
 
-        <!-- ── Neon Noir Circuit Chip Ring (t-halo only) ── -->
+        <!-- ── Neon Noir Circuit Chip Ring (t-neonnoir only) ── -->
         <div class="nn-rc">
           <svg class="nn-rsvg" viewBox="0 0 160 160">
             <defs>
@@ -4567,7 +4567,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         <!-- Sleep first — biggest recovery driver -->
         <div class="card" id="sleep-card">
           <div class="vc-head"><span class="clbl" id="lbl-sleep">// ANÁLISIS DE SUEÑO</span><button class="onb-q" onclick="showOnb('sleep')" aria-label="info">?</button></div>
-          <!-- 忍 Kunai tool mark — naruto theme only -->
+          <!-- 忍 Kunai tool mark — shinobi theme only -->
           <div class="nrt-egg nrt-kunai" aria-hidden="true"></div>
           <div class="hypno">
             <div class="hypno-grid">
@@ -4640,7 +4640,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 
     <!-- ═══ Pasos — fila compacta full-width ═══ -->
     <div class="card scard" id="scard" style="position:relative;">
-      <!-- 忍 Mission scroll mark — naruto theme only -->
+      <!-- 忍 Mission scroll mark — shinobi theme only -->
       <div class="nrt-egg nrt-scroll-tag" aria-hidden="true">巻</div>
       <div class="scard-inner">
         <div>
@@ -4765,7 +4765,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
       <div>
         <div class="hv-title" id="hv-title">HISTORIAL</div>
         <div class="hv-sub" id="hv-sub">// TENDENCIAS BIOMÉTRICAS</div>
-        <!-- 忍 Naruto Easter egg: visible only in .t-naruto -->
+        <!-- 忍 Shinobi Easter egg: visible only in .t-shinobi -->
         <div class="nrt-egg nrt-hv-label" id="nrt-hv-label">忍者の記録 · 修行の軌跡</div>
       </div>
       <div class="hv-pills" role="tablist">
@@ -4878,7 +4878,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         <span style="font-size:10px;font-weight:600;letter-spacing:2px;margin-left:4px;" id="sv-rec-level"></span>
       </div>
       <div style="font-size:10px;opacity:0.5;letter-spacing:1px;" id="sv-rec-txt"></div>
-      <!-- 忍 Naruto Easter egg: shinobi rank chip — visible only in .t-naruto -->
+      <!-- 忍 Shinobi Easter egg: shinobi rank chip — visible only in .t-shinobi -->
       <div class="nrt-egg nrt-rank-chip" id="nrt-sv-rank">忍 · 階級 —</div>
     </div>
 
@@ -5149,7 +5149,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
         <button class="pv-disconnect-btn" id="pv-disconnect-btn" onclick="disconnectFitbit()" style="display:none;">DESCONECTAR</button>
       </div>
 
-      <!-- Naruto easter egg -->
+      <!-- Shinobi easter egg -->
       <div class="nrt-egg nrt-rank-block" style="margin:0 18px 14px;">
         <div class="nrt-rank-ttl" id="nrt-pv-rank-ttl">忍の階級 · RANGO SHINOBI</div>
         <div class="nrt-rank-val" id="nrt-pv-rank-val">下忍 · GENIN</div>
@@ -5194,10 +5194,10 @@ body.t-synth::after{content:'';position:fixed;inset:0;
       </div>
       <div class="pv-themes">
         <button class="pv-t-btn" id="pvt-bloom" onclick="selectTheme('bloom');navigate('profile')">✦ BLOOM</button>
-        <button class="pv-t-btn" id="pvt-halo" onclick="selectTheme('halo');navigate('profile')">▲ N·NOIR</button>
-        <button class="pv-t-btn" id="pvt-naruto" onclick="selectTheme('naruto');navigate('profile')">気 SHINOBI</button>
+        <button class="pv-t-btn" id="pvt-neonnoir" onclick="selectTheme('neonnoir');navigate('profile')">▲ N·NOIR</button>
+        <button class="pv-t-btn" id="pvt-shinobi" onclick="selectTheme('shinobi');navigate('profile')">気 SHINOBI</button>
         <button class="pv-t-btn" id="pvt-fut" onclick="selectTheme('fut');navigate('profile')">⬡ AETHER</button>
-        <button class="pv-t-btn" id="pvt-mc" onclick="selectTheme('mc');navigate('profile')" style="display:none;">⛏ VOXEL</button>
+        <button class="pv-t-btn" id="pvt-voxel" onclick="selectTheme('voxel');navigate('profile')" style="display:none;">⛏ VOXEL</button>
         <button class="pv-t-btn" id="pvt-synth" onclick="selectTheme('synth');navigate('profile')" style="display:none;">▶ SYNTH</button>
       </div>
       <div class="pv-row" style="margin-top:8px;">
@@ -5505,10 +5505,10 @@ const T = {
     sel_badge_soon: 'PRO',
     sel_ft: 'AIRA v2.6 · FITBIT WEB API · BIOMETRIC CORE',
     bloom_sub: 'BIENESTAR · RENDIMIENTO',
-    mc_sub: 'MONITOR DE DATOS DE SUPERVIVENCIA',
+    voxel_sub: 'MONITOR DE DATOS DE SUPERVIVENCIA',
     synth_sub: 'OUTRUN · NEON GRID · 1986',
-    halo_sub: 'NIGHT CITY UPLINK',
-    naruto_sub: '気 · MONITOR DE ENERGÍA',
+    neonnoir_sub: 'NIGHT CITY UPLINK',
+    shinobi_sub: '気 · MONITOR DE ENERGÍA',
     fut_sub: 'NÚCLEO BIOMÉTRICO v2.6',
     back: '← TEMAS',
     connect: 'CONECTAR',
@@ -5519,10 +5519,10 @@ const T = {
     rl: '// ÍNDICE DE PREPARACIÓN',
     rstat: {
       fut:    { peak:'ÓPTIMO', good:'BUENO', moderate:'MODERADO', low:'BAJO' },
-      mc:     { peak:'VIDA COMPLETA', good:'BUENA SALUD', moderate:'HP MEDIO', low:'HP BAJO' },
+      voxel:     { peak:'VIDA COMPLETA', good:'BUENA SALUD', moderate:'HP MEDIO', low:'HP BAJO' },
       bloom:  { peak:'RADIANTE', good:'FLORECIENDO', moderate:'BROTANDO', low:'RECARGANDO' },
-      halo:   { peak:'NETRUNNER LISTO', good:'ENLACE ESTABLE', moderate:'SISTEMA DEGRADADO', low:'FLATLINED' },
-      naruto: { peak:'無双 · IMPARABLE', good:'修行 · EN MISIÓN', moderate:'練習 · ENTRENANDO', low:'回復 · RECUPERANDO' },
+      neonnoir:   { peak:'NETRUNNER LISTO', good:'ENLACE ESTABLE', moderate:'SISTEMA DEGRADADO', low:'FLATLINED' },
+      shinobi: { peak:'無双 · IMPARABLE', good:'修行 · EN MISIÓN', moderate:'練習 · ENTRENANDO', low:'回復 · RECUPERANDO' },
       synth:  { peak:'FRECUENCIA MÁXIMA', good:'SEÑAL ESTABLE', moderate:'INTERFERENCIA', low:'SIN SEÑAL' },
     },
     lbl_hr: '// FREC. CARDÍACA',
@@ -5668,18 +5668,18 @@ const T = {
     sync_lbl: 'PRÓX. SYNC', sync_lbl2: 'SYNC',
     logo_s_bloom: 'BLOOM · WELLNESS & RENDIMIENTO',
     logo_s_fut: 'NÚCLEO BIOMÉTRICO v2.6',
-    logo_s_mc: 'HEALTH MOD v2.6',
-    logo_s_halo: 'NIGHT CITY UPLINK v2.0.77',
-    logo_s_naruto: '忍 · SISTEMA DE ENERGÍA KI',
+    logo_s_voxel: 'HEALTH MOD v2.6',
+    logo_s_neonnoir: 'NIGHT CITY UPLINK v2.0.77',
+    logo_s_shinobi: '忍 · SISTEMA DE ENERGÍA KI',
     // Theme overrides
     bloom_eye: '✦ BLOOM — BIENESTAR EN MOVIMIENTO',
     bloom_pfx: '¡Hola, ', bloom_rl: '✦ ESTADO DE BIENESTAR',
-    mc_eye: '> ESTADÍSTICAS DE JUGADOR',
-    mc_pfx: 'JUGADOR: ', mc_rl: '> BARRA DE VIDA',
-    halo_eye: '// NEON NOIR — NIGHT CITY UPLINK — ACCESO AUTORIZADO',
-    halo_pfx: 'CHOOMBATTA: ', halo_rl: '// ESTADO NEURAL',
-    naruto_eye: '忍の道 — CRÓNICAS DEL SHINOBI',
-    naruto_pfx: '忍者: ', naruto_rl: '気 · PREPARACIÓN',
+    voxel_eye: '> ESTADÍSTICAS DE JUGADOR',
+    voxel_pfx: 'JUGADOR: ', voxel_rl: '> BARRA DE VIDA',
+    neonnoir_eye: '// NEON NOIR — NIGHT CITY UPLINK — ACCESO AUTORIZADO',
+    neonnoir_pfx: 'CHOOMBATTA: ', neonnoir_rl: '// ESTADO NEURAL',
+    shinobi_eye: '忍の道 — CRÓNICAS DEL SHINOBI',
+    shinobi_pfx: '忍者: ', shinobi_rl: '気 · PREPARACIÓN',
     connected: '◆ GOOGLE CONECTADO', live: 'EN VIVO',
     sync_toast: (t) => `◆ SYNC ${t}`,
     // Stats view
@@ -5752,13 +5752,13 @@ const T = {
     av_add: 'AGREGAR FOTO', av_change: 'CAMBIAR FOTO', av_remove: 'QUITAR',
     av_frames: 'MARCO',
     av_f_aura: 'AURA', av_f_ember: 'RACHA', av_f_legend: 'LEYENDA', av_f_nova: 'NOVA', av_f_nebula: 'NEBULA', av_f_glitch: 'GLITCH', av_f_pixel: 'PIXEL', av_f_pro: 'AIRA PRO',
-    av_lk7: '🔒 RACHA 7D', av_lk30: '🔒 RACHA 30D', av_lk14: '🔒 RACHA 14D', av_lkneb: '🔒 REC 90×3', av_lkglitch: '🔒 HALO/AETHER', av_lkpix: '🔒 VOXEL', av_lkpro: '🔒 SOLO PRO',
+    av_lk7: '🔒 RACHA 7D', av_lk30: '🔒 RACHA 30D', av_lk14: '🔒 RACHA 14D', av_lkneb: '🔒 REC 90×3', av_lkglitch: '🔒 NEON NOIR/AETHER', av_lkpix: '🔒 VOXEL', av_lkpro: '🔒 SOLO PRO',
     av_lk7_toast: 'Desbloquea con una racha de 7 días 🔥',
     av_lk30_toast: 'Desbloquea con una racha de 30 días 🔥',
     av_lk14_toast: 'Desbloquea con una racha de 14 días 🌟',
     av_lkneb_toast: 'Logra recovery 90+ tres veces para desbloquear ✨',
-    av_lkglitch_toast: 'Marco exclusivo de los temas Halo y Aether',
-    av_lkpix_toast: 'Marco exclusivo del tema Voxel (Minecraft)',
+    av_lkglitch_toast: 'Marco exclusivo de los temas Neon Noir y Aether',
+    av_lkpix_toast: 'Marco exclusivo del tema Voxel',
     av_lkpro_toast: 'Marco exclusivo de AIRA PRO',
     av_apply: 'APLICAR',
     av_shared: 'Tarjeta compartida ✓',
@@ -5779,10 +5779,10 @@ const T = {
     sel_badge_soon: 'PRO',
     sel_ft: 'AIRA v2.6 · FITBIT WEB API · BIOMETRIC CORE',
     bloom_sub: 'WELLNESS · PERFORMANCE',
-    mc_sub: 'SURVIVAL DATA MONITOR',
+    voxel_sub: 'SURVIVAL DATA MONITOR',
     synth_sub: 'OUTRUN · NEON GRID · 1986',
-    halo_sub: 'NIGHT CITY UPLINK',
-    naruto_sub: '気 · KI ENERGY MONITOR',
+    neonnoir_sub: 'NIGHT CITY UPLINK',
+    shinobi_sub: '気 · KI ENERGY MONITOR',
     fut_sub: 'BIOMETRIC CORE v2.6',
     back: '← THEMES',
     connect: 'CONNECT',
@@ -5793,10 +5793,10 @@ const T = {
     rl: '// READINESS INDEX',
     rstat: {
       fut:    { peak:'OPTIMAL', good:'GOOD', moderate:'MODERATE', low:'LOW' },
-      mc:     { peak:'FULL HP', good:'HEALTHY', moderate:'HALF HP', low:'LOW HP' },
+      voxel:     { peak:'FULL HP', good:'HEALTHY', moderate:'HALF HP', low:'LOW HP' },
       bloom:  { peak:'RADIANT', good:'BLOOMING', moderate:'BUDDING', low:'RECHARGING' },
-      halo:   { peak:'NETRUNNER READY', good:'LINK STABLE', moderate:'SYSTEM DEGRADED', low:'FLATLINED' },
-      naruto: { peak:'無双 · UNSTOPPABLE', good:'修行 · ON MISSION', moderate:'練習 · TRAINING', low:'回復 · RECOVERING' },
+      neonnoir:   { peak:'NETRUNNER READY', good:'LINK STABLE', moderate:'SYSTEM DEGRADED', low:'FLATLINED' },
+      shinobi: { peak:'無双 · UNSTOPPABLE', good:'修行 · ON MISSION', moderate:'練習 · TRAINING', low:'回復 · RECOVERING' },
       synth:  { peak:'MAX FREQUENCY', good:'SIGNAL STABLE', moderate:'INTERFERENCE', low:'SIGNAL LOST' },
     },
     lbl_hr: '// HEART RATE',
@@ -5942,17 +5942,17 @@ const T = {
     sync_lbl: 'NEXT SYNC', sync_lbl2: 'SYNC',
     logo_s_bloom: 'BLOOM · WELLNESS & PERFORMANCE',
     logo_s_fut: 'BIOMETRIC CORE v2.6',
-    logo_s_mc: 'HEALTH MOD v2.6',
-    logo_s_halo: 'NIGHT CITY UPLINK v2.0.77',
-    logo_s_naruto: '忍 · SISTEMA DE ENERGÍA KI',
+    logo_s_voxel: 'HEALTH MOD v2.6',
+    logo_s_neonnoir: 'NIGHT CITY UPLINK v2.0.77',
+    logo_s_shinobi: '忍 · SISTEMA DE ENERGÍA KI',
     bloom_eye: '✦ BLOOM — WELLNESS IN MOTION',
     bloom_pfx: 'Hey, ', bloom_rl: '✦ WELLNESS STATUS',
-    mc_eye: '> PLAYER STATS LOADED',
-    mc_pfx: 'PLAYER: ', mc_rl: '> HEALTH BAR',
-    halo_eye: '// NEON NOIR — NIGHT CITY UPLINK — ACCESS GRANTED',
-    halo_pfx: 'CHOOMBATTA: ', halo_rl: '// NEURAL STATUS',
-    naruto_eye: '忍の道 — SHINOBI CHRONICLES',
-    naruto_pfx: '忍者: ', naruto_rl: '気 · KI READINESS',
+    voxel_eye: '> PLAYER STATS LOADED',
+    voxel_pfx: 'PLAYER: ', voxel_rl: '> HEALTH BAR',
+    neonnoir_eye: '// NEON NOIR — NIGHT CITY UPLINK — ACCESS GRANTED',
+    neonnoir_pfx: 'CHOOMBATTA: ', neonnoir_rl: '// NEURAL STATUS',
+    shinobi_eye: '忍の道 — SHINOBI CHRONICLES',
+    shinobi_pfx: '忍者: ', shinobi_rl: '気 · KI READINESS',
     connected: '◆ GOOGLE CONNECTED', live: 'LIVE',
     sync_toast: (t) => `◆ SYNC ${t}`,
     // Stats view
@@ -6025,13 +6025,13 @@ const T = {
     av_add: 'ADD PHOTO', av_change: 'CHANGE PHOTO', av_remove: 'REMOVE',
     av_frames: 'FRAME',
     av_f_aura: 'AURA', av_f_ember: 'STREAK', av_f_legend: 'LEGEND', av_f_nova: 'NOVA', av_f_nebula: 'NEBULA', av_f_glitch: 'GLITCH', av_f_pixel: 'PIXEL', av_f_pro: 'AIRA PRO',
-    av_lk7: '🔒 7D STREAK', av_lk30: '🔒 30D STREAK', av_lk14: '🔒 14D STREAK', av_lkneb: '🔒 REC 90×3', av_lkglitch: '🔒 HALO/AETHER', av_lkpix: '🔒 VOXEL', av_lkpro: '🔒 PRO ONLY',
+    av_lk7: '🔒 7D STREAK', av_lk30: '🔒 30D STREAK', av_lk14: '🔒 14D STREAK', av_lkneb: '🔒 REC 90×3', av_lkglitch: '🔒 NEON NOIR/AETHER', av_lkpix: '🔒 VOXEL', av_lkpro: '🔒 PRO ONLY',
     av_lk7_toast: 'Unlock with a 7-day streak 🔥',
     av_lk30_toast: 'Unlock with a 30-day streak 🔥',
     av_lk14_toast: 'Unlock with a 14-day streak 🌟',
     av_lkneb_toast: 'Achieve recovery 90+ three times to unlock ✨',
-    av_lkglitch_toast: 'Exclusive to Halo and Aether themes',
-    av_lkpix_toast: 'Exclusive to Voxel (Minecraft) theme',
+    av_lkglitch_toast: 'Exclusive to Neon Noir and Aether themes',
+    av_lkpix_toast: 'Exclusive to Voxel theme',
     av_lkpro_toast: 'AIRA PRO exclusive frame',
     av_apply: 'APPLY',
     av_shared: 'Card shared ✓',
@@ -6064,11 +6064,11 @@ function setLang(l, _skipSync) {
   setText('sel-eye', t.sel_eye);
   setText('sel-sub', t.sel_sub);
   setText('sel-bloom-sub', t.bloom_sub);
-  setText('sel-halo-sub', t.halo_sub);
-  setText('sel-naruto-sub', t.naruto_sub);
+  setText('sel-neonnoir-sub', t.neonnoir_sub);
+  setText('sel-shinobi-sub', t.shinobi_sub);
   setText('sel-fut-sub', t.fut_sub);
   // selector badges + stats
-  ['tbf-bloom','tbf-halo','tbf-naruto','tbf-fut'].forEach(function(id){ setText(id, t.sel_badge_free); });
+  ['tbf-bloom','tbf-neonnoir','tbf-shinobi','tbf-fut'].forEach(function(id){ setText(id, t.sel_badge_free); });
   setText('sel-lbl-free', t.sel_badge_free);
   setText('sel-lbl-soon', t.sel_badge_soon);
   setText('sel-ft', t.sel_ft);
@@ -6154,8 +6154,8 @@ function setLang(l, _skipSync) {
   if (typeof renderProUI === 'function') renderProUI();
   // Re-apply theme overrides if theme is active
   if (theme) applyThemeText(theme);
-  // Naruto Easter Egg: re-seed rank with new language
-  if (theme === 'naruto') nrtUpdateRank(window._lastRec != null ? window._lastRec : 80);
+  // Shinobi Easter Egg: re-seed rank with new language
+  if (theme === 'shinobi') nrtUpdateRank(window._lastRec != null ? window._lastRec : 80);
   // Re-render cycle chip with new language
   if (typeof renderCycleHomeChip === 'function') renderCycleHomeChip();
   genAiraMsg();
@@ -6230,7 +6230,7 @@ var TPREV_DATA = {
         '</div>';
     }
   },
-  halo: {
+  neonnoir: {
     bg: 'radial-gradient(ellipse at 50% 130%, #1e0035 0%, #060010 65%)',
     sheetBg: '#080014',
     color: '#ff2d78',
@@ -6244,7 +6244,7 @@ var TPREV_DATA = {
       en: ['▲ Neural link · real-time HRV + biometrics', '◆ Chrome tracking · ICE system integrity', '◈ Night City uplink · dystopian cyberpunk aesthetic']
     },
     canvas: function() {
-      return '<div class="tprev-halo-bg">' +
+      return '<div class="tprev-neonnoir-bg">' +
         '<div style="position:absolute;top:10px;left:16px;right:16px;font-family:\'IBM Plex Mono\',monospace;font-size:9px;color:rgba(255,45,120,0.4);letter-spacing:2px;z-index:1;">// NIGHT CITY UPLINK — NEURAL NET v2.0.77</div>' +
         '<svg width="200" height="200" viewBox="0 0 160 160" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);" xmlns="http://www.w3.org/2000/svg">' +
         '<defs>' +
@@ -6315,7 +6315,7 @@ var TPREV_DATA = {
         '</div>';
     }
   },
-  naruto: {
+  shinobi: {
     bg: 'radial-gradient(ellipse at 50% 130%, #0c1520 0%, #06080c 65%)',
     sheetBg: '#06080c',
     color: '#4a6a84',
@@ -6329,7 +6329,7 @@ var TPREV_DATA = {
       en: ['気 Ki flow · real-time chakra reserves', '⚡ Stamina tracker · ninja training arc', '🌙 Rest seal · chakra-restoring sleep tracking']
     },
     canvas: function() {
-      return '<div class="tprev-naruto-bg" style="overflow:hidden;">' +
+      return '<div class="tprev-shinobi-bg" style="overflow:hidden;">' +
         '<div style="position:absolute;top:10px;left:16px;font-family:\'Noto Serif JP\',serif;font-size:9px;color:rgba(74,106,132,0.45);letter-spacing:3px;z-index:1;">封印 · 木ノ葉 · 忍道</div>' +
         '<svg viewBox="0 0 320 220" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;" xmlns="http://www.w3.org/2000/svg">' +
         '<defs><filter id="tpn-gw" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>' +
@@ -6443,7 +6443,7 @@ var TPREV_DATA = {
   },
 
   // ── VOXEL ─────────────────────────────────────────────────────
-  mc: {
+  voxel: {
     bg: 'radial-gradient(ellipse at 50% 130%, #0a1a04 0%, #050a01 65%)',
     sheetBg: '#060c02',
     color: '#6aff3a',
@@ -6544,8 +6544,8 @@ function openThemePreview(t) {
   document.getElementById('tprev-canvas').innerHTML = d.canvas();
   // Name & sub
   var nameEl = document.getElementById('tprev-name');
-  var _names = { bloom:'BLOOM', halo:'NEON NOIR', naruto:'SHINOBI', fut:'AETHER', mc:'VOXEL', synth:'SYNTHWAVE' };
-  var _subs  = { bloom:'WELLNESS · RENDIMIENTO', halo:'NIGHT CITY UPLINK', naruto:'気 · MONITOR DE ENERGÍA', fut:'BIOMETRIC CORE v2.6', mc:'PIXEL WORLD · 8-BIT DATA', synth:'RETROWAVE · v 1 9 8 4' };
+  var _names = { bloom:'BLOOM', neonnoir:'NEON NOIR', shinobi:'SHINOBI', fut:'AETHER', voxel:'VOXEL', synth:'SYNTHWAVE' };
+  var _subs  = { bloom:'WELLNESS · RENDIMIENTO', neonnoir:'NIGHT CITY UPLINK', shinobi:'気 · MONITOR DE ENERGÍA', fut:'BIOMETRIC CORE v2.6', voxel:'PIXEL WORLD · 8-BIT DATA', synth:'RETROWAVE · v 1 9 8 4' };
   nameEl.textContent = _names[t] || t.toUpperCase();
   nameEl.style.color = d.color;
   nameEl.style.fontFamily = d.nameFont;
@@ -6676,7 +6676,7 @@ var THEME_BOOT_CONFIG = {
   },
 
   // ── NEON NOIR ──────────────────────────────────────────────────
-  halo: {
+  neonnoir: {
     bg: '#060010', color: '#ff2d78', okColor: '#39ff14',
     dimColor: 'rgba(255,45,120,0.28)', errColor: '#ff4500',
     font: "'IBM Plex Mono',monospace", fw: '400', ls: '2px',
@@ -6709,7 +6709,7 @@ var THEME_BOOT_CONFIG = {
   },
 
   // ── SHINOBI ────────────────────────────────────────────────────
-  naruto: {
+  shinobi: {
     bg: '#06080c', color: '#4a6a84', okColor: '#a0c0dc',
     dimColor: 'rgba(74,106,132,0.28)', errColor: '#6b8faa',
     font: "'IBM Plex Mono',monospace", fw: '400', ls: '2px',
@@ -6774,8 +6774,8 @@ var THEME_BOOT_CONFIG = {
     }
   },
 
-  // ── VOXEL (Minecraft) ──────────────────────────────────────────
-  mc: {
+  // ── VOXEL ──────────────────────────────────────────
+  voxel: {
     bg: '#050a01', color: '#6aff3a', okColor: '#ffaa00',
     dimColor: 'rgba(106,255,58,0.2)', errColor: '#ff4444',
     font: "'VT323',monospace", fw: '400', ls: '2px',
@@ -6938,9 +6938,9 @@ function startNNAmbient() {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// MC GRID ══════
+// Voxel GRID ══════
 (function() {
-  const g = document.getElementById('mc-pg'); if (!g) return;
+  const g = document.getElementById('voxel-pg'); if (!g) return;
   const p = [
     // row 0 — cielo nocturno
     0,0,0,0,0,0,9,0,0,0,0,0,0,0,9,0,0,0,0,0,
@@ -6970,14 +6970,14 @@ function startNNAmbient() {
 })();
 
 // ── Voxel C: ciclo día/noche — tinte ambiente según hora real ───────────────
-function mcApplyTimeOfDay() {
+function voxelApplyTimeOfDay() {
   var h = new Date().getHours();
   var tint;
   if      (h >= 5  && h < 8)  tint = 'rgba(255,140,0,0.09)';   // amanecer — ámbar
   else if (h >= 8  && h < 17) tint = 'transparent';             // día — verde nativo
   else if (h >= 17 && h < 20) tint = 'rgba(210,60,0,0.10)';    // atardecer — naranja
   else                         tint = 'rgba(0,40,140,0.13)';    // noche — azul frío
-  document.body.style.setProperty('--mc-tint', tint);
+  document.body.style.setProperty('--voxel-tint', tint);
 }
 
 // ══════ SELECT THEME ══════
@@ -7012,10 +7012,10 @@ function _finishSelectTheme(t) {
   document.querySelectorAll('.nn-sweep').forEach(function(el){ el.remove(); });
   // Start theme-specific ambient
   if (t === 'bloom') { requestAnimationFrame(startBloomAmbient); }
-  if (t === 'halo')  { requestAnimationFrame(startNNAmbient); }
-  if (t === 'mc') {
-    mcApplyTimeOfDay();
-    if (!window._mcTimeTmr) window._mcTimeTmr = setInterval(mcApplyTimeOfDay, 30 * 60 * 1000);
+  if (t === 'neonnoir')  { requestAnimationFrame(startNNAmbient); }
+  if (t === 'voxel') {
+    voxelApplyTimeOfDay();
+    if (!window._voxelTimeTmr) window._voxelTimeTmr = setInterval(voxelApplyTimeOfDay, 30 * 60 * 1000);
   }
   initDash();
   maybeAutoTour();
@@ -7048,7 +7048,7 @@ function goBack() {
   document.getElementById('sel').style.display = 'flex';
   document.body.className = '';
   clearInterval(ptmr); clearInterval(cdtmr); clearInterval(slowTmr);
-  if (window._mcTimeTmr) { clearInterval(window._mcTimeTmr); window._mcTimeTmr = null; }
+  if (window._voxelTimeTmr) { clearInterval(window._voxelTimeTmr); window._voxelTimeTmr = null; }
   document.querySelectorAll('.nring').forEach(e => e.remove());
   // Clear ambient layers + injected Neon Noir sweep line
   var ba = document.getElementById('bloom-ambient'); if (ba) ba.innerHTML = '';
@@ -7060,9 +7060,9 @@ function goBack() {
 function applyTheme(t) {
   document.getElementById('futtick').style.display = t === 'fut' ? 'block' : 'none';
   if (t === 'fut') syncTicker();
-  // Naruto chakra rings
+  // Shinobi chakra rings
   document.querySelectorAll('.nring').forEach(e => e.remove());
-  if (t === 'naruto') {
+  if (t === 'shinobi') {
     ['60vw','40vw','22vw'].forEach((s, i) => {
       const d = document.createElement('div'); d.className = 'nring';
       d.style.cssText = `width:${s};height:${s};top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:${i*0.8}s;`;
@@ -7071,9 +7071,9 @@ function applyTheme(t) {
   }
   // Daily progress rings (universal, replaces theme bars)
   renderDailyRings();
-  if (t === 'naruto') nrtUpdateRank(window._lastRec != null ? window._lastRec : 80);
+  if (t === 'shinobi') nrtUpdateRank(window._lastRec != null ? window._lastRec : 80);
   const ls = T[lang];
-  const logoSubMap = { bloom: ls.logo_s_bloom, fut: ls.logo_s_fut, mc: ls.logo_s_mc, halo: ls.logo_s_halo, naruto: ls.logo_s_naruto };
+  const logoSubMap = { bloom: ls.logo_s_bloom, fut: ls.logo_s_fut, voxel: ls.logo_s_voxel, neonnoir: ls.logo_s_neonnoir, shinobi: ls.logo_s_shinobi };
   setText('logo-s', logoSubMap[t]);
 }
 
@@ -7081,9 +7081,9 @@ function applyThemeText(t) {
   const ls = T[lang];
   const map = {
     bloom:  { 'g-eye': ls.bloom_eye, 'g-pfx': ls.bloom_pfx, rl: ls.bloom_rl, i1t: '✦ ' + (lang==='es'?'VITALIDAD':'VITALITY'), i2t: '✦ ' + (lang==='es'?'DESCANSO':'REST & RESTORE'), i3t: '✦ ' + (lang==='es'?'MOVIMIENTO':'MOVEMENT'), i1x: lang==='es'?'HRV +6ms. Tu cuerpo está respondiendo genial. Hoy es un buen día para esforzarte un poco más.':'HRV +6ms. Your body is responding beautifully. Today is a great day to push a little harder.', i2x: lang==='es'?'Sueño profundo +12%. Tu recuperación está en punto. Sigue priorizando el descanso — se nota.':'Deep sleep +12%. Your recovery is on point. Keep prioritizing rest — it shows.', i3x: lang==='es'?'Racha de 4 días. 78% de tu meta de pasos. Cada movimiento cuenta — sigue así.':'4-day streak. 78% of your step goal. Every move counts — keep going.' },
-    mc:     { 'g-eye': ls.mc_eye, 'g-pfx': ls.mc_pfx, rl: ls.mc_rl, i1t: ls.i1t.replace('RECUPERACIÓN','RECOVERY').replace('RECOVERY','[!] RECOVERY'), i2t: '[!] ' + (lang==='es'?'SUEÑO':'SLEEP'), i3t: '[!] ' + (lang==='es'?'ACTIVIDAD':'ACTIVITY'), i1x: lang==='es'?'HRV +6ms. Recuperación completa. Listo para grind. Dificultad: Alta recomendada.':'HRV +6ms. Recovery full. Ready to grind. Difficulty: Hard recommended.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Buff: Bien descansado activo.':'Deep sleep +12% this week. Buff: Well Rested active.', i3x: lang==='es'?'Racha de 4 días. Logro: Marathon Runner si terminas hoy.':'4-day streak. Achievement: Marathon Runner incoming if today complete.' },
-    halo:   { 'g-eye': ls.halo_eye, 'g-pfx': ls.halo_pfx, rl: ls.halo_rl, i1t: '▲ ' + (lang==='es'?'ENLACE NEURAL':'NEURAL LINK'), i2t: '◆ ' + (lang==='es'?'CICLO DE SUEÑO':'SLEEP CYCLE'), i3t: '◈ ' + (lang==='es'?'LOG DE ACTIVIDAD':'ACTIVITY LOG'), i1x: lang==='es'?'Enlace neural estable. HRV +6ms. Implantes al 98%. Sistema listo para zona roja.':'Neural link stable. HRV +6ms. Implants at 98%. Ready for the red zone.', i2x: lang==='es'?'Sueño profundo +12%. ICE restablecido. Recuperación de chrome óptima. Sistema primed.':'Deep sleep +12%. ICE restored. Chrome recovery optimal. System primed.', i3x: lang==='es'?'Racha de 4 días activa. Pasos 78%. Aumenta el randar — la calle recompensa la consistencia.':'4-day streak active. Steps 78%. Push harder — the street rewards consistency.' },
-    naruto: { 'g-eye': ls.naruto_eye, 'g-pfx': ls.naruto_pfx, rl: ls.naruto_rl, i1t: '🔥 ' + (lang==='es'?'RECUPERACIÓN DE CHAKRA':'CHAKRA RECOVERY'), i2t: '🌙 ' + (lang==='es'?'JUTSU DE DESCANSO':'REST JUTSU'), i3t: '⚡ ' + (lang==='es'?'ARCO DE ENTRENAMIENTO':'TRAINING ARC'), i1x: lang==='es'?'Flujo de chakra +6ms. Bobinas a plena capacidad. Lista para misión S. Modo Sabio disponible.':'Chakra flow +6ms. Coils at full capacity. Ready for S-rank mission. Sage Mode available.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Reservas de chakra restauradas. Descanso nivel Bijuu.':'Deep sleep +12% this week. Chakra pools restored. Bijuu-level rest achieved. Dattebayo!', i3x: lang==='es'?'Racha de entrenamiento de 4 días. Completar hoy desbloquea: "El Camino del Ninja". ¡Dattebayo!':'4-day training arc streak. Complete today: "Ninja Way" achievement unlocked. Believe it!' },
+    voxel:     { 'g-eye': ls.voxel_eye, 'g-pfx': ls.voxel_pfx, rl: ls.voxel_rl, i1t: ls.i1t.replace('RECUPERACIÓN','RECOVERY').replace('RECOVERY','[!] RECOVERY'), i2t: '[!] ' + (lang==='es'?'SUEÑO':'SLEEP'), i3t: '[!] ' + (lang==='es'?'ACTIVIDAD':'ACTIVITY'), i1x: lang==='es'?'HRV +6ms. Recuperación completa. Listo para grind. Dificultad: Alta recomendada.':'HRV +6ms. Recovery full. Ready to grind. Difficulty: Hard recommended.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Buff: Bien descansado activo.':'Deep sleep +12% this week. Buff: Well Rested active.', i3x: lang==='es'?'Racha de 4 días. Logro: Marathon Runner si terminas hoy.':'4-day streak. Achievement: Marathon Runner incoming if today complete.' },
+    neonnoir:   { 'g-eye': ls.neonnoir_eye, 'g-pfx': ls.neonnoir_pfx, rl: ls.neonnoir_rl, i1t: '▲ ' + (lang==='es'?'ENLACE NEURAL':'NEURAL LINK'), i2t: '◆ ' + (lang==='es'?'CICLO DE SUEÑO':'SLEEP CYCLE'), i3t: '◈ ' + (lang==='es'?'LOG DE ACTIVIDAD':'ACTIVITY LOG'), i1x: lang==='es'?'Enlace neural estable. HRV +6ms. Implantes al 98%. Sistema listo para zona roja.':'Neural link stable. HRV +6ms. Implants at 98%. Ready for the red zone.', i2x: lang==='es'?'Sueño profundo +12%. ICE restablecido. Recuperación de chrome óptima. Sistema primed.':'Deep sleep +12%. ICE restored. Chrome recovery optimal. System primed.', i3x: lang==='es'?'Racha de 4 días activa. Pasos 78%. Aumenta el randar — la calle recompensa la consistencia.':'4-day streak active. Steps 78%. Push harder — the street rewards consistency.' },
+    shinobi: { 'g-eye': ls.shinobi_eye, 'g-pfx': ls.shinobi_pfx, rl: ls.shinobi_rl, i1t: '🔥 ' + (lang==='es'?'RECUPERACIÓN DE CHAKRA':'CHAKRA RECOVERY'), i2t: '🌙 ' + (lang==='es'?'JUTSU DE DESCANSO':'REST JUTSU'), i3t: '⚡ ' + (lang==='es'?'ARCO DE ENTRENAMIENTO':'TRAINING ARC'), i1x: lang==='es'?'Flujo de chakra +6ms. Bobinas a plena capacidad. Lista para misión S. Modo Sabio disponible.':'Chakra flow +6ms. Coils at full capacity. Ready for S-rank mission. Sage Mode available.', i2x: lang==='es'?'Sueño profundo +12% esta semana. Reservas de chakra restauradas. Descanso nivel Bijuu.':'Deep sleep +12% this week. Chakra pools restored. Bijuu-level rest achieved. Dattebayo!', i3x: lang==='es'?'Racha de entrenamiento de 4 días. Completar hoy desbloquea: "El Camino del Ninja". ¡Dattebayo!':'4-day training arc streak. Complete today: "Ninja Way" achievement unlocked. Believe it!' },
     fut:    {}
   };
   if (map[t]) Object.entries(map[t]).forEach(([id,v]) => setText(id, v));
@@ -7179,7 +7179,7 @@ function updateStatusLabel() {
   const map = (T[lang].rstat && (T[lang].rstat[theme] || T[lang].rstat.fut));
   if (map) el.textContent = map[level];
   // --tneg en SHINOBI es #1a2530 (invisible) — todos los estados usan el ámbar del tema
-  const lowCol = (theme === 'naruto') ? '#f59e0b' : 'var(--tneg)';
+  const lowCol = (theme === 'shinobi') ? '#f59e0b' : 'var(--tneg)';
   el.style.color = score >= 80 ? 'var(--tpos)' : score >= 40 ? '#f59e0b' : lowCol;
 }
 
@@ -8681,14 +8681,14 @@ function refreshProThemeCards() {
     }
   });
   // Profile switcher buttons
-  const mcBtn    = document.getElementById('pvt-mc');
+  const voxelBtn    = document.getElementById('pvt-voxel');
   const synthBtn = document.getElementById('pvt-synth');
-  if (mcBtn)    mcBtn.style.display    = pro ? '' : 'none';
+  if (voxelBtn)    voxelBtn.style.display    = pro ? '' : 'none';
   if (synthBtn) synthBtn.style.display = pro ? '' : 'none';
   // Active checkmark for pro themes
-  ['pvt-mc','pvt-synth'].forEach(id => {
+  ['pvt-voxel','pvt-synth'].forEach(id => {
     const btn = document.getElementById(id);
-    if (btn) btn.classList.toggle('active', theme === (id === 'pvt-mc' ? 'mc' : 'synth'));
+    if (btn) btn.classList.toggle('active', theme === (id === 'pvt-voxel' ? 'voxel' : 'synth'));
   });
 }
 
@@ -8704,7 +8704,7 @@ function _showProThemeUpsell(themeId) {
   var es = lang === 'es';
   var t = T[lang] || T['es'];
   var themes = {
-    mc:    { icon: '⛏️', name: 'VOXEL',     desc: es ? 'Mundo pixelado de bloques. Donde cada dato es un bloque de construcción.' : 'Pixel block world. Where every metric is a building block.' },
+    voxel:    { icon: '⛏️', name: 'VOXEL',     desc: es ? 'Mundo pixelado de bloques. Donde cada dato es un bloque de construcción.' : 'Pixel block world. Where every metric is a building block.' },
     synth: { icon: '🌆', name: 'SYNTHWAVE', desc: es ? 'Retrowave 80s. Neones, grillas y datos que brillan en la oscuridad.' : '80s retrowave. Neons, grids, and data that glows in the dark.' }
   };
   var th = themes[themeId] || { icon: '✦', name: 'PRO', desc: es ? 'Desbloquea todos los temas premium.' : 'Unlock all premium themes.' };
@@ -8811,7 +8811,7 @@ function renderProfile() {
   renderPulseCard();
 
   // Theme buttons
-  ['bloom','halo','naruto','fut'].forEach(id => {
+  ['bloom','neonnoir','shinobi','fut'].forEach(id => {
     document.getElementById('pvt-' + id)?.classList.toggle('active', theme === id);
   });
 
@@ -9092,7 +9092,7 @@ if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.
   document.body.setAttribute('data-pwa', 'installed');
 }
 // Sync theme-color meta with active theme for status bar
-const THEME_COLORS = { bloom: '#0f0709', mc: '#1a1200', halo: '#060010', naruto: '#0c0400', fut: '#020810' };
+const THEME_COLORS = { bloom: '#0f0709', voxel: '#1a1200', neonnoir: '#060010', shinobi: '#0c0400', fut: '#020810' };
 function updateThemeColor(t) {
   const meta = document.getElementById('theme-color-meta');
   if (meta && THEME_COLORS[t]) meta.setAttribute('content', THEME_COLORS[t]);
@@ -10867,8 +10867,8 @@ function setHRZones({ zones=[], restHR=61, maxHR=172 }) {
   if (zones.length) setTimeout(function(){ if (typeof updateDailyRings === 'function') updateDailyRings(); }, 200);
 }
 
-// ══════ MC RING — PIXEL ART ICONS ══════
-function setMCHearts(type, filled) {
+// ══════ VOXEL RING — PIXEL ART ICONS ══════
+function setVoxelHearts(type, filled) {
   const cols = {
     r:  { on: '#ff5555', off: '#2a0000' },
     s:  { on: '#ffaa00', off: '#2a1500' },
@@ -10879,28 +10879,28 @@ function setMCHearts(type, filled) {
   const isLowHP = (type === 'r' && filled <= 2);
   // Paso 1: resetear todas a 'none' para forzar restart de animación
   for (let i = 0; i < 10; i++) {
-    const el = document.getElementById(`mc-${type}-${i}`);
+    const el = document.getElementById(`voxel-${type}-${i}`);
     if (el) { el.setAttribute('color', i < filled ? c.on : c.off); el.style.animation = 'none'; }
   }
   // Paso 2: forzar reflow (un solo read del DOM basta para todos)
-  document.getElementById(`mc-${type}-0`)?.getBoundingClientRect();
+  document.getElementById(`voxel-${type}-0`)?.getBoundingClientRect();
   // Paso 3: asignar animación fresca a los iconos "on"
   for (let i = 0; i < filled; i++) {
-    const el = document.getElementById(`mc-${type}-${i}`);
+    const el = document.getElementById(`voxel-${type}-${i}`);
     if (!el) continue;
     const delay = (i * 0.07).toFixed(2) + 's';
     el.style.animation = isLowHP
-      ? `mcLowHpBlink 0.65s steps(1) infinite ${delay}`
-      : `mcFillIn .22s ease-out ${delay} both`;
+      ? `voxelLowHpBlink 0.65s steps(1) infinite ${delay}`
+      : `voxelFillIn .22s ease-out ${delay} both`;
   }
   // C: blink en label HP cuando crítico + velocidad del latido del score
   if (type === 'r') {
-    const lbl = document.getElementById('mc-hp-lbl');
-    if (lbl) lbl.style.animation = isLowHP ? 'mcLowHpBlink 0.65s steps(1) infinite' : '';
-    const svg = document.querySelector('.mc-rsvg');
+    const lbl = document.getElementById('voxel-hp-lbl');
+    if (lbl) lbl.style.animation = isLowHP ? 'voxelLowHpBlink 0.65s steps(1) infinite' : '';
+    const svg = document.querySelector('.voxel-rsvg');
     if (svg) {
       const dur = filled >= 7 ? '2.6s' : filled >= 4 ? '1.5s' : '0.65s';
-      svg.style.setProperty('--mc-beat-dur', dur);
+      svg.style.setProperty('--voxel-beat-dur', dur);
     }
   }
 }
@@ -10989,7 +10989,7 @@ function setStressBars({ hrv=68, rhr=61, br=14 }) {
   setBar('sbar-rhr', 'sval-rhr', rhrPct, _rhrS, 'bpm');
   setBar('sbar-br',  'sval-br',  brPct,  _brS,  'rpm');
   // hud-sfil (MIN ACT arc) → driven by activity composite in updateDailyRings()
-  // MC stress hearts now driven by activity rings in updateDailyRings()
+  // Voxel stress hearts now driven by activity rings in updateDailyRings()
 }
 function setCalbars({ sed=0, lig=0, mod=0, int=0 }) {
   const total = 1440;
@@ -11189,17 +11189,17 @@ function updateScores({ rec, strain, sleepPct }) {
   if (rf) rf.style.strokeDashoffset = (339*(1-rec/100)).toFixed(1);
   animN('rscore', 0, rec, 1200);
   // HUD ring arcs + number → all driven by activity composite in updateDailyRings()
-  // MC ring icons now driven by activity rings in updateDailyRings()
-  // mc-rscore → driven by activity composite in updateDailyRings()
+  // Voxel ring icons now driven by activity rings in updateDailyRings()
+  // voxel-rscore → driven by activity composite in updateDailyRings()
   // nrt-rfil arc + nrt-rscore driven by activity composite in updateDailyRings()
-  // Naruto bars — live data
+  // Shinobi bars — live data
   setTimeout(function() {
-    var nr = document.getElementById('naruto-bar-rec');
-    var ns = document.getElementById('naruto-bar-slp');
+    var nr = document.getElementById('shinobi-bar-rec');
+    var ns = document.getElementById('shinobi-bar-slp');
     if (nr) nr.style.width = Math.min(100, rec).toFixed(1) + '%';
     if (ns) ns.style.width = Math.min(100, sleepPct).toFixed(1) + '%';
   }, 200);
-  // Naruto Easter Egg: shinobi rank badge (Stats + Profile)
+  // Shinobi Easter Egg: shinobi rank badge (Stats + Profile)
   nrtUpdateRank(rec);
   // nn-nv-rec/slp/str + blm-nv-rec/slp/str → driven by activity in updateDailyRings()
   // Bloom bars — live data (Recuperación + Sueño)
@@ -11335,7 +11335,7 @@ function _getNextAchievement(t) {
   });
   if(!best)return null;
   var def=_ACH_DEFS[best.idx];
-  var lbl=(_ACH_LABELS[t]||_ACH_LABELS.naruto).list[best.idx];
+  var lbl=(_ACH_LABELS[t]||_ACH_LABELS.shinobi).list[best.idx];
   return{icon:def.icon,name:lbl?lbl.name:'',cur:best.cur,total:best.total,label:best.label};
 }
 function _saveDRGoals(g){try{localStorage.setItem('fb_dr_goals',JSON.stringify(g));}catch(e){}}
@@ -12763,7 +12763,7 @@ function cancelStreakReminder() {
 }
 
 function renderDailyRings() {
-  var mc=document.getElementById('mcex'); if(!mc) return;
+  var voxel=document.getElementById('mcex'); if(!voxel) return;
   window._drAnimDone = false;
   var _pro=typeof isPro==='function'&&isPro();
   var C=_DR_C.toFixed(2), cx=_DR_CX, cy=_DR_CY, R=_DR_R, DIM=_DR_DIM, SW=_DR_SW;
@@ -12820,7 +12820,7 @@ function renderDailyRings() {
   var stkMsg = _stkMotivMsg(strk, stkMile);
   var stkDayLbl = strk === 1 ? (_es ? 'DÍA' : 'DAY') : (_es ? 'DÍAS' : 'DAYS');
   window._stkAnimData = {strk:strk, stkPct:stkPct, stkPulse:stkPulse, stkMile:stkMile, stkMsg:stkMsg, stkFire:stkFire, stkLvlCls:stkLvlCls};
-  mc.innerHTML='<div class="drw">'
+  voxel.innerHTML='<div class="drw">'
     +'<div class="drw-hd">'
       +'<div class="drw-lbl">// '+(_es?'PROGRESO DIARIO':'DAILY PROGRESS')+'</div>'
       +'<div class="drw-stk-badge '+(stkLvlCls||'')+' badge-pop" id="drw-stk-badge" onclick="openStreakSheet(false)">'
@@ -13062,11 +13062,11 @@ function updateDailyRings() {
   if (typeof theme !== 'undefined' && theme === 'synth') {
     updateSynthEQ(data[0].pct||0, data[1].pct||0, data[2].pct||0);
   }
-  // Voxel (MC): íconos de pixel-art sincronizados con los 3 anillos
-  if (typeof theme !== 'undefined' && theme === 'mc') {
-    setMCHearts('r',  Math.round(Math.min(100, data[0].pct) / 10));
-    setMCHearts('s',  Math.round(Math.min(100, data[1].pct) / 10));
-    setMCHearts('st', Math.round(Math.min(100, data[2].pct) / 10));
+  // Voxel: íconos de pixel-art sincronizados con los 3 anillos
+  if (typeof theme !== 'undefined' && theme === 'voxel') {
+    setVoxelHearts('r',  Math.round(Math.min(100, data[0].pct) / 10));
+    setVoxelHearts('s',  Math.round(Math.min(100, data[1].pct) / 10));
+    setVoxelHearts('st', Math.round(Math.min(100, data[2].pct) / 10));
   }
   var tr='stroke-dashoffset 0.9s var(--ease-out)';
   // SHINOBI
@@ -13096,9 +13096,9 @@ function updateDailyRings() {
   animN('blm-nv-str', parseInt((document.getElementById('blm-nv-str')||{}).textContent)||0, p2, 900);
   window._blmAvg = composite;
   if(window.updateBloomFlower) window.updateBloomFlower(composite);
-  // MINECRAFT
-  var mcEl=document.getElementById('mc-rscore');
-  if(mcEl){ var c4=parseInt(mcEl.textContent)||0; animN('mc-rscore',c4,composite,900); }
+  // VOXEL
+  var voxelEl=document.getElementById('voxel-rscore');
+  if(voxelEl){ var c4=parseInt(voxelEl.textContent)||0; animN('voxel-rscore',c4,composite,900); }
   // Status label for ALL themes
   updateStatusLabel();
   // Notificación cuando un ring cruza el umbral de 100% por primera vez hoy
@@ -13194,7 +13194,7 @@ function genAiraMsg() {
   var lowSleep  = slp > 0 && slp < 50;
   var goodSleep = slp >= 75;
 
-  // ── Default pools (fut/halo voice — AIRA clinical & cinematic) ──────────
+  // ── Default pools (fut/neonnoir voice — AIRA clinical & cinematic) ──────────
   var M = {
     peak: {
       es:['Señales en verde total. AIRA no encuentra razón para frenar hoy.','Cuerpo en modo alto rendimiento. Todo lo que hagas hoy contará más de lo normal.','Recovery de élite confirmado. Es tu momento — aprovéchalo.','El trabajo de los últimos días se refleja en estas métricas. No lo desperdicies.'],
@@ -13252,7 +13252,7 @@ function genAiraMsg() {
 
   // ── Theme-specific base pools (override M for base states only) ──────────
   var themeM = {
-    naruto: {
+    shinobi: {
       peak: {
         es:['Tu chakra está en equilibrio perfecto. El camino del shinobi comienza ahora — sin límites hoy.','Fuerza interior al tope. Un verdadero ninja sabe cuándo soltar todo — ese momento es hoy.','El nindo que sigues se refleja en cada métrica esta mañana. No lo traiciones.'],
         en:['Your chakra is in perfect balance. The shinobi\'s path begins now — no limits today.','Inner strength at peak. A true ninja knows when to go all out — that moment is today.','The nindo you follow shows in every metric this morning. Don\'t betray it.']
@@ -13274,7 +13274,7 @@ function genAiraMsg() {
         en:['Chakra at critical limit. The wisest nindo knows when to retreat to return stronger.','There\'s no jutsu without chakra — rest today and forge tomorrow.']
       }
     },
-    mc: {
+    voxel: {
       peak: {
         es:['¡BARRA DE VIDA AL MÁXIMO! Hoy es día de raid — ningún mob te frena.','¡Full HP sin debuffs! El servidor está listo — sal a farmear sin límites.','Inventario cargado y stats al tope. Las condiciones son perfectas: ¡a minar con todo!'],
         en:['MAX HEALTH BAR! Today is raid day — no mob is stopping you.','Full HP, no debuffs! The server is ready — go farm without limits.','Loaded inventory and stats at peak. Conditions are perfect: mine everything!']
@@ -13296,7 +13296,7 @@ function genAiraMsg() {
         en:['GAME OVER IMMINENT! Recovery mode activated — the next adventure starts after rest.','Health bar nearly empty. No mission is worth more than regenerating first.']
       }
     },
-    halo: {
+    neonnoir: {
       peak: {
         es:['SPARTAN operativo al 100%. AIRA confirma: la misión de hoy está en rango ejecutable.','Escudo regenerado y sistemas activos. Protocolo de combate máximo autorizado — adelante.','Diagnóstico completo: sin amenazas internas detectadas. El SPARTAN opera sin restricciones hoy.'],
         en:['SPARTAN fully operational. AIRA confirms: today\'s mission is within executable range.','Shield regenerated and systems active. Maximum combat protocol authorized — proceed.','Full diagnostic: no internal threats detected. The SPARTAN operates unrestricted today.']
@@ -13398,7 +13398,7 @@ window.updateBloomFlower = function(score) {
   var halo = document.getElementById('blm-halo');
   if (halo) halo.setAttribute('opacity', score > 80 ? ((score - 80) / 20 * 0.55).toFixed(2) : '0');
 };
-// ── Naruto Easter Egg: Shinobi Rank ─────────────────────────────────────────
+// ── Shinobi Easter Egg: Shinobi Rank ─────────────────────────────────────────
 // Updates rank display in Stats chip + Profile block from recovery score.
 // Ranks use generic ninja classifications (Genin/Chunin/Jonin/Kage — well before
 // any franchise, so zero copyright exposure).
@@ -14142,7 +14142,7 @@ async function loadRealGoogleData(silentRefresh) {
   // Reset HRV / SpO2 / Temp zone dots a valores neutros saludables antes de fetch
   updateZoneDots();
   // Recovery ring — reset arc + all score labels to —
-  ['rscore','hud-rscore','mc-rscore','nrt-rscore','nn-rscore','blm-nv-avg'].forEach(id=>_clr(id,'—'));
+  ['rscore','hud-rscore','voxel-rscore','nrt-rscore','nn-rscore','blm-nv-avg'].forEach(id=>_clr(id,'—'));
   const _rfil = document.getElementById('rfil'); if(_rfil) _rfil.style.strokeDashoffset='339';
   // Recovery / status text labels
   _clr('wrec','—'); _clr('rstatus','—');
@@ -16933,8 +16933,8 @@ function avFrameUnlocked(id) {
     if (id === 'legend') ok = getDailyStreak() >= 30;
     if (id === 'nova')   ok = getDailyStreak() >= 14;
     if (id === 'nebula') { var _nd = JSON.parse(localStorage.getItem('fb_nebula_days')||'[]'); ok = _nd.length >= 3; }
-    if (id === 'glitch') ok = (typeof theme !== 'undefined' && (theme === 'halo' || theme === 'fut'));
-    if (id === 'pixel')  ok = (typeof theme !== 'undefined' && theme === 'mc');
+    if (id === 'glitch') ok = (typeof theme !== 'undefined' && (theme === 'neonnoir' || theme === 'fut'));
+    if (id === 'pixel')  ok = (typeof theme !== 'undefined' && theme === 'voxel');
     if (id === 'pro')    ok = isPro();
   } catch(e) { return false; }
   if (ok && themePersistable) {
@@ -17037,8 +17037,8 @@ function openAvatarSheet() {
   };
   // Filtrar marcos exclusivos de tema
   var visibleFrames = _AV_FRAMES.filter(function(f) {
-    if (f === 'glitch') return (typeof theme !== 'undefined' && (theme === 'halo' || theme === 'fut'));
-    if (f === 'pixel')  return (typeof theme !== 'undefined' && theme === 'mc');
+    if (f === 'glitch') return (typeof theme !== 'undefined' && (theme === 'neonnoir' || theme === 'fut'));
+    if (f === 'pixel')  return (typeof theme !== 'undefined' && theme === 'voxel');
     return true;
   });
   document.getElementById('av-frames').innerHTML = visibleFrames.map(function(f) {
@@ -17125,19 +17125,19 @@ async function avShareCard() {
   var thm = localStorage.getItem('fb_t') || 'fut';
 
   // Per-theme typography
-  var numFont    = thm==='mc'?'VT323':thm==='naruto'?'Permanent Marker':thm==='bloom'?'Nunito':'Rajdhani';
-  var numWeight  = thm==='naruto'?'normal':'900';
-  var lblSpec    = thm==='mc'?'VT323,monospace':thm==='bloom'?'Nunito,sans-serif':'"IBM Plex Mono",monospace';
+  var numFont    = thm==='voxel'?'VT323':thm==='shinobi'?'Permanent Marker':thm==='bloom'?'Nunito':'Rajdhani';
+  var numWeight  = thm==='shinobi'?'normal':'900';
+  var lblSpec    = thm==='voxel'?'VT323,monospace':thm==='bloom'?'Nunito,sans-serif':'"IBM Plex Mono",monospace';
 
   var numStr = String(Math.max(0, parseInt(document.getElementById('streak-hero-num')?.textContent||'0')||0));
-  var numSz  = numStr.length<=1 ? (thm==='mc'?460:320) : numStr.length<=2 ? (thm==='mc'?390:260) : (thm==='mc'?330:200);
+  var numSz  = numStr.length<=1 ? (thm==='voxel'?460:320) : numStr.length<=2 ? (thm==='voxel'?390:260) : (thm==='voxel'?330:200);
 
   // Load fonts
   try { await document.fonts.load(numWeight+' '+numSz+'px "'+numFont+'"'); } catch(e){}
   try { await document.fonts.load('900 70px Rajdhani'); } catch(e){}
   try { await document.fonts.load('700 32px "IBM Plex Mono"'); } catch(e){}
   if (thm==='bloom') { try { await document.fonts.load('700 32px Nunito'); } catch(e){} }
-  if (thm==='mc')    { try { await document.fonts.load('400 32px VT323'); }  catch(e){} }
+  if (thm==='voxel')    { try { await document.fonts.load('400 32px VT323'); }  catch(e){} }
 
   // ── Theme colors ──────────────────────────────────────────────────────────
   // Read from body (not documentElement) — boot script sets --ta/--bg on html as
@@ -17164,11 +17164,11 @@ async function avShareCard() {
   ctx.fillStyle = bgC; ctx.fillRect(0, 0, W, H);
 
   // ── Theme-specific background decorations ─────────────────────────────────
-  if (thm === 'mc') {
+  if (thm === 'voxel') {
     // Pixel grid overlay
     ctx.save(); ctx.strokeStyle = _sc(taC, 0.08); ctx.lineWidth = 1;
-    for (var mcGx=0; mcGx<W; mcGx+=32) { ctx.beginPath(); ctx.moveTo(mcGx,0); ctx.lineTo(mcGx,H); ctx.stroke(); }
-    for (var mcGy=0; mcGy<H; mcGy+=32) { ctx.beginPath(); ctx.moveTo(0,mcGy); ctx.lineTo(W,mcGy); ctx.stroke(); }
+    for (var voxelGx=0; voxelGx<W; voxelGx+=32) { ctx.beginPath(); ctx.moveTo(voxelGx,0); ctx.lineTo(voxelGx,H); ctx.stroke(); }
+    for (var voxelGy=0; voxelGy<H; voxelGy+=32) { ctx.beginPath(); ctx.moveTo(0,voxelGy); ctx.lineTo(W,voxelGy); ctx.stroke(); }
     ctx.restore();
     // Corner pixel blocks
     ctx.save();
@@ -17179,11 +17179,11 @@ async function avShareCard() {
     ctx.fillRect(32,H-32,32,32); ctx.fillRect(W-64,H-32,32,32); ctx.fillRect(0,H-64,32,32); ctx.fillRect(W-32,H-64,32,32);
     ctx.restore();
     // Center radial glow
-    var grMc = ctx.createRadialGradient(W/2, 750, 0, W/2, 750, 700);
-    grMc.addColorStop(0, _sc(taC, 0.10)); grMc.addColorStop(1, 'transparent');
-    ctx.fillStyle = grMc; ctx.fillRect(0, 0, W, H);
+    var grVoxel = ctx.createRadialGradient(W/2, 750, 0, W/2, 750, 700);
+    grVoxel.addColorStop(0, _sc(taC, 0.10)); grVoxel.addColorStop(1, 'transparent');
+    ctx.fillStyle = grVoxel; ctx.fillRect(0, 0, W, H);
 
-  } else if (thm === 'halo') {
+  } else if (thm === 'neonnoir') {
     // CRT scanlines
     ctx.save(); ctx.fillStyle = 'rgba(255,255,255,0.016)';
     for (var hSl=0; hSl<H; hSl+=4) { ctx.fillRect(0, hSl, W, 1.5); }
@@ -17202,7 +17202,7 @@ async function avShareCard() {
     grH2.addColorStop(0, _sc(ta2C, 0.18)); grH2.addColorStop(1, 'transparent');
     ctx.fillStyle = grH2; ctx.fillRect(0, 0, W, H);
 
-  } else if (thm === 'naruto') {
+  } else if (thm === 'shinobi') {
     // Minimal cool wash
     var grNa = ctx.createRadialGradient(W/2, 900, 0, W/2, 900, 1200);
     grNa.addColorStop(0, _sc(taC, 0.08)); grNa.addColorStop(1, 'transparent');
@@ -17249,7 +17249,7 @@ async function avShareCard() {
   }
 
   // ── Theme-specific border/frame ────────────────────────────────────────────
-  if (thm === 'mc') {
+  if (thm === 'voxel') {
     // Chunky pixel border
     ctx.save();
     ctx.fillStyle = _sc(taC, 0.28);
@@ -17257,9 +17257,9 @@ async function avShareCard() {
     ctx.fillStyle = _sc(ta2C, 0.22);
     ctx.fillRect(8,8,W-16,4); ctx.fillRect(8,H-12,W-16,4); ctx.fillRect(8,8,4,H-16); ctx.fillRect(W-12,8,4,H-16);
     ctx.restore();
-  } else if (thm === 'halo' || thm === 'fut') {
+  } else if (thm === 'neonnoir' || thm === 'fut') {
     // Neon corner brackets
-    var cbLo=44, cbW=65, cbLW=thm==='halo'?4:3, cbBlr=thm==='halo'?18:10;
+    var cbLo=44, cbW=65, cbLW=thm==='neonnoir'?4:3, cbBlr=thm==='neonnoir'?18:10;
     ctx.save(); ctx.strokeStyle=taC; ctx.lineWidth=cbLW; ctx.shadowColor=taC; ctx.shadowBlur=cbBlr;
     ctx.beginPath(); ctx.moveTo(cbLo, cbLo+cbW); ctx.lineTo(cbLo, cbLo); ctx.lineTo(cbLo+cbW, cbLo); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(W-cbLo-cbW, cbLo); ctx.lineTo(W-cbLo, cbLo); ctx.lineTo(W-cbLo, cbLo+cbW); ctx.stroke();
@@ -17276,7 +17276,7 @@ async function avShareCard() {
     ctx.beginPath(); ctx.moveTo(blR,0); ctx.arcTo(W,0,W,blR,blR); ctx.arcTo(W,H,W-blR,H,blR); ctx.arcTo(0,H,0,H-blR,blR); ctx.arcTo(0,0,blR,0,blR); ctx.closePath();
     ctx.stroke(); ctx.restore();
   }
-  // naruto: no border — clean minimal aesthetic
+  // shinobi: no border — clean minimal aesthetic
 
   // ── Top: logo + date ──────────────────────────────────────────────────────
   ctx.textAlign = 'center';
@@ -17293,9 +17293,9 @@ async function avShareCard() {
   var st = avGet(), frame = avFrameFor(st);
   var fGlow = {aura:taC,ember:'#ff5a00',legend:'#d4af37',nova:'#7b2fff',nebula:'#7b2fff',glitch:'#ff2d78',pixel:'#6aff3a',pro:taC};
   var fc = fGlow[frame] || taC;
-  ctx.save(); ctx.shadowColor = fc; ctx.shadowBlur = (thm==='naruto'?22:48);
+  ctx.save(); ctx.shadowColor = fc; ctx.shadowBlur = (thm==='shinobi'?22:48);
   ctx.beginPath(); ctx.arc(avCX, avCY, avR+5, 0, Math.PI*2);
-  ctx.strokeStyle = fc; ctx.lineWidth = (thm==='mc'?7:5); ctx.stroke(); ctx.restore();
+  ctx.strokeStyle = fc; ctx.lineWidth = (thm==='voxel'?7:5); ctx.stroke(); ctx.restore();
   if (st.photo) {
     try {
       var img = new Image();
@@ -17320,7 +17320,7 @@ async function avShareCard() {
   ctx.fillText(numStr, W/2, 910); ctx.restore();
 
   // ── Hero number with per-theme glow ───────────────────────────────────────
-  var heroGlow = thm==='naruto'?36 : thm==='bloom'?60 : thm==='halo'?140 : thm==='mc'?30 : 100;
+  var heroGlow = thm==='shinobi'?36 : thm==='bloom'?60 : thm==='neonnoir'?140 : thm==='voxel'?30 : 100;
   ctx.save(); ctx.shadowColor = taC; ctx.shadowBlur = heroGlow;
   ctx.fillStyle = taC; ctx.font = numWeight+' '+numSz+'px "'+numFont+'",sans-serif';
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -17330,7 +17330,7 @@ async function avShareCard() {
   // Unit label + tagline — positioned well below the hero number's descender
   ctx.fillStyle = _sc(taC, 0.74); ctx.font = '700 36px '+lblSpec; ctx.textAlign = 'center';
   var unitLbl = es ? 'DÍAS SEGUIDOS' : 'DAY STREAK';
-  if (thm === 'mc') unitLbl = '>>> '+(es?'DIAS SEGUIDOS':'DAY STREAK')+' <<<';
+  if (thm === 'voxel') unitLbl = '>>> '+(es?'DIAS SEGUIDOS':'DAY STREAK')+' <<<';
   ctx.fillText(unitLbl, W/2, 1140);
   var tagline = typeof _streakTagline==='function' ? _streakTagline(parseInt(numStr)||0, es) : '';
   if (tagline) {
@@ -17338,8 +17338,8 @@ async function avShareCard() {
     ctx.fillText(tagline, W/2, 1184);
   }
 
-  // Tier progress bar (chunky for mc)
-  var tfW=320, tfH=(thm==='mc'?8:5), tfX=(W-tfW)/2, tfY=1218;
+  // Tier progress bar (chunky for voxel)
+  var tfW=320, tfH=(thm==='voxel'?8:5), tfX=(W-tfW)/2, tfY=1218;
   ctx.fillStyle='rgba(255,255,255,0.09)'; ctx.fillRect(tfX,tfY,tfW,tfH);
   var progPct=0; try{progPct=parseFloat(document.getElementById('pulse-tier-fill')?.style?.width)||0;}catch(e){}
   if(progPct>0){ctx.fillStyle=taC;ctx.fillRect(tfX,tfY,Math.round(tfW*progPct/100),tfH);}
@@ -17347,7 +17347,7 @@ async function avShareCard() {
   // ── Divider helper ────────────────────────────────────────────────────────
   function _divider(y) {
     ctx.save();
-    if (thm==='halo' || thm==='fut') {
+    if (thm==='neonnoir' || thm==='fut') {
       ctx.strokeStyle=_sc(taC,0.22); ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(80,y-2); ctx.lineTo(W-80,y-2); ctx.stroke();
       ctx.strokeStyle='rgba(255,255,255,0.05)'; ctx.lineWidth=1;
@@ -17651,7 +17651,7 @@ var _ACH_DEFS = [
 ];
 
 var _ACH_LABELS = {
-  naruto:{
+  shinobi:{
     title:'忍者の道 · LOGROS',
     titleEn:'忍者の道 · ACHIEVEMENTS',
     list:[
@@ -17675,7 +17675,7 @@ var _ACH_LABELS = {
       {name:'忍の極み',  nameEn:'Pinnacle of Ninja',  desc:'Todos los logros desbloqueados — maestro absoluto',descEn:'All achievements unlocked — absolute master'}
     ]
   },
-  halo:{
+  neonnoir:{
     title:'// LOGROS NEURALES',
     titleEn:'// NEURAL ACHIEVEMENTS',
     list:[
@@ -17699,17 +17699,17 @@ var _ACH_LABELS = {
       {name:'FULL CHROME',     desc:'Todos los logros — implantes al máximo',           descEn:'All achievements — implants maxed out'}
     ]
   },
-  mc:{
+  voxel:{
     title:'[!] LOGROS DESBLOQUEADOS',
     titleEn:'[!] ACHIEVEMENTS UNLOCKED',
     list:[
-      {name:'NEW WORLD',     desc:'Primer día en Minecraft mode',                       descEn:'First day in Minecraft mode'},
+      {name:'NEW WORLD',     desc:'Primer día en Voxel mode',                       descEn:'First day in Voxel mode'},
       {name:'IRON PICKAXE',  desc:'Primera meta alcanzada',                             descEn:'First goal reached'},
       {name:'10K WALKER',    desc:'10,000 pasos en un día',                             descEn:'10,000 steps in one day'},
       {name:'DIAMOND HAUL',  desc:'3 rings al 100%',                                    descEn:'All 3 rings at 100%'},
       {name:'SPEEDRUNNER',   desc:'20,000 pasos — no-hit run',                          descEn:'20,000 steps — no-hit run'},
       {name:'GRINDER ×5',    desc:'Minutos activos al 100% en 5 ocasiones',             descEn:'Active minutes at 100% on 5 occasions'},
-      {name:'VETERAN',       desc:'5 sesiones en Minecraft',                            descEn:'5 sessions in Minecraft mode'},
+      {name:'VETERAN',       desc:'5 sesiones en Voxel',                            descEn:'5 sessions in Voxel mode'},
       {name:'>150% BUFF',    desc:'Superar el 150% de cualquier objetivo',              descEn:'Surpass 150% of any goal'},
       {name:'FULL CLEAR',    desc:'Día perfecto',                                        descEn:'Perfect day — all goals'},
       {name:'MAX LEVEL',     desc:'Composite ≥ 90%',                                    descEn:'Composite ≥ 90%'},
@@ -17817,7 +17817,7 @@ function _achCountForTheme(t) {
 }
 
 function checkAchievements(t, silent) {
-  if (!t) t = (typeof theme !== 'undefined') ? theme : 'naruto';
+  if (!t) t = (typeof theme !== 'undefined') ? theme : 'shinobi';
   // v3: clear stats inflated by unguarded recordGoalHit calls in demo mode
   if (!localStorage.getItem('fb_ach_clean_v3')) {
     try {
@@ -17951,7 +17951,7 @@ function _nextAchAnim() {
 }
 function _renderAchAnim(t, idx) {
   var def=_ACH_DEFS[idx];
-  var lbl=(_ACH_LABELS[t]||_ACH_LABELS.naruto).list[idx];
+  var lbl=(_ACH_LABELS[t]||_ACH_LABELS.shinobi).list[idx];
   if(!def||!lbl) {_achAnimBusy=false; setTimeout(_nextAchAnim,100); return;}
   var taColor=getComputedStyle(document.documentElement).getPropertyValue('--ta').trim()||'#00f5ff';
   var ta2Color=getComputedStyle(document.documentElement).getPropertyValue('--ta2').trim()||'#a855f7';
@@ -18035,7 +18035,7 @@ function _showRingNotif(ringId, rawPct) {
 }
 
 function _updateAchBadges(activeTheme) {
-  var themes = ['naruto','halo','mc','fut','bloom','synth'];
+  var themes = ['shinobi','neonnoir','voxel','fut','bloom','synth'];
   themes.forEach(function(t) {
     var count = _achCountForTheme(t);
     var total = _ACH_DEFS.length;
@@ -18086,8 +18086,8 @@ function _updateAchBadges(activeTheme) {
 }
 
 function openAch() {
-  var t = (typeof theme !== 'undefined') ? theme : 'naruto';
-  var labels = _ACH_LABELS[t] || _ACH_LABELS.naruto;
+  var t = (typeof theme !== 'undefined') ? theme : 'shinobi';
+  var labels = _ACH_LABELS[t] || _ACH_LABELS.shinobi;
   var u = _loadAchUnlocked();
   var unlocked = u[t] || [];
   var list = document.getElementById('ach-list');
@@ -18147,7 +18147,7 @@ function _showProRingUpsell() {
 }
 
 function _replayAchAnim(idx) {
-  var t = (typeof theme !== 'undefined') ? theme : 'naruto';
+  var t = (typeof theme !== 'undefined') ? theme : 'shinobi';
   // Cierra el drawer y espera a que salga antes de mostrar la animación
   closeAch();
   setTimeout(function() { _showAchUnlockAnim(t, idx); }, 320);
@@ -18171,18 +18171,18 @@ var _ATLAS_TIERS = [
 var _ATLAS_NAMES = {
   es:{
     base:   ['LATENTE','ACTIVO','FLUJO','PICO','ÉLITE','MAESTRO','LEYENDA'],
-    mc:     ['MINERO','CONSTRUCTOR','ARTESANO','REDSTONE','ARQUITECTO','MAGO','LEYENDA'],
-    halo:   ['RECLUTA','MARINE','ODST','SPARTAN','COMANDANTE','ALMIRANTE','RECLAIMER'],
-    naruto: ['ACADÉMICO','GENIN','CHŪNIN','JONIN','ANBU','SENNIN','HOKAGE'],
+    voxel:     ['MINERO','CONSTRUCTOR','ARTESANO','REDSTONE','ARQUITECTO','MAGO','LEYENDA'],
+    neonnoir:   ['RECLUTA','MARINE','ODST','SPARTAN','COMANDANTE','ALMIRANTE','RECLAIMER'],
+    shinobi: ['ACADÉMICO','GENIN','CHŪNIN','JONIN','ANBU','SENNIN','HOKAGE'],
     fut:    ['SEÑAL','PULSO','NODO','NEXO','NÚCLEO','ÁPICE','SOBERANO'],
     bloom:  ['SEMILLA','BROTE','FLOR','FLORECIENTE','RADIANTE','LUMINARIA','ASCENDENTE'],
     synth:  ['SEÑAL','PORTADORA','ONDA','FRECUENCIA','RESONANCIA','OVERDRIVE','TRASCIENDE']
   },
   en:{
     base:   ['LATENT','ACTIVE','FLOW','PEAK','ELITE','MASTER','LEGEND'],
-    mc:     ['MINER','BUILDER','CRAFTER','REDSTONE','ARCHITECT','MAGE','LEGEND'],
-    halo:   ['RECRUIT','MARINE','ODST','SPARTAN','COMMANDER','ADMIRAL','RECLAIMER'],
-    naruto: ['ACADEMY','GENIN','CHŪNIN','JONIN','ANBU','SENNIN','HOKAGE'],
+    voxel:     ['MINER','BUILDER','CRAFTER','REDSTONE','ARCHITECT','MAGE','LEGEND'],
+    neonnoir:   ['RECRUIT','MARINE','ODST','SPARTAN','COMMANDER','ADMIRAL','RECLAIMER'],
+    shinobi: ['ACADEMY','GENIN','CHŪNIN','JONIN','ANBU','SENNIN','HOKAGE'],
     fut:    ['SIGNAL','PULSE','NODE','NEXUS','CORE','APEX','SOVEREIGN'],
     bloom:  ['SEEDLING','SPROUT','BLOOM','FLOURISH','RADIANT','LUMINARY','ASCENDANT'],
     synth:  ['SIGNAL','CARRIER','WAVE','FREQUENCY','RESONANCE','OVERDRIVE','TRANSCEND']
@@ -18313,9 +18313,9 @@ function _streakTagline(n, es) {
   var thm = localStorage.getItem('fb_t') || 'fut';
   if (n === 0) {
     var z = {
-      halo:   es ? 'INICIALIZA TU PROTOCOLO'       : 'INITIALIZE YOUR PROTOCOL',
-      naruto: es ? 'EL CAMINO DEL NINJA COMIENZA'  : 'THE NINJA PATH BEGINS',
-      mc:     es ? '[NUEVA PARTIDA]'                : '[NEW GAME]',
+      neonnoir:   es ? 'INICIALIZA TU PROTOCOLO'       : 'INITIALIZE YOUR PROTOCOL',
+      shinobi: es ? 'EL CAMINO DEL NINJA COMIENZA'  : 'THE NINJA PATH BEGINS',
+      voxel:     es ? '[NUEVA PARTIDA]'                : '[NEW GAME]',
       bloom:  es ? 'PLANTA LA PRIMERA SEMILLA'      : 'PLANT THE FIRST SEED',
       synth:  es ? 'ACTIVA LA SEÑAL'                : 'ACTIVATE THE SIGNAL',
       fut:    es ? 'CALIBRA TU SISTEMA'             : 'CALIBRATE YOUR SYSTEM',
@@ -18328,9 +18328,9 @@ function _streakTagline(n, es) {
   if (n >= 14)  return es ? 'DOS SEMANAS SÓLIDAS'        : 'TWO SOLID WEEKS';
   if (n >= 7) {
     var w7 = {
-      halo:   es ? 'SEMANA PERFECTA · PROTOCOLO ACTIVO' : 'PERFECT WEEK · PROTOCOL ACTIVE',
-      naruto: es ? '一週間の修行完了'                     : 'ONE WEEK OF TRAINING COMPLETE',
-      mc:     es ? 'LOGRO: UNA SEMANA PERFECTA'         : 'ACHIEVEMENT: PERFECT WEEK',
+      neonnoir:   es ? 'SEMANA PERFECTA · PROTOCOLO ACTIVO' : 'PERFECT WEEK · PROTOCOL ACTIVE',
+      shinobi: es ? '一週間の修行完了'                     : 'ONE WEEK OF TRAINING COMPLETE',
+      voxel:     es ? 'LOGRO: UNA SEMANA PERFECTA'         : 'ACHIEVEMENT: PERFECT WEEK',
       bloom:  es ? 'UNA SEMANA EN PLENA FLORACIÓN'      : 'ONE WEEK IN FULL BLOOM',
     };
     return w7[thm] || (es ? 'UNA SEMANA PERFECTA' : 'A PERFECT WEEK');

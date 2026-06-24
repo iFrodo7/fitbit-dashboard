@@ -9,10 +9,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        minecraft: ['"Press Start 2P"', "monospace"],
-        halo: ['"Exo 2"', "sans-serif"],
-        naruto: ['"Noto Sans JP"', "sans-serif"],
-        futuristic: ["Orbitron", "sans-serif"],
+        voxel: ['"Press Start 2P"', "monospace"],
+        neonnoir: ['"Exo 2"', "sans-serif"],
+        shinobi: ['"Noto Sans JP"', "sans-serif"],
+        aether: ["Orbitron", "sans-serif"],
       },
       animation: {
         "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",

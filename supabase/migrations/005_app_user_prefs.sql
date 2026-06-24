@@ -33,7 +33,7 @@ CREATE TABLE public.app_user_prefs (
 
   -- ── T2: Preferencias UI ────────────────────────────────────────────────────
   lang               text,     -- 'es' | 'en'
-  theme              text,     -- 'mc' | 'halo' | 'naruto' | 'fut' | 'bloom'
+  theme              text,     -- 'voxel' | 'neonnoir' | 'shinobi' | 'fut' | 'bloom' | 'synth'
   seen_tour          boolean   DEFAULT false,  -- true si vio el tour en cualquier device
   welcomed           boolean   DEFAULT false,  -- true si pasó el welcome en cualquier device
   notif_pref         boolean   DEFAULT false,  -- opt-in a notificaciones push

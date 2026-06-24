@@ -1,6 +1,6 @@
 # Fitbit Air Dashboard
 
-Panel biométrico personal con 4 temas visuales (Minecraft, Halo, Naruto, Futuristic) y datos reales de Fitbit. PWA instalable en mobile y accesible vía web.
+Panel biométrico personal con 6 temas visuales (Voxel, Neon Noir, Shinobi, Aether, Bloom, Synthwave) y datos reales de Fitbit. PWA instalable en mobile y accesible vía web.
 
 > **🚨 MIGRACIÓN INMINENTE — lee `MIGRATION.md`:** El **Fitbit Web API se apaga en SEPTIEMBRE 2026** y TODA la app depende de él. Hay que migrar al **Google Health API**. La capa de datos **ya está blindada** con un adaptador único (`FitbitSource` / `HS` en `public/app.html`) → migrar = escribir `GoogleHealthSource` con la misma forma y cambiar `let HS = FitbitSource`. **Cualquier trabajo sobre datos/OAuth debe pasar por `HS`, nunca hardcodear URLs de Fitbit.** Fechas, costos (~$0) y checklist completo en **`MIGRATION.md`**.
 
@@ -67,14 +67,18 @@ capacitor.config.ts          ← Config app nativa (ver CAPACITOR.md)
 
 ## Sistemas dentro de `public/app.html`
 
-### 1. Temas (4 mundos)
+### 1. Temas (6 mundos)
+
+> Los IDs internos son genéricos (sin marcas registradas) — ver issue #67. No usar nombres de franquicias en código ni docs.
+
 | ID | Nombre | Acento (`--ta`) | Secundario (`--ta2`) | Fuente principal |
 |---|---|---|---|---|
-| `mc` | Minecraft | `#6aff3a` verde | `#ffaa00` amber | VT323 (pixel) |
-| `halo` | Neon Noir | `#ff2d78` pink | `#bd00ff` violet | IBM Plex Mono + Rajdhani (nums) |
-| `naruto` | Shinobi | `#4a6a84` steel | `#c0d0e0` silver | Noto Serif JP + Permanent Marker (títulos) |
-| `fut` | Futuristic | `#00f5ff` cyan | `#7b2fff` purple | IBM Plex Mono + Rajdhani (nums) |
+| `voxel` | Voxel | `#6aff3a` verde | `#ffaa00` amber | VT323 (pixel) |
+| `neonnoir` | Neon Noir | `#ff2d78` pink | `#bd00ff` violet | IBM Plex Mono + Rajdhani (nums) |
+| `shinobi` | Shinobi | `#4a6a84` steel | `#c0d0e0` silver | Noto Serif JP + Permanent Marker (títulos) |
+| `fut` | Aether | `#00f5ff` cyan | `#7b2fff` purple | IBM Plex Mono + Rajdhani (nums) |
 | `bloom` | Bloom | `#e85c8a` rose | `#c47fb5` mauve | Nunito |
+| `synth` | Synthwave | — | — | — |
 
 Cualquier feature nuevo debe usar las CSS vars (`--ta`, `--ta2`, `--tpos`, `--tneg`, `--sub`, `--bg`, `--bg2`, `--bdr`, `--cbg`, `--cbdr`, `--rbg`, `--txt`). Nunca hard-codear colores.
 

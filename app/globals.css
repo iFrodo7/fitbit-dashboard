@@ -11,8 +11,8 @@
     @apply antialiased;
   }
 
-  /* Minecraft pixel font */
-  [data-theme="minecraft"] {
+  /* Voxel pixel font */
+  [data-theme="voxel"] {
     image-rendering: pixelated;
   }
 
