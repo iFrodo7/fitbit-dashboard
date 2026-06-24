@@ -78,6 +78,13 @@ export async function POST(req: NextRequest) {
   try {
     const db = createServiceClient();
 
+    // Heartbeat de salud: marca que el webhook recibió datos REALES (este punto
+    // solo se alcanza tras pasar auth y NO ser un reto de verificación). Lo lee
+    // /api/health/sync para detectar si el sync se cayó. Best-effort.
+    db.from("system_health")
+      .upsert({ id: "gh_webhook_last", ts: new Date().toISOString() })
+      .then(() => {}, () => {});
+
     const { data: users } = await db
       .from("app_user_prefs")
       .select("email, gh_user_id")
