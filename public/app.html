@@ -15266,6 +15266,14 @@ async function loadReal(silentRefresh) {
       const el_rn=document.getElementById('hr-day-range'); if(el_rn) el_rn.textContent=(maxHR_real-(minHR_real<999?minHR_real:52))||'—';
       const st=Math.max(1,Math.floor(ds.length/48)); hrHist=ds.filter((_,i)=>i%st===0).slice(-48).map(d=>d.value); buildHRC(hrHist);
     }
+    // Clear stale/demo sleep values before populating — avoids showing yesterday's data
+    { const _c=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+      _c('sl-total-v','—');_c('sl-start-v','—');_c('sl-end-v','—');
+      _c('sl-score-v','—');_c('sl-eff-v','—');_c('sl-wake-v','—');
+      document.querySelectorAll('.slfi').forEach(e=>{e.style.width='0%';});
+      document.querySelectorAll('.sltm').forEach(e=>{e.textContent='—';});
+      const _sdot=document.getElementById('sleep-score-dot');if(_sdot)_sdot.style.left='0%';
+    }
     if (sl?.summary?.stages) updSl(sl.summary.stages);
     const _mainSl = sl?.sleep?.find(s=>s.isMainSleep) ?? sl?.sleep?.[0];
     renderHypnogram(_mainSl);
@@ -15280,6 +15288,10 @@ async function loadReal(silentRefresh) {
       const el_en=document.getElementById('sl-end-v'); if(el_en) el_en.textContent=_end;
       const _sc=parseInt(_mainSl.efficiency||84);
       const _dot=document.getElementById('sleep-score-dot'); if(_dot) _dot.style.left=Math.max(2,Math.min(_sc,98))+'%';
+    } else {
+      const _noMsg = lang==='es' ? 'SIN DATOS DE SUEÑO ESTA NOCHE' : 'NO SLEEP DATA TONIGHT';
+      const el_tot=document.getElementById('sl-total-v'); if(el_tot) el_tot.textContent=lang==='es'?'Sin datos':'No data';
+      const _he=document.getElementById('hypno-empty'); if(_he) _he.textContent='— '+_noMsg+' —';
     }
     // Whoop-style scores con datos reales
     const rhr_real = hr?.['activities-heart']?.[0]?.value?.restingHeartRate || 68;
