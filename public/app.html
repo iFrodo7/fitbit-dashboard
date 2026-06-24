@@ -1504,6 +1504,11 @@ body.t-fut .db-hdr{padding-top:14px;}
 }
 /* Bottom nav is always visible — give content room above it */
 .db-main{padding-bottom:calc(72px + env(safe-area-inset-bottom));}
+/* En modo demo, la barra fija .dstrip flota sobre la bottom-nav (~40px alto a
+   bottom:72px). Sin esto, tapa los valores del último contenido. La clase se
+   quita al conectar (cuando .dstrip desaparece). Vive en .db-main, no en body,
+   porque selectTheme reescribe body.className. */
+.db-main.demo-pad{padding-bottom:calc(124px + env(safe-area-inset-bottom));}
 /* Desktop: scale rings to fit narrow rw card column */
 @media(min-width:900px){
   .drw-row .dr-item{padding:0;}
@@ -3420,7 +3425,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
   </header>
 
   <!-- Main content -->
-  <main class="db-main" id="home-panel" role="tabpanel" aria-labelledby="tab-home">
+  <main class="db-main demo-pad" id="home-panel" role="tabpanel" aria-labelledby="tab-home">
     <div class="db-greet">
       <div>
         <div class="db-eye" id="g-eye">// ANÁLISIS BIOMÉTRICO ACTIVO</div>
@@ -13896,6 +13901,7 @@ async function loadRealGoogle(displayName, silentRefresh) {
     setText('stxt', T[lang].live);
     const dot = document.getElementById('sdot'); if (dot) { dot.style.background = '#00ff88'; dot.style.boxShadow = '0 0 8px #00ff88'; }
     const ds = document.getElementById('dstrip'); if (ds) ds.style.display = 'none';
+    var _dmH = document.getElementById('home-panel'); if (_dmH) _dmH.classList.remove('demo-pad');
     // Hide the connect button (same treatment as the Fitbit flow).
     const _bcBtn = document.getElementById('btn-connect'); if (_bcBtn) _bcBtn.style.display = 'none';
     // If name wasn't passed (e.g. page-reload path), try Google's userinfo endpoint
@@ -15346,6 +15352,7 @@ async function loadReal(silentRefresh) {
     loadHealthMetrics(h, td); // best-effort; populates SpO2/HRV/breathing from daily summaries
     loadWeekData(h).catch(function(){}); // best-effort — fetch 7-day time series for interactive bars
     isReal=true; setText('stxt',T[lang].live); const dot=document.getElementById('sdot'); dot.style.background='#00ff88'; dot.style.boxShadow='0 0 8px #00ff88'; document.getElementById('dstrip').style.display='none';
+    var _dmH2 = document.getElementById('home-panel'); if (_dmH2) _dmH2.classList.remove('demo-pad');
     const _bcBtn = document.getElementById('btn-connect'); if (_bcBtn) _bcBtn.style.display = 'none'; // hide Connect button
     closeModal(); startPoll(); showToast(T[lang].connected);
     try { _applyBioProfile(); } catch(e) {}
