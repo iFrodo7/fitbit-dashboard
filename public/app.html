@@ -5238,6 +5238,10 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           <div class="pv-rlbl" id="pv-ncat-recovery-lbl" style="opacity:0.72;font-size:11px;">RECUPERACIÓN</div>
           <button class="pv-toggle" id="pv-ncat-recovery-toggle" onclick="toggleNotifCat('recovery')" aria-label="toggle recovery notifications"></button>
         </div>
+        <div class="pv-row" style="padding-top:6px;padding-bottom:6px;">
+          <div class="pv-rlbl" id="pv-ncat-open-lbl" style="opacity:0.72;font-size:11px;">RACHA DE USO</div>
+          <button class="pv-toggle" id="pv-ncat-open-toggle" onclick="toggleNotifCat('open')" aria-label="toggle app-streak notifications"></button>
+        </div>
       </div>
       <div class="pv-row">
         <div class="pv-rlbl" id="pv-cyc-lbl">SEGUIMIENTO DE CICLO</div>
@@ -5750,7 +5754,7 @@ const T = {
     pv_sec_sync: 'SINCRONIZACIÓN',
     pv_interval_lbl: 'INTERVALO',
     pv_notif_lbl: 'NOTIFICACIONES',
-    pv_ncat_achv: 'LOGROS', pv_ncat_streak: 'RACHA', pv_ncat_recovery: 'RECUPERACIÓN',
+    pv_ncat_achv: 'LOGROS', pv_ncat_streak: 'RACHA', pv_ncat_recovery: 'RECUPERACIÓN', pv_ncat_open: 'RACHA DE USO',
     pv_lastsync_lbl: 'ÚLTIMA SYNC',
     pv_sec_info: 'INFORMACIÓN',
     pv_version_lbl: 'VERSIÓN',
@@ -6024,7 +6028,7 @@ const T = {
     pv_sec_sync: 'SYNC',
     pv_interval_lbl: 'INTERVAL',
     pv_notif_lbl: 'NOTIFICATIONS',
-    pv_ncat_achv: 'ACHIEVEMENTS', pv_ncat_streak: 'STREAK', pv_ncat_recovery: 'RECOVERY',
+    pv_ncat_achv: 'ACHIEVEMENTS', pv_ncat_streak: 'STREAK', pv_ncat_recovery: 'RECOVERY', pv_ncat_open: 'APP STREAK',
     pv_lastsync_lbl: 'LAST SYNC',
     pv_sec_info: 'INFO',
     pv_version_lbl: 'VERSION',
@@ -6163,7 +6167,7 @@ function setLang(l, _skipSync) {
   setText('pv-connect-btn', t.pv_connect_btn); setText('pv-disconnect-btn', t.pv_disconnect_btn);
   setText('pv-sec-appearance', t.pv_sec_appearance); setText('pv-theme-lbl', t.pv_theme_lbl); setText('pv-lang-lbl', t.pv_lang_lbl);
   setText('pv-sec-sync', t.pv_sec_sync); setText('pv-interval-lbl', t.pv_interval_lbl); setText('pv-notif-lbl', t.pv_notif_lbl); setText('pv-cyc-lbl', t.cyc_on_lbl);
-  setText('pv-ncat-achv-lbl', t.pv_ncat_achv); setText('pv-ncat-streak-lbl', t.pv_ncat_streak); setText('pv-ncat-recovery-lbl', t.pv_ncat_recovery);
+  setText('pv-ncat-achv-lbl', t.pv_ncat_achv); setText('pv-ncat-streak-lbl', t.pv_ncat_streak); setText('pv-ncat-recovery-lbl', t.pv_ncat_recovery); setText('pv-ncat-open-lbl', t.pv_ncat_open);
   setText('pv-lastsync-lbl', t.pv_lastsync_lbl);
   setText('pv-sec-info', t.pv_sec_info); setText('pv-version-lbl', t.pv_version_lbl);
   setText('pv-privacy-lbl', t.pv_privacy_lbl); setText('pv-privacy-link', t.pv_privacy_link);
@@ -12966,7 +12970,8 @@ function updateDailyRings() {
     // "Meta cumplida" (issue #68): notifica 1/día al cruzar la meta del día.
     if (typeof notifCheckGoalMet === 'function') notifCheckGoalMet(steps, ag.stp, _ss);
     // Sube la señal derivada para que el cron decida racha en riesgo / resumen matutino.
-    if (typeof _pushNotifSignal === 'function') _pushNotifSignal(steps, ag.stp, _ss);
+    window._sigInputs = { steps: steps, goal: ag.stp, streak: _ss };
+    if (typeof _pushNotifSignal === 'function') _pushNotifSignal();
     var _sse=document.getElementById('steps-streak-val');
     // Show "90+" with disclaimer if streak hit the 90-day init cap and hasn't grown past it yet
     var _isCapped = _strStored.capped && _ss <= 90;
@@ -15211,6 +15216,12 @@ document.addEventListener('visibilitychange', function() {
     }
   }
 });
+// Racha de uso: cuenta la apertura al cargar y cada vez que la app vuelve a primer
+// plano. Aperturas reales del usuario — NO los wakes silenciosos del webhook.
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden && typeof _recordAppOpen === 'function') _recordAppOpen();
+});
+if (document.visibilityState !== 'hidden' && typeof _recordAppOpen === 'function') _recordAppOpen();
 async function loadReal(silentRefresh) {
   if (silentRefresh) {
     document.documentElement.removeAttribute('data-booting');
@@ -15648,18 +15659,12 @@ function toggleNotifCat(cat) {
   var on = notifCatEnabled(cat);
   try { localStorage.setItem('fb_notif_cat_' + cat, on ? '0' : '1'); } catch(e) {}
   _syncNotifCatUI();
-  try {
-    if (typeof _supabasePrefsWrite === 'function' && window._notifSigT) {
-      window._notifSigT.cats[cat] = !on;
-      window._notifSigT.updatedAt = Date.now();
-      _supabasePrefsWrite({ notif_signal: window._notifSigT }).catch(function(){});
-    }
-  } catch(e) {}
+  if (typeof _pushNotifSignal === 'function') _pushNotifSignal(); // refleja cats en la señal
 }
 function _syncNotifCatUI() {
   var box = document.getElementById('pv-notif-cats');
   if (box) box.style.display = notifPref() ? 'block' : 'none';
-  ['achv','streak','recovery'].forEach(function(cat) {
+  ['achv','streak','recovery','open'].forEach(function(cat) {
     var t = document.getElementById('pv-ncat-' + cat + '-toggle');
     if (t) t.classList.toggle('on', notifCatEnabled(cat));
   });
@@ -15830,33 +15835,51 @@ function notifCheckGoalMet(steps, goal, streak) {
 // Sube a Supabase SOLO datos derivados (sin pasos crudos): booleano goalMet,
 // racha, pasos restantes aprox (bucketed), recovery y sueño. El cron la lee para
 // decidir resumen matutino / racha en riesgo según la hora local del usuario.
-function _buildNotifSignal(steps, goal, streak) {
-  steps = parseInt(steps, 10) || 0;
-  goal  = parseInt(goal, 10)  || 0;
+function _buildNotifSignal() {
+  var si = window._sigInputs || {};
+  var steps = parseInt(si.steps, 10) || 0;
+  var goal  = parseInt(si.goal, 10)  || 0;
   var rem = Math.max(0, goal - steps);
   rem = Math.round(rem / 10) * 10; // bucketed → "aprox", solo para el copy
   var rec = (typeof window._lastRec === 'number' && window._lastRec > 0) ? Math.round(window._lastRec) : null;
   var slp = (window._lastScoreOpts && parseInt(window._lastScoreOpts.sleepMin, 10)) || null;
+  var os = {}; try { os = JSON.parse(localStorage.getItem('fb_open_streak') || '{}'); } catch(e) {}
   return {
     date: _localDateStr(),
     tzOffset: new Date().getTimezoneOffset(),
     goalMet: goal > 0 && steps >= goal,
-    streak: parseInt(streak, 10) || 0,
+    streak: parseInt(si.streak, 10) || 0,
     stepsRemaining: rem,
     recovery: rec,
     sleepMin: slp,
-    cats: { achv: notifCatEnabled('achv'), streak: notifCatEnabled('streak'), recovery: notifCatEnabled('recovery') },
+    openStreak: parseInt(os.count, 10) || 0,
+    lastOpenDate: os.lastDate || '',
+    cats: { achv: notifCatEnabled('achv'), streak: notifCatEnabled('streak'), recovery: notifCatEnabled('recovery'), open: notifCatEnabled('open') },
     updatedAt: Date.now()
   };
 }
 // Debounced — no spamear Supabase en cada poll. Solo si el usuario activó notifs.
-function _pushNotifSignal(steps, goal, streak) {
+function _pushNotifSignal() {
   if (!notifPref() || typeof _supabasePrefsWrite !== 'function') return;
-  window._notifSigT = _buildNotifSignal(steps, goal, streak);
+  window._notifSigT = _buildNotifSignal();
   if (window._notifSigTimer) clearTimeout(window._notifSigTimer);
   window._notifSigTimer = setTimeout(function() {
     _supabasePrefsWrite({ notif_signal: window._notifSigT }).catch(function(){});
   }, 4000);
+}
+// Racha de USO: días consecutivos abriendo la app. Solo cuenta aperturas reales
+// (load / volver a primer plano), nunca los wakes del webhook en 2º plano. El cron
+// usa esto para el recordatorio ingenioso de "no pierdas tu racha de días abriendo".
+function _recordAppOpen() {
+  var today = _localDateStr();
+  var os = {}; try { os = JSON.parse(localStorage.getItem('fb_open_streak') || '{}'); } catch(e) {}
+  if (os.lastDate === today) return; // ya contado hoy
+  var y = new Date(); y.setDate(y.getDate() - 1);
+  var yest = _localDateStr(y);
+  os.count = (os.lastDate === yest) ? (parseInt(os.count, 10) || 0) + 1 : 1;
+  os.lastDate = today;
+  try { localStorage.setItem('fb_open_streak', JSON.stringify(os)); } catch(e) {}
+  if (typeof _pushNotifSignal === 'function') _pushNotifSignal(); // refleja en la señal
 }
 
 // ══════════════════════════════════════════════════════════════════════

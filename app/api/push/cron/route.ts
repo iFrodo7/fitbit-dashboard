@@ -91,6 +91,7 @@ export async function GET(request: NextRequest) {
         date: localDate,
         morningSent: prev.morningSent || decision.kind === "morning",
         streakSent: prev.streakSent || decision.kind === "streak",
+        openSent: prev.openSent || decision.kind === "open",
       };
       await db.from("app_user_prefs").update({ notif_state: next }).eq("email", email);
     }
