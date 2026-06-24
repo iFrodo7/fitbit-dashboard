@@ -9686,6 +9686,15 @@ async function loadWeekDataGoogle() {
       if (_d7 && _goalMetForDate(_d7.date, _d7.steps, _strGoal7)) _wkStr7++;
       else break;
     }
+    // Count consecutive goal-met days through YESTERDAY (excludes today — avoids penalizing
+    // mid-day open when goal isn't reached yet). Used as anti-inflation cap: if _yStr7 < 6,
+    // there's a confirmed break in recent days and the window count is authoritative.
+    var _yStr7 = 0;
+    for (var _yi7 = 5; _yi7 >= 0; _yi7--) {
+      if (days[_yi7] && _goalMetForDate(days[_yi7].date, days[_yi7].steps, _strGoal7)) _yStr7++;
+      else break;
+    }
+    var _winMax = 0; // confirmed max the window can prove (set inside try after _tmMet)
 
     // 2. Read & update fb_streak_steps — the only source that grows beyond 7 days
     var _persistedStreak = 0;
@@ -9698,6 +9707,7 @@ async function loadWeekDataGoogle() {
       // _tmMet now reads the patched value (FIX #2): primary endpoint steps > dailyRollUp steps.
       // Prefers today's recorded goalMet (real goal for today) over the flat fb_steps_goal.
       var _tmMet = _goalMetForDate(_t7, (days[6] && days[6].steps) || 0, _strGoal7);
+      _winMax = _yStr7 + (_tmMet ? 1 : 0);
       var _pNew  = 0;
       var _pdNew = '';
 
@@ -9749,6 +9759,9 @@ async function loadWeekDataGoogle() {
             //   gap=1,  tmMet → _pc + 0 + 1 = _pc+1 (extend by today)
             //   gap=2, !tmMet → _pc + 1 + 0 = _pc+1 (extend by verified yesterday)
             _pNew  = _pc + (_gap - 1) + (_tmMet ? 1 : 0);
+            // Anti-inflation: if window shows a confirmed break in recent days,
+            // cap the stored count so a stale _pc can't keep inflating the streak.
+            if (_yStr7 < 6) _pNew = Math.min(_pNew, _winMax);
             _pdNew = _tmMet ? _t7 : _y7;
           } else {
             // Real break found in the visible window — reset to confirmed count
@@ -9864,7 +9877,11 @@ async function loadWeekDataGoogle() {
     var _dbStr7 = 0;
     try { _dbStr7 = (typeof _getStepGoalStreak === 'function' ? _getStepGoalStreak() : 0) || 0; } catch(e2) {}
 
-    window._wkTodayStreakReal = Math.max(_wkStr7, _dbStr7, _persistedStreak);
+    // When window shows a confirmed break (< 6 days through yesterday), trust the window
+    // over any stale persisted value — prevents an old inflated count from surviving a break.
+    window._wkTodayStreakReal = _yStr7 < 6
+      ? _winMax
+      : Math.max(_wkStr7, _dbStr7, _persistedStreak);
     // FIX #17: populate prev-streak window vars from localStorage for wkBarSel.
     // Covers page-refresh and the _pd===_t7 fast-path (no write happens there).
     if (!window._wkPrevStreakCount) {
