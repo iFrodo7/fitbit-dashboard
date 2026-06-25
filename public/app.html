@@ -14237,7 +14237,7 @@ async function loadRealGoogleData(silentRefresh) {
     _ghGet(GoogleHealthSource.ep.exerciseSessions(after7, nd)),
     _ghPost(`${B}/users/me/dataTypes/distance/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
     _ghPost(`${B}/users/me/dataTypes/floors/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
-    _ghGet(`${B}/users/me/dataTypes/daily-sleep-score/dataPoints?pageSize=1`),
+    _ghGet(`${B}/users/me/dataTypes/daily-sleep-score/dataPoints?filter=${enc('daily_sleep_score.time.civil_time >= "'+yd+'" AND daily_sleep_score.time.civil_time < "'+nd+'"')}&pageSize=2`),
   ]);
   console.log('[gh raw]', {hrD,rhrD,stD,slD,calD,azD});
   let rhr_v=65, maxHR_v=0;
@@ -14388,13 +14388,18 @@ async function loadRealGoogleData(silentRefresh) {
     const wakeSegs=(_slObj.stages||[]).filter(s=>_typeKey(s)==='wake').length;
     const el_wk=document.getElementById('sl-wake-v'); if(el_wk) el_wk.textContent=wakeSegs||'—';
     // Sleep score: try dedicated endpoint first, then fields in sleep data, then compute
-    const _apiScore = slScoreD?.dataPoints?.[0]?.dailySleepScore?.overallScore
-      ?? slScoreD?.dataPoints?.[0]?.sleepScore
-      ?? slScoreD?.dataPoints?.[0]?.score
+    const _sdp0 = slScoreD?.dataPoints?.[0];
+    const _apiScore = _sdp0?.dailySleepScore?.overallScore
+      ?? _sdp0?.dailySleepScore?.score
+      ?? _sdp0?.sleepScore?.overallScore
+      ?? _sdp0?.sleepScore?.score
+      ?? _sdp0?.sleepScore
+      ?? _sdp0?.score
+      ?? _sdp0?.overall_score
       ?? slDP?.sleepScore ?? slDP?.overallSleepScore
       ?? _slObj.summary?.overallSleepScore ?? _slObj.summary?.sleepScore
       ?? _slObj.sleepScore ?? _slObj.score;
-    console.log('[gh sleep score] api:', _apiScore, 'slScoreD:', JSON.stringify(slScoreD?.dataPoints?.[0]));
+    console.log('[gh sleep score] api:', _apiScore, 'raw slScoreD[0]:', JSON.stringify(_sdp0));
     const _computedScore = sleepMin > 0 ? Math.min(100,
       Math.min(40, Math.round(sleepMin / 420 * 40)) +                  // duration (7h=max)
       Math.round((deepMin + remMin) / Math.max(sleepMin, 1) * 40) +    // stages quality
