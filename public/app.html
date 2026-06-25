@@ -392,6 +392,9 @@ body.sheet-lock{overflow:hidden;}
 .db-hdr{
   display:flex;align-items:center;justify-content:space-between;
   padding:14px 20px;padding-top:calc(14px + var(--sat));position:sticky;top:0;z-index:100;
+  background:color-mix(in srgb,var(--bg) 90%,transparent);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(255,255,255,0.05);
 }
 .db-main{padding:14px 20px;max-width:1600px;margin:0 auto;position:relative;z-index:1;}
 
@@ -2740,15 +2743,15 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .cal-split.cs-fill .cal-box-val{font-size:28px;margin:0;line-height:1;}
 .cal-split.cs-fill .cal-box-unit{margin-top:0;}
 .cal-box{background:var(--rbg);padding:8px 10px;}
-.cal-box-lbl{font-size:9px;letter-spacing:2px;opacity:0.35;text-transform:uppercase;}
+.cal-box-lbl{font-size:9px;letter-spacing:2px;opacity:0.5;text-transform:uppercase;}
 .cal-box-val{font-size:18px;font-weight:700;color:var(--ta);margin-top:2px;line-height:1;}
-.cal-box-unit{font-size:9px;opacity:0.3;letter-spacing:1px;margin-top:2px;}
+.cal-box-unit{font-size:9px;opacity:0.45;letter-spacing:1px;margin-top:2px;}
 .cal-bars{margin-top:10px;display:flex;flex-direction:column;gap:7px;}
 .cal-bar-row{display:flex;align-items:center;gap:8px;}
-.cal-bar-lbl{font-size:9px;letter-spacing:2px;opacity:0.35;width:50px;flex-shrink:0;text-transform:uppercase;}
+.cal-bar-lbl{font-size:9px;letter-spacing:2px;opacity:0.5;width:50px;flex-shrink:0;text-transform:uppercase;}
 .cal-bar-trk{flex:1;height:3px;background:var(--rbg);overflow:hidden;}
 .cal-bar-fil{height:100%;transition:width 1.2s var(--ease-std);}
-.cal-bar-val{font-size:9px;opacity:0.35;width:32px;text-align:right;flex-shrink:0;}
+.cal-bar-val{font-size:9px;opacity:0.45;width:32px;text-align:right;flex-shrink:0;}
 
 /* Chakra pulse rings */
 .nring{position:fixed;border-radius:50%;pointer-events:none;z-index:0;border:1px solid rgba(255,69,0,0.055);animation:cpls 5s ease-in-out infinite;}
@@ -4341,7 +4344,7 @@ body.t-synth::after{content:'';position:fixed;inset:0;
           </div>
         </div>
         <div class="vc" id="hrv-card" data-onb="hrv">
-          <div class="vc-head"><span class="vlbl" id="lbl-hrv">// HRV NOCTURNO</span><div style="display:flex;align-items:center;gap:6px;"><span id="hrv-trd" style="font-size:11px;color:var(--tpos);font-weight:700;">↑ +6</span><button class="onb-q" onclick="showOnb('hrv')" aria-label="info">?</button></div></div>
+          <div class="vc-head"><span class="vlbl" id="lbl-hrv">// HRV NOCT.</span><div style="display:flex;align-items:center;gap:6px;"><span id="hrv-trd" style="font-size:11px;color:var(--tpos);font-weight:700;">↑ +6</span><button class="onb-q" onclick="showOnb('hrv')" aria-label="info">?</button></div></div>
           <div style="display:flex;align-items:baseline;gap:6px;margin-top:4px;">
             <div class="vval" id="hrvv">48</div>
             <span style="font-size:11px;opacity:0.45;letter-spacing:1px;">MS</span>
@@ -5560,7 +5563,7 @@ const T = {
     u_stress: '/ 100 — BAJO',
     lbl_cal: '// CALORÍAS',
     u_cal: 'KCAL ACTIVAS',
-    lbl_hrv: '// HRV NOCTURNO',
+    lbl_hrv: '// HRV NOCT.',
     lbl_steps: '// ACTIVIDAD DIARIA — PASOS',
     goal_lbl: '/ 10,000 OBJETIVO',
     pct_lbl: '78.4% COMPLETADO HOY',
@@ -5835,7 +5838,7 @@ const T = {
     u_stress: '/ 100 — LOW',
     lbl_cal: '// CALORIES',
     u_cal: 'ACTIVE KCAL',
-    lbl_hrv: '// OVERNIGHT HRV',
+    lbl_hrv: '// HRV NOCT.',
     lbl_steps: '// DAILY ACTIVITY — STEPS',
     goal_lbl: '/ 10,000 GOAL',
     pct_lbl: '78.4% COMPLETED TODAY',
