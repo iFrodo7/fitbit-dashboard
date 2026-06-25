@@ -20,11 +20,14 @@ export async function GET() {
       .eq("id", "gh_webhook_last")
       .single();
 
-    if (error || !data?.ts) {
-      return NextResponse.json(
-        { healthy: false, reason: "sin latido todavía (¿migración 015 aplicada? ¿webhook recibió algo?)" },
-        { status: 503 }
-      );
+    // "Aún no configurado" (migración 015 pendiente o sin primer latido) NO es una
+    // caída → 200 para no disparar falsas alarmas. El 503 se reserva para un latido
+    // que SÍ existió pero quedó viejo (caída real y accionable).
+    if (error) {
+      return NextResponse.json({ healthy: true, configured: false, reason: "system_health no disponible (¿migración 015?)" });
+    }
+    if (!data?.ts) {
+      return NextResponse.json({ healthy: true, configured: false, reason: "sin latido todavía (el webhook no ha recibido datos)" });
     }
 
     const ageHours = +((Date.now() - new Date(data.ts).getTime()) / 3_600_000).toFixed(1);
