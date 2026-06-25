@@ -2561,8 +2561,11 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .vc-bpm-row{display:flex;align-items:baseline;gap:6px;margin:4px 0 0;}
 .vc-bpm{font-size:38px;font-weight:700;line-height:1;color:var(--ta);}
 .vc-bpm-unit{font-size:11px;letter-spacing:2px;opacity:0.4;}
-.vc-pulse{width:7px;height:7px;border-radius:50%;background:var(--tneg);flex-shrink:0;animation:vc-pulse 0.88s ease-in-out infinite;}
+.vc-pulse{width:7px;height:7px;border-radius:50%;background:var(--tneg);flex-shrink:0;animation:vc-pulse var(--hr-beat,0.88s) ease-in-out infinite;}
 @keyframes vc-pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(0.5);opacity:0.35;}}
+/* El pulso representa el ritmo: late al BPM actual (period=60/bpm, fijado por JS
+   en --hr-beat). No son latidos en vivo (el dato es por poll). */
+@media (prefers-reduced-motion: reduce){ .vc-pulse{animation:none;opacity:0.55;} }
 .vc-spark{margin:8px 0 0;}
 .vc-spark svg{width:100%;height:26px;overflow:visible;display:block;}
 .vc-pills{display:flex;gap:6px;margin-top:8px;}
@@ -15806,6 +15809,34 @@ async function notifCheckRHR(rhr) {
   }
 }
 function notifMarkSync() { window._notifState.lastSync = Date.now(); }
+
+// ── Pulso de FC al ritmo del BPM actual ─────────────────────────────────────
+// El punto rojo del widget de Frecuencia Cardíaca late a la velocidad de la
+// lectura mostrada (#hrv): period = 60/bpm. NO son latidos en vivo (los datos
+// llegan por poll cada 15-120s); es un pulso representativo anclado al número
+// real → reposo = calmado, esfuerzo = rápido. Clamp 40-176 bpm para evitar
+// parpadeos absurdos. prefers-reduced-motion lo apaga (en CSS).
+function _syncHrPulse() {
+  var dot = document.getElementById('hr-pulse');
+  var valEl = document.getElementById('hrv');
+  if (!dot || !valEl) return;
+  var bpm = parseInt((valEl.textContent || '').replace(/\D/g, ''), 10);
+  if (!bpm || bpm < 30 || bpm > 220) { dot.style.setProperty('--hr-beat', '0.88s'); return; }
+  var dur = Math.max(0.34, Math.min(1.5, 60 / bpm));
+  dot.style.setProperty('--hr-beat', dur.toFixed(3) + 's');
+}
+function _initHrPulse() {
+  var valEl = document.getElementById('hrv');
+  if (!valEl || window._hrPulseObs) return;
+  var t = null;
+  window._hrPulseObs = new MutationObserver(function() {
+    clearTimeout(t); t = setTimeout(_syncHrPulse, 200); // debounce: el count-up del demo cambia el texto muchas veces
+  });
+  window._hrPulseObs.observe(valEl, { childList: true, characterData: true, subtree: true });
+  _syncHrPulse();
+}
+if (document.readyState !== 'loading') _initHrPulse();
+else window.addEventListener('DOMContentLoaded', _initHrPulse);
 
 // ── "Meta cumplida" (issue #68, notif #1) ───────────────────────────────────
 // Dispara UNA sola vez al cruzar la meta de pasos del día. La detección es
