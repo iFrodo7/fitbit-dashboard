@@ -1,0 +1,35 @@
+name: Renovar webhook de Google Health
+
+# Re-registra el subscriber `aira-webhook` periódicamente para que no se quede
+# "stale" y deje de entregar (como pasó el 2026-06-24). Usa --recreate (DELETE +
+# create) porque el subscriber roto sigue existiendo y un simple create daría 409.
+# Gratis y sin depender del plan de Vercel (corre en GitHub Actions).
+#
+# Requiere dos GitHub Secrets (Settings → Secrets and variables → Actions):
+#   GH_SA_KEY          → contenido completo del JSON de la service account
+#   GH_WEBHOOK_SECRET  → mismo valor que la env var en Vercel
+
+on:
+  schedule:
+    - cron: '0 9 * * *'   # diario ~09:00 UTC
+  workflow_dispatch: {}    # permite ejecutarlo a mano desde la pestaña Actions
+
+jobs:
+  renew:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Escribir la SA key desde el secret
+        run: printf '%s' "$GH_SA_KEY" > scripts/gh-sa-key.json
+        env:
+          GH_SA_KEY: ${{ secrets.GH_SA_KEY }}
+      - name: Recrear el subscriber del webhook
+        run: node scripts/register-gh-webhook.mjs --recreate
+        env:
+          GH_WEBHOOK_SECRET: ${{ secrets.GH_WEBHOOK_SECRET }}
+      - name: Borrar la SA key del runner
+        if: always()
+        run: rm -f scripts/gh-sa-key.json

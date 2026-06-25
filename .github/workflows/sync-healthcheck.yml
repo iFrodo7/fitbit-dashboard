@@ -1,0 +1,24 @@
+name: Health-check del sync de Google Health
+
+# Revisa cada 6h que el webhook siga recibiendo datos. Si /api/health/sync
+# devuelve 503 (sin datos hace >24h = sync caído), este job FALLA y GitHub te
+# manda email de "workflow failed" — así te enteras tú antes que los usuarios.
+# Para una alerta más fuerte, añade un paso que haga POST a un webhook de Discord/Slack.
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # cada 6 horas
+  workflow_dispatch: {}      # correr a mano desde la pestaña Actions
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ¿El webhook sigue recibiendo datos?
+        run: |
+          echo "Consultando /api/health/sync ..."
+          body=$(curl --fail --show-error --silent https://fitbit-dashboard-zeta.vercel.app/api/health/sync) || {
+            echo "::error::Sync de Google Health CAÍDO — el webhook no recibe datos hace >24h. Revisa el subscriber (scripts/register-gh-webhook.mjs --recreate)."
+            exit 1
+          }
+          echo "OK: $body"
