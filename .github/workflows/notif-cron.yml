@@ -1,0 +1,26 @@
+name: Cron de notificaciones push
+
+on:
+  schedule:
+    - cron: '0 * * * *'   # cada hora en punto (GitHub puede retrasarse 1-3 min)
+  workflow_dispatch: {}    # disparo manual desde la UI para probar
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Llamar al endpoint de notificaciones
+        run: |
+          echo "Disparando tick de notificaciones..."
+          response=$(curl --fail --show-error --silent --write-out "\n%{http_code}" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            https://fitbit-dashboard-zeta.vercel.app/api/push/cron)
+          body=$(echo "$response" | head -n -1)
+          code=$(echo "$response" | tail -n 1)
+          echo "HTTP $code — $body"
+          if [ "$code" != "200" ]; then
+            echo "::error::El cron respondió HTTP $code"
+            exit 1
+          fi
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
