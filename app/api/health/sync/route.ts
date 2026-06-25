@@ -14,11 +14,12 @@ const STALE_HOURS = 24;
 export async function GET() {
   try {
     const db = createServiceClient();
+    // maybeSingle: 0 filas → data null SIN error (single() lanzaría error con tabla vacía).
     const { data, error } = await db
       .from("system_health")
       .select("ts")
       .eq("id", "gh_webhook_last")
-      .single();
+      .maybeSingle();
 
     // "Aún no configurado" (migración 015 pendiente o sin primer latido) NO es una
     // caída → 200 para no disparar falsas alarmas. El 503 se reserva para un latido
