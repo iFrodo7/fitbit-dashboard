@@ -12,3 +12,7 @@ CREATE TABLE IF NOT EXISTS public.system_health (
   id text PRIMARY KEY,
   ts timestamptz NOT NULL DEFAULT now()
 );
+
+-- RLS activado SIN políticas: el server (service role) la escribe/lee saltándose
+-- RLS; las llaves anon/authenticated del cliente quedan bloqueadas (tabla solo-server).
+ALTER TABLE public.system_health ENABLE ROW LEVEL SECURITY;
