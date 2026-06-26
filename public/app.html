@@ -14227,7 +14227,7 @@ async function loadRealGoogleData(silentRefresh) {
   //   • steps & AZM list returns per-minute samples that many devices never write;
   //     dailyRollUp always returns the pre-aggregated daily total.
   const _rollupBody = (start,end) => ({range:{start:_parseCivilDate(start),end:_parseCivilDate(end)},windowSizeDays:1});
-  const [hrD,rhrD,stD,slD,calD,azD,exD,distD,flrD,slScoreD] = await Promise.all([
+  const [hrD,rhrD,stD,slD,calD,azD,exD,distD,flrD,slScoreD,stRtD] = await Promise.all([
     _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=1440`),
     _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?pageSize=1`),
     _ghPost(`${B}/users/me/dataTypes/steps/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
@@ -14238,6 +14238,7 @@ async function loadRealGoogleData(silentRefresh) {
     _ghPost(`${B}/users/me/dataTypes/distance/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
     _ghPost(`${B}/users/me/dataTypes/floors/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
     _ghGet(`${B}/users/me/dataTypes/daily-sleep-score/dataPoints?filter=${enc('daily_sleep_score.time.civil_time >= "'+yd+'" AND daily_sleep_score.time.civil_time < "'+nd+'"')}&pageSize=2`),
+    _ghGet(`${B}/users/me/dataTypes/steps/dataPoints?filter=${enc('steps.time.civil_time >= "'+td+'" AND steps.time.civil_time < "'+nd+'"')}&pageSize=2000`).catch(()=>null),
   ]);
   console.log('[gh raw]', {hrD,rhrD,stD,slD,calD,azD});
   let rhr_v=65, maxHR_v=0;
@@ -14290,20 +14291,37 @@ async function loadRealGoogleData(silentRefresh) {
     const e=document.getElementById('hr-rest'); if(e) e.textContent=rhr_v;
   } else { const e=document.getElementById('hr-rest'); if(e) e.textContent='—'; }
   if (!maxHR_v) { const e=document.getElementById('hr-max'); if(e) e.textContent='—'; }
-  // dailyRollUp returns rollupDataPoints[0] with the day's aggregate.
-  // Field name variants: API may use camelCase (countSum) or snake_case (count_sum).
+  // Steps: try real-time dataPoints from Fitbit Air source first (no lag),
+  // fallback to dailyRollUp (15-30 min lag) if no Fitbit source found or endpoint fails.
   let stepsToday = 0;
-  if (stD?.rollupDataPoints?.length) {
+  if (stRtD?.dataPoints?.length) {
+    const _fitbitDps = stRtD.dataPoints.filter(function(dp) {
+      var src = (dp.dataOrigin?.streamIdentifier || dp.dataOrigin?.packageName || dp.origin?.streamIdentifier || '').toLowerCase();
+      return src.includes('fitbit');
+    });
+    if (_fitbitDps.length) {
+      stepsToday = _fitbitDps.reduce(function(sum, dp) {
+        return sum + (parseInt(dp.steps?.count ?? dp.steps?.countSum ?? dp.count ?? 0) || 0);
+      }, 0);
+      console.log('[gh steps rt] Fitbit Air:', stepsToday, 'pasos,', _fitbitDps.length, 'muestras');
+    } else {
+      console.log('[gh steps rt] sin muestras de Fitbit — usando rollup. Sources:', [...new Set(stRtD.dataPoints.map(d=>d.dataOrigin?.streamIdentifier||'?'))]);
+    }
+  }
+  // Fallback to dailyRollUp
+  if (!stepsToday && stD?.rollupDataPoints?.length) {
     const _sdp=stD.rollupDataPoints[0];
     stepsToday=parseInt(_sdp?.steps?.countSum??_sdp?.steps?.count_sum??_sdp?.steps?.count??0)||0;
+    console.log('[gh steps rollup fallback]', stepsToday);
+  }
+  // Don't call renderAiraInsights here — window._lastRec not set yet at this
+  // point in the flow. The call at the end of loadRealGoogleData() handles it.
+  if (stepsToday > 0) {
     document.getElementById('stepsv').textContent=stepsToday.toLocaleString('en-US');
     const pct=Math.min((stepsToday/_loadDRGoals().stp)*100,100);
     document.getElementById('stepsprog').style.width=pct+'%';
     document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY');
-    // Don't call renderAiraInsights here — window._lastRec not set yet at this
-    // point in the flow. The call at the end of loadRealGoogleData() handles it.
   } else {
-    // No steps data yet — clear HTML demo values so rings show "—" not fake progress
     document.getElementById('stepsv').textContent='0';
     document.getElementById('stepsprog').style.width='0%';
     document.getElementById('stepspct').textContent=lang==='es'?'0.0% COMPLETADO HOY':'0.0% COMPLETED TODAY';
