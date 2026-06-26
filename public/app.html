@@ -14045,6 +14045,34 @@ function _ghSleepEndInfo(dp) {
   }
   return null;
 }
+// Fecha local (YYYY-MM-DD) de un dataPoint daily-* de Google Health. Busca en el
+// dataPoint y sus objetos hijos un civilStartTime/civilEndTime ({date}) o un
+// startTime/endTime ISO. Devuelve null si no encuentra fecha.
+function _ghPointDateStr(dp) {
+  if (!dp || typeof dp!=='object') return null;
+  var objs=[dp];
+  for (var k in dp) { if (dp[k] && typeof dp[k]==='object') objs.push(dp[k]); }
+  for (var i=0;i<objs.length;i++){
+    var o=objs[i]; if(!o||typeof o!=='object') continue;
+    var iv=o.interval||o;
+    var ct=iv.civilEndTime||iv.civilStartTime||o.civilEndTime||o.civilStartTime;
+    if (ct && ct.date && ct.date.year) return ct.date.year+'-'+String(ct.date.month).padStart(2,'0')+'-'+String(ct.date.day).padStart(2,'0');
+    var iso=iv.endTime||iv.startTime||o.endTime||o.startTime;
+    if (iso && typeof iso==='string'){ var d=new Date(iso); if(!isNaN(d)) return _localDateStr(d); }
+  }
+  return null;
+}
+// True si el dataPoint es de HOY o AYER (dato fresco). Las métricas derivadas del
+// sueño (RHR/HRV/SpO2/respiración/temp) se piden con pageSize=1 sin filtro de fecha,
+// así que sin este guard mostrarían el último registro aunque sea de hace días.
+// Sin fecha detectable → true (fail-open) para no ocultar datos válidos por error.
+function _ghIsFreshPoint(dp) {
+  var ds=_ghPointDateStr(dp);
+  if (!ds) return true;
+  var t=_localDateStr();
+  var y=(function(){ var x=new Date(); x.setDate(x.getDate()-1); return _localDateStr(x); })();
+  return ds===t || ds===y;
+}
 // ── 90-day streak initializer (runs once per Google account on first connect) ──
 // Fetches the full 90-day step history and counts the real consecutive streak
 // from yesterday backwards. Writes fb_streak_steps so loadWeekDataGoogle's
@@ -14294,11 +14322,14 @@ async function loadRealGoogleData(silentRefresh) {
   }
   // Google Health doesn't expose skin temp — clear HTML demo value
   { const e=document.getElementById('tempv'); if(e) e.textContent='—'; }
-  // Field name fallback: API returns restingHeartRate (not dailyRestingHeartRate)
-  const rhrRaw=rhrD?.dataPoints?.[0]?.dailyRestingHeartRate?.beatsPerMinute
-              ??rhrD?.dataPoints?.[0]?.restingHeartRate?.beatsPerMinute
-              ??rhrD?.dataPoints?.[0]?.heartRateAverage?.beatsPerMinute;
-  console.log('[gh rhr raw]', JSON.stringify(rhrD?.dataPoints?.[0]));
+  // Solo usar el RHR diario si su dataPoint es de HOY/AYER; si no usaste el dispositivo,
+  // daily-resting-heart-rate (pageSize=1) trae un valor viejo. Si es viejo, cae al
+  // _rhrFallback (percentil 5 del HR intraday de HOY) y si tampoco hay, a '—'.
+  const _rhrP = _ghIsFreshPoint(rhrD?.dataPoints?.[0]) ? rhrD?.dataPoints?.[0] : null;
+  const rhrRaw=_rhrP?.dailyRestingHeartRate?.beatsPerMinute
+              ??_rhrP?.restingHeartRate?.beatsPerMinute
+              ??_rhrP?.heartRateAverage?.beatsPerMinute;
+  console.log('[gh rhr]', _ghPointDateStr(rhrD?.dataPoints?.[0]), 'hoy', _localDateStr(), '→', rhrRaw||'(viejo/sin dato)');
   if (rhrRaw) {
     rhr_v=parseInt(rhrRaw);
     const e=document.getElementById('hr-rest'); if(e) e.textContent=rhr_v;
@@ -14909,7 +14940,7 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
   const set=(id,v)=>{const el=document.getElementById(id); if(el&&v!=null&&!isNaN(+v))el.textContent=Math.round(+v);};
   const setF=(id,v,d=1)=>{const el=document.getElementById(id); if(el&&v!=null&&!isNaN(+v))el.textContent=(+v).toFixed(d);};
   // Clear HTML demo values — quedan "—" si la API no devuelve datos
-  ['spo2v','hrvv','resp-val','tempv','temp-delta-val','temp-avg-val']
+  ['spo2v','spo2-low-val','hrvv','resp-val','tempv','temp-delta-val','temp-avg-val']
     .forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='—';});
   { const _cu=document.getElementById('temp-cf-unit'); if(_cu) _cu.textContent='°C'; }
   { const _du=document.getElementById('temp-delta-unit'); if(_du) _du.textContent='Δ°C BASE'; }
@@ -14926,15 +14957,16 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
 
     // ── SpO2 / HRV / Tasa respiratoria ────────────────────────────────────
     // Field name fallbacks: API may omit "daily" prefix (restingHeartRate vs dailyRestingHeartRate)
-    const sp=spo2?.dataPoints?.[0]?.dailyOxygenSaturation
-           ??spo2?.dataPoints?.[0]?.oxygenSaturation
-           ??spo2?.dataPoints?.[0];
-    const hv=hrv?.dataPoints?.[0]?.dailyHeartRateVariability
-           ??hrv?.dataPoints?.[0]?.heartRateVariability
-           ??hrv?.dataPoints?.[0];
-    const bv=br?.dataPoints?.[0]?.dailyRespiratoryRate
-           ??br?.dataPoints?.[0]?.respiratoryRate
-           ??br?.dataPoints?.[0];
+    // Solo aceptar cada métrica si su dataPoint es de HOY/AYER. daily-* (pageSize=1)
+    // trae el último registro aunque sea viejo → sin este guard se mostraría un dato
+    // de una noche en que sí usaste el dispositivo, cuando hoy no registraste nada.
+    const _spP=_ghIsFreshPoint(spo2?.dataPoints?.[0])?spo2?.dataPoints?.[0]:null;
+    const _hvP=_ghIsFreshPoint(hrv?.dataPoints?.[0])?hrv?.dataPoints?.[0]:null;
+    const _brP=_ghIsFreshPoint(br?.dataPoints?.[0])?br?.dataPoints?.[0]:null;
+    console.log('[gh metrics fresh]', {spo2:_ghPointDateStr(spo2?.dataPoints?.[0]),hrv:_ghPointDateStr(hrv?.dataPoints?.[0]),br:_ghPointDateStr(br?.dataPoints?.[0]),hoy:_localDateStr()});
+    const sp=_spP?.dailyOxygenSaturation ?? _spP?.oxygenSaturation ?? _spP;
+    const hv=_hvP?.dailyHeartRateVariability ?? _hvP?.heartRateVariability ?? _hvP;
+    const bv=_brP?.dailyRespiratoryRate ?? _brP?.respiratoryRate ?? _brP;
     console.log('[gh metrics raw]', {spo2:JSON.stringify(spo2?.dataPoints?.[0]),hrv:JSON.stringify(hrv?.dataPoints?.[0]),br:JSON.stringify(br?.dataPoints?.[0])});
     set('spo2v',    sp?.averagePercentage??sp?.avg??sp?.avgPercent??sp?.percentage??sp?.value);
     set('hrvv',     hv?.deepSleepRootMeanSquareOfSuccessiveDifferencesMilliseconds??hv?.averageHeartRateVariabilityMilliseconds??hv?.rmssd??hv?.dailyRmssd??hv?.rmssdMs??hv?.squareOfSuccessiveDifferencesMilliseconds??hv?.value);
@@ -14950,9 +14982,10 @@ async function loadHealthMetricsGoogle(td, rhr_v) {
     const spo2Num = spv!=null ? parseFloat(spv)   : null;
 
     // ── Temperatura corporal (Fitbit Air — sensor de piel nocturno) ────────
-    const tv=tempD?.dataPoints?.[0]?.dailySleepTemperatureDerivations
-           ?? tempD?.dataPoints?.[0]?.sleepTemperatureDerivations
-           ?? tempD?.dataPoints?.[0];
+    const _tpP=_ghIsFreshPoint(tempD?.dataPoints?.[0])?tempD?.dataPoints?.[0]:null;
+    const tv=_tpP?.dailySleepTemperatureDerivations
+           ?? _tpP?.sleepTemperatureDerivations
+           ?? _tpP;
     let tempNum=null;
     if (tv) {
       const nightly = parseFloat(tv.nightlyTemperatureCelsius??tv.value) || null;
