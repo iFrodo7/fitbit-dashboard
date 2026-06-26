@@ -14028,6 +14028,23 @@ function _ghSleepToFitbit(dp) {
   const end  =s.interval?.endTime  ||s.endTime  ||s.end;
   return { startTime:start, endTime:end, minutesAsleep:minA, timeInBed:minB, efficiency:minB>0?Math.round(minA/minB*100):0, levels:{data:stages,summary:sumMap}, isMainSleep:true };
 }
+// Fecha/hora de FIN (hora local) de un dataPoint de sueño de Google Health.
+// Usado para (a) elegir el sueño más reciente y (b) verificar que terminó HOY,
+// o sea que es el sueño de ANOCHE — y no una noche vieja dentro de la ventana de
+// consulta (que mira hasta ayer para capturar el sueño que cruza medianoche).
+function _ghSleepEndInfo(dp) {
+  var s = dp && (dp.sleep ?? dp.sleepSession ?? dp);
+  if (!s) return null;
+  var iso = (s.interval && (s.interval.endTime || s.interval.end)) || s.endTime || s.end;
+  if (iso) { var d=new Date(iso); if(!isNaN(d)) return { ms:d.getTime(), dateStr:_localDateStr(d) }; }
+  var cet = s.interval && (s.interval.civilEndTime || s.interval.civil_end_time);
+  if (cet && cet.date) {
+    var y=cet.date.year, mo=cet.date.month, da=cet.date.day;
+    var hh=(cet.time&&cet.time.hours)||0, mm=(cet.time&&cet.time.minutes)||0;
+    return { ms:new Date(y,mo-1,da,hh,mm).getTime(), dateStr:y+'-'+String(mo).padStart(2,'0')+'-'+String(da).padStart(2,'0') };
+  }
+  return null;
+}
 // ── 90-day streak initializer (runs once per Google account on first connect) ──
 // Fetches the full 90-day step history and counts the real consecutive streak
 // from yesterday backwards. Writes fb_streak_steps so loadWeekDataGoogle's
@@ -14367,7 +14384,18 @@ async function loadRealGoogleData(silentRefresh) {
   // Step-goal streak: consecutive days meeting step goal from activity history
   { const ss=_getStepGoalStreak(); const el=document.getElementById('steps-streak-val'); if(el) el.textContent=ss>0?ss:'—'; }
 
-  const slDP=slD?.dataPoints?.[0];
+  // Elegir el sueño MÁS RECIENTE y aceptarlo solo si terminó HOY (= sueño de anoche).
+  // La query mira hasta ayer para capturar el sueño que cruza medianoche; sin este
+  // guard, si anoche no hubo registro se mostraría una noche vieja de la ventana.
+  let slDP=null, _slEnd=null;
+  (slD?.dataPoints||[]).forEach(function(_dp){
+    var _info=_ghSleepEndInfo(_dp);
+    if (_info && (!_slEnd || _info.ms>_slEnd.ms)) { _slEnd=_info; slDP=_dp; }
+  });
+  if (slDP && _slEnd && _slEnd.dateStr !== _localDateStr()) {
+    console.log('[gh sleep] descartado: terminó', _slEnd.dateStr, '!= hoy', _localDateStr(), '→ sin sueño anoche');
+    slDP=null; // no mostrar datos de una noche anterior
+  }
   console.log('[gh sleep raw]', JSON.stringify(slDP));
   let sleepMin=0,sleepEff=0,deepMin=0,remMin=0;
   // Google Health may use 'sleep' or 'sleepSession' as the wrapper field
@@ -14433,6 +14461,13 @@ async function loadRealGoogleData(silentRefresh) {
       el_sc.textContent = (_scoreIsEstimated ? '~' : '') + _finalScore + '/100';
       if (_dot) _dot.style.left = Math.max(2, Math.min(_finalScore, 98)) + '%';
     }
+  } else {
+    // Sin sueño de anoche — mensaje explícito en vez de datos viejos o el chart vacío.
+    // (Los campos sl-* ya quedaron en '—' por el clear al inicio de loadRealGoogleData.)
+    const _noMsgGh = lang==='es' ? 'SIN DATOS DE SUEÑO ESTA NOCHE' : 'NO SLEEP DATA TONIGHT';
+    const _slTot=document.getElementById('sl-total-v'); if(_slTot) _slTot.textContent=lang==='es'?'Sin datos':'No data';
+    const _slHt=document.getElementById('hypno-track'); if(_slHt) _slHt.innerHTML='<div class="hypno-empty" id="hypno-empty">— '+_noMsgGh+' —</div>';
+    const _slAx=document.getElementById('hypno-axis'); if(_slAx) _slAx.innerHTML='';
   }
 
   // Active Zone Minutes → HR zone bars + active-minutes sub-field + strain
