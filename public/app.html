@@ -9403,19 +9403,15 @@ function wkBarSel(idx) {
     sv = document.getElementById('steps-floors-unit');if(sv && snap.floorsUnit) sv.textContent = snap.floorsUnit;
     sv = document.getElementById('steps-active-val'); if(sv && snap.active)     sv.textContent = snap.active;
     sv = document.getElementById('steps-active-unit');if(sv && snap.activeUnit) sv.textContent = snap.activeUnit;
-    // Streak: prefer _wkTodayStreakReal (combines window + longer history).
-    // Falls back to backward count from _wkData window (max 7).
+    // Streak — misma computación autoritativa que la ruta de hoy no-snap, para que
+    // el render con snapshot y un render fresco siempre coincidan (sin global obsoleto).
     sv = document.getElementById('steps-streak-val');
     if (sv) {
-      var _todayStreak = window._wkTodayStreakReal || 0;
-      if (!_todayStreak) {
-        var _todayGoal = _loadDRGoals().stp;
-        for (var _tsi = _wkTdIdx; _tsi >= 0; _tsi--) { // FIX #13: start from real today bar
-          if ((data[_tsi].steps || 0) >= _todayGoal) _todayStreak++;
-          else break;
-        }
-      }
-      sv.textContent = _todayStreak > 0 ? _todayStreak : '×';
+      var _ydSnap = (function(){ var x=new Date(_wkTdStr+'T12:00:00'); x.setDate(x.getDate()-1); return _localDateStr(x); })();
+      var _baseSnap = _streakEndingOn(_ydSnap, data);
+      var _tdMetSnap = _goalMetForDate(_wkTdStr, (data[_wkTdIdx] && data[_wkTdIdx].steps) || 0, _loadDRGoals().stp);
+      var _fullSnap = _baseSnap + (_tdMetSnap ? 1 : 0);
+      sv.textContent = _fullSnap > 0 ? _fullSnap : (_tdMetSnap ? '×' : '-');
     }
     // FIX #7: compute unit from current lang, not from snap (snap was saved at load
     // time and would show wrong language if the user switched ES↔EN since then).
@@ -9466,54 +9462,22 @@ function wkBarSel(idx) {
   e = document.getElementById('steps-floors-unit');if(e) e.textContent = es ? ('SUBIDOS' + (isToday?'':' ·'+d.label)) : ('FLOORS' + (isToday?'':' ·'+d.label));
   e = document.getElementById('steps-active-val'); if(e) e.textContent = d.active != null ? d.active : '—';
   e = document.getElementById('steps-active-unit');if(e) e.textContent = 'MIN' + daySufx;
-  // Streak: for today use snap (already set above); for past days calculate
-  // consecutive days ending on `sel` that met the step goal.
+  // Streak — única fuente autoritativa (_streakEndingOn) para todos los casos,
+  // así el número nunca difiere entre un día pasado, hoy y la ruta de snapshot.
   e = document.getElementById('steps-streak-val');
   if (e && !isToday) {
-    // Authoritative backward walk: count consecutive goal-met days ending on the
-    // clicked date, reading day-by-day from fb_activity_history (30-day retention,
-    // stores per-day steps + goalUsed) plus the in-window data[] (freshest for the
-    // current calendar week). Replaces the old cross-window bridging (FIX #15/#17/
-    // #17c) which capped at the rolling 7-day window and relied on a corruptible
-    // streak cache + an IDB store that never held `steps` — so streaks that began
-    // in a previous week (e.g. started Jun 12, viewed on Mon Jun 15) under-counted.
-    var _ahMapS = {}; _wkActH.forEach(function(r){ if (r && r.date) _ahMapS[r.date] = r; });
-    var _winMapS = {}; data.forEach(function(r){ if (r && r.date) _winMapS[r.date] = r; });
-    var _curGoalS = _loadDRGoals().stp;
-    var _goalFloorS = 0;
-    try { _goalFloorS = parseInt(JSON.parse(localStorage.getItem('fb_streak_steps')||'{}').goal||0)||0; } catch(_eS){}
-    var _streak = 0;
-    var _walkS = new Date(d.date + 'T12:00:00'); // noon avoids DST edge cases
-    for (var _kS = 0; _kS < 366; _kS++) {
-      var _wdsS = _localDateStr(_walkS);
-      // steps: prefer the in-window bar (freshest), then history
-      var _wStepsS = null;
-      if (_winMapS[_wdsS] && _winMapS[_wdsS].steps != null) _wStepsS = _winMapS[_wdsS].steps;
-      else if (_ahMapS[_wdsS] && _ahMapS[_wdsS].steps != null) _wStepsS = _ahMapS[_wdsS].steps;
-      if (_wStepsS == null) break; // no record this far back — can't confirm continuation
-      // goal: per-day goalUsed (anti-cheat, immutable for past days) else current/floor
-      var _wGoalS = (_ahMapS[_wdsS] && _ahMapS[_wdsS].goalUsed) || Math.max(_curGoalS, _goalFloorS);
-      if (_wStepsS >= _wGoalS) { _streak++; _walkS.setDate(_walkS.getDate() - 1); }
-      else break;
-    }
-    e.textContent = _streak > 0 ? _streak : '×';
+    var _sPast = _streakEndingOn(d.date, data);
+    e.textContent = _sPast > 0 ? _sPast : '×';
   } else if (e && isToday) {
-    // FIX #16: show '-' when today's goal not yet reached (undecided — not a miss yet)
-    var _tdGoalBar = _loadDRGoals().stp;
-    var _tdStepsBar = (data[_wkTdIdx] && data[_wkTdIdx].steps) || 0;
-    if (_tdStepsBar < _tdGoalBar) {
-      e.textContent = '-';
-    } else {
-      // Today's goal met — show full streak including today
-      var _strReal = window._wkTodayStreakReal || 0;
-      if (!_strReal) {
-        for (var _tsiF = _wkTdIdx; _tsiF >= 0; _tsiF--) {
-          if ((data[_tsiF].steps || 0) >= _tdGoalBar) _strReal++;
-          else break;
-        }
-      }
-      e.textContent = _strReal > 0 ? _strReal : '×';
-    }
+    // Racha hasta AYER, y se suma hoy solo si su meta está cumplida. Calcular la
+    // base desde ayer (no hoy) mantiene visible la racha viva mientras hoy sigue
+    // indeciso, y nunca confía en el global obsoleto window._wkTodayStreakReal.
+    var _ydStr = (function(){ var x=new Date(d.date+'T12:00:00'); x.setDate(x.getDate()-1); return _localDateStr(x); })();
+    var _baseStk = _streakEndingOn(_ydStr, data);
+    var _tdMet = _goalMetForDate(d.date, (data[_wkTdIdx] && data[_wkTdIdx].steps) || 0, _loadDRGoals().stp);
+    var _fullStk = _baseStk + (_tdMet ? 1 : 0);
+    // Hoy indeciso (meta no cumplida aún) → seguir mostrando la racha viva, o '-' si no hay.
+    e.textContent = _fullStk > 0 ? _fullStk : (_tdMet ? '×' : '-');
   }
   e = document.getElementById('steps-streak-unit');
   if (e) e.textContent = es ? 'DÍAS META' : 'DAYS GOAL';
@@ -9909,11 +9873,15 @@ async function loadWeekDataGoogle() {
     var _dbStr7 = 0;
     try { _dbStr7 = (typeof _getStepGoalStreak === 'function' ? _getStepGoalStreak() : 0) || 0; } catch(e2) {}
 
-    // When window shows a confirmed break (< 6 days through yesterday), trust the window
-    // over any stale persisted value — prevents an old inflated count from surviving a break.
-    window._wkTodayStreakReal = _yStr7 < 6
-      ? _winMax
-      : Math.max(_wkStr7, _dbStr7, _persistedStreak);
+    // Racha autoritativa actual desde el goalUsed por-día inmutable (fb_activity_history),
+    // independiente de cualquier count persistido/sincronizado que pueda estar obsoleto:
+    // racha hasta AYER + hoy si su meta está cumplida. Misma fuente (_streakEndingOn) que
+    // usa el display de wkBarSel, así el global y lo que ve el usuario nunca divergen.
+    // Reemplaza el viejo Math.max(_wkStr7,_dbStr7,_persistedStreak) que dejaba sobrevivir
+    // un count inflado (p.ej. 6) tras una ruptura real de la racha.
+    var _ydAuth = (function(){ var x=new Date(); x.setDate(x.getDate()-1); return _localDateStr(x); })();
+    var _baseAuth = (typeof _streakEndingOn==='function') ? _streakEndingOn(_ydAuth, days) : _yStr7;
+    window._wkTodayStreakReal = _baseAuth + (_tmMet ? 1 : 0);
     // FIX #17: populate prev-streak window vars from localStorage for wkBarSel.
     // Covers page-refresh and the _pd===_t7 fast-path (no write happens there).
     if (!window._wkPrevStreakCount) {
@@ -11505,6 +11473,33 @@ function _goalMetForDate(dateStr, stepsVal, fallbackGoal) {
     }
   } catch(e) {}
   return (stepsVal||0) >= fallbackGoal;
+}
+// Racha consecutiva de días-con-meta-cumplida que TERMINA en dateStr (inclusive).
+// Camina hacia atrás día por día usando el goalUsed por-día de fb_activity_history
+// (inmutable, anti-trampa) y los pasos más frescos de la ventana visible. Es la
+// ÚNICA fuente de verdad para CUALQUIER display de racha (días pasados, hoy, snap)
+// para que nunca difieran entre sí — reemplaza al global window._wkTodayStreakReal
+// (que podía quedar congelado en un valor pre-ruptura) en el display de hoy.
+function _streakEndingOn(dateStr, winData) {
+  try {
+    var ahMap = {}; (JSON.parse(localStorage.getItem('fb_activity_history')||'[]')).forEach(function(r){ if(r&&r.date) ahMap[r.date]=r; });
+    var winMap = {}; (winData||[]).forEach(function(r){ if(r&&r.date) winMap[r.date]=r; });
+    var curGoal = _loadDRGoals().stp;
+    var floor = 0; try { floor = parseInt(JSON.parse(localStorage.getItem('fb_streak_steps')||'{}').goal||0)||0; } catch(_e){}
+    var streak = 0;
+    var walk = new Date(dateStr + 'T12:00:00'); // mediodía evita bordes de DST
+    for (var k=0; k<366; k++) {
+      var ds = _localDateStr(walk);
+      var st = null;
+      if (winMap[ds] && winMap[ds].steps != null) st = winMap[ds].steps;
+      else if (ahMap[ds] && ahMap[ds].steps != null) st = ahMap[ds].steps;
+      if (st == null) break; // sin registro tan atrás — no se puede confirmar continuidad
+      var g = (ahMap[ds] && ahMap[ds].goalUsed) || Math.max(curGoal, floor);
+      if (st >= g) { streak++; walk.setDate(walk.getDate()-1); }
+      else break;
+    }
+    return streak;
+  } catch(e) { return 0; }
 }
 // Auto-calibración gradual (issue #62, Fase 2.7): si cumples tu meta >85%
 // de los días en las últimas 2 semanas, el baseline sube 5%; si cumples
