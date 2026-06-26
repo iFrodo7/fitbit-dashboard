@@ -14238,7 +14238,7 @@ async function loadRealGoogleData(silentRefresh) {
     _ghPost(`${B}/users/me/dataTypes/distance/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
     _ghPost(`${B}/users/me/dataTypes/floors/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
     _ghGet(`${B}/users/me/dataTypes/daily-sleep-score/dataPoints?filter=${enc('daily_sleep_score.time.civil_time >= "'+yd+'" AND daily_sleep_score.time.civil_time < "'+nd+'"')}&pageSize=2`),
-    _ghGet(`${B}/users/me/dataTypes/steps/dataPoints?filter=${enc('steps.time.civil_time >= "'+td+'" AND steps.time.civil_time < "'+nd+'"')}&pageSize=2000`).catch(()=>null),
+    _ghGet(`${B}/users/me/dataTypes/steps/dataPoints?pageSize=1440`).catch(()=>null),
   ]);
   console.log('[gh raw]', {hrD,rhrD,stD,slD,calD,azD});
   let rhr_v=65, maxHR_v=0;
@@ -14295,9 +14295,14 @@ async function loadRealGoogleData(silentRefresh) {
   // fallback to dailyRollUp (15-30 min lag) if no Fitbit source found or endpoint fails.
   let stepsToday = 0;
   if (stRtD?.dataPoints?.length) {
+    // Filter to today's date and Fitbit Air source only
     const _fitbitDps = stRtD.dataPoints.filter(function(dp) {
       var src = (dp.dataOrigin?.streamIdentifier || dp.dataOrigin?.packageName || dp.origin?.streamIdentifier || '').toLowerCase();
-      return src.includes('fitbit');
+      var isFitbit = src.includes('fitbit');
+      // Check sample date matches today (civil_time or ISO string starting with td)
+      var t = dp.startTime?.civilTime || dp.time?.civilTime || dp.startTime || dp.time || '';
+      var isToday = typeof t === 'string' && t.startsWith(td);
+      return isFitbit && isToday;
     });
     if (_fitbitDps.length) {
       stepsToday = _fitbitDps.reduce(function(sum, dp) {
@@ -14305,7 +14310,9 @@ async function loadRealGoogleData(silentRefresh) {
       }, 0);
       console.log('[gh steps rt] Fitbit Air:', stepsToday, 'pasos,', _fitbitDps.length, 'muestras');
     } else {
-      console.log('[gh steps rt] sin muestras de Fitbit — usando rollup. Sources:', [...new Set(stRtD.dataPoints.map(d=>d.dataOrigin?.streamIdentifier||'?'))]);
+      // Log all unique sources to diagnose filter mismatch
+      var _allSrcs = [...new Set(stRtD.dataPoints.map(function(d){ return d.dataOrigin?.streamIdentifier || d.dataOrigin?.packageName || '?'; }))];
+      console.log('[gh steps rt] sin muestras Fitbit hoy. Sources:', _allSrcs, '| sample[0]:', JSON.stringify(stRtD.dataPoints[0]));
     }
   }
   // Fallback to dailyRollUp
