@@ -11056,7 +11056,12 @@ function calcScores(opts) {
   const strain = parseFloat(Math.min((fb*0.6+ca*2.0+pk*4.5)/60, 21).toFixed(1));
   // Sleep %
   const sleepPct = Math.min(Math.round(sleepMin/480*100), 100);
-  return { rec, strain, sleepPct };
+  // Confiabilidad del Recovery Score: solo es real si hubo al menos UNA señal de
+  // recuperación hoy (sueño, HRV o check-in del usuario). Sin ninguna, `rec` es un
+  // piso artificial (HRV ausente suma +15, RHR default ~25) y NO debe recortar la
+  // meta adaptativa ni guardarse como la recuperación real del día.
+  const recReliable = ((opts.sleepMin||0) > 0) || (hrvRatio != null) || ((opts.checkin||0) > 0);
+  return { rec, strain, sleepPct, recReliable };
 }
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -11196,7 +11201,11 @@ function updateSynthEQ(rec, activity, sleep) {
   g.innerHTML = bars;
 }
 
-function updateScores({ rec, strain, sleepPct }) {
+function updateScores({ rec, strain, sleepPct, recReliable = true }) {
+  // Bandera global: cuando es false (sin sueño ni HRV ni check-in hoy) el Recovery
+  // Score es un estimado de baja confianza → updateDailyRings usa meta NEUTRA (baseline)
+  // en vez de recortarla por una "baja recuperación" que en realidad es falta de datos.
+  window._recReliable = recReliable;
   // AURA ID — vital ring follows recovery + live BPM
   try { updateAvatarVitals(); } catch(e) {}
   // PULSE IDENTITY — live stats strip + orbital arcs
@@ -11237,23 +11246,28 @@ function updateScores({ rec, strain, sleepPct }) {
   // Recomendación y color del status
   window._lastRec = rec; // single recovery source (read by Stats + status label)
   window._lastSleepPct = sleepPct;
-  // Actualizar IndexedDB para hoy con el score autoritativo de calcScores() — evita que la
-  // gráfica de historial muestre el valor de la fórmula vieja del backfill.
-  (function() {
-    var _rd = _localDateStr();
-    _hGetDay(_rd).then(function(_dr) {
-      if (_dr) _hPut(Object.assign({}, _dr, { recovery: Math.round(rec) }));
-    }).catch(function(){});
-  })();
-  // Sync recovery score a Supabase para que otros dispositivos arranquen con el valor correcto.
-  // Solo escribe si el score cambió (evita writes innecesarios en cada poll).
-  if (rec > 0 && typeof _supabasePrefsWrite === 'function') {
-    var _prevRec = parseInt(localStorage.getItem('fb_recovery_score') || '0') || 0;
-    if (Math.round(rec) !== _prevRec) {
-      var _recTs = Date.now();
-      localStorage.setItem('fb_recovery_score', String(Math.round(rec)));
-      localStorage.setItem('fb_recovery_score_ts', String(_recTs));
-      _supabasePrefsWrite({ recovery_score: Math.round(rec), recovery_score_ts: _recTs }).catch(function(){});
+  // Persistir el recovery (IndexedDB + Supabase) SOLO si es confiable. Un score
+  // fabricado de un día sin sueño/HRV no debe quedar en el historial ni propagarse
+  // a otros dispositivos (ensuciaría la gráfica y la auto-calibración del baseline).
+  if (recReliable) {
+    // Actualizar IndexedDB para hoy con el score autoritativo de calcScores() — evita que la
+    // gráfica de historial muestre el valor de la fórmula vieja del backfill.
+    (function() {
+      var _rd = _localDateStr();
+      _hGetDay(_rd).then(function(_dr) {
+        if (_dr) _hPut(Object.assign({}, _dr, { recovery: Math.round(rec) }));
+      }).catch(function(){});
+    })();
+    // Sync recovery score a Supabase para que otros dispositivos arranquen con el valor correcto.
+    // Solo escribe si el score cambió (evita writes innecesarios en cada poll).
+    if (rec > 0 && typeof _supabasePrefsWrite === 'function') {
+      var _prevRec = parseInt(localStorage.getItem('fb_recovery_score') || '0') || 0;
+      if (Math.round(rec) !== _prevRec) {
+        var _recTs = Date.now();
+        localStorage.setItem('fb_recovery_score', String(Math.round(rec)));
+        localStorage.setItem('fb_recovery_score_ts', String(_recTs));
+        _supabasePrefsWrite({ recovery_score: Math.round(rec), recovery_score_ts: _recTs }).catch(function(){});
+      }
     }
   }
   setText('wrec', recTextFor(rec));
@@ -12894,7 +12908,13 @@ function updateDailyRings() {
   var actMin=nv('hrmin-fat')+nv('hrmin-cardio')+nv('hrmin-peak');
   var vigMin=nv('hrmin-cardio')+nv('hrmin-peak'); // sin Fat Burn — para detectar fatiga, no caminatas
   var rec=window._lastRec||0;
-  var dt=_getDayType(rec);
+  // Cuando el Recovery Score no es confiable (sin sueño ni HRV ni check-in hoy), NO
+  // recortar la meta por una "baja recuperación" que en realidad es falta de datos:
+  // usar día neutro (mult 1.0 = baseline). Los topes de seguridad (fatiga/illness) y
+  // el ajuste de ciclo SÍ siguen aplicando porque vienen de otros datos válidos.
+  var dt = (window._recReliable === false)
+    ? {label:(lang==='es'?'DÍA ACTIVO':'ACTIVE DAY'), color:'#6aff3a', icon:'💪', mult:1.0, _neutral:true}
+    : _getDayType(rec);
   var cycAdj=pro?_getCycleMultAdjust():0;
   // Días consecutivos de entrenamiento real (excluye hoy, que aún no se registró) —
   // tope de seguridad independiente del Recovery Score (issue #62, Fase 1.4).
@@ -14565,7 +14585,8 @@ async function loadRealGoogleData(silentRefresh) {
   if (_hasRealData) {
     updateScores(calcScores(_buildRecoveryInputs()));
   } else {
-    // No biometric data yet — trigger ring animation so they sit at 0/— cleanly
+    // No biometric data yet — recovery desconocido → meta neutra (baseline), no recortada.
+    window._recReliable = false;
     updateDailyRings();
     if (!window._drAnimDone) { window._drAnimDone = true; setTimeout(animateDailyRings, 200); }
   }
