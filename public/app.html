@@ -12915,7 +12915,12 @@ function updateDailyRings() {
   // Si _getActivityBaseline() devolvió una meta final (_final:true, _date=hoy) sincronizada
   // desde otro dispositivo, usarla directamente sin re-aplicar el mult (ya lo trae).
   var ag=pro?(goals._final?{stp:goals.stp,cal:goals.cal,act:goals.act}:{stp:Math.round(goals.stp*mult),cal:Math.round(goals.cal*mult),act:Math.round(goals.act*mult)}):goals;
-  if(pro) ag=_antiSpikeClamp(ag);
+  // Anti-spike clamp SOLO en el dispositivo que origina la meta (goals._final falsy).
+  // Una meta _final sincronizada ya viene clampada del dispositivo autoritativo; re-clamparla
+  // contra el fb_prev_day_goal LOCAL (distinto por dispositivo) la divergía hasta ±20%
+  // → metas distintas en cada dispositivo. El _final guard del mult arriba quedaba inútil
+  // sin este mismo guard aquí.
+  if(pro && !goals._final) ag=_antiSpikeClamp(ag);
   // Sync meta final (post-mult) a Supabase una vez por día (Pro, sin override manual).
   // Se escribe AG (con mult ya aplicado) marcado _final:true + _date para que el dispositivo
   // receptor sepa que es la meta del día y no la base a multiplicar.
