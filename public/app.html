@@ -14298,21 +14298,17 @@ async function loadRealGoogleData(silentRefresh) {
     // Parse today's date parts for comparison against civilStartTime.date object
     var _tdParts = td.split('-'); // ["2026","06","25"]
     var _tdY=parseInt(_tdParts[0]), _tdM=parseInt(_tdParts[1]), _tdD=parseInt(_tdParts[2]);
-    const _fitbitDps = stRtD.dataPoints.filter(function(dp) {
-      // Source: dataSource.platform === "FITBIT"
-      var isFitbit = (dp.dataSource?.platform||'').toUpperCase() === 'FITBIT';
-      // Date: steps.interval.civilStartTime.date = {year, month, day}
+    // All sources for today — Google Health already deduplicates before storing
+    const _todayDps = stRtD.dataPoints.filter(function(dp) {
       var cd = dp.steps?.interval?.civilStartTime?.date;
-      var isToday = cd && cd.year===_tdY && cd.month===_tdM && cd.day===_tdD;
-      return isFitbit && isToday;
+      return cd && cd.year===_tdY && cd.month===_tdM && cd.day===_tdD;
     });
-    if (_fitbitDps.length) {
-      stepsToday = _fitbitDps.reduce(function(sum, dp) {
+    if (_todayDps.length) {
+      stepsToday = _todayDps.reduce(function(sum, dp) {
         return sum + (parseInt(dp.steps?.count || 0) || 0);
       }, 0);
-      console.log('[gh steps rt] Fitbit Air:', stepsToday, 'pasos,', _fitbitDps.length, 'muestras');
-    } else {
-      console.log('[gh steps rt] sin muestras Fitbit hoy. Sources:', [...new Set(stRtD.dataPoints.map(function(d){return d.dataSource?.platform||'?';}))]);
+      var _srcs = [...new Set(_todayDps.map(function(d){return d.dataSource?.platform||'?';}))];
+      console.log('[gh steps rt]', stepsToday, 'pasos,', _todayDps.length, 'muestras, sources:', _srcs);
     }
   }
   // Fallback to dailyRollUp
