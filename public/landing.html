@@ -655,9 +655,9 @@ footer {
 #pricing .section-header { text-align: center; margin-bottom: 56px; }
 #pricing .section-header .section-sub { margin: 16px auto 0; text-align: center; }
 .pricing-grid {
-  display: grid; grid-template-columns: 1fr 1.12fr;
+  display: grid; grid-template-columns: 1fr 1.08fr 1.12fr;
   gap: 24px; align-items: start;
-  max-width: 860px; margin: 0 auto;
+  max-width: 1140px; margin: 0 auto;
 }
 .pricing-card {
   background: var(--card); border: 1px solid var(--card-b);
@@ -680,6 +680,16 @@ footer {
 .pc-price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 4px; line-height: 1; }
 .pc-amount { font-family: var(--mono); font-size: 52px; font-weight: 700; color: var(--txt); }
 .pc-amount-pro { background: linear-gradient(135deg, var(--c1), var(--c2)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+/* ── Bundle (hardware + Pro) ── */
+.pricing-card-bundle {
+  background: linear-gradient(150deg, rgba(255,182,39,0.07), rgba(255,123,0,0.05));
+  border-color: rgba(255,182,39,0.32);
+  box-shadow: 0 0 48px rgba(255,182,39,0.08), 0 0 0 1px rgba(255,182,39,0.12);
+  position: relative;
+}
+.pc-badge-bundle { background: linear-gradient(90deg, #ffb627, #ff7b00); }
+.pc-amount-bundle { background: linear-gradient(135deg, #ffce5a, #ff7b00); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.pc-once { font-size: 16px; color: var(--txt-dim); align-self: flex-end; padding-bottom: 8px; }
 .pc-per { font-size: 16px; color: var(--txt-dim); align-self: flex-end; padding-bottom: 8px; }
 .pc-note-sub { font-size: 12px; color: var(--txt-sub); margin-bottom: 4px; }
 .pc-divider { height: 1px; background: var(--card-b); margin: 22px 0; }
@@ -693,9 +703,9 @@ footer {
 .pc-cta { display: flex; flex-direction: column; gap: 10px; }
 .pc-cta .btn { justify-content: center; }
 .pc-legal { text-align: center; font-size: 11px; color: var(--txt-sub); line-height: 1.5; }
-@media (max-width: 640px) {
-  .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
-  .pricing-card-pro { margin-top: 20px; }
+@media (max-width: 980px) {
+  .pricing-grid { grid-template-columns: 1fr; max-width: 420px; }
+  .pricing-card-pro, .pricing-card-bundle { margin-top: 20px; }
 }
 </style>
 </head>
@@ -870,7 +880,7 @@ footer {
         <div class="stat-label" data-i18n="statProFree">PRO gratis al registrarte</div>
       </div>
       <div class="stat-item reveal reveal-d3">
-        <div class="stat-num">$9.99</div>
+        <div class="stat-num" data-usd="$9.99" data-mxn="$179">$9.99</div>
         <div class="stat-label" data-i18n="statProPrice">AIRA PRO / mes después</div>
       </div>
     </div>
@@ -1196,7 +1206,7 @@ footer {
         <div class="pc-badge" data-i18n="pricingProBadge">★ MÁS POPULAR</div>
         <div class="pc-plan" style="color:var(--c1);" data-i18n="pricingProPlan">AIRA PRO</div>
         <div class="pc-price">
-          <span class="pc-amount pc-amount-pro">$9.99</span>
+          <span class="pc-amount pc-amount-pro" data-usd="$9.99" data-mxn="$179">$9.99</span>
           <span class="pc-per" data-i18n="pricingPerMonth">/mes</span>
         </div>
         <div class="pc-note-sub" style="color:var(--c1);opacity:0.7;" data-i18n="pricingProNote">7 días gratis · Sin cargo hoy</div>
@@ -1229,8 +1239,34 @@ footer {
           </li>
         </ul>
         <div class="pc-cta">
-          <a href="/app.html?subscribe=1" class="btn btn-primary" style="font-size:15px;padding:16px;" data-i18n="pricingProCTA">Comenzar prueba gratis →</a>
-          <p class="pc-legal" data-i18n="pricingProLegal">Sin tarjeta cobrada hoy · Cancela antes de 7 días y no pagas nada · $9.99/mes después</p>
+          <a href="/app.html?subscribe=1" data-cur-link class="btn btn-primary" style="font-size:15px;padding:16px;" data-i18n="pricingProCTA">Comenzar prueba gratis →</a>
+          <p class="pc-legal" data-i18n="pricingProLegal">Sin tarjeta cobrada hoy · Cancela antes de 7 días y no pagas nada · Luego se cobra la mensualidad</p>
+        </div>
+      </div>
+
+      <!-- BUNDLE: PRO anual + Fitbit Air vía Amazon afiliados -->
+      <div class="pricing-card pricing-card-bundle reveal reveal-d3">
+        <div class="pc-badge pc-badge-bundle" data-i18n="pricingBundleBadge">★ MEJOR VALOR</div>
+        <div class="pc-plan" style="color:#ffb627;" data-i18n="pricingBundlePlan">AIRA PRO ANUAL + FITBIT AIR</div>
+        <div class="pc-price">
+          <!-- TODO: ajustar precios finales (data-usd / data-mxn). El símbolo se elige por país. -->
+          <span class="pc-amount pc-amount-bundle" data-usd="$99" data-mxn="$1,799">$99</span>
+          <span class="pc-per" data-i18n="pricingBundlePer">/año</span>
+        </div>
+        <div class="pc-note-sub" style="color:#ffb627;opacity:0.85;" data-i18n="pricingBundleNote">2 meses gratis · La pulsera la compras en Amazon</div>
+        <div class="pc-divider"></div>
+        <ul class="pc-feats">
+          <li><span class="ci">★</span><span class="ct" data-i18n-html="pricingBundleF1"><strong>12 meses de AIRA PRO</strong> — pagas 10, te llevas 12. Todo lo de PRO incluido</span></li>
+          <li><span class="ci">🎨</span><span class="ct" data-i18n-html="pricingBundleF2"><strong>Todos los temas PRO desbloqueados</strong> — Voxel y Synthwave desde el día uno</span></li>
+          <li><span class="ci">⌚</span><span class="ct" data-i18n-html="pricingBundleF3"><strong>Tu Fitbit Air</strong> — la consigues en Amazon con nuestro enlace, lista para emparejar</span></li>
+          <li><span class="ci">⚡</span><span class="ct" data-i18n-html="pricingBundleF4"><strong>Activación inmediata</strong> — empareja la pulsera y PRO se activa al instante</span></li>
+        </ul>
+        <div class="pc-cta">
+          <a href="/app.html?subscribe=annual" data-cur-link class="btn btn-primary" style="font-size:15px;padding:16px;background:linear-gradient(90deg,#ffb627,#ff7b00);border:none;" data-i18n="pricingBundleCTA">Activar PRO 12 meses →</a>
+          <!-- TODO: reemplazar TU_TAG por tu Amazon Associates tag (formato xxxx-20) -->
+          <a href="https://www.amazon.com.mx/dp/B0GTMTZF3V?tag=TU_TAG" target="_blank" rel="noopener sponsored" class="btn btn-ghost" style="font-size:13px;padding:12px;" data-i18n="pricingBundleAmazon">Ver Fitbit Air en Amazon →</a>
+          <p class="pc-legal" data-i18n="pricingBundleLegal">Pago anual único · Cancela la renovación cuando quieras</p>
+          <p class="pc-legal" style="opacity:0.7;" data-i18n="pricingBundleDisclosure">Como Afiliado de Amazon, AIRA gana por compras que califiquen.</p>
         </div>
       </div>
 
@@ -1348,7 +1384,7 @@ footer {
           Ver características
         </a>
       </div>
-      <p class="cta-disclaimer" data-i18n="ctaDisclaimer">7 días PRO gratis · Luego $9.99/mes · Cancela cuando quieras · Datos 100% locales</p>
+      <p class="cta-disclaimer" data-i18n="ctaDisclaimer">7 días PRO gratis · Luego se cobra la mensualidad · Cancela cuando quieras · Datos 100% locales</p>
     </div>
   </div>
 </section>
@@ -1473,7 +1509,17 @@ const T = {
     pricingProF5:'<strong>Historial ilimitado</strong> — accede a todos tus datos sin restricción de fechas',
     pricingProF6:'<strong>Strain adaptativo PRO</strong> — baseline personal de 7 días, multiplicador por recovery y overclock dorado al superar tu meta',
     pricingProCTA:'Comenzar prueba gratis →',
-    pricingProLegal:'Sin tarjeta cobrada hoy · Cancela antes de 7 días y no pagas nada · $9.99/mes después',
+    pricingProLegal:'Sin tarjeta cobrada hoy · Cancela antes de 7 días y no pagas nada · Luego se cobra la mensualidad',
+    pricingBundleBadge:'★ MEJOR VALOR', pricingBundlePlan:'AIRA PRO ANUAL + FITBIT AIR', pricingBundlePer:'/año',
+    pricingBundleNote:'2 meses gratis · La pulsera la compras en Amazon',
+    pricingBundleF1:'<strong>12 meses de AIRA PRO</strong> — pagas 10, te llevas 12. Todo lo de PRO incluido',
+    pricingBundleF2:'<strong>Todos los temas PRO desbloqueados</strong> — Voxel y Synthwave desde el día uno',
+    pricingBundleF3:'<strong>Tu Fitbit Air</strong> — la consigues en Amazon con nuestro enlace, lista para emparejar',
+    pricingBundleF4:'<strong>Activación inmediata</strong> — empareja la pulsera y PRO se activa al instante',
+    pricingBundleCTA:'Activar PRO 12 meses →',
+    pricingBundleAmazon:'Ver Fitbit Air en Amazon →',
+    pricingBundleLegal:'Pago anual único · Cancela la renovación cuando quieras',
+    pricingBundleDisclosure:'Como Afiliado de Amazon, AIRA gana por compras que califiquen.',
     howEyebrow:'Proceso',
     howTitle:'En marcha en <span>3 pasos</span>',
     howStep1Title:'Inicia sesión con Google', howStep1Desc:'Regístrate con tu cuenta de Google en un solo clic. Sin contraseñas adicionales, sin formularios. AIRA conecta de forma segura y solicita acceso a tus datos de salud.',
@@ -1491,7 +1537,7 @@ const T = {
     ctaTitle:'Conoce tu cuerpo.<br><span>De verdad.</span>',
     ctaSub:'Recovery, sueño, frecuencia cardíaca y actividad. Todo en un panel que te habla en tu idioma, con tu estética y sin cobrarte nada.',
     ctaPrimary:'Comenzar 7 días PRO gratis →', ctaSecondary:'Ver características',
-    ctaDisclaimer:'7 días PRO gratis · Luego $9.99/mes · Cancela cuando quieras · Datos 100% locales',
+    ctaDisclaimer:'7 días PRO gratis · Luego se cobra la mensualidad · Cancela cuando quieras · Datos 100% locales',
     footerCopy:'© 2026 AIRA Biometric Dashboard · Todos los derechos reservados',
   },
   en: {
@@ -1552,7 +1598,17 @@ const T = {
     pricingProF5:'<strong>Unlimited History</strong> — access all your data with no date restrictions',
     pricingProF6:'<strong>Adaptive PRO Strain</strong> — 7-day personal baseline, recovery multiplier and golden overclock when you beat your goal',
     pricingProCTA:'Start free trial →',
-    pricingProLegal:'No card charged today · Cancel within 7 days and pay nothing · $9.99/mo after',
+    pricingProLegal:'No card charged today · Cancel within 7 days and pay nothing · Then billed monthly',
+    pricingBundleBadge:'★ BEST VALUE', pricingBundlePlan:'AIRA PRO ANNUAL + FITBIT AIR', pricingBundlePer:'/yr',
+    pricingBundleNote:'2 months free · Get the band on Amazon',
+    pricingBundleF1:'<strong>12 months of AIRA PRO</strong> — pay for 10, get 12. Everything in PRO included',
+    pricingBundleF2:'<strong>All PRO themes unlocked</strong> — Voxel and Synthwave from day one',
+    pricingBundleF3:'<strong>Your Fitbit Air</strong> — get it on Amazon with our link, ready to pair',
+    pricingBundleF4:'<strong>Instant activation</strong> — pair the band and PRO activates instantly',
+    pricingBundleCTA:'Activate 12 months PRO →',
+    pricingBundleAmazon:'See Fitbit Air on Amazon →',
+    pricingBundleLegal:'One annual payment · Cancel renewal anytime',
+    pricingBundleDisclosure:'As an Amazon Associate, AIRA earns from qualifying purchases.',
     howEyebrow:'Process',
     howTitle:'Up in <span>3 steps</span>',
     howStep1Title:'Sign in with Google', howStep1Desc:'Sign up with your Google account in one click. No extra passwords, no forms. AIRA connects securely and requests access to your health data.',
@@ -1570,7 +1626,7 @@ const T = {
     ctaTitle:'Know your body.<br><span>For real.</span>',
     ctaSub:'Recovery, sleep, heart rate and activity. All in a dashboard that speaks your language, with your aesthetic and at no cost.',
     ctaPrimary:'Start 7 days PRO free →', ctaSecondary:'See features',
-    ctaDisclaimer:'7 days PRO free · Then $9.99/mo · Cancel anytime · 100% local data',
+    ctaDisclaimer:'7 days PRO free · Then billed monthly · Cancel anytime · 100% local data',
     footerCopy:'© 2026 AIRA Biometric Dashboard · All rights reserved',
   }
 };
@@ -1627,12 +1683,44 @@ const cIO = new IntersectionObserver((entries) => {
       if (text === '10')    animateCount(e.target, 10,   '+');
       if (text === '5')     animateCount(e.target, 5,    '');
       if (text === '7D')    { setTimeout(() => { e.target.textContent = '7D'; }, 300); }
-      if (text === '$9.99') { setTimeout(() => { e.target.textContent = '$9.99'; }, 300); }
+      if (e.target.hasAttribute('data-usd')) {
+        const _cur = document.documentElement.getAttribute('data-currency');
+        const _v = (_cur === 'mxn') ? e.target.getAttribute('data-mxn') : e.target.getAttribute('data-usd');
+        setTimeout(() => { e.target.textContent = _v; }, 300);
+      }
       cIO.unobserve(e.target);
     }
   });
 }, { threshold: 0.5 });
 counters.forEach(c => cIO.observe(c));
+</script>
+
+<!-- ── Detección de moneda por país (MXN / USD) ──────────────────────── -->
+<script>
+(function(){
+  function airaCurrency(){
+    try{
+      var tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || '');
+      var loc = (navigator.language || '');
+      // Zonas horarias de México + locale es-MX
+      if (/Mexico|Tijuana|Monterrey|Bahia_Banderas|Hermosillo|Mazatlan|Chihuahua|Ojinaga|Cancun|Merida|Matamoros/i.test(tz) || /-MX/i.test(loc)) return 'mxn';
+    } catch(e){}
+    return 'usd';
+  }
+  function applyCurrency(){
+    var cur = airaCurrency();
+    document.querySelectorAll('[data-usd][data-mxn]').forEach(function(el){
+      el.textContent = (cur === 'mxn') ? el.getAttribute('data-mxn') : el.getAttribute('data-usd');
+    });
+    // Propaga la moneda detectada al checkout para que el precio coincida con lo mostrado.
+    document.querySelectorAll('a[data-cur-link]').forEach(function(a){
+      try { var u = new URL(a.getAttribute('href'), location.origin); u.searchParams.set('cur', cur); a.setAttribute('href', u.pathname + u.search); } catch(e){}
+    });
+    document.documentElement.setAttribute('data-currency', cur);
+  }
+  if (document.readyState !== 'loading') applyCurrency();
+  else document.addEventListener('DOMContentLoaded', applyCurrency);
+})();
 </script>
 </body>
 </html>
