@@ -12158,32 +12158,35 @@ async function _supabasePrefsRead() {
       localStorage.setItem('fb_dr_goals_ts', String(d.goals_ts));
     }
 
-    // T1: Adaptive goals (Pro) — aplica si Supabase es más reciente.
-    // Regla "primer dispositivo del día gana": si local ya tiene _final:true+_q:1 para HOY,
-    // NO aplicar el de Supabase aunque tenga ts más alto. Evita que un segundo dispositivo
-    // (con historial o recovery score distintos) sobreescriba la meta durante el día.
+    // T1: Adaptive goals (Pro) — CONVERGENCIA cross-device.
+    // route.ts ya impone "primer dispositivo del día gana" en la ESCRITURA: una vez que
+    // Supabase tiene un _final:true+_q:1 para una fecha, rechaza cualquier otro write de
+    // ese día. Por lo tanto ese valor es el CANÓNICO acordado para TODOS los dispositivos.
+    // → En la LECTURA hay que adoptarlo SIEMPRE que sea de HOY, aunque el local ya tenga
+    //   su propia _final o un ts más nuevo (caso real: un 2º dispositivo calculó distinto
+    //   y escribió, pero route.ts lo rechazó → su ts local quedó > que el de Supabase y
+    //   nunca convergía). Sin esto, cada dispositivo se quedaba con su meta y divergían.
     if (d.adaptive_goals && d.adaptive_goals_ts) {
-      var _lATs = parseInt(localStorage.getItem('fb_dr_goals_adaptive_ts') || '0') || 0;
-      var _lAgNow = null; try { _lAgNow = JSON.parse(localStorage.getItem('fb_dr_goals_adaptive')||'null'); } catch(_e4) {}
       var _todayAg = typeof _localDateStr==='function' ? _localDateStr() : new Date().toISOString().slice(0,10);
-      var _localHasFinalToday = _lAgNow && _lAgNow._final && _lAgNow._q===1 && _lAgNow._date===_todayAg;
-      if (!d.adaptive_goals._final && d.adaptive_goals_ts > _lATs) {
-        // Formato viejo en Supabase (sin _final:true) Y es más reciente que el local:
-        // limpiar la fecha de sync para que updateDailyRings recalcule y escriba _final:true.
-        // Si el local es más nuevo (ya tiene _final:true correcto), ignorar el dato viejo.
-        if (!_localHasFinalToday) localStorage.removeItem('fb_dr_goals_adaptive_date');
-      } else if (d.adaptive_goals._final && d.adaptive_goals_ts > _lATs) {
-        // Formato nuevo con _final: solo aplicar si el local NO tiene ya un _final de hoy.
-        // Un segundo dispositivo que calcula diferente no debe pisar la meta del día ya fijada.
-        if (!_localHasFinalToday) {
-          localStorage.setItem('fb_dr_goals_adaptive', JSON.stringify(d.adaptive_goals));
-          localStorage.setItem('fb_dr_goals_adaptive_ts', String(d.adaptive_goals_ts));
-        }
-      } else if (!d.adaptive_goals._final && _lATs > 0) {
-        // Supabase tiene formato viejo pero el local es más nuevo con _final:true.
-        // Subir el valor local correcto a Supabase para que otros dispositivos lo usen.
-        if (_lAgNow && _lAgNow._final && typeof _supabasePrefsWrite === 'function') {
-          _supabasePrefsWrite({ adaptive_goals: _lAgNow, adaptive_goals_ts: _lATs }).catch(function(){});
+      var _sbAG = d.adaptive_goals;
+      var _sbFinalToday = _sbAG._final && _sbAG._q===1 && _sbAG._date===_todayAg;
+      if (_sbFinalToday) {
+        // Adoptar la meta canónica del día y fijar la fecha de sync para que
+        // updateDailyRings NO la recalcule ni la reescriba el resto del día.
+        localStorage.setItem('fb_dr_goals_adaptive', JSON.stringify(_sbAG));
+        localStorage.setItem('fb_dr_goals_adaptive_ts', String(d.adaptive_goals_ts));
+        localStorage.setItem('fb_dr_goals_adaptive_date', _todayAg);
+      } else {
+        // Supabase no tiene meta final de HOY (formato viejo o de otro día).
+        var _lATs = parseInt(localStorage.getItem('fb_dr_goals_adaptive_ts') || '0') || 0;
+        var _lAgNow = null; try { _lAgNow = JSON.parse(localStorage.getItem('fb_dr_goals_adaptive')||'null'); } catch(_e4) {}
+        var _localFinalToday = _lAgNow && _lAgNow._final && _lAgNow._q===1 && _lAgNow._date===_todayAg;
+        if (_localFinalToday && typeof _supabasePrefsWrite === 'function') {
+          // El local ya tiene la meta de hoy → subirla como canónica para los demás.
+          _supabasePrefsWrite({ adaptive_goals: _lAgNow, adaptive_goals_ts: _lATs || Date.now() }).catch(function(){});
+        } else {
+          // Nadie ha fijado la meta de hoy aún → que updateDailyRings la calcule y escriba.
+          localStorage.removeItem('fb_dr_goals_adaptive_date');
         }
       }
     }
