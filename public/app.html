@@ -8624,7 +8624,19 @@ async function checkProStatus() {
   } catch (e) { /* offline — trust localStorage */ }
 }
 
-async function proAction() {
+// Detecta moneda por país (mismo criterio que landing.html): MXN para México, USD resto.
+function airaDetectCurrency() {
+  try {
+    var tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || '');
+    var loc = (navigator.language || '');
+    if (/Mexico|Tijuana|Monterrey|Bahia_Banderas|Hermosillo|Mazatlan|Chihuahua|Ojinaga|Cancun|Merida|Matamoros/i.test(tz) || /-MX/i.test(loc)) return 'mxn';
+  } catch (e) {}
+  return 'usd';
+}
+
+async function proAction(plan, currency) {
+  plan = (plan === 'annual') ? 'annual' : 'monthly';
+  currency = (currency === 'mxn' || currency === 'usd') ? currency : airaDetectCurrency();
   // Require login before subscribing
   if (!localStorage.getItem('fb_tok')) {
     const msg = lang === 'es'
@@ -8663,7 +8675,7 @@ async function proAction() {
     const res = await fetch('/api/stripe/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: getAiraUid() }),
+      body: JSON.stringify({ user_id: getAiraUid(), plan: plan, currency: currency }),
     });
     const data = await res.json();
     if (data.url) {
@@ -9170,7 +9182,13 @@ function initDash() {
   }
   const p = new URLSearchParams(location.search);
   // Persist subscribe intent across the OAuth redirect
-  if (p.get('subscribe') === '1') localStorage.setItem('_pendingSubscribe', '1');
+  // Persist subscribe intent (plan + moneda) across el redirect de OAuth.
+  // ?subscribe=annual → bundle Fitbit Air; ?subscribe=1 → mensual (compat).
+  const _subParam = p.get('subscribe');
+  if (_subParam) {
+    localStorage.setItem('_pendingSubscribe', _subParam === 'annual' ? 'annual' : 'monthly');
+    if (p.get('cur')) localStorage.setItem('_pendingCur', p.get('cur') === 'mxn' ? 'mxn' : 'usd');
+  }
   // Handle Stripe redirect after checkout
   if (p.get('payment') === 'success') {
     history.replaceState(null, '', location.pathname);
@@ -9191,8 +9209,10 @@ function initDash() {
   else if (token) {
     // Already logged in — if coming from landing "subscribe" CTA, go straight to checkout
     if (localStorage.getItem('_pendingSubscribe')) {
-      localStorage.removeItem('_pendingSubscribe');
-      (_isG ? loadRealGoogle() : loadReal()).then(() => setTimeout(() => proAction(), 600)).catch(() => {});
+      const _pPlan = localStorage.getItem('_pendingSubscribe');
+      const _pCur = localStorage.getItem('_pendingCur');
+      localStorage.removeItem('_pendingSubscribe'); localStorage.removeItem('_pendingCur');
+      (_isG ? loadRealGoogle() : loadReal()).then(() => setTimeout(() => proAction(_pPlan, _pCur), 600)).catch(() => {});
     } else {
       var _hasSnap = _restoreSnap();
       _isG ? loadRealGoogle(null, _hasSnap) : loadReal(_hasSnap);
@@ -13781,8 +13801,10 @@ async function handleGoogleOAuth(code) {
       renderCoachAccess(); renderProBtnLabel(); refreshProThemeCards();
       // Auto-trigger checkout if user came from landing "Comenzar prueba gratis"
       if (localStorage.getItem('_pendingSubscribe')) {
-        localStorage.removeItem('_pendingSubscribe');
-        setTimeout(() => proAction(), 800);
+        const _pPlan = localStorage.getItem('_pendingSubscribe');
+        const _pCur = localStorage.getItem('_pendingCur');
+        localStorage.removeItem('_pendingSubscribe'); localStorage.removeItem('_pendingCur');
+        setTimeout(() => proAction(_pPlan, _pCur), 800);
       }
     } else {
       hideLoad();

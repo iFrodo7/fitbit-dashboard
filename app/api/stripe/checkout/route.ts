@@ -14,6 +14,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'user_id requerido' }, { status: 400 })
     }
 
+    // Plan: 'monthly' (default) o 'annual' (bundle Fitbit Air). Moneda: 'usd' (default) o 'mxn'.
+    const plan = body.plan === 'annual' ? 'annual' : 'monthly'
+    const currency = body.currency === 'mxn' ? 'mxn' : 'usd'
+
+    // Precios en la unidad mínima (centavos / centavos MXN).
+    const PRICING = {
+      monthly: { usd: 999, mxn: 17900 },     // $9.99 / $179
+      annual:  { usd: 9900, mxn: 179900 },   // $99   / $1,799  ("2 meses gratis")
+    } as const
+
+    const unitAmount = PRICING[plan][currency]
+    const interval = plan === 'annual' ? 'year' : 'month'
+    const planName = plan === 'annual' ? 'AIRA PRO Anual' : 'AIRA PRO'
+    const planDesc = plan === 'annual'
+      ? '12 meses de AIRA PRO — Coach IA ilimitado, temas exclusivos y todas las funciones premium'
+      : 'Coach IA avanzado, análisis ilimitado y acceso a todas las funciones premium'
+
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://fitbit-dashboard-zeta.vercel.app'
 
     // Buscar o crear customer en Stripe
@@ -39,24 +56,25 @@ export async function POST(req: NextRequest) {
       line_items: [
         {
           price_data: {
-            currency: 'usd',
+            currency,
             product_data: {
-              name: 'AIRA PRO',
-              description: 'Coach IA avanzado, análisis ilimitado y acceso a todas las funciones premium',
+              name: planName,
+              description: planDesc,
               images: [`${appUrl}/icons/icon-192.png`],
             },
-            unit_amount: 999, // $9.99
-            recurring: { interval: 'month' },
+            unit_amount: unitAmount,
+            recurring: { interval },
           },
           quantity: 1,
         },
       ],
-      success_url: `${appUrl}/public/app.html?payment=success`,
-      cancel_url: `${appUrl}/public/app.html?payment=canceled`,
-      metadata: { user_id: userId },
+      success_url: `${appUrl}/app.html?payment=success`,
+      cancel_url: `${appUrl}/app.html?payment=canceled`,
+      metadata: { user_id: userId, plan },
       subscription_data: {
-        trial_period_days: 7,
-        metadata: { user_id: userId },
+        // El plan anual no lleva trial: los "2 meses gratis" ya están en el precio.
+        ...(plan === 'annual' ? {} : { trial_period_days: 7 }),
+        metadata: { user_id: userId, plan },
       },
     })
 
