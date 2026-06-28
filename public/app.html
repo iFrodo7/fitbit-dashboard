@@ -13716,7 +13716,17 @@ async function handleOAuth(code) {
     else headers['Authorization'] = 'Basic '+btoa(cid+':');  // manual "Personal" app
     const r = await fetch(HS.oauth.token,{method:'POST',headers,body:new URLSearchParams(body)});
     const d = await r.json();
-    if (d.access_token) { localStorage.setItem('fb_tok',d.access_token); if(d.refresh_token)localStorage.setItem('fb_rt',d.refresh_token); localStorage.removeItem('fb_pkce_v'); token=d.access_token; if(!isNativeApp())history.replaceState({},'',location.pathname); await loadReal(); }
+    if (d.access_token) {
+      localStorage.setItem('fb_tok',d.access_token); if(d.refresh_token)localStorage.setItem('fb_rt',d.refresh_token); localStorage.removeItem('fb_pkce_v'); token=d.access_token; if(!isNativeApp())history.replaceState({},'',location.pathname);
+      await loadReal();
+      // Auto-trigger checkout if user came from landing "subscribe" CTA (same as Google OAuth flow).
+      if (localStorage.getItem('_pendingSubscribe')) {
+        const _pPlan = localStorage.getItem('_pendingSubscribe');
+        const _pCur = localStorage.getItem('_pendingCur');
+        localStorage.removeItem('_pendingSubscribe'); localStorage.removeItem('_pendingCur');
+        setTimeout(() => proAction(_pPlan, _pCur), 800);
+      }
+    }
   } catch(e) { hideLoad(); }
 }
 
