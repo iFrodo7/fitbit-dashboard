@@ -13023,6 +13023,7 @@ function updateDailyRings() {
     if (_ss > (window._wkTodayStreakReal || 0)) window._wkTodayStreakReal = _ss;
     // "Meta cumplida" (issue #68): notifica 1/día al cruzar la meta del día.
     if (typeof notifCheckGoalMet === 'function') notifCheckGoalMet(steps, ag.stp, _ss);
+    if (typeof notifCheckCalMet === 'function') notifCheckCalMet(cal, ag.cal);
     // Sube la señal derivada para que el cron decida racha en riesgo / resumen matutino.
     window._sigInputs = { steps: steps, goal: ag.stp, streak: _ss };
     if (typeof _pushNotifSignal === 'function') _pushNotifSignal();
@@ -15162,6 +15163,13 @@ async function pollFastGoogle() {
         document.getElementById('stepspct').textContent=pct.toFixed(1)+(lang==='es'?'% COMPLETADO HOY':'% COMPLETED TODAY');
         if (tot>0) flash('stepsv');
       }
+      // Notif + señal derivada para el cron (flujo GH — mismo patrón que flujo Fitbit línea ~13025).
+      if (tot>0) {
+        var _ghStGoal = _loadDRGoals().stp;
+        if (typeof notifCheckGoalMet === 'function') notifCheckGoalMet(tot, _ghStGoal, window._wkTodayStreakReal || 0);
+        window._sigInputs = { steps: tot, goal: _ghStGoal, streak: window._wkTodayStreakReal || 0 };
+        if (typeof _pushNotifSignal === 'function') _pushNotifSignal();
+      }
       // Distance: actualizar en cada poll (real si hay wearable, estimado si no).
       if (tot>0) {
         const _dpr=distD?.rollupDataPoints?.[0];
@@ -15183,6 +15191,7 @@ async function pollFastGoogle() {
         if (totCal>0) flash('calv');
         _updateCalBalance();
       }
+      if (totCal>0 && typeof notifCheckCalMet === 'function') notifCheckCalMet(totCal, _loadDRGoals().cal);
     } else if (stD?.rollupDataPoints?.length) {
       // total-calories dio 400 → estima desde pasos si el valor actual sigue en '0'
       const _sdp2=stD.rollupDataPoints[0];
@@ -16031,6 +16040,25 @@ function notifCheckGoalMet(steps, goal, streak) {
     es ? '🎯 ¡Meta cumplida!' : '🎯 Goal complete!',
     (es ? g + ' pasos' : g + ' steps') + tail,
     'goal-met'
+  );
+}
+
+// Notificación de meta de calorías cumplida (1/día, client-side, mismo patrón que notifCheckGoalMet).
+function notifCheckCalMet(cal, goal) {
+  if (!notifEnabled() || !notifCatEnabled('achv')) return;
+  cal  = parseInt(cal,  10) || 0;
+  goal = parseInt(goal, 10) || 0;
+  if (!goal || cal < goal) return;
+  var today = _localDateStr();
+  try { if (localStorage.getItem('fb_notif_calmet_date') === today) return; } catch(e) {}
+  try { localStorage.setItem('fb_notif_calmet_date', today); } catch(e) {}
+  try { if (document.visibilityState === 'visible') return; } catch(e) {}
+  if (notifInQuietHours()) return;
+  var es = lang === 'es';
+  showLocalNotification(
+    es ? '🔥 ¡Meta de calorías!' : '🔥 Calorie goal!',
+    (es ? goal.toLocaleString('en-US') + ' kcal activas completadas' : goal.toLocaleString('en-US') + ' active kcal done'),
+    'cal-met'
   );
 }
 
