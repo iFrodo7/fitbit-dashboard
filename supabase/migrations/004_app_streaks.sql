@@ -5,3 +5,7 @@ create table public.app_streaks (
   count       int  not null default 1,  -- días consecutivos
   updated_at  timestamptz default now()
 );
+
+-- RLS: cada fila solo es accesible por el service role (escritura del servidor).
+-- Sin esta línea cualquier cliente con la clave anon podría leer todos los emails.
+ALTER TABLE public.app_streaks ENABLE ROW LEVEL SECURITY;
