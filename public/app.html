@@ -14624,6 +14624,18 @@ async function loadRealGoogleData(silentRefresh) {
     window._recReliable = false;
     updateDailyRings();
     if (!window._drAnimDone) { window._drAnimDone = true; setTimeout(animateDailyRings, 200); }
+    // Aviso de sincronización: GH no ha volcado datos del dispositivo todavía.
+    // Solo se muestra después de las 7am (antes es normal no tener datos) y una
+    // vez por día para no saturar. La clave incluye la fecha para auto-expirar.
+    var _syncHintKey = 'gh_sync_hint_' + td;
+    if (!localStorage.getItem(_syncHintKey) && new Date().getHours() >= 7) {
+      localStorage.setItem(_syncHintKey, '1');
+      setTimeout(function() {
+        showToast(lang === 'es'
+          ? '↺ Abre Google Health para sincronizar los datos de hoy'
+          : '↺ Open Google Health to sync today\'s data', 'info');
+      }, 2500);
+    }
   }
   notifCheckRHR(rhr_v); notifMarkSync();
   // setHRZones updates restHR/maxHR always; zone bars only when azZones has data (guard inside)
