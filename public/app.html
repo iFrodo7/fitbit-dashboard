@@ -14,6 +14,19 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png?v=10">
 <link rel="icon" type="image/svg+xml" href="/icons/icon.svg?v=10">
 <title>AIRA — BIOMETRIC DASHBOARD</title>
+<!-- Meta Pixel — ID: 1401510601815968 -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1401510601815968');
+fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1401510601815968&ev=PageView&noscript=1"/></noscript>
+<!-- End Meta Pixel -->
 <!-- Early-boot: apply theme class and flag loader BEFORE body renders.
      Eliminates the flash of content for returning users.
      Runs synchronously so the first browser paint already has the correct state. -->
@@ -8679,6 +8692,7 @@ async function proAction(plan, currency) {
     });
     const data = await res.json();
     if (data.url) {
+      if (window.fbq) fbq('track', 'InitiateCheckout', { value: plan === 'yearly' ? 59.99 : 9.99, currency: currency.toUpperCase() });
       window.location.href = data.url;
     } else {
       throw new Error(data.error || 'checkout failed');
@@ -9120,7 +9134,8 @@ window.addEventListener('beforeinstallprompt', (e) => {
 function installPWA() {
   if (!deferredPrompt) return;
   deferredPrompt.prompt();
-  deferredPrompt.userChoice.then(() => {
+  deferredPrompt.userChoice.then((choice) => {
+    if (choice.outcome === 'accepted' && window.fbq) fbq('trackCustom', 'pwa_installed');
     deferredPrompt = null;
     document.getElementById('install-banner').style.display = 'none';
   });
@@ -13723,6 +13738,7 @@ async function handleOAuth(code) {
     if (d.access_token) {
       localStorage.setItem('fb_tok',d.access_token); if(d.refresh_token)localStorage.setItem('fb_rt',d.refresh_token); localStorage.removeItem('fb_pkce_v'); token=d.access_token; if(!isNativeApp())history.replaceState({},'',location.pathname);
       await loadReal();
+      if (window.fbq) fbq('track', 'Lead');
       // Auto-trigger checkout if user came from landing "subscribe" CTA (same as Google OAuth flow).
       if (localStorage.getItem('_pendingSubscribe')) {
         const _pPlan = localStorage.getItem('_pendingSubscribe');
