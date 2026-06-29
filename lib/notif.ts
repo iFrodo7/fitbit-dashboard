@@ -8,7 +8,7 @@
 // salud, preservando la exención $0 del assessment CASA (ver MIGRATION.md).
 
 export interface NotifCats {
-  achv: boolean;      // "meta cumplida" (se dispara client-side, no en el cron)
+  achv: boolean;      // "meta cumplida" — client-side inmediato + cron como fallback con celular bloqueado
   streak: boolean;    // "racha en riesgo" (de pasos)
   recovery: boolean;  // "resumen matutino"
   open: boolean;      // "racha de uso" — recordatorio ingenioso de abrir la app
@@ -33,9 +33,10 @@ export interface NotifState {
   morningSent?: boolean;
   streakSent?: boolean;
   openSent?: boolean;
+  achvSent?: boolean;   // meta de pasos cumplida — enviado hoy
 }
 
-export type NotifKind = "morning" | "streak" | "open";
+export type NotifKind = "morning" | "streak" | "open" | "achv";
 
 export interface NotifDecision {
   kind: NotifKind;
@@ -131,6 +132,30 @@ export function decideNotif(
   // Señal vieja (de ayer): el cliente no ha sincronizado hoy → para resumen/racha
   // de pasos no arriesgamos (necesitan datos frescos de HOY).
   if (sig.date !== date) return null;
+
+  // ── Meta de pasos cumplida (cualquier hora entre 7am–21:00) ──
+  // Fallback server-side para cuando el celular está bloqueado y el client-side
+  // no pudo disparar el postMessage. Se envía en el primer tick tras detectar
+  // goalMet:true. El client-side también lo intenta (dedup por fb_notif_goalmet_date
+  // local), pero si llegó primero el cron, el usuario ya lo vio.
+  if (
+    sig.goalMet &&
+    sig.cats && sig.cats.achv !== false &&
+    hour >= MORNING_HOUR && hour < 21
+  ) {
+    if (!sentToday || !sentToday.achvSent) {
+      const streak = sig.streak || 0;
+      const tail = streak >= 2
+        ? (es ? ` · racha de ${streak} días 🔥` : ` · ${streak}-day streak 🔥`)
+        : "";
+      return {
+        kind: "achv",
+        title: es ? "🎯 ¡Meta cumplida!" : "🎯 Goal complete!",
+        body: (es ? "Completaste tu meta de pasos hoy" : "You hit your step goal today") + tail,
+        tag: "goal-met",
+      };
+    }
+  }
 
   // ── Resumen matutino (7am local) ──
   if (hour === MORNING_HOUR && sig.cats && sig.cats.recovery !== false && sig.recovery != null) {
