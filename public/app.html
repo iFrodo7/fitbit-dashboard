@@ -12343,6 +12343,9 @@ async function _supabasePrefsRead() {
         }
       } catch (_ne) {}
       if (typeof _syncNotifUI === 'function') { try { _syncNotifUI(); } catch(_se){} }
+      // Subir señal fresca para que el cron tenga datos de este dispositivo
+      // sin esperar al próximo poll (cold-start gap: hasta 1h sin notifs).
+      if (typeof _pushNotifSignal === 'function') { try { _pushNotifSignal(); } catch(_pe){} }
     }
     // Bio: timestamp independiente (bio_ts) para no competir con tema/idioma.
     // Cualquier cambio de tema/idioma sube prefs_ts y bloquearía el bio del otro
@@ -13021,11 +13024,11 @@ function updateDailyRings() {
       }
     }
     if (_ss > (window._wkTodayStreakReal || 0)) window._wkTodayStreakReal = _ss;
-    // "Meta cumplida" (issue #68): notifica 1/día al cruzar la meta del día.
+    // _sigInputs primero: notifCheckGoalMet/CalMet llaman _pushNotifSignal internamente
+    // y necesitan _sigInputs actualizado para que la señal derivada sea correcta.
+    window._sigInputs = { steps: steps, goal: ag.stp, streak: _ss };
     if (typeof notifCheckGoalMet === 'function') notifCheckGoalMet(steps, ag.stp, _ss);
     if (typeof notifCheckCalMet === 'function') notifCheckCalMet(cal, ag.cal);
-    // Sube la señal derivada para que el cron decida racha en riesgo / resumen matutino.
-    window._sigInputs = { steps: steps, goal: ag.stp, streak: _ss };
     if (typeof _pushNotifSignal === 'function') _pushNotifSignal();
     var _sse=document.getElementById('steps-streak-val');
     // Show "90+" with disclaimer if streak hit the 90-day init cap and hasn't grown past it yet
@@ -15511,14 +15514,16 @@ async function loadReal(silentRefresh) {
     // Whoop-style scores con datos reales
     const rhr_real = hr?.['activities-heart']?.[0]?.value?.restingHeartRate || 68;
     const mainSleep = sl?.sleep?.find(s=>s.isMainSleep) ?? sl?.sleep?.[0];
-    updateScores(calcScores({
+    const _fbScoreOpts = {
       sleepMin: sl?.summary?.totalMinutesAsleep || 0,
       sleepEff: mainSleep?.efficiency || 85,
       deep:     sl?.summary?.stages?.deep || 0,
       rem:      sl?.summary?.stages?.rem  || 0,
       rhr:      rhr_real,
       zones:    hr?.['activities-heart']?.[0]?.value?.heartRateZones || [],
-    }));
+    };
+    updateScores(calcScores(_fbScoreOpts));
+    window._lastScoreOpts = _fbScoreOpts; // para _buildNotifSignal (sleepMin en resumen matutino)
     notifCheckRHR(rhr_real); notifMarkSync();
     // Stress score con datos reales (HRV proxy desde FC nocturna si disponible)
     setStressBars({ hrv: 68, rhr: rhr_real, br: 14 });
@@ -15961,7 +15966,7 @@ function showLocalNotification(title, body, tag, url) {
 // ── Triggers (called from polling) ──
 window._notifState = { lastSync: Date.now(), lastRhrAlert: 0 };
 async function notifCheckRHR(rhr) {
-  if (!notifEnabled() || !rhr) return;
+  if (!notifEnabled() || !notifCatEnabled('rhr') || !rhr) return;
   // Baseline personal: media de RHR de días completos cacheados en IndexedDB.
   // Necesita ≥3 días para ser fiable; si no, usa 65 como fallback neutro.
   let base = 65;
@@ -16096,7 +16101,7 @@ function _buildNotifSignal() {
     sleepMin: slp,
     openStreak: parseInt(os.count, 10) || 0,
     lastOpenDate: os.lastDate || '',
-    cats: { achv: notifCatEnabled('achv'), streak: notifCatEnabled('streak'), recovery: notifCatEnabled('recovery'), open: notifCatEnabled('open') },
+    cats: { achv: notifCatEnabled('achv'), streak: notifCatEnabled('streak'), recovery: notifCatEnabled('recovery'), open: notifCatEnabled('open'), rhr: notifCatEnabled('rhr') },
     updatedAt: Date.now()
   };
 }

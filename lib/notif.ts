@@ -12,6 +12,7 @@ export interface NotifCats {
   streak: boolean;    // "racha en riesgo" (de pasos)
   recovery: boolean;  // "resumen matutino"
   open: boolean;      // "racha de uso" — recordatorio ingenioso de abrir la app
+  rhr?: boolean;      // "FC reposo elevada" — apagable por categoría
 }
 
 export interface NotifSignal {
@@ -174,7 +175,7 @@ export function decideNotif(
   }
 
   // ── FC Reposo elevada (cualquier hora entre 7am–21:00, tope 1/día) ──
-  if (sig.rhrElevated && hour >= MORNING_HOUR && hour < 21) {
+  if (sig.rhrElevated && sig.cats && sig.cats.rhr !== false && hour >= MORNING_HOUR && hour < 21) {
     if (!sentToday || !sentToday.rhrSent) {
       return {
         kind: "rhr",
@@ -187,8 +188,10 @@ export function decideNotif(
     }
   }
 
-  // ── Resumen matutino (7am local) ──
-  if (hour === MORNING_HOUR && sig.cats && sig.cats.recovery !== false && sig.recovery != null) {
+  // ── Resumen matutino (7am–9am local) ──
+  // Ventana de 2h para capturar sincronizaciones tardías de sueño/recovery
+  // sin arriesgar que el cron pase el único tick exacto de las 7am.
+  if (hour >= MORNING_HOUR && hour < 9 && sig.cats && sig.cats.recovery !== false && sig.recovery != null) {
     if (sentToday && sentToday.morningSent) return null;
     const rec = Math.round(sig.recovery);
     const slp = sleepStr(sig.sleepMin);
