@@ -15974,6 +15974,9 @@ async function notifCheckRHR(rhr) {
   const now = Date.now();
   if (rhr >= HIGH && (now - window._notifState.lastRhrAlert) > 2*60*60*1000) {
     window._notifState.lastRhrAlert = now;
+    // Flag para la señal del cron — permite push aunque la app esté cerrada.
+    window._notifRhrFlag = { elevated: true, date: _localDateStr() };
+    if (typeof _pushNotifSignal === 'function') _pushNotifSignal();
     const over = Math.round(rhr - base);
     showLocalNotification(
       lang==='es' ? '⚠️ FC en reposo elevada' : '⚠️ Elevated resting HR',
@@ -16052,6 +16055,9 @@ function notifCheckCalMet(cal, goal) {
   var today = _localDateStr();
   try { if (localStorage.getItem('fb_notif_calmet_date') === today) return; } catch(e) {}
   try { localStorage.setItem('fb_notif_calmet_date', today); } catch(e) {}
+  // Flag para la señal del cron — permite push aunque la app esté cerrada.
+  window._notifCalFlag = { met: true, date: today };
+  if (typeof _pushNotifSignal === 'function') _pushNotifSignal();
   try { if (document.visibilityState === 'visible') return; } catch(e) {}
   if (notifInQuietHours()) return;
   var es = lang === 'es';
@@ -16075,10 +16081,15 @@ function _buildNotifSignal() {
   var rec = (typeof window._lastRec === 'number' && window._lastRec > 0) ? Math.round(window._lastRec) : null;
   var slp = (window._lastScoreOpts && parseInt(window._lastScoreOpts.sleepMin, 10)) || null;
   var os = {}; try { os = JSON.parse(localStorage.getItem('fb_open_streak') || '{}'); } catch(e) {}
+  var _today = _localDateStr();
+  var _calF = window._notifCalFlag;
+  var _rhrF = window._notifRhrFlag;
   return {
-    date: _localDateStr(),
+    date: _today,
     tzOffset: new Date().getTimezoneOffset(),
     goalMet: goal > 0 && steps >= goal,
+    calGoalMet: !!(_calF && _calF.date === _today && _calF.met),
+    rhrElevated: !!(_rhrF && _rhrF.date === _today && _rhrF.elevated),
     streak: parseInt(si.streak, 10) || 0,
     stepsRemaining: rem,
     recovery: rec,

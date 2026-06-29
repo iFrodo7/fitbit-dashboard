@@ -18,6 +18,8 @@ export interface NotifSignal {
   date: string;              // 'YYYY-MM-DD' en la fecha LOCAL del usuario
   tzOffset: number;          // Date.getTimezoneOffset() en minutos (UTC-5 → +300)
   goalMet: boolean;
+  calGoalMet?: boolean;      // meta de calorías activas cumplida
+  rhrElevated?: boolean;     // FC reposo >7bpm sobre baseline personal
   streak: number;
   stepsRemaining: number;    // bucketed (aprox) — solo para el copy
   recovery: number | null;
@@ -34,9 +36,11 @@ export interface NotifState {
   streakSent?: boolean;
   openSent?: boolean;
   achvSent?: boolean;   // meta de pasos cumplida — enviado hoy
+  calSent?: boolean;    // meta de calorías cumplida — enviado hoy
+  rhrSent?: boolean;    // RHR elevado — enviado hoy (tope 1/día)
 }
 
-export type NotifKind = "morning" | "streak" | "open" | "achv";
+export type NotifKind = "morning" | "streak" | "open" | "achv" | "cal" | "rhr";
 
 export interface NotifDecision {
   kind: NotifKind;
@@ -153,6 +157,32 @@ export function decideNotif(
         title: es ? "🎯 ¡Meta cumplida!" : "🎯 Goal complete!",
         body: (es ? "Completaste tu meta de pasos hoy" : "You hit your step goal today") + tail,
         tag: "goal-met",
+      };
+    }
+  }
+
+  // ── Meta de calorías cumplida (cualquier hora entre 7am–21:00) ──
+  if (sig.calGoalMet && sig.cats && sig.cats.achv !== false && hour >= MORNING_HOUR && hour < 21) {
+    if (!sentToday || !sentToday.calSent) {
+      return {
+        kind: "cal",
+        title: es ? "🔥 ¡Meta de calorías!" : "🔥 Calorie goal!",
+        body: es ? "Completaste tu meta de calorías activas hoy" : "You hit your active calorie goal today",
+        tag: "cal-met",
+      };
+    }
+  }
+
+  // ── FC Reposo elevada (cualquier hora entre 7am–21:00, tope 1/día) ──
+  if (sig.rhrElevated && hour >= MORNING_HOUR && hour < 21) {
+    if (!sentToday || !sentToday.rhrSent) {
+      return {
+        kind: "rhr",
+        title: es ? "❤️ FC Reposo elevada" : "❤️ Elevated resting HR",
+        body: es
+          ? "Tu frecuencia cardíaca en reposo está por encima de tu promedio — descansa bien hoy"
+          : "Your resting heart rate is above your baseline — take it easy today",
+        tag: "rhr-alert",
       };
     }
   }

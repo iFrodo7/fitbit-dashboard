@@ -93,6 +93,8 @@ export async function GET(request: NextRequest) {
         streakSent: prev.streakSent || decision.kind === "streak",
         openSent: prev.openSent || decision.kind === "open",
         achvSent: prev.achvSent || decision.kind === "achv",
+        calSent: prev.calSent || decision.kind === "cal",
+        rhrSent: prev.rhrSent || decision.kind === "rhr",
       };
       await db.from("app_user_prefs").update({ notif_state: next }).eq("email", email);
     }
