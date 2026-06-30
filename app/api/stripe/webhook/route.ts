@@ -6,6 +6,15 @@ import { sendMetaPurchaseEvent } from '@/lib/meta-capi'
 
 export const runtime = 'nodejs'
 
+// En la API 2026-05-27.dahlia, current_period_end se movió del objeto Subscription
+// al item (subscription.items.data[].current_period_end). Leemos de ambos y toleramos
+// undefined para no romper el webhook (un Date inválido lanzaba RangeError y abortaba
+// el upsert → PRO nunca se activaba).
+function periodEndISO(sub: any): string | null {
+  const ts = sub?.current_period_end ?? sub?.items?.data?.[0]?.current_period_end
+  return ts ? new Date(ts * 1000).toISOString() : null
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.text()
   const sig = req.headers.get('stripe-signature')!
@@ -35,7 +44,7 @@ export async function POST(req: NextRequest) {
         stripe_subscription_id: sub.id,
         status: 'active',
         plan: 'pro',
-        current_period_end: new Date((sub as any).current_period_end * 1000).toISOString(),
+        current_period_end: periodEndISO(sub),
       }, { onConflict: 'user_id' })
 
       await sendMetaPurchaseEvent({
@@ -57,7 +66,7 @@ export async function POST(req: NextRequest) {
         stripe_subscription_id: sub.id,
         status: sub.status === 'active' ? 'active' : sub.status as any,
         plan: sub.status === 'active' ? 'pro' : 'free',
-        current_period_end: new Date((sub as any).current_period_end * 1000).toISOString(),
+        current_period_end: periodEndISO(sub),
       }, { onConflict: 'user_id' })
       break
     }
