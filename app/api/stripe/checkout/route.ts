@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     // Precios en la unidad mínima (centavos / centavos MXN).
     const PRICING = {
       monthly: { usd: 999, mxn: 17900 },     // $9.99 / $179
-      annual:  { usd: 9900, mxn: 179900 },   // $99   / $1,799  ("2 meses gratis")
+      annual:  { usd: 7900, mxn: 149900 },   // $79   / $1,499  (~30% off vs mensual)
     } as const
 
     const unitAmount = PRICING[plan][currency]
