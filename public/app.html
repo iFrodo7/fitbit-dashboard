@@ -8648,7 +8648,7 @@ function airaDetectCurrency() {
 }
 
 async function proAction(plan, currency) {
-  plan = (plan === 'annual' || plan === 'test') ? plan : 'monthly';
+  plan = plan === 'annual' ? 'annual' : 'monthly';
   currency = (currency === 'mxn' || currency === 'usd') ? currency : airaDetectCurrency();
   // Require login before subscribing
   if (!localStorage.getItem('fb_tok')) {
@@ -9201,7 +9201,7 @@ function initDash() {
   // ?subscribe=annual → bundle Fitbit Air; ?subscribe=1 → mensual (compat).
   const _subParam = p.get('subscribe');
   if (_subParam) {
-    localStorage.setItem('_pendingSubscribe', (_subParam === 'annual' || _subParam === 'test') ? _subParam : 'monthly');
+    localStorage.setItem('_pendingSubscribe', _subParam === 'annual' ? 'annual' : 'monthly');
     if (p.get('cur')) localStorage.setItem('_pendingCur', p.get('cur') === 'mxn' ? 'mxn' : 'usd');
   }
   // Handle Stripe redirect after checkout
