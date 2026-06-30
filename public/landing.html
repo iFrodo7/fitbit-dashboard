@@ -1262,7 +1262,8 @@ footer {
         </ul>
         <div class="pc-cta">
           <a href="/app.html?subscribe=annual" data-cur-link class="btn btn-primary" style="font-size:15px;padding:16px;background:linear-gradient(90deg,#ffb627,#ff7b00);border:none;" data-i18n="pricingBundleCTA">Activar PRO 12 meses →</a>
-          <a href="https://www.amazon.com/dp/B0GTMTZF3V?tag=airabiometric-20" target="_blank" rel="noopener sponsored" class="btn btn-ghost" style="font-size:13px;padding:12px;" data-i18n="pricingBundleAmazon">Ver Fitbit Air en Amazon →</a>
+          <!-- TODO: reemplazar TU_TAG_MX por el tag real de Amazon Associates MÉXICO (sin él, el tráfico MX no genera comisión) -->
+          <a href="https://www.amazon.com/dp/B0GTMTZF3V?tag=airabiometric-20" data-amz-link data-us="https://www.amazon.com/dp/B0GTMTZF3V?tag=airabiometric-20" data-mx="https://www.amazon.com.mx/dp/B0GTMTZF3V?tag=TU_TAG_MX" target="_blank" rel="noopener sponsored" class="btn btn-ghost" style="font-size:13px;padding:12px;" data-i18n="pricingBundleAmazon">Ver Fitbit Air en Amazon →</a>
           <p class="pc-legal" data-i18n="pricingBundleLegal">Pago anual único · Cancela la renovación cuando quieras</p>
           <p class="pc-legal" style="opacity:0.7;" data-i18n="pricingBundleDisclosure">Como Afiliado de Amazon, AIRA gana por compras que califiquen.</p>
         </div>
@@ -1713,6 +1714,12 @@ counters.forEach(c => cIO.observe(c));
     // Propaga la moneda detectada al checkout para que el precio coincida con lo mostrado.
     document.querySelectorAll('a[data-cur-link]').forEach(function(a){
       try { var u = new URL(a.getAttribute('href'), location.origin); u.searchParams.set('cur', cur); a.setAttribute('href', u.pathname + u.search); } catch(e){}
+    });
+    // Rutea el link de Amazon al marketplace del país: MX -> .com.mx, resto -> .com
+    // (cada marketplace requiere su propio tag de Afiliados para generar comisión).
+    document.querySelectorAll('a[data-amz-link]').forEach(function(a){
+      var dest = (cur === 'mxn') ? a.getAttribute('data-mx') : a.getAttribute('data-us');
+      if (dest) a.setAttribute('href', dest);
     });
     document.documentElement.setAttribute('data-currency', cur);
   }
