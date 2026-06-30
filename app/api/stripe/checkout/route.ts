@@ -14,19 +14,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'user_id requerido' }, { status: 400 })
     }
 
-    // Plan: 'monthly' (default) o 'annual' (bundle Fitbit Air). Moneda: 'usd' (default) o 'mxn'.
-    const plan = body.plan === 'annual' ? 'annual' : 'monthly'
+    // Plan: 'monthly' (default), 'annual' (bundle Fitbit Air) o 'test' (verificación E2E, mínimo Stripe).
+    // ⚠️ TEMPORAL: 'test' es solo para validar el flujo en prod; QUITAR tras la prueba.
+    const plan = body.plan === 'annual' ? 'annual' : body.plan === 'test' ? 'test' : 'monthly'
     const currency = body.currency === 'mxn' ? 'mxn' : 'usd'
 
     // Precios en la unidad mínima (centavos / centavos MXN).
     const PRICING = {
       monthly: { usd: 999, mxn: 17900 },     // $9.99 / $179
       annual:  { usd: 7900, mxn: 149900 },   // $79   / $1,499  (~30% off vs mensual)
+      test:    { usd: 50,  mxn: 1000 },      // $0.50 / $10.00  (mínimo Stripe — TEMPORAL)
     } as const
 
     const unitAmount = PRICING[plan][currency]
     const interval = plan === 'annual' ? 'year' : 'month'
-    const planName = plan === 'annual' ? 'AIRA PRO Anual' : 'AIRA PRO'
+    const planName = plan === 'annual' ? 'AIRA PRO Anual' : (plan === 'test' ? 'AIRA PRO (prueba)' : 'AIRA PRO')
     const planDesc = plan === 'annual'
       ? '12 meses de AIRA PRO — Coach IA ilimitado, temas exclusivos y todas las funciones premium'
       : 'Coach IA avanzado, análisis ilimitado y acceso a todas las funciones premium'
@@ -72,8 +74,8 @@ export async function POST(req: NextRequest) {
       cancel_url: `${appUrl}/app.html?payment=canceled`,
       metadata: { user_id: userId, plan },
       subscription_data: {
-        // El plan anual no lleva trial: los "2 meses gratis" ya están en el precio.
-        ...(plan === 'annual' ? {} : { trial_period_days: 7 }),
+        // El plan anual no lleva trial (descuento ya en precio); 'test' tampoco (para cobrar y validar el flujo).
+        ...((plan === 'annual' || plan === 'test') ? {} : { trial_period_days: 7 }),
         metadata: { user_id: userId, plan },
       },
     })
