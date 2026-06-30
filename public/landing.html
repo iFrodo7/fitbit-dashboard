@@ -1249,21 +1249,21 @@ footer {
         <div class="pc-badge pc-badge-bundle" data-i18n="pricingBundleBadge">★ MEJOR VALOR</div>
         <div class="pc-plan" style="color:#ffb627;" data-i18n="pricingBundlePlan">AIRA PRO ANUAL + FITBIT AIR</div>
         <div class="pc-price">
-          <!-- TODO: ajustar precios finales (data-usd / data-mxn). El símbolo se elige por país. -->
-          <span class="pc-amount pc-amount-bundle" data-usd="$99" data-mxn="$1,799">$99</span>
+          <span class="pc-amount pc-amount-bundle" data-usd="$79" data-mxn="$1,499">$79</span>
           <span class="pc-per" data-i18n="pricingBundlePer">/año</span>
         </div>
-        <div class="pc-note-sub" style="color:#ffb627;opacity:0.85;" data-i18n="pricingBundleNote">2 meses gratis · La pulsera la compras en Amazon</div>
+        <div class="pc-note-sub" style="color:#ffb627;opacity:0.85;" data-i18n="pricingBundleNote">Ahorra 30% · La pulsera la compras en Amazon</div>
         <div class="pc-divider"></div>
         <ul class="pc-feats">
-          <li><span class="ci">★</span><span class="ct" data-i18n-html="pricingBundleF1"><strong>12 meses de AIRA PRO</strong> — pagas 10, te llevas 12. Todo lo de PRO incluido</span></li>
+          <li><span class="ci">★</span><span class="ct" data-i18n-html="pricingBundleF1"><strong>12 meses de AIRA PRO</strong> — ahorra 30% vs el plan mensual. Todo lo de PRO incluido</span></li>
           <li><span class="ci">🎨</span><span class="ct" data-i18n-html="pricingBundleF2"><strong>Todos los temas PRO desbloqueados</strong> — Voxel y Synthwave desde el día uno</span></li>
           <li><span class="ci">⌚</span><span class="ct" data-i18n-html="pricingBundleF3"><strong>Tu Fitbit Air</strong> — la consigues en Amazon con nuestro enlace, lista para emparejar</span></li>
           <li><span class="ci">⚡</span><span class="ct" data-i18n-html="pricingBundleF4"><strong>Activación inmediata</strong> — empareja la pulsera y PRO se activa al instante</span></li>
         </ul>
         <div class="pc-cta">
           <a href="/app.html?subscribe=annual" data-cur-link class="btn btn-primary" style="font-size:15px;padding:16px;background:linear-gradient(90deg,#ffb627,#ff7b00);border:none;" data-i18n="pricingBundleCTA">Activar PRO 12 meses →</a>
-          <a href="https://www.amazon.com/dp/B0GTMTZF3V?tag=airabiometric-20" target="_blank" rel="noopener sponsored" class="btn btn-ghost" style="font-size:13px;padding:12px;" data-i18n="pricingBundleAmazon">Ver Fitbit Air en Amazon →</a>
+          <!-- TODO: reemplazar TU_TAG_MX por el tag real de Amazon Associates MÉXICO (sin él, el tráfico MX no genera comisión) -->
+          <a href="https://www.amazon.com/dp/B0GTMTZF3V?tag=airabiometric-20" data-amz-link data-us="https://www.amazon.com/dp/B0GTMTZF3V?tag=airabiometric-20" data-mx="https://www.amazon.com.mx/dp/B0GTMTZF3V?tag=TU_TAG_MX" target="_blank" rel="noopener sponsored" class="btn btn-ghost" style="font-size:13px;padding:12px;" data-i18n="pricingBundleAmazon">Ver Fitbit Air en Amazon →</a>
           <p class="pc-legal" data-i18n="pricingBundleLegal">Pago anual único · Cancela la renovación cuando quieras</p>
           <p class="pc-legal" style="opacity:0.7;" data-i18n="pricingBundleDisclosure">Como Afiliado de Amazon, AIRA gana por compras que califiquen.</p>
         </div>
@@ -1510,8 +1510,8 @@ const T = {
     pricingProCTA:'Comenzar prueba gratis →',
     pricingProLegal:'Sin tarjeta cobrada hoy · Cancela antes de 7 días y no pagas nada · Luego se cobra la mensualidad',
     pricingBundleBadge:'★ MEJOR VALOR', pricingBundlePlan:'AIRA PRO ANUAL + FITBIT AIR', pricingBundlePer:'/año',
-    pricingBundleNote:'2 meses gratis · La pulsera la compras en Amazon',
-    pricingBundleF1:'<strong>12 meses de AIRA PRO</strong> — pagas 10, te llevas 12. Todo lo de PRO incluido',
+    pricingBundleNote:'Ahorra 30% · La pulsera la compras en Amazon',
+    pricingBundleF1:'<strong>12 meses de AIRA PRO</strong> — ahorra 30% vs el plan mensual. Todo lo de PRO incluido',
     pricingBundleF2:'<strong>Todos los temas PRO desbloqueados</strong> — Voxel y Synthwave desde el día uno',
     pricingBundleF3:'<strong>Tu Fitbit Air</strong> — la consigues en Amazon con nuestro enlace, lista para emparejar',
     pricingBundleF4:'<strong>Activación inmediata</strong> — empareja la pulsera y PRO se activa al instante',
@@ -1599,8 +1599,8 @@ const T = {
     pricingProCTA:'Start free trial →',
     pricingProLegal:'No card charged today · Cancel within 7 days and pay nothing · Then billed monthly',
     pricingBundleBadge:'★ BEST VALUE', pricingBundlePlan:'AIRA PRO ANNUAL + FITBIT AIR', pricingBundlePer:'/yr',
-    pricingBundleNote:'2 months free · Get the band on Amazon',
-    pricingBundleF1:'<strong>12 months of AIRA PRO</strong> — pay for 10, get 12. Everything in PRO included',
+    pricingBundleNote:'Save 30% · Get the band on Amazon',
+    pricingBundleF1:'<strong>12 months of AIRA PRO</strong> — save 30% vs monthly. Everything in PRO included',
     pricingBundleF2:'<strong>All PRO themes unlocked</strong> — Voxel and Synthwave from day one',
     pricingBundleF3:'<strong>Your Fitbit Air</strong> — get it on Amazon with our link, ready to pair',
     pricingBundleF4:'<strong>Instant activation</strong> — pair the band and PRO activates instantly',
@@ -1714,6 +1714,12 @@ counters.forEach(c => cIO.observe(c));
     // Propaga la moneda detectada al checkout para que el precio coincida con lo mostrado.
     document.querySelectorAll('a[data-cur-link]').forEach(function(a){
       try { var u = new URL(a.getAttribute('href'), location.origin); u.searchParams.set('cur', cur); a.setAttribute('href', u.pathname + u.search); } catch(e){}
+    });
+    // Rutea el link de Amazon al marketplace del país: MX -> .com.mx, resto -> .com
+    // (cada marketplace requiere su propio tag de Afiliados para generar comisión).
+    document.querySelectorAll('a[data-amz-link]').forEach(function(a){
+      var dest = (cur === 'mxn') ? a.getAttribute('data-mx') : a.getAttribute('data-us');
+      if (dest) a.setAttribute('href', dest);
     });
     document.documentElement.setAttribute('data-currency', cur);
   }
