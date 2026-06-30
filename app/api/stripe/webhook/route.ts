@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
 
       const sub = await stripe.subscriptions.retrieve(session.subscription as string)
 
-      await supabase.from('subscriptions').upsert({
+      const { error: upErr } = await supabase.from('subscriptions').upsert({
         user_id: userId,
         stripe_customer_id: session.customer as string,
         stripe_subscription_id: sub.id,
@@ -46,6 +46,13 @@ export async function POST(req: NextRequest) {
         plan: 'pro',
         current_period_end: periodEndISO(sub),
       }, { onConflict: 'user_id' })
+
+      // Si el upsert falla (p.ej. falta la constraint UNIQUE en user_id), devolvemos
+      // 500 para que Stripe reintente y el fallo sea visible en logs — NO 200 mudo.
+      if (upErr) {
+        console.error('[stripe/webhook] upsert subscriptions (checkout) falló:', upErr.message)
+        return NextResponse.json({ error: 'db upsert failed' }, { status: 500 })
+      }
 
       await sendMetaPurchaseEvent({
         email: session.customer_details?.email ?? undefined,
@@ -61,13 +68,17 @@ export async function POST(req: NextRequest) {
       const userId = sub.metadata?.user_id
       if (!userId) break
 
-      await supabase.from('subscriptions').upsert({
+      const { error: updErr } = await supabase.from('subscriptions').upsert({
         user_id: userId,
         stripe_subscription_id: sub.id,
         status: sub.status === 'active' ? 'active' : sub.status as any,
         plan: sub.status === 'active' ? 'pro' : 'free',
         current_period_end: periodEndISO(sub),
       }, { onConflict: 'user_id' })
+      if (updErr) {
+        console.error('[stripe/webhook] upsert subscriptions (updated) falló:', updErr.message)
+        return NextResponse.json({ error: 'db upsert failed' }, { status: 500 })
+      }
       break
     }
 
@@ -76,13 +87,17 @@ export async function POST(req: NextRequest) {
       const userId = sub.metadata?.user_id
       if (!userId) break
 
-      await supabase.from('subscriptions').upsert({
+      const { error: delErr } = await supabase.from('subscriptions').upsert({
         user_id: userId,
         stripe_subscription_id: sub.id,
         status: 'canceled',
         plan: 'free',
         current_period_end: null,
       }, { onConflict: 'user_id' })
+      if (delErr) {
+        console.error('[stripe/webhook] upsert subscriptions (deleted) falló:', delErr.message)
+        return NextResponse.json({ error: 'db upsert failed' }, { status: 500 })
+      }
       break
     }
 
