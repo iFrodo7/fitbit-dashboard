@@ -50,11 +50,14 @@ export interface NotifDecision {
   tag: string;
 }
 
-// Horas LOCALES de disparo. Solo 7am (resumen) y 7pm (racha) → el horario
-// silencioso (~21:00–07:00) queda respetado por construcción: nunca se dispara
-// nada fuera de esas dos horas.
+// Horas LOCALES de disparo. Resumen 7–9am; racha 19–21h. Se usan VENTANAS (no horas
+// exactas) porque el cron de GitHub Actions se throttlea y puede saltarse el tick exacto
+// (huecos de 2–4h observados) → con hora exacta se perdían las notis de la tarde.
+// El horario silencioso (~21:00–07:00) sigue respetado: nada se dispara fuera de esas
+// ventanas, y el dedup por día (openSent/streakSent) evita repetir dentro de la ventana.
 export const MORNING_HOUR = 7;
 export const EVENING_HOUR = 19;
+export const EVENING_END_HOUR = 21; // exclusivo → ventana de la tarde = 19:00–20:59
 // Racha de uso mínima para que valga la pena avisar (evita molestar por 1 día suelto).
 export const OPEN_STREAK_MIN = 2;
 
@@ -125,7 +128,7 @@ export function decideNotif(
   // → nunca molesta por una racha ya rota. Prioridad sobre la racha de pasos para
   // respetar el tope diario: abrir la app cubre ambas.
   if (
-    hour === EVENING_HOUR &&
+    hour >= EVENING_HOUR && hour < EVENING_END_HOUR &&
     sig.cats && sig.cats.open !== false &&
     (sig.openStreak || 0) >= OPEN_STREAK_MIN &&
     sig.lastOpenDate === prevDate(date)
@@ -211,7 +214,7 @@ export function decideNotif(
 
   // ── Racha en riesgo (7pm local, racha ≥3, meta NO cumplida) ──
   if (
-    hour === EVENING_HOUR &&
+    hour >= EVENING_HOUR && hour < EVENING_END_HOUR &&
     sig.cats && sig.cats.streak !== false &&
     sig.streak >= 3 &&
     !sig.goalMet
