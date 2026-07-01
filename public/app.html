@@ -1800,6 +1800,7 @@ body.t-voxel::after{content:'';position:fixed;inset:0;background:var(--voxel-tin
 .sw-grid{position:absolute;left:-50%;top:0;width:200%;height:200%;
   background-image:repeating-linear-gradient(90deg,transparent 0 34px,rgba(40,219,255,0.82) 34px,rgba(40,219,255,0.82) 36px),repeating-linear-gradient(0deg,transparent 0 34px,rgba(40,219,255,0.82) 34px,rgba(40,219,255,0.82) 36px);
   transform-origin:50% 0%;transform:rotateX(84deg);
+  will-change:transform;backface-visibility:hidden;
   animation:swGridFloor 1.7s linear infinite;}
 @keyframes swGridFloor{from{transform:rotateX(84deg) translateY(0)}to{transform:rotateX(84deg) translateY(36px)}}
 /* reflejo del sol sobre la grilla — óvalo vertical (círculo proyectado en perspectiva sobre el suelo) */
@@ -2226,17 +2227,21 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .synth-eq-info{display:flex;align-items:baseline;gap:8px;}
 .synth-eq-num{font-family:'Rajdhani',sans-serif;font-size:48px;font-weight:700;line-height:1;color:#ff00ff;text-shadow:0 0 14px rgba(255,0,255,0.8),0 0 28px rgba(255,0,255,0.4);}
 .synth-eq-denom{font-size:12px;letter-spacing:2px;opacity:0.35;color:#f0e0ff;}
-/* EQ bar — sube rápido (overshoot), cae rápido, reposa en base + glow reactivo al pico */
+/* EQ bar — sube rápido (overshoot), cae rápido, reposa en base.
+   Solo transform (sin filter): con 8 barras animando a la vez, filter:brightness()
+   forzaba repintar píxeles en cada frame en vez de solo mover una capa en GPU —
+   era el mayor costo de rendimiento del tema Synth. El bounce se conserva igual. */
 @keyframes swBarShimmer{
-  0%  {transform:scaleY(.84); filter:brightness(.72); animation-timing-function:cubic-bezier(.05,.85,.2,1)}
-  18% {transform:scaleY(1.06); filter:brightness(1.55); animation-timing-function:cubic-bezier(.5,0,.8,1)}
-  27% {transform:scaleY(.97);  filter:brightness(1.1);  animation-timing-function:cubic-bezier(.4,0,.7,1)}
-  55% {transform:scaleY(.84);  filter:brightness(.72); animation-timing-function:ease-in-out}
-  100%{transform:scaleY(.84);  filter:brightness(.72)}
+  0%  {transform:scaleY(.84); animation-timing-function:cubic-bezier(.05,.85,.2,1)}
+  18% {transform:scaleY(1.06); animation-timing-function:cubic-bezier(.5,0,.8,1)}
+  27% {transform:scaleY(.97);  animation-timing-function:cubic-bezier(.4,0,.7,1)}
+  55% {transform:scaleY(.84);  animation-timing-function:ease-in-out}
+  100%{transform:scaleY(.84)}
 }
 .synth-eq-bar{
   transform-box:fill-box;
   transform-origin:center bottom;
+  will-change:transform;
   animation:swBarShimmer var(--dur,2.4s) linear infinite;
 }
 
