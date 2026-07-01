@@ -2176,8 +2176,11 @@ body.t-synth::after{content:'';position:fixed;inset:0;
 .t-synth .card::before{content:'';position:absolute;top:0;left:0;width:16px;height:2px;background:rgba(255,0,255,0.7);box-shadow:0 0 6px rgba(255,0,255,0.5);}
 /* Nav */
 .t-synth .bnav{border-top:1px solid rgba(255,0,255,0.22);background:rgba(10,0,21,0.97);}
-/* Cards — panel de cristal oscuro: legibles sobre la escena outrun sin perder el tinte neón */
-.t-synth .card,.t-synth .vc{background:linear-gradient(158deg,rgba(26,8,48,0.74),rgba(10,2,24,0.86));backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);}
+/* Cards — panel de cristal oscuro: legibles sobre la escena outrun sin perder el tinte neón.
+   Sin backdrop-filter: con el fondo animando sin parar (grilla + EQ bars), el navegador
+   tenía que recalcular el desenfoque de cada card en cada frame — el mayor costo de
+   rendimiento del tema. El gradiente ya es suficientemente opaco sin el blur. */
+.t-synth .card,.t-synth .vc{background:linear-gradient(158deg,rgba(26,8,48,0.74),rgba(10,2,24,0.86));}
 .t-synth .iitm{background:rgba(255,0,255,0.04);border-color:rgba(255,0,255,0.14);}
 .t-synth .iitm::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,0,255,0.7),transparent);animation:sw-scanline 5s ease-in-out infinite;pointer-events:none;}
 @keyframes sw-scanline{0%,100%{transform:translateY(0);opacity:0;}40%{opacity:0;}50%{transform:translateY(200%);opacity:0.8;}60%{opacity:0;}}
