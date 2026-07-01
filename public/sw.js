@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'fitbit-air-v152-synth-outrun';
+const CACHE_VERSION = 'fitbit-air-v153-recovery-unify';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 

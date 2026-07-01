@@ -14352,7 +14352,7 @@ async function loadRealGoogleData(silentRefresh) {
   //     dailyRollUp always returns the pre-aggregated daily total.
   const _rollupBody = (start,end) => ({range:{start:_parseCivilDate(start),end:_parseCivilDate(end)},windowSizeDays:1});
   const [hrD,rhrD,stD,slD,calD,azD,exD,distD,flrD,stRtD] = await Promise.all([
-    _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=1440`),
+    _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=10000`),
     _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?pageSize=1`),
     _ghPost(`${B}/users/me/dataTypes/steps/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
     _ghGet(`${B}/users/me/dataTypes/sleep/dataPoints?filter=${enc('sleep.interval.civil_end_time >= "'+yd+'" AND sleep.interval.civil_end_time < "'+nd+'"')}&pageSize=5`),
@@ -15149,7 +15149,7 @@ async function pollFastGoogle() {
     const B=GoogleHealthSource.base, enc=encodeURIComponent, nd=_ghNextDay(td);
     const _rb = {range:{start:_parseCivilDate(td),end:_parseCivilDate(nd)},windowSizeDays:1};
     const [hrD,stD,calD,distD] = await Promise.all([
-      _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=1440`),
+      _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=10000`),
       _ghPost(`${B}/users/me/dataTypes/steps/dataPoints:dailyRollUp`, _rb),
       _ghPost(`${B}/users/me/dataTypes/total-calories/dataPoints:dailyRollUp`, _rb),
       _ghPost(`${B}/users/me/dataTypes/distance/dataPoints:dailyRollUp`, _rb),
@@ -15276,7 +15276,11 @@ async function _hFetchGoogle(start, end) {
   const _rb={range:{start:_parseCivilDate(start),end:_parseCivilDate(nd)},windowSizeDays:1};
   const [rhrTs,sleepTs,stepsRollup] = await Promise.all([
     _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?pageSize=100`),
-    _ghGet(`${B}/users/me/dataTypes/sleep/dataPoints?filter=${enc('sleep.interval.civil_end_time >= "'+start+'" AND sleep.interval.civil_end_time < "'+nd+'"')}&pageSize=100`),
+    // "sleep" tiene un tope real de 25 en la Google Health API (a diferencia del tope
+    // general de 10,000) — pedir más se trunca en silencio sin nextPageToken. Con pageSize=100
+    // el rango de 30 días en Historial perdía hasta 5 noches sin avisar. Si se necesita
+    // cubrir 30 días completos hay que seguir nextPageToken con una segunda llamada.
+    _ghGet(`${B}/users/me/dataTypes/sleep/dataPoints?filter=${enc('sleep.interval.civil_end_time >= "'+start+'" AND sleep.interval.civil_end_time < "'+nd+'"')}&pageSize=25`),
     _ghPost(`${B}/users/me/dataTypes/steps/dataPoints:dailyRollUp`, _rb),
   ]);
   const hrByDate={};
