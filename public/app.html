@@ -11249,10 +11249,18 @@ function updateScores({ rec, strain, sleepPct, recReliable = true }) {
   const rf = document.getElementById('rfil');
   if (rf) rf.style.strokeDashoffset = (339*(1-rec/100)).toFixed(1);
   animN('rscore', 0, rec, 1200);
-  // HUD ring arcs + number → all driven by activity composite in updateDailyRings()
-  // Voxel ring icons now driven by activity rings in updateDailyRings()
-  // voxel-rscore → driven by activity composite in updateDailyRings()
-  // nrt-rfil arc + nrt-rscore driven by activity composite in updateDailyRings()
+  // Índice de preparación — mismo valor (recovery real) en TODOS los temas, para que
+  // coincida con Perfil/Stats. Los sub-anillos de actividad (steps/cal/min act) de Aether,
+  // los chips de Neon Noir/Bloom y los íconos de Voxel siguen reflejando la actividad diaria
+  // por separado — solo el número/arco central "índice" se unifica a recovery.
+  const nrf = document.getElementById('nrt-rfil');
+  if (nrf) nrf.style.strokeDashoffset = (364*(1-rec/100)).toFixed(1);
+  animN('nrt-rscore', 0, rec, 1200);
+  animN('hud-rscore', 0, rec, 1200);
+  animN('nn-rscore', 0, rec, 1200);
+  animN('voxel-rscore', 0, rec, 1200);
+  animN('synth-eq-num', 0, rec, 1200);
+  animN('blm-nv-avg', 0, rec, 1200);
   // Shinobi bars — live data
   setTimeout(function() {
     var nr = document.getElementById('shinobi-bar-rec');
@@ -11281,6 +11289,12 @@ function updateScores({ rec, strain, sleepPct, recReliable = true }) {
   // Recomendación y color del status
   window._lastRec = rec; // single recovery source (read by Stats + status label)
   window._lastSleepPct = sleepPct;
+  // Si Historial ya está abierto, refrescarlo — si no, su resumen se queda congelado
+  // con el score de la pasada anterior (p.ej. el cálculo demo/parcial inicial) hasta
+  // que el usuario navegue a otra pestaña y regrese.
+  if (document.body.classList.contains('view-history') && typeof renderHistory === 'function') {
+    try { renderHistory(); } catch(e) { console.error('[updateScores] renderHistory refresh:', e); }
+  }
   // Persistir el recovery (IndexedDB + Supabase) SOLO si es confiable. Un score
   // fabricado de un día sin sueño/HRV no debe quedar en el historial ni propagarse
   // a otros dispositivos (ensuciaría la gráfica y la auto-calibración del baseline).
@@ -13168,36 +13182,26 @@ function updateDailyRings() {
     setVoxelHearts('st', Math.round(Math.min(100, data[2].pct) / 10));
   }
   var tr='stroke-dashoffset 0.9s var(--ease-out)';
-  // SHINOBI
-  var nrtEl=document.getElementById('nrt-rscore');
-  if(nrtEl){ var cur=parseInt(nrtEl.textContent)||0; animN('nrt-rscore',cur,composite,900); }
-  var nrf=document.getElementById('nrt-rfil');
-  if(nrf){ nrf.style.transition=tr; nrf.style.strokeDashoffset=(364*(1-composite/100)).toFixed(1); }
-  nrtUpdateRank(composite);
+  // NOTA: el número/arco "índice" central de cada tema (nrt-rscore, hud-rscore, nn-rscore,
+  // voxel-rscore, synth-eq-num, blm-nv-avg) ya NO se pisa aquí con el composite — lo mantiene
+  // sincronizado updateScores() con el recovery real, igual que Perfil/Stats. Aquí solo se
+  // actualizan los sub-indicadores de actividad diaria (steps/cal/min act) de cada tema.
   var p0=Math.round(data[0].pct), p1=Math.round(data[1].pct), p2=Math.round(data[2].pct);
-  // AETHER — arcos + número central
-  var hudEl=document.getElementById('hud-rscore');
-  if(hudEl){ var c2=parseInt(hudEl.textContent)||0; animN('hud-rscore',c2,composite,900); }
+  // AETHER — 3 sub-arcos de actividad (steps/cal/min act), independientes del número central
   var hrf=document.getElementById('hud-rfil');   if(hrf){ hrf.style.transition=tr;  hrf.style.strokeDashoffset=(439.8*(1-p0/100)).toFixed(1); }
   var hsp=document.getElementById('hud-spfil');  if(hsp){ hsp.style.transition=tr;  hsp.style.strokeDashoffset=(345.6*(1-p1/100)).toFixed(1); }
   var hsf=document.getElementById('hud-sfil');   if(hsf){ hsf.style.transition=tr;  hsf.style.strokeDashoffset=(251.3*(1-p2/100)).toFixed(1); }
-  // NEON NOIR — chips + centro
-  var nnEl=document.getElementById('nn-rscore');
-  if(nnEl){ var c3=parseInt(nnEl.textContent)||0; animN('nn-rscore',c3,composite,900); }
+  // NEON NOIR — chips de actividad (el centro nn-rscore lo actualiza updateScores())
   animN('nn-nv-avg', parseInt((document.getElementById('nn-nv-avg')||{}).textContent)||0, composite, 900);
   animN('nn-nv-rec', parseInt((document.getElementById('nn-nv-rec')||{}).textContent)||0, p0, 900);
   animN('nn-nv-slp', parseInt((document.getElementById('nn-nv-slp')||{}).textContent)||0, p1, 900);
   animN('nn-nv-str', parseInt((document.getElementById('nn-nv-str')||{}).textContent)||0, p2, 900);
-  // BLOOM — chips + centro + flor
-  animN('blm-nv-avg', parseInt((document.getElementById('blm-nv-avg')||{}).textContent)||0, composite, 900);
+  // BLOOM — chips + flor (el centro blm-nv-avg lo actualiza updateScores())
   animN('blm-nv-rec', parseInt((document.getElementById('blm-nv-rec')||{}).textContent)||0, p0, 900);
   animN('blm-nv-slp', parseInt((document.getElementById('blm-nv-slp')||{}).textContent)||0, p1, 900);
   animN('blm-nv-str', parseInt((document.getElementById('blm-nv-str')||{}).textContent)||0, p2, 900);
   window._blmAvg = composite;
   if(window.updateBloomFlower) window.updateBloomFlower(composite);
-  // VOXEL
-  var voxelEl=document.getElementById('voxel-rscore');
-  if(voxelEl){ var c4=parseInt(voxelEl.textContent)||0; animN('voxel-rscore',c4,composite,900); }
   // Status label for ALL themes
   updateStatusLabel();
   // Notificación cuando un ring cruza el umbral de 100% por primera vez hoy
@@ -14347,7 +14351,7 @@ async function loadRealGoogleData(silentRefresh) {
   //   • steps & AZM list returns per-minute samples that many devices never write;
   //     dailyRollUp always returns the pre-aggregated daily total.
   const _rollupBody = (start,end) => ({range:{start:_parseCivilDate(start),end:_parseCivilDate(end)},windowSizeDays:1});
-  const [hrD,rhrD,stD,slD,calD,azD,exD,distD,flrD,slScoreD,stRtD] = await Promise.all([
+  const [hrD,rhrD,stD,slD,calD,azD,exD,distD,flrD,stRtD] = await Promise.all([
     _ghGet(`${B}/users/me/dataTypes/heart-rate/dataPoints?filter=${enc('heart_rate.sample_time.civil_time >= "'+td+'" AND heart_rate.sample_time.civil_time < "'+nd+'"')}&pageSize=1440`),
     _ghGet(`${B}/users/me/dataTypes/daily-resting-heart-rate/dataPoints?pageSize=1`),
     _ghPost(`${B}/users/me/dataTypes/steps/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
@@ -14357,7 +14361,10 @@ async function loadRealGoogleData(silentRefresh) {
     _ghGet(GoogleHealthSource.ep.exerciseSessions(after7, nd)),
     _ghPost(`${B}/users/me/dataTypes/distance/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
     _ghPost(`${B}/users/me/dataTypes/floors/dataPoints:dailyRollUp`, _rollupBody(td,nd)),
-    _ghGet(`${B}/users/me/dataTypes/daily-sleep-score/dataPoints?filter=${enc('daily_sleep_score.time.civil_time >= "'+yd+'" AND daily_sleep_score.time.civil_time < "'+nd+'"')}&pageSize=2`),
+    // NOTA: no existe data type "daily-sleep-score" en la Google Health API real (confirmado
+    // en developers.google.com/health/data-types — el único tipo de sueño es "sleep", sin score).
+    // Se removió la llamada porque siempre devolvía 400 INVALID_PARENT_DATA_TYPE_COLLECTION.
+    // El score se calcula localmente más abajo (_computedScore) a partir de duración/etapas/eficiencia.
     _ghGet(`${B}/users/me/dataTypes/steps/dataPoints?filter=${enc('steps.interval.civil_start_time >= "'+td+'" AND steps.interval.civil_start_time < "'+nd+'"')}&pageSize=2000`).catch(()=>null),
   ]);
   console.log('[gh raw]', {hrD,rhrD,stD,slD,calD,azD});
@@ -14542,19 +14549,12 @@ async function loadRealGoogleData(silentRefresh) {
     const el_eff=document.getElementById('sl-eff-v'); if(el_eff) el_eff.textContent=sleepEff;
     const wakeSegs=(_slObj.stages||[]).filter(s=>_typeKey(s)==='wake').length;
     const el_wk=document.getElementById('sl-wake-v'); if(el_wk) el_wk.textContent=wakeSegs||'—';
-    // Sleep score: try dedicated endpoint first, then fields in sleep data, then compute
-    const _sdp0 = slScoreD?.dataPoints?.[0];
-    const _apiScore = _sdp0?.dailySleepScore?.overallScore
-      ?? _sdp0?.dailySleepScore?.score
-      ?? _sdp0?.sleepScore?.overallScore
-      ?? _sdp0?.sleepScore?.score
-      ?? _sdp0?.sleepScore
-      ?? _sdp0?.score
-      ?? _sdp0?.overall_score
-      ?? slDP?.sleepScore ?? slDP?.overallSleepScore
+    // Sleep score: Google Health no expone un data type de score dedicado — buscar
+    // campos opcionales dentro de la respuesta de "sleep" y si no, calcular localmente.
+    const _apiScore = slDP?.sleepScore ?? slDP?.overallSleepScore
       ?? _slObj.summary?.overallSleepScore ?? _slObj.summary?.sleepScore
       ?? _slObj.sleepScore ?? _slObj.score;
-    console.log('[gh sleep score] api:', _apiScore, 'raw slScoreD[0]:', JSON.stringify(_sdp0));
+    console.log('[gh sleep score]', _apiScore != null ? 'campo en sleep data: '+_apiScore : 'sin score en API, se calcula localmente');
     const _computedScore = sleepMin > 0 ? Math.min(100,
       Math.min(40, Math.round(sleepMin / 420 * 40)) +                  // duration (7h=max)
       Math.round((deepMin + remMin) / Math.max(sleepMin, 1) * 40) +    // stages quality
