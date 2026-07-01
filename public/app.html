@@ -1121,7 +1121,15 @@ body.view-profile #dash > *:not(#bnav):not(#install-banner):not(.toast):not(#off
 .acvl{font-size:13px;font-weight:700;text-align:right;color:var(--ta);margin-left:auto;}
 
 /* HR chart */
-.spkl{width:100%;height:76px;}
+.spkl{width:100%;height:76px;overflow:visible;}
+#hr-mini-spark{overflow:visible;}
+/* Punto final vivo — late al BPM real via --av-beat (misma fuente que el avatar),
+   no una animación genérica: si tu FC sube, el pulso se acelera con ella.
+   overflow:visible arriba porque el punto vive justo en el borde derecho del
+   viewBox — sin esto el aro de pulso se recorta a la mitad al expandirse. */
+.hrc-livedot{transform-box:fill-box;transform-origin:center;animation:av-beat var(--av-beat,1s) ease-in-out infinite;}
+.hrc-ping{transform-box:fill-box;transform-origin:center;animation:hrcPing var(--av-beat,1s) ease-out infinite;}
+@keyframes hrcPing{0%{transform:scale(1);opacity:0.55;}70%{transform:scale(2.4);opacity:0;}100%{transform:scale(2.4);opacity:0;}}
 
 /* Insights */
 .igrd{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;}
@@ -10120,7 +10128,8 @@ function buildHRC(hrs) {
   svg.innerHTML = `<defs><linearGradient id="hg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444" stop-opacity="0.30"/><stop offset="100%" stop-color="#ef4444" stop-opacity="0"/></linearGradient></defs>
     <path d="M ${pts[0]} L ${pth} L ${w},${h} L 0,${h} Z" fill="url(#hg)"/>
     <path d="M ${pts[0]} L ${pth}" fill="none" stroke="#ef4444" stroke-width="1.8"/>
-    <circle cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="3.5" fill="#ef4444"/>`;
+    <circle class="hrc-ping" cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="3.5" fill="#ef4444"/>
+    <circle class="hrc-livedot" cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="3.5" fill="#ef4444"/>`;
 }
 
 // ══════ MINI SPARKLINE (HR card) ══════
@@ -10140,7 +10149,8 @@ function drawMiniSparkline(pts) {
   svg.innerHTML = '<defs><linearGradient id="msg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444" stop-opacity="0.30"/><stop offset="100%" stop-color="#ef4444" stop-opacity="0"/></linearGradient></defs>'
     + '<path d="M ' + coords[0] + ' L ' + path + ' L ' + w + ',' + h + ' L 0,' + h + ' Z" fill="url(#msg)"/>'
     + '<polyline points="' + coords.join(' ') + '" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
-    + '<circle cx="' + last[0] + '" cy="' + last[1] + '" r="2.5" fill="#ef4444"/>';
+    + '<circle class="hrc-ping" cx="' + last[0] + '" cy="' + last[1] + '" r="2.5" fill="#ef4444"/>'
+    + '<circle class="hrc-livedot" cx="' + last[0] + '" cy="' + last[1] + '" r="2.5" fill="#ef4444"/>';
 }
 
 // ══════ WIDGET MANAGER ══════
