@@ -12977,7 +12977,10 @@ function updateDailyRings() {
   var nv=function(id){ return parseFloat(((document.getElementById(id)||{}).textContent||'0').replace(/[^0-9.]/g,''))||0; };
   var pro=typeof isPro==='function'&&isPro();
   var goals=pro?_getActivityBaseline():_loadDRGoals();
-  var cal=nv('calv')||nv('cal-act'), steps=nv('stepsv');
+  // El anillo de calorías es contra la meta de ACTIVAS (ag.cal, tipo Apple Watch Move) —
+  // usar calv (total basal+activas de Google) aquí inflaba el % hasta 3x. cal-act ya
+  // viene corregido por _syncActiveCal(); calv es solo fallback si aún no existe.
+  var cal=nv('cal-act')||nv('calv'), steps=nv('stepsv');
   var actMin=nv('hrmin-fat')+nv('hrmin-cardio')+nv('hrmin-peak');
   var vigMin=nv('hrmin-cardio')+nv('hrmin-peak'); // sin Fat Burn — para detectar fatiga, no caminatas
   var rec=window._lastRec||0;
