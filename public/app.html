@@ -14542,7 +14542,12 @@ async function loadRealGoogleData(silentRefresh) {
   // Google Health may use 'sleep' or 'sleepSession' as the wrapper field
   const _slObj = slDP?.sleep ?? slDP?.sleepSession ?? slDP;
   if (_slObj?.summary || _slObj?.stagesSummary || _slObj?.stages) {
-    const _typeKey = s => (s.type||s.stage||'')==='AWAKE'?'wake':(s.type||s.stage||'').toLowerCase();
+    // "ASLEEP"/"RESTLESS" → sueño tipo CLASSIC (Fitbit no pudo calcular etapas
+    // detalladas esa noche, p.ej. stagesStatus:REJECTED_COVERAGE) — se agrupa
+    // como "light" igual que ya hace renderHypnogram(), si no updSl() daba
+    // total=0 y dejaba las barras Prof./REM/Ligero/Despierto vacías.
+    const _typeKey = s => { const t=(s.type||s.stage||'').toUpperCase();
+      return t==='AWAKE' ? 'wake' : (t==='ASLEEP'||t==='RESTLESS') ? 'light' : t.toLowerCase(); };
     const sm={};
     // Build summary from stagesSummary if available
     (_slObj.stagesSummary || _slObj.stageSummaries || []).forEach(s=>{
@@ -15301,7 +15306,7 @@ async function pollSlowGoogle() {
     const data=await _ghGet(`${B}/users/me/dataTypes/sleep/dataPoints?filter=${enc('sleep.interval.civil_end_time >= "'+yd+'" AND sleep.interval.civil_end_time < "'+nd+'"')}&pageSize=5`);
     const dp=data?.dataPoints?.[0];
     if (dp?.sleep){
-      const sm={}; (dp.sleep.stagesSummary||[]).forEach(s=>{const k=s.type==='AWAKE'?'wake':(s.type||'').toLowerCase(); sm[k]=parseInt(s.minutes)||0;});
+      const sm={}; (dp.sleep.stagesSummary||[]).forEach(s=>{const t=(s.type||'').toUpperCase(); const k=t==='AWAKE'?'wake':(t==='ASLEEP'||t==='RESTLESS')?'light':t.toLowerCase(); sm[k]=parseInt(s.minutes)||0;});
       const sleepMin=(dp.sleep.stagesSummary||[]).reduce((a,s)=>s.type!=='AWAKE'?a+(parseInt(s.minutes)||0):a,0);
       if(sleepMin) window._lastSleepPct=Math.min(100,Math.round(sleepMin/480*100));
       updSl(sm); renderHypnogram(_ghSleepToFitbit(dp));
@@ -15342,9 +15347,12 @@ async function _hFetchGoogle(start, end) {
     const dk=(dp.sleep.interval?.endTime||'').split('T')[0]; if(!dk)return;
     const sum=dp.sleep.summary||{};
     const sm={};
-    // stagesSummary lives inside dp.sleep.summary, types: AWAKE/LIGHT/DEEP/REM, minutes are strings
+    // stagesSummary lives inside dp.sleep.summary, types: AWAKE/LIGHT/DEEP/REM
+    // (con etapas) o ASLEEP/RESTLESS (sueño CLASSIC sin desglose, se agrupa como
+    // "light" igual que renderHypnogram) — minutes vienen como strings.
     (sum.stagesSummary||[]).forEach(s=>{
-      const k=s.type==='AWAKE'?'wake':(s.type||'').toLowerCase();
+      const t=(s.type||'').toUpperCase();
+      const k=t==='AWAKE'?'wake':(t==='ASLEEP'||t==='RESTLESS')?'light':t.toLowerCase();
       const mins=parseInt(s.minutes)||0;
       if(k&&mins>0) sm[k]={minutes:mins};
     });
