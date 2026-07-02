@@ -14487,7 +14487,7 @@ async function loadRealGoogleData(silentRefresh) {
       (Object.values(_tc).find(v=>typeof v==='number')??null);
     const totCal=Math.round(parseFloat(_tcNum)||0);
     document.getElementById('calv').textContent=totCal||'0';
-    document.getElementById('cal-act').textContent=totCal?totCal.toLocaleString():'0';
+    _syncActiveCal(totCal);
   } else if (stepsToday > 0) {
     // total-calories dio 400 (sin wearable) → estimamos desde pasos (~0.04 kcal/paso para ~70 kg)
     const _estCal=Math.round(stepsToday*0.04);
@@ -14844,11 +14844,30 @@ function _applyBioProfile(p) {
     setHRZones({ restHR: rhr, maxHR: devMax > 100 ? devMax : null });
   }
   window._bioProfile = {age,weight,height,sex,activity,bmr,tdee,hrMax,fitAge};
+  // El BMR puede llegar después del primer total-calories de Google (ver
+  // _syncActiveCal) — recalcula "ACTIVAS" ahora que ya se conoce el basal real.
+  if (typeof _syncActiveCal === 'function') _syncActiveCal();
   _updateCalBalance();
   // Refresca metas ahora que hay BMR/TDEE — sin esto, el default informado por
   // el perfil no se ve hasta el siguiente poll (_applyBioProfile corre después
   // de la primera pasada de updateDailyRings en loadRealGoogleData).
   if (typeof updateDailyRings === 'function') updateDailyRings();
+}
+// Google Health solo da "total-calories" (basal + actividad ya sumados, campo
+// literalmente llamado totalCalories) — no expone el desglose como Fitbit
+// (activityCalories/caloriesBMR aparte). Antes se metía ese total directo en
+// "ACTIVAS", que por eso salía casi idéntico a BASAL (el BMR calculado local).
+// Aquí se resta el BMR del total para que "ACTIVAS" sea solo la actividad real,
+// y _updateCalBalance ya no cuenta el basal dos veces (una en bmr, otra oculto
+// dentro del total mal etiquetado como activas).
+function _syncActiveCal(totCal) {
+  if (totCal != null) window._lastTotalCal = totCal;
+  const tc = window._lastTotalCal;
+  if (tc == null) return;
+  const bmr = window._bioProfile?.bmr || 0;
+  const act = Math.max(0, Math.round(tc - bmr));
+  const el = document.getElementById('cal-act');
+  if (el) el.textContent = act.toLocaleString();
 }
 function _updateCalBalance() {
   const profile = window._bioProfile;
@@ -15224,7 +15243,7 @@ async function pollFastGoogle() {
       const _prevCal=parseInt(document.getElementById('calv').textContent.replace(/\D/g,''))||0;
       if (totCal!==_prevCal) {
         document.getElementById('calv').textContent=totCal||'0';
-        document.getElementById('cal-act').textContent=totCal?totCal.toLocaleString():'0';
+        _syncActiveCal(totCal);
         if (totCal>0) flash('calv');
         _updateCalBalance();
       }
