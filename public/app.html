@@ -7233,8 +7233,10 @@ function renderAiraInsights() {
 // Single source: window._lastRec (the readiness ring). Falls back to fut labels.
 function updateStatusLabel() {
   const el = document.getElementById('rstatus'); if (!el) return;
-  // Todos los temas usan el composite de actividad cuando está disponible
-  const score = (window._lastActivityComposite != null) ? window._lastActivityComposite : window._lastRec;
+  // El anillo ya muestra recovery real en todos los temas — este label debe
+  // reflejar lo mismo, no el composite de actividad (quedaba desincronizado:
+  // ring en 61 con label "BAJO" si el composite del día era bajo).
+  const score = window._lastRec;
   if (score == null) return;
   const level = score >= 80 ? 'peak' : score >= 60 ? 'good' : score >= 40 ? 'moderate' : 'low';
   const map = (T[lang].rstat && (T[lang].rstat[theme] || T[lang].rstat.fut));
@@ -11087,21 +11089,26 @@ function calcScores(opts) {
   // que el usuario estuviera realmente fatigado. Ahora HRV y RHR (las señales
   // más confiables de recuperación del sistema nervioso) llevan el peso.
   //
-  // HRV vs baseline personal (30 pts) — si no hay HRV disponible, ese
-  // componente vale 0 y el sueño absorbe +15 pts extra para no colapsar
+  // Pesos ×1.25 vs la Fase 1.1 original (30/25/10/5/10 = 80 máx, 65 sin HRV):
+  // esos números nunca sumaban 100 aunque el anillo siempre mostrara "/100" —
+  // ni una noche perfecta llegaba al techo mostrado. Reescalado proporcional
+  // para que un día perfecto sí dé 100 (81 sin HRV, mismo colchón relativo).
+  //
+  // HRV vs baseline personal (38 pts) — si no hay HRV disponible, ese
+  // componente vale 0 y se suma un bono de +19 pts para no colapsar
   // el score solo por falta de datos (primer uso, device sin sensor, etc).
   const hrvRatio = (hrvToday && hrvBaselineMean) ? Math.min(hrvToday / hrvBaselineMean, 1.4) : null;
-  const hv = hrvRatio != null ? Math.round(Math.min(hrvRatio / 1.4, 1) * 30) : 0;
+  const hv = hrvRatio != null ? Math.round(Math.min(hrvRatio / 1.4, 1) * 38) : 0;
   const hvMissing = hrvRatio == null;
-  // RHR: delta vs promedio 7d, no valor absoluto (25 pts).
+  // RHR: delta vs promedio 7d, no valor absoluto (31 pts).
   const rhrDelta = rhr - (rhrMean7 || rhr);
-  const hs = Math.round(Math.max(0, Math.min(1 - (rhrDelta / 10), 1)) * 25);
-  // Sueño: señal secundaria — solo duración (10 pts) y eficiencia (5 pts).
-  const sd = Math.round(Math.min((sleepMin||0)/480, 1) * 10);
-  const se = Math.round(Math.min(Math.max((sleepEff/100 - 0.7)/0.25, 0), 1) * 5);
-  // Check-in subjetivo del usuario: 0-10 pts directos, solo ayuda, nunca penaliza.
-  const ci = Math.max(0, Math.min(checkin||0, 10));
-  const rec = Math.min(100, Math.round(hv + hs + sd + se + ci + (hvMissing ? 15 : 0)));
+  const hs = Math.round(Math.max(0, Math.min(1 - (rhrDelta / 10), 1)) * 31);
+  // Sueño: señal secundaria — solo duración (12 pts) y eficiencia (6 pts).
+  const sd = Math.round(Math.min((sleepMin||0)/480, 1) * 12);
+  const se = Math.round(Math.min(Math.max((sleepEff/100 - 0.7)/0.25, 0), 1) * 6);
+  // Check-in subjetivo del usuario: 0-13 pts directos, solo ayuda, nunca penaliza.
+  const ci = Math.max(0, Math.min(checkin||0, 13));
+  const rec = Math.min(100, Math.round(hv + hs + sd + se + ci + (hvMissing ? 19 : 0)));
   // Strain (0–21)
   const fb=zones.find(z=>z.name==='Fat Burn')?.minutes||0;
   const ca=zones.find(z=>z.name==='Cardio')?.minutes||0;
@@ -11176,8 +11183,8 @@ function _openCheckinSheet() {
     '<div class="drgs-lbl" style="color:var(--ta)">' + (es ? '¿Cómo te sientes hoy?' : 'How do you feel today?') + '</div>' +
     '<div class="ci-options">' +
       '<button class="ci-opt" onclick="_answerCheckin(0)"><span class="ci-emoji">😴</span><span>' + (es?'Cansado/a':'Tired') + '</span></button>' +
-      '<button class="ci-opt" onclick="_answerCheckin(5)"><span class="ci-emoji">⚡</span><span>' + (es?'Normal':'Normal') + '</span></button>' +
-      '<button class="ci-opt" onclick="_answerCheckin(10)"><span class="ci-emoji">🔥</span><span>' + (es?'Con energía':'Energized') + '</span></button>' +
+      '<button class="ci-opt" onclick="_answerCheckin(6)"><span class="ci-emoji">⚡</span><span>' + (es?'Normal':'Normal') + '</span></button>' +
+      '<button class="ci-opt" onclick="_answerCheckin(13)"><span class="ci-emoji">🔥</span><span>' + (es?'Con energía':'Energized') + '</span></button>' +
     '</div>' +
     '<div class="drgs-cancel" onclick="_dismissCheckinSheet()">' + (es?'AHORA NO':'NOT NOW') + '</div>' +
   '</div>';
